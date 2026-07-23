@@ -32,7 +32,7 @@
         }
 
         .project-card {
-            background: rgba(255, 255, 255, 0.05);
+            background: #1e1e24; /* 深色背景 */
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             padding: 20px;
@@ -40,6 +40,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
         }
 
         .project-card:hover {
@@ -151,7 +152,7 @@
             <h3 id="previewTitle">项目名称</h3>
             <button class="btn-close" onclick="closePreview()">关闭 (X)</button>
         </div>
-        <iframe class="preview-iframe" id="previewIframe" sandbox="allow-scripts allow-modals"></iframe>
+        <iframe class="preview-iframe" id="previewIframe"></iframe>
     </div>
 
     <script>
