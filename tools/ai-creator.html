@@ -224,7 +224,17 @@
 
         <div class="sandbox-container">
             <div class="chat-section">
-                <div class="chat-history" id="chatHistory">
+                <div class="chat-header" style="padding: 10px 15px; background: rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: space-between; border-radius: 12px 12px 0 0;">
+                    <span style="font-size: 14px; color: #ccc;">🧠 选择 AI 模型:</span>
+                    <select id="modelSelect" style="background: #2b2b36; color: #00d2ff; border: 1px solid rgba(0,210,255,0.3); padding: 5px 10px; border-radius: 5px; outline: none; cursor: pointer; font-size: 13px;">
+                        <option value="meta/llama-3.3-70b-instruct">Llama 3.3 70B (默认推荐 - 综合极佳)</option>
+                        <option value="deepseek-ai/deepseek-v4-pro">DeepSeek V4 Pro (最强代码模型)</option>
+                        <option value="deepseek-ai/deepseek-v4-flash">DeepSeek V4 Flash (极速写代码)</option>
+                        <option value="mistralai/mistral-medium-3.5-128b">Mistral 128B (逻辑极佳)</option>
+                        <option value="google/gemma-4-31b-it">Gemma 4 31B (轻量高效)</option>
+                    </select>
+                </div>
+                <div class="chat-history" id="chatHistory" style="border-radius: 0;">
                     <div class="message msg-ai">你好！我是 AI 编程助手。请告诉我你想制作什么样的网页、工具或游戏？比如：“帮我做一个九九乘法表测试游戏，界面要可爱一点。”</div>
                 </div>
                 <div class="input-area">
@@ -315,11 +325,13 @@
             // 添加 Loading 消息
             addMessage('ai', "<span class='loader'></span> AI 正在疯狂敲代码中，请稍候...");
 
+            const selectedModel = document.getElementById("modelSelect").value;
+
             try {
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ messages: chatMessages })
+                    body: JSON.stringify({ messages: chatMessages, model: selectedModel })
                 });
 
                 removeLoading();
