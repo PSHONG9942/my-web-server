@@ -364,8 +364,22 @@
                                     if (data.choices && data.choices[0].delta && data.choices[0].delta.content) {
                                         fullText += data.choices[0].delta.content;
                                         
-                                        // 实时清理格式并预览
-                                        let cleanText = fullText.replace(/^```html\n?|^```\n?/, "").replace(/\n?```$/, "");
+                                        // 实时清理格式并提取纯 HTML 预览
+                                        let cleanText = fullText;
+                                        let htmlMatch = fullText.match(/```(?:html)?\s*([\s\S]*?)```/i);
+                                        if (htmlMatch) {
+                                            cleanText = htmlMatch[1];
+                                        } else {
+                                            let startMatch = fullText.match(/```(?:html)?\s*([\s\S]*)/i);
+                                            if (startMatch) {
+                                                cleanText = startMatch[1];
+                                            } else {
+                                                let tagMatch = fullText.match(/(<!DOCTYPE html>|<html[\s\S]*?>)[\s\S]*/i);
+                                                if (tagMatch) {
+                                                    cleanText = tagMatch[0];
+                                                }
+                                            }
+                                        }
                                         currentCode = cleanText;
                                         document.getElementById("previewFrame").srcdoc = currentCode;
                                         msgDiv.innerText = "代码实时生成中... (" + currentCode.length + " bytes)";
