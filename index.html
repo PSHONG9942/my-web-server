@@ -26,38 +26,36 @@
             font-size: 14px;
         }
 
-        /* Gemini 渐变动画风格 */
+        /* Gemini 背景渐变动画风格 */
         .gemini-card {
-            position: relative;
-            background-color: #ffffff !important; /* 实心白色背景遮挡底层渐变 */
-            border: 2px solid transparent !important; /* 预留边框空间 */
-            box-shadow: 0 0 20px rgba(155, 114, 203, 0.3) !important;
-            z-index: 1;
-            /* 使用 background-clip 将渐变限制在 border box，白色背景限制在 padding box */
-            background-image: linear-gradient(#ffffff, #ffffff), linear-gradient(45deg, #4285f4, #9b72cb, #d96570, #4285f4) !important;
-            background-origin: padding-box, border-box !important;
-            background-clip: padding-box, border-box !important;
-            background-size: 100% 100%, 300% 300% !important;
-            animation: geminiBgGradient 4s ease infinite !important;
+            background: linear-gradient(135deg, #4285f4, #9b72cb, #d96570, #4285f4) !important;
+            background-size: 300% 300% !important;
+            animation: geminiBgGradient 6s ease infinite !important;
+            border: none !important;
+            color: #ffffff !important;
+            box-shadow: 0 10px 25px rgba(155, 114, 203, 0.3) !important;
         }
         
+        /* 确保卡片内的文字在渐变背景上清晰可见 */
+        .gemini-card p, .gemini-title {
+            color: #ffffff !important;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            -webkit-text-fill-color: #ffffff !important; /* 覆盖可能存在的透明度 */
+            background: none !important;
+        }
+        
+        /* 让按钮在渐变背景上也更加好看 */
+        .gemini-card .card-links a {
+            background: rgba(255, 255, 255, 0.2) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(4px);
+        }
+        .gemini-card .card-links a:hover {
+            background: rgba(255, 255, 255, 0.3) !important;
+        }
+
         @keyframes geminiBgGradient {
-            0% { background-position: 0% 0%, 0% 50%; }
-            50% { background-position: 0% 0%, 100% 50%; }
-            100% { background-position: 0% 0%, 0% 50%; }
-        }
-        
-        .gemini-title {
-            background: linear-gradient(90deg, #4285f4, #9b72cb, #d96570, #4285f4) !important;
-            background-size: 300% 100% !important;
-            -webkit-background-clip: text !important;
-            background-clip: text !important;
-            color: transparent !important;
-            -webkit-text-fill-color: transparent !important;
-            animation: geminiTextGradient 4s ease infinite !important;
-        }
-        
-        @keyframes geminiTextGradient {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
