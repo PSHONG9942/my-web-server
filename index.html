@@ -25,7 +25,6 @@
             /* 上下内边距 */
             font-size: 14px;
         }
-
     </style>
 
     <!-- Global Light Cyberpunk Theme -->
@@ -35,39 +34,64 @@
     <!-- 必须放在外部 CSS 之后，防止被 cyberpunk.css 的设定覆盖 -->
     <style>
         .dashboard .feature-card.gemini-card {
-            background-image: linear-gradient(-45deg, #ff9a9e, #fecfef, #a1c4fd, #c2e9fb) !important;
-            background-size: 400% 400% !important;
-            animation: geminiBgGradient 8s ease infinite !important;
+            background-color: transparent !important;
+            background-image: none !important;
+            position: relative;
             border: none !important;
             box-shadow: 0 10px 25px rgba(161, 196, 253, 0.4) !important;
+            z-index: 1;
+            overflow: hidden;
+            /* 保证内部的背景不超出圆角 */
+        }
+
+        .gemini-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: linear-gradient(-45deg, #ff9a9e, #fecfef, #a1c4fd, #a6e2fe, #53c6ff, #6dd6e4, #ff9a00) !important;
+            background-size: 300% 300% !important;
+            animation: geminiBgGradient 12s ease infinite !important;
+            z-index: -1;
+            border-radius: inherit;
+            pointer-events: none;
         }
 
         .dashboard .feature-card.gemini-card p,
         .dashboard .feature-card.gemini-card h3 {
-            color: #333333 !important;
-            text-shadow: none !important;
-            -webkit-text-fill-color: #333333 !important;
+            color: #ffffff !important;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+            -webkit-text-fill-color: #ffffff !important;
             background: none !important;
         }
 
         .dashboard .feature-card.gemini-card .card-links a {
-            background: rgba(255, 255, 255, 0.6) !important;
-            color: #333333 !important;
-            border: 1px solid rgba(255, 255, 255, 0.8) !important;
+            background: rgba(255, 255, 255, 0.2) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.4) !important;
             backdrop-filter: blur(8px);
             font-weight: bold !important;
         }
 
         .dashboard .feature-card.gemini-card .card-links a:hover {
-            background: rgba(255, 255, 255, 0.9) !important;
+            background: rgba(255, 255, 255, 0.3) !important;
             transform: scale(1.05) translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
         @keyframes geminiBgGradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
     </style>
 </head>
@@ -84,10 +108,11 @@
         <div class="grid">
 
             <div class="feature-card theme-purple gemini-card">
-                <div class="card-icon">🤖</div>
-                <h3 class="gemini-title">AI 创造营 & 画廊</h3>
-                <p>一句话让 AI 为你定制网页工具和游戏！还能浏览并体验全网师生的奇妙创意。</p>
-                <div class="card-links">
+                <div class="gemini-bg"></div>
+                <div class="card-icon" style="position: relative; z-index: 2;">🤖</div>
+                <h3 class="gemini-title" style="position: relative; z-index: 2;">AI 创造营 & 画廊</h3>
+                <p style="position: relative; z-index: 2;">一句话让 AI 为你定制网页工具和游戏！还能浏览并体验全网师生的奇妙创意。</p>
+                <div class="card-links" style="position: relative; z-index: 2;">
                     <a href="tools/ai-creator.html">✨ 开始创作</a>
                     <a href="creator-gallery.html">🖼️ 创意画廊</a>
                 </div>
