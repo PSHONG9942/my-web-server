@@ -29,38 +29,38 @@
         /* Gemini 渐变动画风格 */
         .gemini-card {
             position: relative;
-            z-index: 1;
+            background-color: #ffffff !important; /* 实心白色背景遮挡底层渐变 */
+            border: 2px solid transparent !important; /* 预留边框空间 */
             box-shadow: 0 0 20px rgba(155, 114, 203, 0.3) !important;
-            border: none !important;
+            z-index: 1;
+            /* 使用 background-clip 将渐变限制在 border box，白色背景限制在 padding box */
+            background-image: linear-gradient(#ffffff, #ffffff), linear-gradient(45deg, #4285f4, #9b72cb, #d96570, #4285f4) !important;
+            background-origin: padding-box, border-box !important;
+            background-clip: padding-box, border-box !important;
+            background-size: 100% 100%, 300% 300% !important;
+            animation: geminiBgGradient 4s ease infinite !important;
         }
-        .gemini-card::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            padding: 2px; /* 边框厚度 */
-            background: linear-gradient(45deg, #4285f4, #9b72cb, #d96570, #4285f4);
-            background-size: 300% 300%;
-            animation: geminiBgGradient 4s ease infinite;
-            -webkit-mask: 
-                linear-gradient(#fff 0 0) content-box, 
-                linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            pointer-events: none;
-            z-index: -1;
-        }
+        
         @keyframes geminiBgGradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            0% { background-position: 0% 0%, 0% 50%; }
+            50% { background-position: 0% 0%, 100% 50%; }
+            100% { background-position: 0% 0%, 0% 50%; }
         }
+        
         .gemini-title {
             background: linear-gradient(90deg, #4285f4, #9b72cb, #d96570, #4285f4) !important;
             background-size: 300% 100% !important;
             -webkit-background-clip: text !important;
+            background-clip: text !important;
+            color: transparent !important;
             -webkit-text-fill-color: transparent !important;
-            animation: geminiBgGradient 4s ease infinite !important;
+            animation: geminiTextGradient 4s ease infinite !important;
+        }
+        
+        @keyframes geminiTextGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
     </style>
 
