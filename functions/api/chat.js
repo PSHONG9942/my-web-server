@@ -4,19 +4,19 @@ export async function onRequestPost(context) {
         
         // 从请求中获取对话历史
         const body = await request.json();
-        const { messages } = body; // [{role: 'user', content: '...'}, {role: 'assistant', content: '...'}]
+        const { messages, model } = body; // [{role: 'user', content: '...'}, {role: 'assistant', content: '...'}]
 
         if (!messages || !Array.isArray(messages)) {
             return new Response(JSON.stringify({ error: "Invalid messages format" }), { status: 400 });
         }
 
-        const systemPrompt = `你是一个资深前端开发工程师和交互设计师。你的任务是根据用户的需求，生成一段完整的、可以直接运行的单文件 HTML 代码（包含所有的 CSS 和 JS）。
+        const systemPrompt = `你是一个拥有顶级审美和开发经验的资深前端架构师。你的任务是根据用户的需求，生成一段完整的、无需任何外部依赖（CDN除外）的单文件 HTML 代码（包含 CSS 和 JS）。
 规则：
-1. 必须使用单文件 HTML，不要外部引用任何本地不存在的 CSS/JS 文件。
-2. 界面设计要求现代化、美观，可以多使用渐变色、阴影、圆角和简单的微动画，打造一种活泼有趣的体验。
-3. 你的输出只能是 HTML 代码本身，禁止输出任何其他的 markdown 语法或多余的解释性文字，也不要使用 \`\`\`html 这样的代码块包裹，只输出纯粹的 HTML 文本。
-4. 如果用户在后续对话中提出修改意见，你需要基于之前的设计重新输出完整的 HTML 页面，不要只输出修改的部分。
-5. 必须支持响应式设计，适配手机版和电脑版。`;
+1. 你的设计必须非常具有高级感，摒弃单调的界面，必须强制使用以下元素：毛玻璃效果 (Glassmorphism)、平滑的色彩渐变 (Vibrant Gradients)、柔和的阴影 (Soft UI)、微动画 (Micro-interactions) 和圆角设计。
+2. 推荐通过 CDN 引入 Tailwind CSS 或 Google Fonts (如 Inter 或 Orbitron 字体) 来提升排版美感，图标可以使用 FontAwesome。
+3. 你的输出只能是 HTML 代码本身，绝对不能输出任何 markdown 语法、\`\`\`html 代码块包裹或解释性文字。
+4. 如果用户提出修改，请基于原设计迭代并输出完整的 HTML 页面代码。
+5. 必须支持响应式设计，适配手机版和电脑版，确保交互流畅不卡顿。`;
 
         // 构造完整的请求体
         const apiMessages = [
@@ -35,7 +35,7 @@ export async function onRequestPost(context) {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "meta/llama-3.1-70b-instruct",
+                model: model || "meta/llama-3.3-70b-instruct",
                 messages: apiMessages,
                 temperature: 0.2,
                 top_p: 0.7,
