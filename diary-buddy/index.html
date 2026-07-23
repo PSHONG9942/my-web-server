@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diary Buddy - Holiday English Diary Helper 📝🌟</title>
+
+  <!-- SEO Meta Tags -->
+  <meta name="description"
+    content="A cheerful and interactive AI-powered holiday diary assistant designed for primary school students to write beautiful English diaries independently using words and emojis.">
+  <meta name="keywords"
+    content="diary assistant, kids english diary, AI diary helper, holiday writing, primary school learning">
+  <meta name="author" content="Diary Buddy Team">
+
+  <!-- Google Fonts for Playful Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Quicksand:wght@300..700&display=swap"
+    rel="stylesheet">
+
+  <style>
+    /* -------------------------------------------------- */
+    /* 1. DESIGN SYSTEM & ROOT VARIABLES                  */
+    /* -------------------------------------------------- */
+    :root {
+      --font-primary: 'Quicksand', sans-serif;
+      --font-heading: 'Fredoka', sans-serif;
+
+      /* Harmonious Playful Pastels */
+      --bg-cream: #FAF6EE;
+      --paper-cream: #FFFDF9;
+      --pastel-blue: #D0E7FF;
+      --pastel-green: #D3F4D2;
+      --pastel-pink: #FFD4E5;
+      --pastel-purple: #E8D7FF;
+      --pastel-orange: #FFE4C4;
+      --primary-accent: #5A9EFF;
+      --primary-hover: #4686E0;
+      --text-main: #333C4D;
+      --text-muted: #64748B;
+      --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.05);
+      --shadow-premium: 0 15px 35px rgba(90, 158, 255, 0.15);
+
+      --border-radius: 24px;
+      --border-radius-sm: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-primary);
+      background-color: var(--bg-cream);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      overflow-x: hidden;
+      background-image:
+        radial-gradient(#ffd4e5 1px, transparent 1px),
+        radial-gradient(#d0e7ff 1px, transparent 1px);
+      background-size: 40px 40px;
+      background-position: 0 0, 20px 20px;
+    }
+
+    /* -------------------------------------------------- */
+    /* 2. LAYOUT & UTILITIES                              */
+    /* -------------------------------------------------- */
+    .app-container {
+      width: 100%;
+      max-width: 760px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      margin-top: 10px;
+      margin-bottom: 40px;
+    }
+
+    /* -------------------------------------------------- */
+    /* 3. WIDGET: CLASSROOM TRAFFIC STATUS METER         */
+    /* -------------------------------------------------- */
+    .traffic-widget {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      padding: 10px 20px;
+      border-radius: 50px;
+      border: 3px solid var(--pastel-blue);
+      box-shadow: var(--shadow-soft);
+      font-family: var(--font-heading);
+      font-size: 15px;
+      font-weight: 600;
+      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    /* Traffic Light States */
+    .traffic-widget.state-green {
+      border-color: var(--pastel-green);
+      background-color: #EBFEEA;
+      color: #2E6F2C;
+    }
+
+    .traffic-widget.state-orange {
+      border-color: var(--pastel-orange);
+      background-color: #FFF3E0;
+      color: #E65100;
+    }
+
+    .traffic-widget.state-red {
+      border-color: var(--pastel-pink);
+      background-color: #FFEBEE;
+      color: #C62828;
+      animation: pulse-border 1.5s infinite;
+    }
+
+    @keyframes pulse-border {
+      0% {
+        box-shadow: 0 0 0 0 rgba(255, 212, 229, 0.7);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(255, 212, 229, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(255, 212, 229, 0);
+      }
+    }
+
+    .traffic-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: #4CAF50;
+      display: inline-block;
+      transition: background-color 0.3s;
+    }
+
+    .state-green .traffic-dot {
+      background-color: #4CAF50;
+    }
+
+    .state-orange .traffic-dot {
+      background-color: #FF9800;
+    }
+
+    .state-red .traffic-dot {
+      background-color: #F44336;
+    }
+
+    /* -------------------------------------------------- */
+    /* 4. NOTEBOOK THEME LAYOUT (THE WORKSPACE)           */
+    /* -------------------------------------------------- */
+    .notebook-card {
+      width: 100%;
+      background-color: var(--paper-cream);
+      border-radius: var(--border-radius);
+      border: 6px solid #FFF;
+      box-shadow: 0 20px 40px rgba(84, 110, 122, 0.12);
+      position: relative;
+      padding: 40px 30px;
+      min-height: 500px;
+      transition: all 0.3s ease;
+    }
+
+    /* Classic binder rings at the left of the card */
+    .notebook-card::before {
+      content: '';
+      position: absolute;
+      left: -20px;
+      top: 40px;
+      bottom: 40px;
+      width: 12px;
+      background: radial-gradient(circle, #CFD8DC 30%, transparent 35%);
+      background-size: 12px 35px;
+      z-index: 10;
+    }
+
+    /* Paper ruled background lines for text entries */
+    .ruled-paper {
+      background-image: linear-gradient(rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 95%, #E2EDF8 95%, #E2EDF8 100%);
+      background-size: 100% 2.4rem;
+      line-height: 2.4rem;
+    }
+
+    /* Decorative header banner inside the notebook */
+    .notebook-header {
+      text-align: center;
+      margin-bottom: 35px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .notebook-logo {
+      font-size: 48px;
+      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+      animation: wiggle 3s infinite ease-in-out;
+    }
+
+    @keyframes wiggle {
+
+      0%,
+      100% {
+        transform: rotate(0deg);
+      }
+
+      50% {
+        transform: rotate(5deg) scale(1.05);
+      }
+    }
+
+    h1 {
+      font-family: var(--font-heading);
+      font-size: 32px;
+      font-weight: 700;
+      color: #1E293B;
+      text-shadow: 1px 1px 0 #FFF, 2px 2px 0 rgba(90, 158, 255, 0.2);
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* -------------------------------------------------- */
+    /* 5. 3-STEP WIZARD SECTIONS                          */
+    /* -------------------------------------------------- */
+    .wizard-step {
+      display: none;
+      animation: fadeIn 0.4s ease-out forwards;
+    }
+
+    .wizard-step.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* -------------------------------------------------- */
+    /* STEP 1: LANGUAGE SELECTION CARDS                  */
+    /* -------------------------------------------------- */
+    .step-greeting {
+      text-align: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: #475569;
+      margin-bottom: 30px;
+      padding: 0 10px;
+    }
+
+    .lang-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    @media (min-width: 480px) {
+      .lang-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .lang-card {
+      background: #FFF;
+      border: 3px dashed #E2E8F0;
+      border-radius: var(--border-radius-sm);
+      padding: 24px 16px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+    }
+
+    .lang-card:hover {
+      transform: translateY(-8px) scale(1.03);
+      border-color: var(--primary-accent);
+      box-shadow: var(--shadow-premium);
+      background-color: var(--pastel-blue);
+    }
+
+    .lang-card.card-en {
+      border-color: #BAE6FD;
+    }
+
+    .lang-card.card-en:hover {
+      background-color: #F0F9FF;
+      border-color: #38BDF8;
+    }
+
+    .lang-card.card-zh {
+      border-color: #FED7AA;
+    }
+
+    .lang-card.card-zh:hover {
+      background-color: #FFF7ED;
+      border-color: #FB923C;
+    }
+
+    .lang-card.card-ms {
+      border-color: #FBCFE8;
+    }
+
+    .lang-card.card-ms:hover {
+      background-color: #FDF2F8;
+      border-color: #F472B6;
+    }
+
+    .lang-flag {
+      font-size: 42px;
+      filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.08));
+    }
+
+    .lang-title {
+      font-family: var(--font-heading);
+      font-size: 18px;
+      font-weight: 700;
+      color: #1E293B;
+    }
+
+    .lang-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* -------------------------------------------------- */
+    /* STEP 2: GUIDED INPUT                              */
+    /* -------------------------------------------------- */
+    .prompt-box {
+      background-color: var(--pastel-purple);
+      border-radius: var(--border-radius-sm);
+      padding: 20px;
+      border: 3px solid #FFF;
+      box-shadow: var(--shadow-soft);
+      margin-bottom: 25px;
+      position: relative;
+    }
+
+    .prompt-box::after {
+      content: '';
+      position: absolute;
+      bottom: -12px;
+      left: 40px;
+      border-width: 12px 12px 0;
+      border-style: solid;
+      border-color: var(--pastel-purple) transparent;
+      display: block;
+      width: 0;
+    }
+
+    .prompt-title {
+      font-family: var(--font-heading);
+      font-size: 16px;
+      font-weight: 700;
+      color: #6D28D9;
+      margin-bottom: 6px;
+    }
+
+    .prompt-text {
+      font-size: 16px;
+      font-weight: 600;
+      color: #4C1D95;
+      line-height: 1.5;
+    }
+
+    .input-label {
+      font-family: var(--font-heading);
+      font-size: 15px;
+      font-weight: 700;
+      color: #475569;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    /* Beautiful Lined Paper Text Area */
+    .notebook-textarea-wrapper {
+      position: relative;
+      border-radius: var(--border-radius-sm);
+      background: #FFF;
+      border: 3px solid #E2E8F0;
+      padding: 15px;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.03);
+      transition: border-color 0.3s;
+    }
+
+    .notebook-textarea-wrapper:focus-within {
+      border-color: var(--primary-accent);
+      box-shadow: 0 0 0 4px rgba(90, 158, 255, 0.15);
+    }
+
+    .notebook-textarea {
+      width: 100%;
+      height: 160px;
+      border: none;
+      outline: none;
+      resize: none;
+      font-family: var(--font-primary);
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text-main);
+      background: transparent;
+      line-height: 2.2rem;
+    }
+
+    /* Dynamic character counter */
+    .char-counter {
+      text-align: right;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    /* Playful Emoji Keyboard Pad */
+    .emoji-pad {
+      margin-top: 15px;
+      background: #F8FAFC;
+      border: 2px dashed #E2E8F0;
+      border-radius: var(--border-radius-sm);
+      padding: 12px;
+    }
+
+    .emoji-pad-title {
+      font-family: var(--font-heading);
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .emoji-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .emoji-btn {
+      background: #FFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+      width: 38px;
+      height: 38px;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    }
+
+    .emoji-btn:hover {
+      transform: scale(1.2);
+      background-color: var(--pastel-orange);
+      border-color: #FDBA74;
+    }
+
+    /* Wizard Action Buttons */
+    .button-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 16px 24px;
+      border-radius: 50px;
+      font-family: var(--font-heading);
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border: none;
+      outline: none;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-back {
+      background-color: #F1F5F9;
+      color: #475569;
+      border: 2px solid #E2E8F0;
+    }
+
+    .btn-back:hover {
+      background-color: #E2E8F0;
+      transform: translateY(-2px);
+    }
+
+    .btn-magic {
+      background-color: var(--primary-accent);
+      color: #FFF;
+      box-shadow: var(--shadow-premium);
+    }
+
+    .btn-magic:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(90, 158, 255, 0.3);
+    }
+
+    /* Lockout Lock State */
+    .btn-magic:disabled {
+      background-color: #CBD5E1 !important;
+      color: #64748B !important;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+      border: 2px solid #E2E8F0;
+    }
+
+    /* Playful Loading Magic Pencil State */
+    .loading-state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      padding: 40px 10px;
+      text-align: center;
+    }
+
+    .magic-pencil-graphic {
+      font-size: 64px;
+      position: relative;
+      animation: write-draw 1.8s infinite ease-in-out;
+      transform-origin: bottom right;
+    }
+
+    @keyframes write-draw {
+
+      0%,
+      100% {
+        transform: rotate(0deg) translate(0, 0);
+      }
+
+      25% {
+        transform: rotate(-15deg) translate(5px, -5px);
+      }
+
+      75% {
+        transform: rotate(10deg) translate(-5px, 5px);
+      }
+    }
+
+    .loading-title {
+      font-family: var(--font-heading);
+      font-size: 20px;
+      font-weight: 700;
+      color: #3B82F6;
+    }
+
+    .loading-desc {
+      font-size: 15px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* -------------------------------------------------- */
+    /* STEP 3: DIARY RESULT                              */
+    /* -------------------------------------------------- */
+    .result-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .result-card {
+      border-radius: var(--border-radius-sm);
+      padding: 24px;
+      position: relative;
+      box-shadow: var(--shadow-soft);
+      border: 3px solid #FFF;
+      transition: all 0.3s;
+    }
+
+    .result-card.card-raw {
+      background-color: var(--pastel-orange);
+    }
+
+    .result-card.card-ai {
+      background-color: var(--pastel-green);
+      border-color: #E6FCE5;
+    }
+
+    .card-label {
+      font-family: var(--font-heading);
+      font-size: 15px;
+      font-weight: 700;
+      color: #C2410C;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-ai .card-label {
+      color: #15803D;
+    }
+
+    /* Lined content area */
+    .paper-line {
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1.6;
+      color: #1E293B;
+      white-space: pre-line;
+    }
+
+    .praise-text {
+      background: #FFF;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #15803D;
+      margin-bottom: 16px;
+      border: 2px solid #BBF7D0;
+      box-shadow: 0 4px 6px rgba(21, 128, 61, 0.05);
+    }
+
+    .sparkle-decoration {
+      position: absolute;
+      top: -15px;
+      right: 15px;
+      font-size: 28px;
+      animation: spin-sparkle 4s infinite linear;
+    }
+
+    @keyframes spin-sparkle {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .action-row {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    .btn-copy {
+      background-color: #15803D;
+      color: #FFF;
+    }
+
+    .btn-copy:hover {
+      background-color: #166534;
+      transform: translateY(-2px);
+    }
+
+    .btn-retry {
+      background-color: var(--pastel-pink);
+      color: #9D174D;
+      border: 2px solid #FFF;
+    }
+
+    .btn-retry:hover {
+      background-color: #FBCFE8;
+      transform: translateY(-2px);
+    }
+
+    /* Clipboard Copy Feedback Toast Alert */
+    .toast-alert {
+      position: fixed;
+      bottom: 30px;
+      background-color: #1E293B;
+      color: #FFF;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-family: var(--font-heading);
+      font-size: 15px;
+      font-weight: 600;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+      z-index: 100;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast-alert.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Footer Credits */
+    .app-footer {
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 15px;
+      line-height: 1.5;
+    }
+
+    .app-footer a {
+      color: var(--primary-accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .app-footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app-container">
+
+    <!-- Live Classroom Traffic Status Widget -->
+    <div id="trafficWidget" class="traffic-widget state-green">
+      <span class="traffic-dot"></span>
+      <span id="trafficText">Classroom Queue: 15 / 15 slots open 🚀</span>
+    </div>
+
+    <!-- MAIN NOTEBOOK BOARD -->
+    <div class="notebook-card">
+      <div class="sparkle-decoration">✨</div>
+
+      <!-- General Header -->
+      <header class="notebook-header">
+        <div class="notebook-logo">📝🎨✨</div>
+        <h1>Diary Buddy</h1>
+        <p class="subtitle">日记小助手 🍦 • Sahabat Diari 🌟</p>
+      </header>
+
+      <!-- STEP 1: LANGUAGE SELECTION -->
+      <section id="step1" class="wizard-step active">
+        <p class="step-greeting">Welcome to your Holiday Diary Buddy! 📝✨ Let's write a story together!</p>
+
+        <div class="lang-grid">
+          <div class="lang-card card-en" onclick="selectLanguage('English')">
+            <span class="lang-flag">🇬🇧✨</span>
+            <span class="lang-title">English</span>
+            <span class="lang-desc">Write in English! 📚</span>
+          </div>
+          <div class="lang-card card-zh" onclick="selectLanguage('Chinese')">
+            <span class="lang-flag">🇨🇳🐼</span>
+            <span class="lang-title">华语 大冒险</span>
+            <span class="lang-desc">写中文/表情！🎨</span>
+          </div>
+          <div class="lang-card card-ms" onclick="selectLanguage('Malay')">
+            <span class="lang-flag">🇲🇾🌟</span>
+            <span class="lang-title">Bahasa Melayu</span>
+            <span class="lang-desc">Tulis dalam BM! 🚀</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 2: GUIDED CHAT & INPUT -->
+      <section id="step2" class="wizard-step">
+        <div class="prompt-box">
+          <p id="promptTitle" class="prompt-title">My Classroom Prompt 💭</p>
+          <p id="promptText" class="prompt-text">What fun things did you do yesterday?</p>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label class="input-label" for="studentDiaryInput">
+            You can type words or just use emojis if you don't know the English word!<br>
+            <span style="font-size: 13px; color: var(--text-muted); font-weight: normal;">写字或放表情符号都可以哦！🎨 • Tulis
+              perkataan atau letak emoji saja!</span>
+          </label>
+
+          <div class="notebook-textarea-wrapper">
+            <textarea id="studentDiaryInput" class="notebook-textarea"
+              placeholder="I went to 🏊 with my 🧑🤝🧑. We ate 🍕..." maxlength="400"
+              oninput="handleInputUpdate()"></textarea>
+          </div>
+          <div id="charCounter" class="char-counter">0 / 400 characters</div>
+        </div>
+
+        <!-- Fun Emoji Pad Helper -->
+        <div class="emoji-pad">
+          <div class="emoji-pad-title">✨ Click to add fun stickers/emojis! 🎨</div>
+          <div class="emoji-list">
+            <button class="emoji-btn" onclick="insertEmoji('🏊')">🏊</button>
+            <button class="emoji-btn" onclick="insertEmoji('🎮')">🎮</button>
+            <button class="emoji-btn" onclick="insertEmoji('🍕')">🍕</button>
+            <button class="emoji-btn" onclick="insertEmoji('🍦')">🍦</button>
+            <button class="emoji-btn" onclick="insertEmoji('🏖️')">🏖️</button>
+            <button class="emoji-btn" onclick="insertEmoji('🏡')">🏡</button>
+            <button class="emoji-btn" onclick="insertEmoji('🚴')">🚴</button>
+            <button class="emoji-btn" onclick="insertEmoji('🐶')">🐶</button>
+            <button class="emoji-btn" onclick="insertEmoji('🧑‍🤝‍🧑')">🧑‍🤝‍🧑</button>
+            <button class="emoji-btn" onclick="insertEmoji('🚀')">🚀</button>
+            <button class="emoji-btn" onclick="insertEmoji('🎉')">🎉</button>
+            <button class="emoji-btn" onclick="insertEmoji('🌳')">🌳</button>
+            <button class="emoji-btn" onclick="insertEmoji('🧸')">🧸</button>
+            <button class="emoji-btn" onclick="insertEmoji('🍰')">🍰</button>
+            <button class="emoji-btn" onclick="insertEmoji('🎬')">🎬</button>
+          </div>
+        </div>
+
+        <!-- Main Button Area -->
+        <div class="button-group">
+          <button class="btn btn-back" onclick="goToStep(1)">⬅️ Go Back</button>
+          <button id="btnSubmit" class="btn btn-magic" onclick="submitDiary()">
+            Magically Restructure My Diary! ✨🚀
+          </button>
+        </div>
+      </section>
+
+      <!-- LOADING WRITER STATE -->
+      <section id="stepLoading" class="wizard-step">
+        <div class="loading-state" style="display: flex;">
+          <div class="magic-pencil-graphic">✏️🎨📖</div>
+          <p id="loadingTitle" class="loading-title">The Magic Pencil is writing your story...</p>
+          
+          <!-- Fun progress bar for Year 4 visual interest -->
+          <div style="width: 80%; max-width: 320px; height: 12px; background-color: #E2E8F0; border-radius: 6px; overflow: hidden; margin: 10px 0; border: 2px solid #FFF; box-shadow: var(--shadow-soft);">
+            <div id="loadingProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #60A5FA, #3B82F6); transition: width 0.3s ease; border-radius: 6px;"></div>
+          </div>
+          
+          <!-- Ticking Loading Timer Badge -->
+          <div style="background-color: #DBEAFE; color: #1E40AF; padding: 6px 14px; border-radius: 50px; font-family: var(--font-heading); font-size: 14px; font-weight: 700; border: 2px dashed #93C5FD; margin-bottom: 5px;">
+            🧙‍♂️ Spellcasting: <span id="loadingTimeCounter">0</span> seconds past
+          </div>
+
+          <!-- Rolling AI Thought Bubble Status updates -->
+          <div style="background-color: #F8FAFC; border: 2px dashed #CBD5E1; border-radius: var(--border-radius-sm); padding: 15px; width: 100%; max-width: 420px; box-shadow: var(--shadow-soft); margin-top: 10px; position: relative;">
+            <div style="position: absolute; top: -12px; left: 20px; background-color: #64748B; color: #FFF; font-family: var(--font-heading); font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 700;">
+              AI SPELL DETECTOR
+            </div>
+            <p id="loadingStatusText" style="font-size: 15px; font-weight: 600; color: #475569; line-height: 1.4; animation: pulse-status 1.5s infinite ease-in-out;">
+              🔍 Reading your vocabulary words...
+            </p>
+          </div>
+          
+          <p class="loading-desc">Whispering spelling charms, converting emojis, and making your page look beautiful! 🌟</p>
+        </div>
+      </section>
+
+      <!-- CSS helper keyframe injected dynamically -->
+      <style>
+        @keyframes pulse-status {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.02); opacity: 0.8; }
+        }
+      </style>
+
+      <!-- STEP 3: RESULT SECTION -->
+      <section id="step3" class="wizard-step">
+        <div class="result-cards">
+
+          <!-- Praise header card -->
+          <div id="praiseBanner" class="praise-text">
+            Wow! What a fantastic day! 🎉🥳 You did an amazing job! 🌟
+          </div>
+
+          <!-- Raw Input Card -->
+          <div class="result-card card-raw">
+            <span class="card-label">Your Brilliant Idea 💡</span>
+            <div id="resultRawContent" class="paper-line">
+              I went to 🏊 with my 🧑🤝🧑. We ate 🍕.
+            </div>
+          </div>
+
+          <!-- AI Restructured Lined Notebook Card -->
+          <div class="result-card card-ai">
+            <span class="card-label">Your English Diary Entry 📖</span>
+            <div id="resultRestructuredContent" class="paper-line ruled-paper">
+              Yesterday, I went swimming with my best friends. Then, we ate a delicious pizza.
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Results Actions -->
+        <div class="action-row">
+          <button class="btn btn-retry" onclick="resetToBeginning()">Write Another Entry 🔄</button>
+          <button class="btn btn-copy" onclick="copyDiaryEntry()">Copy My Diary Entry 📋✨</button>
+        </div>
+      </section>
+
+    </div>
+
+    <div style="text-align: center; margin-bottom: 20px; color: #888; font-size: 14px;">
+      Powered by Gemini 3.1 Flash Lite | API: Google AI Studio
+    </div>
+
+    <!-- Footer Area -->
+    <footer class="app-footer">
+      <p>💡 Tip: Use lots of stickers and emojis to explain words you don't know yet!</p>
+      <p style="margin-top: 5px;">Created for schools to support English writing practice at home. 🏫✨</p>
+    </footer>
+
+  </div>
+
+  <!-- Toast Notification Alert Popup -->
+  <div id="copyToast" class="toast-alert">
+    <span>📋 Copied to clipboard! Ready to save! 🌟</span>
+  </div>
+
+  <script>
+    // --------------------------------------------------
+    // FRONTEND CONSTANTS & STATE MANAGEMENT
+    // --------------------------------------------------
+    // =================================================================
+    // 🔧 CONFIGURATION: PASTE YOUR DEPLOYED CLOUDFLARE WORKER URL HERE!
+    // Example: "https://diary-buddy-backend.your-subdomain.workers.dev"
+    // =================================================================
+    const CLOUDFLARE_WORKER_URL = "https://diary-buddy-backend.g-21543731.workers.dev/";
+
+    const API_ENDPOINT = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+      ? "http://127.0.0.1:8787/api/restructure"
+      : (CLOUDFLARE_WORKER_URL ? `${CLOUDFLARE_WORKER_URL.trim().replace(/\/$/, '')}/api/restructure` : "/api/restructure");
+
+    let selectedLang = "English";
+    let requestsLeft = 15;
+    let resetSeconds = 0;
+    let countdownInterval = null;
+
+    // Multi-language Guided Prompts
+    const PROMPTS = {
+      English: {
+        title: "Your Writing Adventure 💭",
+        text: "What fun things did you do yesterday? Did you play 🎮, eat 🍕, or go to the 🏖️ park? Tell me all about it!"
+      },
+      Chinese: {
+        title: "你的日记大探险 💭",
+        text: "昨天你去了哪里玩呢？有没有吃美味的食物 🍦，或者和家人一起做了什么快乐的事？快写下来吧！"
+      },
+      Malay: {
+        title: "Kembara Menulis Kamu 💭",
+        text: "Apakah perkara seronok yang kamu lakukan semalam? Adakah kamu bermain 🧸, makan 🍰, atau melawat 🏡 datuk dan nenek? Ceritakan di sini!"
+      }
+    };
+
+    // --------------------------------------------------
+    // NAVIGATION & WIZARD FLOW CONTROL
+    // --------------------------------------------------
+    function goToStep(stepNum) {
+      // Hide all steps
+      document.querySelectorAll('.wizard-step').forEach(step => {
+        step.classList.remove('active');
+      });
+
+      // Show current step
+      if (stepNum === 1) {
+        document.getElementById('step1').classList.add('active');
+      } else if (stepNum === 2) {
+        document.getElementById('step2').classList.add('active');
+        document.getElementById('studentDiaryInput').focus();
+      } else if (stepNum === 'loading') {
+        document.getElementById('stepLoading').classList.add('active');
+      } else if (stepNum === 3) {
+        document.getElementById('step3').classList.add('active');
+      }
+    }
+
+    // Language selection card click handler
+    function selectLanguage(lang) {
+      selectedLang = lang;
+
+      // Update prompts based on selection
+      const promptObj = PROMPTS[lang];
+      document.getElementById('promptTitle').innerText = promptObj.title;
+      document.getElementById('promptText').innerText = promptObj.text;
+
+      // Focus the text inputs and progress wizard
+      goToStep(2);
+    }
+
+    // Insert Emoji into caret position inside the Lined Textarea
+    function insertEmoji(emoji) {
+      const textarea = document.getElementById('studentDiaryInput');
+      const startPos = textarea.selectionStart;
+      const endPos = textarea.selectionEnd;
+      const originalText = textarea.value;
+
+      textarea.value = originalText.substring(0, startPos) + emoji + originalText.substring(endPos);
+      textarea.focus();
+
+      // Reposition cursor after the newly added emoji
+      const newCursorPos = startPos + emoji.length;
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+
+      handleInputUpdate();
+    }
+
+    // Input word count tracking helper
+    function handleInputUpdate() {
+      const text = document.getElementById('studentDiaryInput').value;
+      document.getElementById('charCounter').innerText = `${text.length} / 400 characters`;
+    }
+
+    // Reset workflow to page one
+    function resetToBeginning() {
+      document.getElementById('studentDiaryInput').value = "";
+      handleInputUpdate();
+      goToStep(1);
+    }
+
+    // --------------------------------------------------
+    // RATE LIMITING & COUNTDOWN GRAPHICS
+    // --------------------------------------------------
+    function updateTrafficMeter() {
+      const widget = document.getElementById('trafficWidget');
+      const textSpan = document.getElementById('trafficText');
+      const submitBtn = document.getElementById('btnSubmit');
+
+      // Update Text String
+      textSpan.innerText = `Classroom Queue: ${requestsLeft} / 15 slots open 🚀`;
+
+      // Update CSS Color Indicator Badges
+      widget.className = "traffic-widget"; // Reset class names
+
+      if (requestsLeft === 0) {
+        widget.classList.add('state-red');
+        textSpan.innerText = `Classroom Queue Full! Please wait... ⏳`;
+
+        // Start countdown timer locking button in place
+        startCountdownLock();
+      } else if (requestsLeft < 3) {
+        widget.classList.add('state-orange');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `Magically Restructure My Diary! ✨🚀`;
+      } else {
+        widget.classList.add('state-green');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `Magically Restructure My Diary! ✨🚀`;
+      }
+    }
+
+    function startCountdownLock() {
+      const submitBtn = document.getElementById('btnSubmit');
+
+      // Clear existing interval if running
+      if (countdownInterval) clearInterval(countdownInterval);
+
+      // Disable submission
+      submitBtn.disabled = true;
+
+      // Start tick down every 1 second
+      countdownInterval = setInterval(() => {
+        if (resetSeconds > 0) {
+          submitBtn.innerHTML = `Classroom Queue Full! Wait ${resetSeconds}s... ⏳`;
+          resetSeconds--;
+        } else {
+          // Timer finished
+          clearInterval(countdownInterval);
+          countdownInterval = null;
+          requestsLeft = 15; // Optimistic reset, will correct on next API call
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = `Magically Restructure My Diary! ✨🚀`;
+          updateTrafficMeter();
+        }
+      }, 1000);
+    }
+
+    // --------------------------------------------------
+    // BACKEND SERVICE INTEGRATION (API CALL)
+    // --------------------------------------------------
+    async function submitDiary() {
+      const textarea = document.getElementById('studentDiaryInput');
+      const studentInput = textarea.value.trim();
+
+      if (!studentInput) {
+        alert("Oops! Please write a story or put some emojis first before we add the magic! 🎨");
+        return;
+      }
+
+      // Progress wizard to animation loader
+      goToStep('loading');
+
+      // Initialize timed spellcasting indicators
+      let secondsPast = 0;
+      const counterSpan = document.getElementById('loadingTimeCounter');
+      const progressBar = document.getElementById('loadingProgressBar');
+      const statusText = document.getElementById('loadingStatusText');
+      
+      counterSpan.innerText = "0";
+      progressBar.style.width = "0%";
+      statusText.innerText = "🔍 Gathering vocabulary and reading your emojis...";
+
+      // Fun, simulated child-friendly AI thought phrases
+      const thoughtMessages = [
+        { sec: 0, text: "🔍 Reading your ideas and translating emojis..." },
+        { sec: 2, text: "🧙‍♂️ Casting a grammar correction spell on the verbs..." },
+        { sec: 4, text: "🎨 Searching the magic library for beautiful past-tense verbs..." },
+        { sec: 7, text: "✍️ Picking up the Magic Pencil and writing the diary lines..." },
+        { sec: 10, text: "🌈 Adding shiny star stickers and learning emojis..." },
+        { sec: 13, text: "🍕 Double-checking spelling logic for maximum fun..." },
+        { sec: 16, text: "🍦 Wrapping up with an encouraging teacher praise banner..." },
+        { sec: 18, text: "🚀 Sending the shiny finished page back to your desk..." }
+      ];
+
+      const loadingTimer = setInterval(() => {
+        secondsPast++;
+        counterSpan.innerText = secondsPast;
+        
+        // Advance progress bar up to 95% (remaining 5% completed on API success)
+        const progressPercentage = Math.min(95, Math.floor((secondsPast / 20) * 100));
+        progressBar.style.width = `${progressPercentage}%`;
+
+        // Check and update simulated thoughts
+        const currentThought = thoughtMessages.find(t => t.sec === secondsPast);
+        if (currentThought) {
+          statusText.innerText = currentThought.text;
+        } else if (secondsPast > 20 && secondsPast % 3 === 0) {
+          statusText.innerText = "🪄 Polishing up the final letters! Hold tight...";
+        }
+      }, 1000);
+
+      try {
+        const response = await fetch(API_ENDPOINT, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            studentInput: studentInput,
+            language: selectedLang
+          })
+        });
+
+        // Clear the timers
+        clearInterval(loadingTimer);
+        progressBar.style.width = "100%";
+
+        // 1. Process custom rate-limiting headers in any outcome (Exposed CORS headers)
+        const headerLeft = response.headers.get("X-Class-Requests-Left");
+        const headerReset = response.headers.get("X-Class-Reset-Seconds");
+
+        if (headerLeft !== null) {
+          requestsLeft = parseInt(headerLeft, 10);
+        }
+        if (headerReset !== null) {
+          resetSeconds = parseInt(headerReset, 10);
+        }
+
+        // 2. Route responses based on HTTP codes
+        if (response.status === 429) {
+          // Class Queue rate-limit hit
+          const errorData = await response.json();
+          alert(`${errorData.error}\n${errorData.message}`);
+
+          // Revert view and trigger lockout
+          goToStep(2);
+          updateTrafficMeter();
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error("API server responded with error code.");
+        }
+
+        const data = await response.json();
+
+        // 3. Render Results in notebook layout
+        document.getElementById('resultRawContent').innerText = studentInput;
+        document.getElementById('praiseBanner').innerText = data.praise || "Great job writing! 🎉🥳";
+        document.getElementById('resultRestructuredContent').innerText = data.diary || "No entry recorded.";
+
+        // Go to Step 3 (Results screen)
+        goToStep(3);
+
+        // Dynamically update traffic stats
+        updateTrafficMeter();
+
+      } catch (err) {
+        clearInterval(loadingTimer);
+        console.error("Diary restructuring error:", err);
+        alert("Oh no! The Magic Pencil lost its ink. ✏️💨 Please check your network and try again!");
+        goToStep(2);
+      }
+    }
+
+    // --------------------------------------------------
+    // AUXILIARY UTILITIES (COPY TO CLIPBOARD & STYLING)
+    // --------------------------------------------------
+    function copyDiaryEntry() {
+      const content = document.getElementById('resultRestructuredContent').innerText;
+
+      navigator.clipboard.writeText(content).then(() => {
+        // Display animated toast indicator
+        const toast = document.getElementById('copyToast');
+        toast.classList.add('show');
+
+        setTimeout(() => {
+          toast.classList.remove('show');
+        }, 2500);
+      }).catch(err => {
+        console.error("Unable to copy text:", err);
+        alert("Copy failed. Please manually select the diary and copy it! 📝");
+      });
+    }
+
+    // Initialize display meter state
+    updateTrafficMeter();
+  </script>
+</body>
+
+</html>

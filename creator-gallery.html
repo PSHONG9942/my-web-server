@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>创意画廊 - 华小老师专区</title>
+    <link rel="icon" href="images/logo.png" type="image/png">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/cyberpunk.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        .gallery-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .btn-create {
+            background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn-create:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.5);
+        }
+
+        .project-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #00e5ff;
+            box-shadow: 0 10px 20px rgba(0, 229, 255, 0.1);
+        }
+
+        .project-title {
+            font-size: 20px;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .project-meta {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 20px;
+        }
+
+        .btn-play {
+            display: inline-block;
+            background: rgba(0, 229, 255, 0.2);
+            color: #00e5ff;
+            text-align: center;
+            padding: 8px 0;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .btn-play:hover {
+            background: rgba(0, 229, 255, 0.4);
+        }
+
+        #loading {
+            text-align: center;
+            color: #fff;
+            padding: 50px;
+        }
+
+        /* 全屏预览 Modal */
+        .preview-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            flex-direction: column;
+        }
+
+        .preview-bar {
+            background: #222;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .preview-bar h3 {
+            color: #fff;
+            margin: 0;
+        }
+
+        .btn-close {
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .preview-iframe {
+            flex: 1;
+            width: 100%;
+            border: none;
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <header class="welcome-section" style="margin-bottom: 20px;">
+            <a href="index.html" style="color: #00e5ff; text-decoration: none; font-size: 14px;">&larr; 返回主页</a>
+            <h1>创意画廊</h1>
+            <p>这里展示了老师和同学们通过 AI 创造营制作的各种有趣作品！</p>
+        </header>
+
+        <div class="gallery-header">
+            <div></div>
+            <a href="tools/ai-creator.html" class="btn-create">✨ 进入 AI 创造营</a>
+        </div>
+
+        <div id="loading">正在加载作品，请稍候...</div>
+        
+        <div class="grid" id="projectGrid" style="display: none;">
+            <!-- 作品卡片将在这里动态生成 -->
+        </div>
+
+    </div>
+
+    <!-- 预览 Modal -->
+    <div class="preview-modal" id="previewModal">
+        <div class="preview-bar">
+            <h3 id="previewTitle">项目名称</h3>
+            <button class="btn-close" onclick="closePreview()">关闭 (X)</button>
+        </div>
+        <iframe class="preview-iframe" id="previewIframe" sandbox="allow-scripts allow-modals"></iframe>
+    </div>
+
+    <script>
+        let projectsData = [];
+
+        async function loadProjects() {
+            try {
+                const response = await fetch('/api/projects');
+                if (!response.ok) throw new Error('网络请求失败');
+                
+                const data = await response.json();
+                projectsData = data.projects || [];
+                
+                renderProjects();
+            } catch (error) {
+                console.error(error);
+                document.getElementById('loading').innerText = "加载失败，请检查网络或确认后端服务已部署。";
+            }
+        }
+
+        function renderProjects() {
+            const grid = document.getElementById('projectGrid');
+            const loading = document.getElementById('loading');
+            
+            loading.style.display = 'none';
+            grid.style.display = 'grid';
+
+            if (projectsData.length === 0) {
+                grid.innerHTML = "<p style='color:#fff; grid-column: 1 / -1; text-align: center;'>目前还没有任何作品哦，快去 AI 创造营 创作第一个吧！</p>";
+                return;
+            }
+
+            projectsData.forEach(project => {
+                const date = new Date(project.createdAt).toLocaleDateString();
+                const card = document.createElement('div');
+                card.className = 'project-card';
+                card.innerHTML = `
+                    <div>
+                        <div class="project-title">${project.title}</div>
+                        <div class="project-meta">
+                            👨‍🏫 作者: ${project.author}<br>
+                            📅 日期: ${date}
+                        </div>
+                    </div>
+                    <a href="javascript:void(0);" class="btn-play" onclick="openPreview('${project.id}')">▶ 立即体验</a>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function openPreview(id) {
+            const project = projectsData.find(p => p.id === id);
+            if (!project) return;
+
+            document.getElementById('previewTitle').innerText = project.title + " (作者: " + project.author + ")";
+            document.getElementById('previewIframe').srcdoc = project.code;
+            document.getElementById('previewModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // 防止背景滚动
+        }
+
+        function closePreview() {
+            document.getElementById('previewModal').style.display = 'none';
+            document.getElementById('previewIframe').srcdoc = "";
+            document.body.style.overflow = 'auto';
+        }
+
+        window.onload = loadProjects;
+    </script>
+</body>
+</html>

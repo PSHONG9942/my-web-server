@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="images/logo.png" type="image/png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>潘老师的代码宇宙 - 灵感与实用档案馆</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, '楷体', 'KaiTi', '华文楷体', 'STKaiti', sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            padding: 40px 20px;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 2.5rem;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+
+        .section-title {
+            color: #34495e;
+            font-size: 1.8rem;
+            margin: 50px 0 20px;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border-top: 5px solid #ccc;
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .active {
+            border-top-color: #2ecc71;
+        }
+
+        .dev {
+            border-top-color: #f39c12;
+        }
+
+        .buried {
+            border-top-color: #95a5a6;
+            filter: grayscale(0.2);
+        }
+
+        .buried:hover {
+            filter: grayscale(0);
+        }
+
+        .status-tag {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 15px;
+            color: white;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .bg-active {
+            background-color: #2ecc71;
+        }
+
+        .bg-dev {
+            background-color: #f39c12;
+        }
+
+        .bg-buried {
+            background-color: #7f8c8d;
+        }
+
+        h3 {
+            margin-top: 15px;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-size: 1.25rem;
+        }
+
+        .desc-short {
+            font-size: 13.5px;
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.5;
+            flex-grow: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .tech-stack {
+            font-size: 11px;
+            background: #ecf0f1;
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            color: #7f8c8d;
+            font-family: monospace;
+            font-weight: bold;
+            align-self: flex-start;
+        }
+
+        /* 弹窗样式 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 550px;
+            border-radius: 12px;
+            padding: 35px;
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            border-top: 8px solid #ccc;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            color: #bdc3c7;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            color: #e74c3c;
+        }
+
+        #modal-title {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        #modal-tech {
+            font-size: 13px;
+            background: #ecf0f1;
+            padding: 8px 12px;
+            border-radius: 6px;
+            display: inline-block;
+            font-family: monospace;
+            margin-bottom: 20px;
+            color: #34495e;
+            font-weight: bold;
+        }
+
+        #modal-desc {
+            font-size: 15px;
+            color: #444;
+            margin-bottom: 25px;
+            line-height: 1.7;
+        }
+
+        .modal-epitaph-container {
+            background: #fdfefe;
+            border: 1px solid #ebedef;
+            border-left: 5px solid #ccc;
+            padding: 15px 20px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        #modal-epitaph {
+            font-style: italic;
+            font-size: 15px;
+            color: #7f8c8d;
+            margin: 0;
+        }
+
+        .epitaph-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #bdc3c7;
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+            letter-spacing: 1px;
+        }
+
+        .modal-link-btn {
+            display: inline-block;
+            margin-bottom: 25px;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .modal-link-btn:hover {
+            background-color: #2980b9;
+        }
+    </style>
+
+    <!-- Global Light Cyberpunk Theme -->
+    <link rel="stylesheet" href="css/cyberpunk.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <a href="index.html"
+            style="display: inline-flex; align-items: center; margin-bottom: 20px; color: #95a5a6; text-decoration: none; font-weight: bold; font-size: 14px; transition: all 0.3s ease;"
+            onmouseover="this.style.color='#2c3e50'; this.style.transform='translateX(-5px)';"
+            onmouseout="this.style.color='#95a5a6'; this.style.transform='translateX(0)';">
+            ← 悄悄溜回主页
+        </a>
+
+        <h1>👨‍💻 潘老师的创意宇宙与百宝箱</h1>
+        <div class="subtitle">"无论你是想找个好用的教学工具，还是想自己动手做点好玩的东西，这里都有你想要的。"</div>
+
+        <h2 class="section-title">🟢 实用工具箱：正在服役的效率利器 (欢迎使用)</h2>
+        <div class="project-grid">
+            <div class="card active" onclick="openModal(this)" data-status="active" data-title="拼音大挑战"
+                data-tech="互动网页游戏"
+                data-desc="这是专为华小生设计的拼音练习工具。学生点击就能听到标准发音，答对答错都有即时反馈和计分。它把枯燥的拼音课变成了好玩的闯关游戏，老师上课能用来吸引学生注意力，学生回家也能当成游戏自己复习。"
+                data-epitaph="稳定输出，学生们的拼音救星。">
+                <span class="status-tag bg-active">欢迎使用</span>
+                <h3>1. 拼音大挑战</h3>
+                <p class="desc-short">告别死记硬背！最让人上头的拼音闯关小游戏，点一点听发音，还能通关计分，让孩子瞬间爱上学拼音！</p>
+                <div class="tech-stack">教育游戏</div>
+            </div>
+            <div class="card active" onclick="openModal(this)" data-status="active" data-title="科学探险岛 (一年级)"
+                data-tech="互动教学题库"
+                data-desc="专门根据大马一年级科学课本设计的互动题库。学生可以通过拖拽、点击等简单操作，在电脑或平板上完成课本里的实验观察。非常适合老师在课室里投屏进行全班互动，或者让学生课后边玩边巩固知识。"
+                data-epitaph="科学启蒙从点击屏幕开始。">
+                <span class="status-tag bg-active">欢迎使用</span>
+                <h3>2. 科学探险岛(一)</h3>
+                <p class="desc-short">随身携带的线上科学实验室！不需要准备复杂的实验器材，一年级课本里的科学现象直接在屏幕上生动上演！</p>
+                <div class="tech-stack">科学教具</div>
+            </div>
+            <div class="card active" onclick="openModal(this)" data-status="active" data-title="AI 趣味造句"
+                data-tech="智能逻辑辅助"
+                data-desc="帮助低年级学生练习词汇与造句的小工具。系统会提供各种有趣的词汇，让学生自由组合成句子，并且能判断句子通不通顺。这让平时干巴巴的造句练习变得像开盲盒一样，总是充满出人意料的惊喜。"
+                data-epitaph="造句不再干巴巴，充满未知的开盲盒体验。">
+                <span class="status-tag bg-active">欢迎使用</span>
+                <h3>3. AI 趣味造句</h3>
+                <p class="desc-short">拯救枯燥语法的终极神器！脑洞大开的造句盲盒，立刻让班里的每个学生都变成想象力丰富的段子手！</p>
+                <div class="tech-stack">语文教具</div>
+            </div>
+            <div class="card active" onclick="openModal(this)" data-status="active" data-title="AI 英语语法纠错"
+                data-tech="人工智能对话"
+                data-desc="这是一个不知疲倦的智能英语小助手。只要输入英文句子，它就能像外教一样，精准挑出里面的语法和时态错误，还会耐心地告诉你为什么错、应该怎么改。老师可以用它来辅助批改作业，学生也能用来自己检查练习。"
+                data-epitaph="永远不知疲倦的、没有感情的批改机器。">
+                <span class="status-tag bg-active">欢迎使用</span>
+                <h3>4. AI 语法纠错</h3>
+                <p class="desc-short">拥有一个永远秒回你的私人英语外教！英文写得再乱也能瞬间抢救，自动批改还会给你写超详细的解析！</p>
+                <div class="tech-stack">AI 助教</div>
+            </div>
+            <div class="card active" onclick="openModal(this)" data-status="active" data-title="习字簿生成器"
+                data-tech="自动排版程序"
+                data-desc="专为华文老师量身打造的排版工具。老师只需要输入这周要教的生字，系统就会自动帮你画好标准的田字格和拼音格。再也不用对着 Word 文档痛苦地调整边距和格子大小了，一键保存打印，省时省力。"
+                data-epitaph="田字格排版神器，再也不用求人找模板。">
+                <span class="status-tag bg-active">欢迎使用</span>
+                <h3>5. 习字簿生成器</h3>
+                <p class="desc-short">全马华文老师的排版救星！输入生字，一秒钟自动生成完美比例的田字格练习本，打印完准时下班！</p>
+                <div class="tech-stack">办公效率</div>
+            </div>
+            <div class="card active" onclick="openModal(this)" data-status="active" data-title="点名簿生成器"
+                data-tech="自动生成表格"
+                data-desc="帮班主任大幅减轻工作量的小工具。只需把全班名字放进去，就能自动排版出一整年、每个月的标准考勤表格，连学校公共假期都能提前标好。直接打印出来就能用，把老师从繁琐的画格子和统计中解放出来。"
+                data-epitaph="考勤统计的绝佳辅助，解放行政双手。">
+                <span class="status-tag bg-active">欢迎使用</span>
+                <h3>6. 点名簿生成器</h3>
+                <p class="desc-short">扔掉笨重的点名簿！三秒钟自动画好全年级专属的考勤表格，班主任每个月必不可少的行政偷懒神器！</p>
+                <div class="tech-stack">行政管理</div>
+            </div>
+            <div class="card active" onclick="openModal(this)" data-status="active" data-title="竖式解题助手"
+                data-tech="动画演算工具"
+                data-desc="专门用来演示数学竖式的教学工具。输入任何加减乘除算式，它就会在屏幕上一步步“走”出完整的计算过程，哪个数字借位了、哪里进位了，一目了然。再也不用在黑板上擦了又写，学生一看就懂。"
+                data-epitaph="把抽象的进位退位生动地画在屏幕上。">
+                <span class="status-tag bg-active">欢迎使用</span>
+                <h3>7. 竖式解题助手</h3>
+                <p class="desc-short">把抽象的数学变成可视化魔术！进位退位自动拆解、一步步慢动作演示，连基础最差的学生也能一眼看懂全过程！</p>
+                <div class="tech-stack">数学教具</div>
+            </div>
+            <div class="card active" onclick="openModal(this)" data-status="active" data-title="Jutaria 数字化"
+                data-tech="网页互动游戏"
+                data-desc="大马经典桌游“百万富翁”的电子网页版！完美还原了买地、盖房子、抽命运卡的规则。现在它成了最受欢迎的课堂奖励游戏，支持全班分组在大屏幕上一起投屏游玩，绝对是炒热课堂气氛的王牌。"
+                data-epitaph="虚拟房产大亨的养成摇篮，大马童年回忆。">
+                <span class="status-tag bg-active">欢迎体验</span>
+                <h3>8. Jutaria 数字化</h3>
+                <p class="desc-short">大马人的童年极致回忆杀！把实体百万富翁完美搬上大屏幕，不仅能玩还能学算钱，课堂互动气氛瞬间燃爆！</p>
+                <div class="tech-stack">课堂互动</div>
+            </div>
+            <div class="card active" onclick="openModal(this)" data-status="active" data-title="G-MATH (标准版)"
+                data-tech="网页对战桌游"
+                data-desc="一款把“算术练习”和“拼字对战桌游”结合在一起的游戏。玩家手上有不同的数字和加减乘除符号，必须在棋盘上拼出成立的算式来抢分数。在玩乐中不知不觉就把心算速度练上去了，比单纯做练习题好玩一百倍。"
+                data-epitaph="算术与博弈的完美结合，让数字活起来。">
+                <span class="status-tag bg-active">欢迎游玩</span>
+                <h3>9. G-MATH 标准版</h3>
+                <p class="desc-short">让枯燥的算术变成一场高智商的厮杀！独创的数学拼数字对战桌游，算得快不如摆得巧，好玩到根本停不下来！</p>
+                <div class="tech-stack">教育桌游</div>
+            </div>
+            <div class="card active" onclick="openModal(this)" data-status="active" data-title="G-MATH (进阶版)"
+                data-tech="硬核算法挑战"
+                data-desc="如果觉得标准版太简单，这个进阶版绝对能满足高年级学生或数学达人。它加入了乘方、括号等更复杂的规则，棋盘上还有类似“双倍得分”的特殊格子。想赢不仅要算得快，还要有排兵布阵的策略，非常考验大脑。"
+                data-epitaph="大脑 CPU 燃烧模拟器，纯粹的数值魅力。">
+                <span class="status-tag bg-active">欢迎挑战</span>
+                <h3>10. G-MATH 进阶版</h3>
+                <p class="desc-short">真正的脑力榨汁机！加入了括号和乘方的极度烧脑数学博弈，只有算数最快、策略最强的最强大脑才能活到最后！</p>
+                <div class="tech-stack">硬核挑战</div>
+            </div>
+            <div class="card active" onclick="openModal(this)" data-status="active" data-title="G-MATH (联机模式)"
+                data-tech="线上实时同步"
+                data-desc="G-MATH 的双人线上对战版。不需要坐在同一台电脑前，你和朋友可以用各自的手机或平板进入同一个房间实时比拼数学逻辑。系统会自动当裁判并计分，体验一把面对面竞技的刺激感。"
+                data-epitaph="服务器扛住了压力，数据同步成功。">
+                <span class="status-tag bg-active">欢迎对战</span>
+                <h3>11. G-MATH 联机版</h3>
+                <p class="desc-short">跨越屏幕的数学终极决斗！马上叫上你的同桌或好友，只要有网就能来一场毫秒级同步的实时智力 PK！</p>
+                <div class="tech-stack">网络对战</div>
+            </div>
+            <div class="card active" onclick="openModal(this)" data-status="active" data-title="饮食习惯追踪器"
+                data-tech="数据记录图表"
+                data-desc="一个非常轻量、简单的饮食记录小工具。每天花一分钟记下吃了什么、大概摄入了多少热量，它会自动帮你画出变化趋势图。不搞复杂的功能，只为了让你清晰地看见自己的饮食习惯，从而做出更健康的改变。"
+                data-epitaph="记录日常，让身体数据化。">
+                <span class="status-tag bg-active">欢迎使用</span>
+                <h3>12. 饮食习惯追踪</h3>
+                <p class="desc-short">掌控身体的终极密码！最懂你的私人极简饮食账本，每天吃了多少零食、摄入多少热量，一张图表一目了然！</p>
+                <div class="tech-stack">健康管理</div>
+            </div>
+            <div class="card active" onclick="openModal(this)" data-status="active" data-title="拼音探秘" data-tech="逻辑推理游戏"
+                data-desc="这是高阶拼音推理密室。只要输入句子，它会自动隐藏所有汉字并提取拼音字母为线索。教师可以在里面安排各种特殊的通关密语，让学生根据底部的悬空字母层层推理，拼凑出完整的句子！"
+                data-epitaph="解密失败的玩家依然被困在拼音里。">
+                <span class="status-tag bg-active">欢迎探秘</span>
+                <h3>13. 拼音探秘</h3>
+                <p class="desc-short">终极拼音悬疑大作！输入一段神秘句子，把它变成一场全班同学根据拼音线索层层推理的硬核解密逃生！</p>
+                <div class="tech-stack">推理游戏</div>
+            </div>
+            <div class="card active" onclick="openModal(this)" data-status="active" data-title="Kirable 数字桌游"
+                data-tech="拼字算式引擎"
+                data-desc="受经典桌游启发，这是一个考验你拼凑算式能力的数字游戏。拥有极简的几何风排版，支持单人自我挑战或与内置防作弊 CPU 对决。在这里你不需要强大的心算，只需要灵活调动你的排列组合细胞。"
+                data-epitaph="算出来的数字再大，也不如放对一个加号。">
+                <span class="status-tag bg-active">欢迎游玩</span>
+                <h3>14. Kirable 数字桌游</h3>
+                <p class="desc-short">极致纯净的数字拼盘！没有花里胡哨的道具，只需要最原始的加减乘除，挑战你最硬核的排列组合逻辑！</p>
+                <div class="tech-stack">益智桌游</div>
+            </div>
+            <div class="card active" onclick="openModal(this)" data-status="active" data-title="F1数据与分析网站"
+                data-tech="数据可视化"
+                data-desc="谁说追星只能买海报？当你狂热喜欢F1赛车，却觉得官方数据太枯燥时，为什么不自己动手给爱好加个硬核外挂！这个项目拉来了Google Gemini当免费的“超级大脑”，把一整个比赛周末（练习赛、排位赛、正赛）密密麻麻的成绩单全部吃进去，再像变魔术一样转成科技感爆棚的图表展厅。你看，只要有热爱加上一点代码，每个人都能把心里的激情变成惊艳全场的酷炫作品！"
+                data-epitaph="为热爱而生，将速度与激情化为数据图表。">
+                <span class="status-tag bg-active">欢迎访问</span>
+                <h3>15. F1数据与分析网站</h3>
+                <p class="desc-short">把枯燥的官方圈速变废为宝！借助AI超级大脑一键生成科技感爆棚的图表展厅，把热爱变成酷炫外挂！</p>
+                <div class="tech-stack">数据展现</div>
+            </div>
+            <div class="card active" onclick="openModal(this)" data-status="active"
+                data-title="Hangman Adventure (单词大冒险)" data-tech="教育益智游戏"
+                data-desc="专为华小学生设计的拼写闯关游戏。同步各年级课本词汇，支持自定义生词。学生可根据拼音、翻译或句子提示来补全单词，在拯救角色的过程中巩固记忆。是老师随堂测试和学生自测的神器！"
+                data-epitaph="单词背后的救星，让课本词汇活起来！" data-link="tools/hangman/index.html">
+                <span class="status-tag bg-active">欢迎游玩</span>
+                <h3>16. Hangman Adventure</h3>
+                <p class="desc-short">同步课本生词，通过拼写来拯救角色！让枯燥的复习变成心跳加速的大冒险！</p>
+                <div class="tech-stack">教育益智</div>
+            </div>
+            <div class="card active" onclick="openModal(this)" data-status="active" data-title="Scrabble 经典拼字游戏"
+                data-tech="网页对战桌游"
+                data-desc="这是一个完全在网页端运行的标准英文 Scrabble 拼字游戏。完美还原了真实的桌面游戏规则，内置完整的官方字典校验，拒绝瞎拼乱造！支持最高4名玩家同台竞技，是练习英文词汇量的绝佳工具。"
+                data-epitaph="最经典的拼字对局，让你的英文词汇库燃烧起来。" data-link="tools/scrabble.html">
+                <span class="status-tag bg-active">欢迎游玩</span>
+                <h3>17. Scrabble 拼字游戏</h3>
+                <p class="desc-short">原汁原味的经典桌游体验！带上你储备的英文词汇，在15x15的棋盘上来一场烧脑的字母对局！</p>
+                <div class="tech-stack">益智桌游</div>
+            </div>
+            <div class="card active" onclick="openModal(this)" data-status="active" data-title="Sahibba 本地拼字游戏"
+                data-tech="国际游戏本土化" data-desc="这是一个持续更新的马来文网页版桌游拼字游戏，专注于为马来文学习者提供一个趣味的语言学习平台，让学习变得更加有趣。"
+                data-epitaph="以马来文为蓝本的拼字游戏，适合马来文学习者" data-link="tools/sahibba.html">
+                <span class="status-tag bg-active">欢迎游玩</span>
+                <h3>18. Sahibba 拼字游戏</h3>
+                <p class="desc-short">原汁原味的经典桌游体验！带上你储备的马来文词汇，在15x15的棋盘上来一场烧脑的字母对局！</p>
+                <div class="tech-stack">益智桌游</div>
+            </div>
+            <div class="card active" onclick="openModal(this)" data-status="active" data-title="Diary Buddy 英文日记助手"
+                data-tech="AI 引导 / 写作辅助" data-desc="这是专为小学生设计的假期英文日记助手！通过步骤引导与 AI 润色词汇，让孩子能够摆脱词穷，轻松完成一篇语法正确且生动的英文日记。"
+                data-epitaph="再也不用为了憋假期的英文日记而头疼了！" data-link="diary-buddy/index.html">
+                <span class="status-tag bg-active">欢迎使用</span>
+                <h3>19. Diary Buddy 英文日记助手</h3>
+                <p class="desc-short">专属假期英文日记助手！通过引导与 AI 润色词汇，让孩子轻松完成一篇出色的英文日记。</p>
+                <div class="tech-stack">写作教具</div>
+            </div>
+
+            <div class="card active" onclick="openModal(this)" data-status="active" data-title="校内 3D 模型定制系统"
+                data-tech="订单管理 / 校园创客" data-desc="这是专为本校师生和家长打造的 3D 打印模型预订平台。配合校方新购入的 3D 打印机，我们通过提供 3D 模型打印服务来为学校赚取一些活动基金。为确保仅供校内使用，此系统的链接并未公开。"
+                data-epitaph="把创意变成现实，还能顺便赚点零用钱！">
+                <span class="status-tag bg-active">正在执行</span>
+                <h3>20. 校内 3D 模型定制系统</h3>
+                <p class="desc-short">支持学校发展！专为我校师生和家长开放的 3D 打印预定平台，挑选心仪的 3D 模型，为学校赚取零用钱！</p>
+                <div class="tech-stack">校园创客</div>
+            </div>
+
+            <div class="card active" onclick="openModal(this)" data-status="active" data-title="语文型贪食蛇"
+                data-tech="教育益智游戏"
+                data-desc="结合了经典贪食蛇和汉字部首学习的创新小游戏。采用了温暖明亮的儿童专属色调，玩家需要控制小蛇在场地中，寻找并吃掉带有指定部首的汉字。游戏不仅考验反应速度，还会在升级后加快节奏并更换目标偏旁，让枯燥的识字复习变得充满刺激和乐趣。"
+                data-epitaph="让传统的汉字听写，变成了一场指尖上的狂飙。">
+                <span class="status-tag bg-active">欢迎游玩</span>
+                <h3>21. 语文型贪食蛇</h3>
+                <p class="desc-short">贪食蛇与汉字偏旁的趣味结合！控制小蛇寻找带有正确偏旁的汉字，在速度变快的挑战中巩固识字基础！</p>
+                <div class="tech-stack">教育游戏</div>
+            </div>
+
+        </div>
+
+        <h2 class="section-title">🟡 创客小车间：点燃你的动手灵感 (一起来创造吧)</h2>
+        <div class="project-grid">
+            <div class="card dev" onclick="openModal(this)" data-status="dev" data-title="IndexTTS 本地语音"
+                data-tech="本地软件测试"
+                data-desc="曾经为了给讲课视频配音，到处找免费的配音软件？这是一个尝试把高级的“文字读稿”技术完全下载到自己电脑上运行的实验。虽然目前不能发布给所有人用，但这种“不再依赖网络、彻底免费”的探索过程，非常值得一试。"
+                data-epitaph="它会说话了，但只有在我的电脑上才会。">
+                <span class="status-tag bg-dev">开发灵感</span>
+                <h3>22. IndexTTS 本地语音</h3>
+                <p class="desc-short">受够了配音软件总是要充会员？教你如何把强大的文字转语音功能直接搬进自己的电脑里，完全免费无限用！</p>
+                <div class="tech-stack">电脑黑科技</div>
+            </div>
+            <div class="card dev" onclick="openModal(this)" data-status="dev" data-title="科学探险岛 (二年级)"
+                data-tech="题库框架建设"
+                data-desc="这不仅仅是一个二年级的科学题库，它背后是一套“游戏生产流水线”。当你学会设计一套通用的模版，你会发现，其实任何人都可以成为创造者，把脑子里千奇百怪的教学点子，像搭积木一样变成让学生兴奋的小游戏。"
+                data-epitaph="题库还在拼命施工，版图正在扩张。">
+                <span class="status-tag bg-dev">架构灵感</span>
+                <h3>23. 科学探险岛(二)</h3>
+                <p class="desc-short">与其每天找别人做的游戏，不如自己造一个工厂！学会搭骨架，你也能轻松量产出成百上千个不重样的互动关卡！</p>
+                <div class="tech-stack">创意量产</div>
+            </div>
+            <div class="card dev" onclick="openModal(this)" data-status="dev" data-title="牛马退休日记" data-tech="趣味小玩意"
+                data-desc="这是一个充满职场幽默感的退休倒计时小工具。学习制作这种小玩意儿，能让你发现用电脑创造的乐趣。其实很多时候，我们不需要发明什么改变世界的伟大软件，只要能让身边的朋友看着屏幕会心一笑，那就足够了。"
+                data-epitaph="打工人的精神图腾，代码里的黑色幽默。">
+                <span class="status-tag bg-dev">练手项目</span>
+                <h3>24. 牛马退休日记</h3>
+                <p class="desc-short">谁说用电脑只能严肃地办公？自己动手做一个幽默的打工人倒计时，生活需要一点属于我们自己的黑色幽默！</p>
+                <div class="tech-stack">脑洞练手</div>
+            </div>
+            <div class="card dev" onclick="openModal(this)" data-status="dev" data-title="大话牌 (Liar's Poker)"
+                data-tech="网页逻辑游戏"
+                data-desc="扑克游戏其实就是一场人性的较量。这是一个尝试在网页上设定规则、让玩家互相欺骗和猜测的小游戏。你会发现，只要把现实中的规则转化为电脑听得懂的条件判断，你就能创造出任何让人血脉贲张的对局。"
+                data-epitaph="在虚拟牌桌上，没有人知道你到底有没有牌。">
+                <span class="status-tag bg-dev">开发中</span>
+                <h3>25. 大话牌心理博弈</h3>
+                <p class="desc-short">在网页上还原扑克牌的心理博弈！搞懂了基础的逻辑设定，你就能在薄薄的屏幕上创造出各种欺诈与惊天反转。</p>
+                <div class="tech-stack">逻辑推理</div>
+            </div>
+        </div>
+
+        <h2 class="section-title">🪦 先驱者陵园：那些大胆的失败与尝试 (向所有的脑洞致敬)</h2>
+        <div class="project-grid">
+            <div class="card buried" onclick="openModal(this)" data-status="buried" data-title="校园版 Among Us (Unity)"
+                data-tech="Unity 3D/2D 开发"
+                data-desc="原本计划用 Unity 制作一款充满大马校园风情的 Among Us 游戏，想让老师和学生在虚拟的学校里斗智斗勇。可惜在制作各种精美的 2D 角色和场景 Sprite (精灵图) 时，发现一个人画图实在是太耗费时间了，最终无奈放弃。这证明了做游戏不仅需要代码，美术资源的肝度更是不容小觑！"
+                data-epitaph="角色还没画完，内鬼就已经赢了。">
+                <span class="status-tag bg-buried">素材流产</span>
+                <h3>26. 校园版 Among Us</h3>
+                <p class="desc-short">试图用 Unity 打造大马本地版的校园抓内鬼游戏，却最终倒在无休止的画图地狱中的野心之作！</p>
+                <div class="tech-stack">游戏坑王</div>
+            </div>
+            <div class="card buried" onclick="openModal(this)" data-status="buried" data-title="五年级 AR 野生动物图鉴"
+                data-tech="增强现实(AR)"
+                data-desc="这是一个5年前开发的神奇手机应用。只要用手机扫一扫五年级课本上的动物图片，屏幕上就会直接“蹦”出立体的鹰爪、象腿！只要敢于探索新技术，你也能像变魔术一样，给学生带来一辈子难忘的震撼课堂。"
+                data-epitaph="5年前的技术巅峰，五年级课本上的3D奇迹。">
+                <span class="status-tag bg-buried">史诗级神作</span>
+                <h3>27. 五年级 AR 图鉴</h3>
+                <p class="desc-short">极其震撼的 AR 启蒙体验！试着让干瘪的课本长出 3D 立体的翅膀，这是让全班学生对你刮目相看的最酷方式！</p>
+                <div class="tech-stack">AR 黑科技</div>
+            </div>
+            <div class="card buried" onclick="openModal(this)" data-status="buried" data-title="初代科学模拟器"
+                data-tech="早期互动网页"
+                data-desc="这是现在那个好用的“科学探险岛”的“老祖宗”。它曾经充满各种问题，动不动就卡死报错。把它放在这里，是想告诉大家：无论做什么新尝试，第一版往往都是惨不忍睹的，但只要不放弃，它终将变得完美。"
+                data-epitaph="死于无穷无尽的 Bug，但为后来者铺平了道路。">
+                <span class="status-tag bg-buried">被Bug反杀</span>
+                <h3>28. 初代科学模拟器</h3>
+                <p class="desc-short">烂尾又如何？不要怕犯错，第一版总是千疮百孔的。在不断修改和崩溃中挣扎，才是掌握任何新技能的终极捷径！</p>
+                <div class="tech-stack">试错启示录</div>
+            </div>
+            <div class="card buried" onclick="openModal(this)" data-status="buried" data-title="Immich 个人私人相册"
+                data-tech="私人云端服务器"
+                data-desc="这是一个教你怎么打造“属于自己的云端相册”的尝试。不需要向各大网盘交月费，也不用担心照片隐私泄露。一旦你尝试过把旧电脑变成私人服务器，自己当管理员的感觉，你会发现其实你完全有能力摆脱付费会员的依赖。"
+                data-epitaph="照片存好了，但服务器拔线了。">
+                <span class="status-tag bg-buried">服务终止</span>
+                <h3>29. Immich 私人相册</h3>
+                <p class="desc-short">受够了各种网盘的限速和容量警告？教你如何把旧电脑变成比付费云盘还好用的私人相册，体验一把当主宰的爽感！</p>
+                <div class="tech-stack">私人云存储</div>
+            </div>
+            <div class="card buried" onclick="openModal(this)" data-status="buried" data-title="Speech 语音转录会议记录"
+                data-tech="人工智能对话"
+                data-desc="曾试图打造一个能把会议录音或讲课语音自动转成文字的工具。虽然因为免费使用次数用完了而被迫暂停，但学会利用现成的“人工智能大脑袋”来帮自己打字干活，是这几年来最酷、也最值得所有人去尝试的事情。"
+                data-epitaph="死因：使用次数耗尽。出师未捷身先死。">
+                <span class="status-tag bg-buried">使用限制</span>
+                <h3>30. 自动语音转文字</h3>
+                <p class="desc-short">尝试接入最前沿的人工智能，让它成为你不知疲倦的免费打字员，帮你把长篇大论的会议瞬间变成文字稿！</p>
+                <div class="tech-stack">AI 小助手</div>
+            </div>
+            <div class="card buried" onclick="openModal(this)" data-status="buried" data-title="AI 食物卡路里识别"
+                data-tech="图像智能识别"
+                data-desc="原本想做一个“拍张照片就能知道食物卡路里”的智能工具。生活中总有很多不方便的地方，与其抱怨，不如试着用一些新奇的思路去解决它。就算做出来的小工具罢工了，这个尝试解决问题的过程本身就非常鼓舞人心。"
+                data-epitaph="罢工了，先摆烂。反正思路还在。">
+                <span class="status-tag bg-buried">故障停用</span>
+                <h3>31. 拍立得卡路里</h3>
+                <p class="desc-short">遇到生活痛点就尝试用科技搞定它！哪怕最后做出来的工具常常认错食物，这种动手改变日常的冲动绝对值得鼓励！</p>
+                <div class="tech-stack">解决痛点</div>
+            </div>
+            <div class="card buried" onclick="openModal(this)" data-status="buried" data-title="iSchool 数字化校务系统"
+                data-tech="大型网站系统"
+                data-desc="这是一个试图彻底取代传统纸质表格和复杂 Excel 记录的庞大校务管理系统。虽然因为它实在太复杂、一个人根本做不完而搁置了，但挑战这种超大型项目的经历，能让人彻底看懂那些大型网站背后到底是怎么运转的。"
+                data-epitaph="坑挖得太大填不上，就地掩埋。">
+                <span class="status-tag bg-buried">停止开发</span>
+                <h3>32. iSchool 校务系统</h3>
+                <p class="desc-short">想快速变强？去挑战一个极其复杂的庞大工程！哪怕最后没做完，也能让你拥有看透市面上所有软件秘密的火眼金睛。</p>
+                <div class="tech-stack">系统大工程</div>
+            </div>
+            <div class="card buried" onclick="openModal(this)" data-status="buried" data-title="马来西亚汽车比价网"
+                data-tech="数据检索系统"
+                data-desc="原本想做一个本地最全的车辆对比网站。为了省钱，异想天开地用 Google Sheets 当作后台数据库，结果一个人手动录入和维护上千辆车子的数据实在太痛苦了，直接导致了项目的流产。这血泪教训告诉我们：没有自动化的数据抓取，就别碰庞大的数据网站。"
+                data-epitaph="汽车数据还没填完，站长先报废了。">
+                <span class="status-tag bg-buried">停止开发</span>
+                <h3>33. 本地汽车比价网</h3>
+                <p class="desc-short">试图用 Google 表格硬刚上千辆汽车的庞大数据库，最终被繁重的手动录入工作彻底击垮的血泪项目。</p>
+                <div class="tech-stack">数据库惨案</div>
+            </div>
+            <div class="card buried" onclick="openModal(this)" data-status="buried" data-title="《文字深渊：20层魔塔》"
+                data-tech="纯文字探险"
+                data-desc="这是一个没有精美画面的纯文字探索游戏。在这个世界里，你每走一步都需要精确计算血量、钥匙和怪物的攻击力。这证明了一个道理：真正好玩的东西，靠的不是华丽的包装，而是内核里极其精妙的关卡设计。"
+                data-epitaph="玩家没被吞噬，代码先被遗忘了。">
+                <span class="status-tag bg-buried">被遗忘</span>
+                <h3>34. 纯文字魔塔</h3>
+                <p class="desc-short">抛弃一切华丽的美术，仅用文字挑战硬核的数字计算。带你感受纯粹的逻辑推理带来的紧张刺激感！</p>
+                <div class="tech-stack">纯粹数值</div>
+            </div>
+            <div class="card buried" onclick="openModal(this)" data-status="buried" data-title="《深渊长廊：瞬息与低语》"
+                data-tech="动作与文字融合"
+                data-desc="这是一个极具创意的游戏实验。它把需要慢慢思考的文字阅读，和需要瞬间按键反应的动作游戏强行糅合在了一起。有时候，不按套路出牌，把两个毫不相干的东西混搭，往往能碰撞出让人惊艳的新奇体验。"
+                data-epitaph="深渊低语变成了无声的代码。">
+                <span class="status-tag bg-buried">被遗忘</span>
+                <h3>35. 长廊 (机制融合)</h3>
+                <p class="desc-short">在安静的文字阅读里强行塞入极限反应挑战！去挑战看似违和的风格大乱炖，创造前所未有的新奇玩法！</p>
+                <div class="tech-stack">游戏脑洞</div>
+            </div>
+            <div class="card buried" onclick="openModal(this)" data-status="buried" data-title="《深渊迷阵：极速死斗》"
+                data-tech="经典玩法改造"
+                data-desc="把大家熟悉的“扫雷”规则彻底改写，变成了一个需要一边奔跑一边躲避陷阱的快节奏游戏。很多伟大的创意最初都像这样像个半成品，只有不断地去构思这些奇奇怪怪的点子，才能真正培养出非凡的创造力。"
+                data-epitaph="还没开始死斗，项目先倒下了。">
+                <span class="status-tag bg-buried">被遗忘</span>
+                <h3>36. 迷阵 (动作扫雷)</h3>
+                <p class="desc-short">把经典的扫雷变成紧张的极速逃生！别怕做出没人玩的废案，每一次推翻重来都在开拓你的思维眼界！</p>
+                <div class="tech-stack">玩法改造</div>
+            </div>
+            <div class="card buried" onclick="openModal(this)" data-status="buried" data-title="全马超市物价自动追踪"
+                data-tech="自动化小爬虫"
+                data-desc="生活在这个物价飞涨的时代，这是一个自动去各大超市网站“盯梢”杂货价格的小程序。它证明了，只要掌握一点点自动化的技巧，你就能让电脑代替你去完成那些枯燥的搜索和比对工作，成为真正的生活达人。"
+                data-epitaph="省下的酱油钱，全用来交网费了。">
+                <span class="status-tag bg-buried">已停工</span>
+                <h3>37. 超市比价机器人</h3>
+                <p class="desc-short">为了几毛钱的酱油差价，让电脑每天自动帮你去各大超市巡视比价！掌握这项技能，全网都是你的免费比价器！</p>
+                <div class="tech-stack">自动化搜集</div>
+            </div>
+            <div class="card buried" onclick="openModal(this)" data-status="buried" data-title="自动降价通知小助手"
+                data-tech="手机消息推送"
+                data-desc="这是物价追踪器的好帮手。一旦发现超市降价，它就会立刻通过手机聊天软件给你发送提醒。这就像是你雇佣了一个永远不睡觉的赛博小管家，帮你留意着生活里的每一个省钱小细节，这种不用自己操心的感觉非常棒。"
+                data-epitaph="管家进入无限期休眠。">
+                <span class="status-tag bg-buried">已停工</span>
+                <h3>38. 降价通知小管家</h3>
+                <p class="desc-short">让电脑 24 小时为你打工盯盘！只需一点点设置，就能打造一个一旦降价就马上发消息通知你的私人小管家！</p>
+                <div class="tech-stack">消息推送</div>
+            </div>
+            <div class="card buried" onclick="openModal(this)" data-status="buried" data-title="迷之守护程序"
+                data-tech="不可考究的实验"
+                data-desc="这是一个连我自己都忘记了具体用途的小程序，大概是为了保证别的工具不崩溃而写的。把它留在这里，是为了纪念那种为了钻研一个难题而废寝忘食、全神贯注的状态，这种专注是创造过程中最迷人的部分。"
+                data-epitaph="连作者自己都看不懂了。">
+                <span class="status-tag bg-buried">作者失忆</span>
+                <h3>39. 迷之防崩溃程序</h3>
+                <p class="desc-short">每个喜欢折腾的人，电脑里都藏着几个连自己都忘记是干嘛用的半成品。致敬那段为了解决问题而苦思冥想的岁月！</p>
+                <div class="tech-stack">极客黑历史</div>
+            </div>
+            <div class="card buried" onclick="openModal(this)" data-status="buried" data-title="3D 科学实验模拟"
+                data-tech="专业 3D 软件"
+                data-desc="这是尝试使用专业级的 3D 游戏制作软件来打造科学实验模拟的记录。虽然最后发现这种专业工具对于小实验来说实在太庞大复杂了，但体验过光影、材质和物理碰撞的设置后，以后再玩 3D 游戏，你眼中的世界都会大不相同。"
+                data-epitaph="杀鸡焉用牛刀，软件太复杂了。">
+                <span class="status-tag bg-buried">停止开发</span>
+                <h3>40. 3D 科学实验探索</h3>
+                <p class="desc-short">勇敢跨界去挑战专业的 3D 游戏制作软件！哪怕最终觉得太难而放弃，你看待电影和游戏的眼界也将彻底颠覆！</p>
+                <div class="tech-stack">3D 视觉探索</div>
+            </div>
+            <div class="card buried" onclick="openModal(this)" data-status="buried" data-title="宇宙行星围绕轨迹"
+                data-tech="图形与物理计算"
+                data-desc="尝试把书本上枯燥的“万有引力公式”转化为网页上旋转的行星轨迹。这是一个非常有浪漫色彩的尝试，它让你感受到，我们可以利用一些简单的数学规则，在方寸屏幕之间画出一个属于自己的、生生不息的小宇宙。"
+                data-epitaph="宇宙太浩瀚，屏幕画不下。">
+                <span class="status-tag bg-buried">已停用</span>
+                <h3>41. 星系轨迹画板</h3>
+                <p class="desc-short">在网页里画出一个微缩星系。当枯燥的物理书本知识变成了屏幕上优美的运动轨迹，你会发现创造其实是一种艺术。</p>
+                <div class="tech-stack">数学视觉化</div>
+            </div>
+            <div class="card buried" onclick="openModal(this)" data-status="buried" data-title="Jarvis 语音智能管家"
+                data-tech="语音与 AI 结合"
+                data-desc="这是一个极度具有科幻色彩的尝试，试图把语音识别和智能对话结合起来，打造一个能听懂指令、能帮你控制电脑的钢铁侠同款管家。虽然最终离电影里的完美效果还有距离，但永远不要停止对未来科技生活的向往和折腾！"
+                data-epitaph="没当上钢铁侠，智能管家只能下岗。">
+                <span class="status-tag bg-buried">光荣入土</span>
+                <h3>42. Jarvis 钢铁侠管家</h3>
+                <p class="desc-short">谁不想拥有钢铁侠那样的超酷管家？尝试结合语音识别和人工智能，大胆地把科幻电影里的情节搬进现实！</p>
+                <div class="tech-stack">科幻梦想</div>
+            </div>
+            <div class="card buried" onclick="openModal(this)" data-status="buried" data-title="Google 表格隐藏大招"
+                data-tech="云端表格自动化"
+                data-desc="很多人不知道，平时常用的 Google 表格里其实藏着一个能极大提升效率的秘密武器（GAS）。通过简单的设置，它可以自动帮你处理海量数据、甚至群发带名字的邮件。掌握了它，你就能在繁琐的行政工作中脱颖而出，准时下班。"
+                data-epitaph="事了拂衣去，深藏云端里。">
+                <span class="status-tag bg-buried">已封存</span>
+                <h3>43. Google 表格黑魔法</h3>
+                <p class="desc-short">隐藏在表格背后的超级大招。不用安装任何东西，就能让你成为办公室里做报表、发邮件的效率神仙！</p>
+                <div class="tech-stack">办公自动化</div>
+            </div>
+            <div class="card buried" onclick="openModal(this)" data-status="buried" data-title="羽毛球高速动态捕捉"
+                data-tech="摄像头视觉识别"
+                data-desc="这是一个极其大胆的尝试：想让普通的摄像头不仅能录像，还能像人眼一样精准捕捉比赛中高速飞行的羽毛球轨迹。虽然受限于电脑摄像头的反应速度没能完美实现，但这种教电脑“看”懂现实世界的全过程，极其充满魅力。"
+                data-epitaph="球速太快，普通的摄像头看花了眼。">
+                <span class="status-tag bg-buried">光荣入土</span>
+                <h3>44. 羽毛球动态捕捉</h3>
+                <p class="desc-short">极其硬核的挑战！试图让电脑的摄像头拥有判断高速运动的“眼睛”，探索科技的边界总是让人热血沸腾！</p>
+                <div class="tech-stack">智能识别</div>
+            </div>
+            <div class="card buried" onclick="openModal(this)" data-status="buried" data-title="AI 充当游戏裁判实验"
+                data-tech="设定 AI 角色"
+                data-desc="在这里，人工智能不再是简单的问答机器，而是化身成了“海龟汤”推理游戏里那个神出鬼没的主持人。这是一个探索怎么和 AI 沟通、怎么引导 AI 按照你的剧本走的神奇实验，展现了人机互动在游戏领域的无限可能性。"
+                data-epitaph="剧本写好了，玩家没来。">
+                <span class="status-tag bg-buried">已封存</span>
+                <h3>45. AI 海龟汤推理</h3>
+                <p class="desc-short">让最新的人工智能当你的游戏裁判！探索如何对它下达完美指令，文字推理与人工智能的结合拥有无限脑洞！</p>
+                <div class="tech-stack">指令调优</div>
+            </div>
+            <div class="card buried" onclick="openModal(this)" data-status="buried" data-title="网站后台运作原理解密"
+                data-tech="后台搭建练习"
+                data-desc="这是一个用于学习“网站后台到底是怎么运作”的测试区域。如果你好奇平时用的各种手机软件是怎么保存你的数据的、怎么互相传输信息的，这里就是答案。弄懂了这些基础，你就会对平时用的所有软件有一种恍然大悟的感觉。"
+                data-epitaph="弄懂原理前的疯狂试错。">
+                <span class="status-tag bg-buried">已封存</span>
+                <h3>46. 网站后台解密场</h3>
+                <p class="desc-short">拆解网站的内部运作原理！一旦搞懂了数据是怎么在网络里传输的，你会对每天用的各种 App 产生全新的认识！</p>
+                <div class="tech-stack">原理探索</div>
+            </div>
+            <div class="card buried" onclick="openModal(this)" data-status="buried" data-title="走到哪写到哪的云电脑"
+                data-tech="在线工作环境"
+                data-desc="尝试各种新奇的在线编辑工具，只为了实现一个目的：不再被某一台特定的电脑绑死。只要借用别人的电脑打开浏览器，就能立刻接上自己的工作进度。这是一种属于现代互联网时代的、极其潇洒且自由的工作方式。"
+                data-epitaph="折腾工具比真正做事花的时间还长。">
+                <span class="status-tag bg-buried">已封存</span>
+                <h3>47. 随身云端工作站</h3>
+                <p class="desc-short">追求极简的自由！无论是在哪里，借用别人的电脑打开浏览器就能立刻接上自己的进度，体验极致潇洒的工作方式！</p>
+                <div class="tech-stack">效率工具箱</div>
+            </div>
+            <div class="card buried" onclick="openModal(this)" data-status="buried" data-title="Auto Quiz 自动作答 AI"
+                data-tech="浏览器自动化与 AI"
+                data-desc="这是一个曾经立志要帮老师全自动完成线上 Quiz 的伟大构想。试图让电脑自己登录网站、识别题目，再呼叫人工智能给出答案。然而现实很骨感，各种复杂的登录拦截、必须要人眼判断的真实验证码，让这个项目深陷泥潭。虽然它折戟于此，但至少证明了自动化与 AI 结合释放出来的惊人想象力。"
+                data-epitaph="倒在了无情的人机身份验证面前。">
+                <span class="status-tag bg-buried">项目终止</span>
+                <h3>48. 自动答卷 AI 助手</h3>
+                <p class="desc-short">梦想全自动帮老师作答的AI！虽由于复杂的真实验证系统被迫放弃，但这绝对是个极其大胆的自动化脑洞尝试！</p>
+                <div class="tech-stack">自动化尝试</div>
+            </div>
+            <div class="card buried" onclick="openModal(this)" data-status="buried"
+                data-title="华小互动教学动画原型 (SJKC Interactive Animation)"
+                data-tech="PixiJS, JavaScript, HTML5 Canvas, Web Audio"
+                data-desc="这是一个把课本搬上屏幕的实验。老师的声音和会动的卡通角色完美同步，还会自动弹出字幕。有了它，学生在家里也能像看动画片一样有趣地复习功课啦！"
+                data-epitaph="概念验证完成，手动编写时间轴数据耗时过长而终止。">
+                <span class="status-tag bg-buried">概念验证 (PoC)</span>
+                <h3>49. 华小互动教学动画原型</h3>
+                <p class="desc-short">用生动的卡通人物代替枯燥的课本，边说边动还有字幕，让小朋友像看动画片一样开心学知识！</p>
+                <div class="tech-stack">技术原型</div>
+            </div>
+            <div class="card buried" onclick="openModal(this)" data-status="buried"
+                data-title="BWF羽球赛事通知与分析 Telegram Bot" data-tech="Telegram Bot"
+                data-desc="每逢羽毛球大赛，总是在群里到处问“几点轮到大马球员打？” 不如自己雇个不知疲倦的情报员！这个Telegram Bot就像个死忠球迷，每天自动去各大赛程表上寻找马来西亚球员的名字。只要发现目标，它就会立刻给你的手机发送弹窗警报。用自己敲出的代码去解决生活中微小的烦恼，这种感觉就像掌握了超能力一样极度舒适！"
+                data-epitaph="由于技术限制，无法通过爬虫在BWF网站抓取比赛信息，项目被迫停止运行。">
+                <span class="status-tag bg-buried">项目停止</span>
+                <h3>50. BWF羽球赛事通知 Bot</h3>
+                <p class="desc-short">你专属的不知疲倦的羽球接线员！自动巡逻每天赛程，大马球员一上场就准时拉响你手机里的战斗警报！</p>
+                <div class="tech-stack">消息推送</div>
+            </div>
+            <div class="card buried" onclick="openModal(this)" data-status="buried" data-title="EDUblox (3D 教育元宇宙实验)"
+                data-tech="WebXR / A-Frame"
+                data-desc="寻找 3D 教育的无限可能，在浏览器里搭建一个可以随意漫游的任务空间。这是一个基于 A-Frame 框架开发的 3D 沉浸式教学原型。它实现了第一人称视角漫游、简单的碰撞检测与物品点击交互系统。虽然目前的任务只是“点击小黄鸭”，但它完整地展示了 WebXR 技术在轻量级教育游戏中的潜力。"
+                data-epitaph="虚拟的世界已经同步，但那只小黄鸭终究没有等到它的学生。" data-link="EDUblox/index.html">
+                <span class="status-tag bg-buried">实验终止</span>
+                <h3>51. EDUblox (3D 教育元宇宙实验)</h3>
+                <p class="desc-short">寻找 3D 教育的无限可能！在浏览器里开启属于你的 3D 教育漫游！</p>
+                <div class="tech-stack">WebXR</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="projectModal" onclick="closeModal(event)">
+        <div class="modal-content" id="modalContent">
+            <span class="close-btn" onclick="closeModal(event)">&times;</span>
+            <h2 id="modal-title">项目名称</h2>
+            <div id="modal-tech">Tech Stack</div>
+            <p id="modal-desc">详细描述...</p>
+
+            <a href="#" id="modal-link" class="modal-link-btn" target="_blank" style="display: none;">🚀 前往预览体验</a>
+
+            <div class="modal-epitaph-container" id="modal-epitaph-box">
+                <span class="epitaph-label" id="epitaph-title">档案备注</span>
+                <p id="modal-epitaph">"墓志铭"</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal(card) {
+            const title = card.getAttribute('data-title');
+            const desc = card.getAttribute('data-desc');
+            const tech = card.getAttribute('data-tech');
+            const epitaph = card.getAttribute('data-epitaph');
+            const status = card.getAttribute('data-status');
+            const link = card.getAttribute('data-link');
+
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-desc').innerText = desc;
+            document.getElementById('modal-tech').innerText = "💡 核心亮点：" + tech;
+            document.getElementById('modal-epitaph').innerText = '"' + epitaph + '"';
+
+            const modalLink = document.getElementById('modal-link');
+            if (link) {
+                modalLink.href = link;
+                modalLink.style.display = 'inline-block';
+            } else {
+                modalLink.style.display = 'none';
+            }
+
+            const modalContent = document.getElementById('modalContent');
+            const epitaphBox = document.getElementById('modal-epitaph-box');
+            const epitaphTitle = document.getElementById('epitaph-title');
+
+            modalContent.classList.remove('active', 'dev', 'buried');
+
+            if (status === 'active') {
+                modalContent.style.borderTopColor = '#2ecc71';
+                epitaphBox.style.borderLeftColor = '#2ecc71';
+                epitaphTitle.innerText = "🌟 项目纪实 / 现状";
+            } else if (status === 'dev') {
+                modalContent.style.borderTopColor = '#f39c12';
+                epitaphBox.style.borderLeftColor = '#f39c12';
+                epitaphTitle.innerText = "🚧 创客开发笔记";
+            } else {
+                modalContent.style.borderTopColor = '#95a5a6';
+                epitaphBox.style.borderLeftColor = '#95a5a6';
+                epitaphTitle.innerText = "🪦 趣味回忆录";
+            }
+
+            document.getElementById('projectModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(event) {
+            if (event.target.id === 'projectModal' || event.target.className === 'close-btn') {
+                document.getElementById('projectModal').style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        }
+    </script>
+
+</body>
+
+</html>

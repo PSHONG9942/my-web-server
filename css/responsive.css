@@ -1,0 +1,137 @@
+/* ==========================================================================
+   Responsive Global Styles (Mobile-First / Adaptability)
+   ========================================================================== */
+
+/* 1. Global Reset & Box Sizing */
+html {
+    box-sizing: border-box;
+    -webkit-text-size-adjust: 100%;
+}
+
+*,
+*:before,
+*:after {
+    box-sizing: inherit;
+}
+
+/* 2. Media Reset */
+img,
+video {
+    max-width: 100%;
+    height: auto;
+}
+
+/* 3. Base Container Fixes */
+.dashboard {
+    width: 95%;
+    /* Make it wider on mobile */
+    margin: 20px auto;
+}
+
+/* 4. Common Fixed-Width Overrides */
+input[type="text"],
+input[type="number"],
+button,
+.btn,
+.action-btn,
+.choice-btn {
+    max-width: 100%;
+    /* Prevent horizontal overflow */
+}
+
+/* 5. Mobile Specific Adjustments */
+@media screen and (max-width: 768px) {
+
+    /* Typographic Adjustments */
+    body {
+        padding: 5px;
+    }
+
+    .content h1,
+    .welcome-section h1 {
+        font-size: 1.6rem !important;
+        /* Scale down giant headers */
+    }
+
+    .content p {
+        font-size: 1rem !important;
+    }
+
+    /* Grid layout adjustments */
+    .grid {
+        grid-template-columns: 1fr;
+        /* Force single column */
+        gap: 15px;
+    }
+
+    /* Science / Game Area: Drop zones and generic containers */
+    .game-board {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .drop-zone {
+        min-width: 280px;
+        width: 100% !important;
+        min-height: 200px;
+        /* Reduce height to fit better vertically */
+        margin-bottom: 20px;
+    }
+
+    .zone-content {
+        min-height: 120px;
+    }
+
+    /* Modal / Popups */
+    .modal-content {
+        width: 90% !important;
+        padding: 15px !important;
+    }
+
+    /* Secret Footer / UI Elements */
+    .secret-footer {
+        margin-top: 30px;
+    }
+
+    .back-btn-corner {
+        top: 5px;
+        left: 5px;
+        font-size: 12px;
+        padding: 5px 8px;
+    }
+
+    /* Pin Yin / Game specific overrides */
+    #input-hanzi,
+    .pinyin-part {
+        font-size: 24px !important;
+        /* Scale down giant inputs */
+        min-width: 20px !important;
+        margin: 0 2px !important;
+    }
+
+    /* Forms */
+    input.date-field,
+    input.score-input-line {
+        font-size: 14px;
+        padding: 4px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+
+    /* Extreme small screens */
+    .logo-container img {
+        width: 200px;
+    }
+
+    .draggable-item {
+        width: 60px;
+        height: 70px;
+        font-size: 12px;
+    }
+
+    .draggable-item .icon {
+        font-size: 24px;
+    }
+}

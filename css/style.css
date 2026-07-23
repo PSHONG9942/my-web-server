@@ -1,0 +1,658 @@
+/* ==========================================================================
+   1. 全局基础设置 (Global & Layout)
+   ========================================================================== */
+body {
+    font-family: Kaiti, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f4f8;
+    /* 浅灰色背景 */
+    color: #2c3e50;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* 仪表盘容器 */
+.dashboard {
+    max-width: 1000px;
+    width: 90%;
+    margin: 40px auto;
+}
+
+.welcome-section {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+/* Logo 样式 */
+.mini-logo {
+    width: 120px;
+    height: auto;
+    margin-bottom: 15px;
+}
+
+.logo-container img {
+    width: 300px;
+    height: auto;
+    filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.1));
+    border-radius: 15px;
+}
+
+/* 文字排版 */
+.content h1 {
+    color: #007bff;
+    font-size: 2.2em;
+    margin-bottom: 20px;
+}
+
+.content p {
+    line-height: 1.6;
+    color: #546e7a;
+    font-size: 1.1em;
+}
+
+/* 网格布局 */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+/* ==========================================================================
+   2. 通用组件样式 (Components)
+   ========================================================================== */
+
+/* 2.1 按钮 (Buttons) */
+.cta-button {
+    margin-top: 30px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 30px;
+    background: linear-gradient(135deg, #007bff 0%, #00d4ff 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+}
+
+.btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+    filter: brightness(1.1);
+}
+
+.btn:active {
+    transform: translateY(-1px);
+}
+
+/* 首页工具选择组 */
+.tool-selection {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.tool-selection h2 {
+    font-size: 1.2rem;
+    color: #546e7a;
+    margin-bottom: 20px;
+}
+
+.button-group {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* 按钮组特定颜色 */
+.button-group .btn:nth-child(2) {
+    background: linear-gradient(135deg, #28a745 0%, #85d084 100%);
+}
+
+.button-group .btn:nth-child(3) {
+    background: linear-gradient(135deg, #ffc107 0%, #ffdb6d 100%);
+}
+
+/* 2.2 功能卡片 (Feature Cards) */
+.feature-card {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    /* 防止内容溢出圆角 */
+}
+
+.feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* 卡片图标基础 */
+.card-icon {
+    font-size: 40px;
+    margin-bottom: 15px;
+}
+
+/* 卡片链接容器 */
+.card-links {
+    margin-top: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+/* 卡片内小按钮基础 */
+.card-links a {
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #2c3e50;
+    border: 1px solid #cfd8dc;
+    text-decoration: none;
+    border-radius: 50px;
+    font-size: 0.85em;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+/* 锁定状态 */
+.locked {
+    opacity: 0.6;
+    filter: grayscale(1);
+    border: 2px dashed #cfd8dc !important;
+    background: #f8fafc !important;
+}
+
+/* ==========================================================================
+   3. 颜色主题分类 (Color Themes - 30+ Colors)
+   ========================================================================== */
+
+/* --- A. 蓝色系 (Blue Series) --- */
+
+/* 1. 标准蓝 (科技/专业) */
+.theme-blue {
+    border-top: 6px solid #007bff;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-blue .card-icon {}
+
+.theme-blue .card-links a:hover {
+    background: linear-gradient(135deg, #007bff, #00d4ff);
+    color: white;
+    border-color: transparent;
+}
+
+/* 2. 海军蓝 (稳重/深邃) */
+.theme-navy {
+    border-top: 6px solid #001f3f;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-navy .card-icon {}
+
+.theme-navy .card-links a:hover {
+    background: linear-gradient(135deg, #001f3f, #3a6186);
+    color: white;
+    border-color: transparent;
+}
+
+/* 3. 皇家蓝 (高贵/典雅) */
+.theme-royal {
+    border-top: 6px solid #4169e1;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-royal .card-icon {}
+
+.theme-royal .card-links a:hover {
+    background: linear-gradient(135deg, #4169e1, #7b68ee);
+    color: white;
+    border-color: transparent;
+}
+
+/* 4. 天空蓝 (轻盈/自由) */
+.theme-sky {
+    border-top: 6px solid #87ceeb;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-sky .card-icon {}
+
+.theme-sky .card-links a:hover {
+    background: linear-gradient(135deg, #87ceeb, #00bfff);
+    color: white;
+    border-color: transparent;
+}
+
+/* 5. 钢蓝色 (工业/冷峻) */
+.theme-steel {
+    border-top: 6px solid #4682b4;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-steel .card-icon {}
+
+.theme-steel .card-links a:hover {
+    background: linear-gradient(135deg, #4682b4, #5f9ea0);
+    color: white;
+    border-color: transparent;
+}
+
+/* --- B. 绿色系 (Green Series) --- */
+
+/* 6. 标准绿 (活力/便捷) */
+.theme-green {
+    border-top: 6px solid #28a745;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-green .card-icon {}
+
+.theme-green .card-links a:hover {
+    background: linear-gradient(135deg, #28a745, #85d084);
+    color: white;
+    border-color: transparent;
+}
+
+/* 7. 森林绿 (自然/沉稳) */
+.theme-forest {
+    border-top: 6px solid #228b22;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-forest .card-icon {}
+
+.theme-forest .card-links a:hover {
+    background: linear-gradient(135deg, #228b22, #556b2f);
+    color: white;
+    border-color: transparent;
+}
+
+/* 8. 薄荷绿 (清新/治愈) */
+.theme-mint {
+    border-top: 6px solid #00d2d3;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-mint .card-icon {}
+
+.theme-mint .card-links a:hover {
+    background: linear-gradient(135deg, #00d2d3, #54a0ff);
+    color: white;
+    border-color: transparent;
+}
+
+/* 9. 橄榄绿 (复古/平和) */
+.theme-olive {
+    border-top: 6px solid #808000;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-olive .card-icon {}
+
+.theme-olive .card-links a:hover {
+    background: linear-gradient(135deg, #808000, #bdb76b);
+    color: white;
+    border-color: transparent;
+}
+
+/* 10. 柠檬绿 (酸爽/醒目) */
+.theme-lime {
+    border-top: 6px solid #32cd32;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-lime .card-icon {}
+
+.theme-lime .card-links a:hover {
+    background: linear-gradient(135deg, #32cd32, #7cfc00);
+    color: white;
+    border-color: transparent;
+}
+
+/* --- C. 青/蓝绿色系 (Cyan/Teal Series) --- */
+
+/* 11. 青色 (清新/智慧) */
+.theme-cyan {
+    border-top: 6px solid #0abde3;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-cyan .card-icon {}
+
+.theme-cyan .card-links a:hover {
+    background: linear-gradient(135deg, #0abde3, #48dbfb);
+    color: white;
+    border-color: transparent;
+}
+
+/* 12. 蓝绿色 (创造/平衡) */
+.theme-teal {
+    border-top: 6px solid #008080;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-teal .card-icon {}
+
+.theme-teal .card-links a:hover {
+    background: linear-gradient(135deg, #008080, #20b2aa);
+    color: white;
+    border-color: transparent;
+}
+
+/* 13. 绿松石 (异域/通透) */
+.theme-turquoise {
+    border-top: 6px solid #40e0d0;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-turquoise .card-icon {}
+
+.theme-turquoise .card-links a:hover {
+    background: linear-gradient(135deg, #40e0d0, #00ced1);
+    color: white;
+    border-color: transparent;
+}
+
+/* --- D. 紫色系 (Purple Series) --- */
+
+/* 14. 标准紫 (智慧/逻辑) */
+.theme-purple {
+    border-top: 6px solid #6f42c1;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-purple .card-icon {}
+
+.theme-purple .card-links a:hover {
+    background: linear-gradient(135deg, #6f42c1, #a29bfe);
+    color: white;
+    border-color: transparent;
+}
+
+/* 15. 靛青色 (梦幻/期待) */
+.theme-indigo {
+    border-top: 6px solid #6610f2;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-indigo .card-icon {}
+
+.theme-indigo .card-links a:hover {
+    background: linear-gradient(135deg, #6610f2, #b39ddb);
+    color: white;
+    border-color: transparent;
+}
+
+/* 16. 薰衣草 (优雅/淡雅) */
+.theme-lavender {
+    border-top: 6px solid #e6e6fa;
+    /* 边框深一点以便看见 */
+    border-top-color: #9370db;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-lavender .card-icon {}
+
+.theme-lavender .card-links a:hover {
+    background: linear-gradient(135deg, #9370db, #dda0dd);
+    color: white;
+    border-color: transparent;
+}
+
+/* 17. 葡萄紫 (浓郁/成熟) */
+.theme-grape {
+    border-top: 6px solid #8e44ad;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-grape .card-icon {}
+
+.theme-grape .card-links a:hover {
+    background: linear-gradient(135deg, #8e44ad, #9b59b6);
+    color: white;
+    border-color: transparent;
+}
+
+/* --- E. 红色系 (Red Series) --- */
+
+/* 18. 警示红 (重点/紧急) */
+.theme-red {
+    border-top: 6px solid #dc3545;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-red .card-icon {}
+
+.theme-red .card-links a:hover {
+    background: linear-gradient(135deg, #dc3545, #ff6b6b);
+    color: white;
+    border-color: transparent;
+}
+
+/* 19. 绯红色 (热烈/激情) */
+.theme-crimson {
+    border-top: 6px solid #dc143c;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-crimson .card-icon {}
+
+.theme-crimson .card-links a:hover {
+    background: linear-gradient(135deg, #dc143c, #ff4757);
+    color: white;
+    border-color: transparent;
+}
+
+/* 20. 珊瑚红 (温暖/柔和) */
+.theme-coral {
+    border-top: 6px solid #ff7f50;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-coral .card-icon {}
+
+.theme-coral .card-links a:hover {
+    background: linear-gradient(135deg, #ff7f50, #ff6348);
+    color: white;
+    border-color: transparent;
+}
+
+/* 21. 番茄红 (可口/明快) */
+.theme-tomato {
+    border-top: 6px solid #ff6347;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-tomato .card-icon {}
+
+.theme-tomato .card-links a:hover {
+    background: linear-gradient(135deg, #ff6347, #fa8072);
+    color: white;
+    border-color: transparent;
+}
+
+/* --- F. 橙色/黄色系 (Orange/Yellow Series) --- */
+
+/* 22. 标准橙 (温暖/警示) */
+.theme-orange {
+    border-top: 6px solid #fd7e14;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-orange .card-icon {}
+
+.theme-orange .card-links a:hover {
+    background: linear-gradient(135deg, #fd7e14, #ffc107);
+    color: white;
+    border-color: transparent;
+}
+
+/* 23. 金色 (财富/商业) */
+.theme-gold {
+    border-top: 6px solid #f1c40f;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-gold .card-icon {}
+
+.theme-gold .card-links a:hover {
+    background: linear-gradient(135deg, #f1c40f, #f39c12);
+    color: white;
+    border-color: transparent;
+}
+
+/* 24. 琥珀色 (复古/珍贵) */
+.theme-amber {
+    border-top: 6px solid #ffbf00;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-amber .card-icon {}
+
+.theme-amber .card-links a:hover {
+    background: linear-gradient(135deg, #ffbf00, #ffca28);
+    color: white;
+    border-color: transparent;
+}
+
+/* --- G. 粉色系 (Pink Series) --- */
+
+/* 25. 标准粉 (活泼/趣味) */
+.theme-pink {
+    border-top: 6px solid #e84393;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-pink .card-icon {}
+
+.theme-pink .card-links a:hover {
+    background: linear-gradient(135deg, #e84393, #fd79a8);
+    color: white;
+    border-color: transparent;
+}
+
+/* 26. 亮粉色 (时尚/潮流) */
+.theme-hotpink {
+    border-top: 6px solid #ff69b4;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-hotpink .card-icon {}
+
+.theme-hotpink .card-links a:hover {
+    background: linear-gradient(135deg, #ff69b4, #ff1493);
+    color: white;
+    border-color: transparent;
+}
+
+/* 27. 玫瑰红 (浪漫/温柔) */
+.theme-rose {
+    border-top: 6px solid #ff007f;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-rose .card-icon {}
+
+.theme-rose .card-links a:hover {
+    background: linear-gradient(135deg, #ff007f, #ff4081);
+    color: white;
+    border-color: transparent;
+}
+
+/* --- H. 中性色/暗色系 (Neutral/Dark Series) --- */
+
+/* 28. 巧克力色 (醇厚/复古) */
+.theme-chocolate {
+    border-top: 6px solid #d2691e;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-chocolate .card-icon {}
+
+.theme-chocolate .card-links a:hover {
+    background: linear-gradient(135deg, #d2691e, #8b4513);
+    color: white;
+    border-color: transparent;
+}
+
+/* 29. 深灰色 (低调/极简) */
+.theme-gray {
+    border-top: 6px solid #6c757d;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-gray .card-icon {}
+
+.theme-gray .card-links a:hover {
+    background: linear-gradient(135deg, #6c757d, #adb5bd);
+    color: white;
+    border-color: transparent;
+}
+
+/* 30. 黑色 (现代/酷炫) */
+.theme-black {
+    border-top: 6px solid #343a40;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-black .card-icon {}
+
+.theme-black .card-links a:hover {
+    background: linear-gradient(135deg, #343a40, #212529);
+    color: white;
+    border-color: transparent;
+}
+
+/* 31. 石板灰 (专业/坚硬) */
+.theme-slate {
+    border-top: 6px solid #708090;
+    background: linear-gradient(to bottom, #ffffff 70%, #f0f4f8 100%);
+}
+
+.theme-slate .card-icon {}
+
+.theme-slate .card-links a:hover {
+    background: linear-gradient(135deg, #708090, #2f4f4f);
+    color: white;
+    border-color: transparent;
+}
+
+/* ==========================================================================
+   4. 底部样式 (Footer)
+   ========================================================================== */
+.secret-footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-bottom: 20px;
+}
+
+.secret-footer a {
+    color: #9cb4d8;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-family: serif;
+}
+
+.secret-footer a:hover {
+    color: #28a745;
+    font-weight: bold;
+    font-size: 18px;
+    cursor: pointer;
+}
