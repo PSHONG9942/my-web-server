@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <link rel="icon" href="../images/logo.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拼音大挑战</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Roboto:wght@400;700&display=swap');
+
+        body {
+            /* 默认使用Roboto字体，并提供Noto Sans SC作为后备 */
+            font-family: 'Roboto', 'Noto Sans SC', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 20px;
+            /* 修改：增加顶部内边距，给返回按钮留位置 */
+            padding-top: 60px;
+            color: #333;
+        }
+
+        /* --- 新增：左上角返回按钮样式 --- */
+        .back-link-wrapper {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 15px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: #e84393;
+            /* 使用粉色主题呼应 */
+            font-weight: bold;
+            font-size: 1rem;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .back-link:hover {
+            color: #d63031;
+            text-decoration: underline;
+        }
+
+        /* ---------------------------------- */
+
+        h1 {
+            color: #1e3a8a;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            /* Changed to column to stack elements vertically */
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            gap: 20px;
+        }
+
+        .game-container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            gap: 20px;
+        }
+
+        .initials-container,
+        .finals-container,
+        .game-area {
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .initials-container:hover,
+        .finals-container:hover,
+        .game-area:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .initials-container,
+        .finals-container {
+            width: 25%;
+            min-height: 400px;
+        }
+
+        .game-area {
+            width: 45%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 1.8em;
+            color: #4a5568;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .draggable-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            max-height: 450px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .draggable-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .draggable-list::-webkit-scrollbar-thumb {
+            background-color: #cbd5e0;
+            border-radius: 4px;
+        }
+
+        .draggable-item {
+            padding: 10px 18px;
+            background-color: #38a169;
+            color: #63b3ed;
+            border-radius: 8px;
+            cursor: grab;
+            font-size: 1.2em;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .draggable-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .dropzone {
+            width: 120px;
+            /* Adjusted size */
+            height: 120px;
+            /* Adjusted size */
+            border: 3px dashed #90cdf4;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 15px;
+            font-size: 1.8em;
+            /* Adjusted font size */
+            font-weight: bold;
+            color: #63b3ed;
+            background-color: #ebf8ff;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .dropzone.hovered {
+            background-color: #c3dafe;
+            border-color: #2b6cb0;
+        }
+
+        .combination-display {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .tone-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tone-selector button {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            cursor: pointer;
+            background-color: #cbd5e0;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            color: #2d3748;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .tone-selector button:hover {
+            background-color: #a0aec0;
+            transform: translateY(-2px);
+        }
+
+        .tone-selector button.active {
+            background-color: #f6ad55;
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .result-display {
+            margin-top: 10px;
+            font-size: 4em;
+            /* Adjusted font size */
+            font-weight: bold;
+            color: #dd6b20;
+            min-height: 1.5em;
+            /* 汉字显示为楷体 */
+            font-family: 'STKaiti', 'KaiTi', 'SimKai', serif;
+        }
+
+        .related-words {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .related-words h3 {
+            font-size: 1.5em;
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+
+        #related-words-list {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        #related-words-list li {
+            background-color: #e6fffa;
+            border: 1px solid #b2f5ea;
+            border-radius: 5px;
+            padding: 5px 10px;
+            color: #2c525f;
+            font-size: 1.5em;
+            /* Adjusted font size */
+            cursor: pointer;
+            /* Add cursor to indicate clickable */
+            /* 汉字显示为楷体 */
+            font-family: 'STKaiti', 'KaiTi', 'SimKai', serif;
+        }
+
+        #related-words-list li:hover {
+            background-color: #b2f5ea;
+        }
+
+        #reset-button {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            cursor: pointer;
+            background-color: #ef4444;
+            /* 红色按钮 */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-top: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        #reset-button:hover {
+            background-color: #dc2626;
+            /* 深红色 */
+            transform: translateY(-2px);
+        }
+
+        .explanation-container {
+            width: 100%;
+            max-width: 1200px;
+            margin-top: 20px;
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            background-color: #ffffff;
+            font-size: 1.5em;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .explanation-display {
+            text-align: left;
+            font-family: 'STKaiti', 'KaiTi', 'SimKai', serif;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            /* Preserve new lines from the data */
+        }
+
+        .message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px 40px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+            text-align: center;
+            font-size: 1.5em;
+        }
+
+        @media (max-width: 768px) {
+            main {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .initials-container,
+            .finals-container,
+            .game-area {
+                width: 90%;
+            }
+        }
+
+        /* 打印适配 */
+        @media print {
+
+            .back-link-wrapper,
+            .tone-selector,
+            #reset-button {
+                display: none;
+            }
+        }
+    </style>
+
+    <!-- Global Light Cyberpunk Theme -->
+    <link rel="stylesheet" href="../css/cyberpunk.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+</head>
+
+<body>
+
+    <div class="back-link-wrapper">
+        <a href="../index.html" class="back-link">← 返回工具箱主页</a>
+    </div>
+
+    <h1>拼音大挑战</h1>
+    <main>
+        <div class="game-container">
+            <section class="initials-container">
+                <h2>声母</h2>
+                <div id="initials-list" class="draggable-list">
+                </div>
+            </section>
+
+            <section class="game-area">
+                <div class="combination-display">
+                    <div id="initial-dropzone" class="dropzone">声母</div>
+                    <div id="final-dropzone" class="dropzone">韵母</div>
+                </div>
+                <div id="tone-selector" class="tone-selector">
+                    <button data-tone="1">一声 ˉ</button>
+                    <button data-tone="2">二声 ˊ</button>
+                    <button data-tone="3">三声 ˇ</button>
+                    <button data-tone="4">四声 ˋ</button>
+                </div>
+                <div id="result-display" class="result-display">
+                    <p>请组合拼音并选择声调</p>
+                </div>
+                <button id="reset-button">重置</button>
+                <div class="related-words">
+                    <h3>相关汉字</h3>
+                    <ul id="related-words-list">
+                    </ul>
+                </div>
+            </section>
+
+            <section class="finals-container">
+                <h2>韵母</h2>
+                <div id="finals-list" class="draggable-list">
+                </div>
+            </section>
+        </div>
+        <div id="explanation-container" class="explanation-container">
+            <div id="explanation-display" class="explanation-display">
+                <p>这里将显示汉字的解释</p>
+            </div>
+        </div>
+    </main>
+
+    <footer
+        style="text-align: center; margin-top: 50px; padding: 20px; color: #888; font-size: 14px; line-height: 1.6; width: 100%;">
+        <p style="margin: 5px 0;">若发现问题，电邮至 g-21543731@moe-dl.edu.my 潘老师。</p>
+        <p style="margin: 5px 0;">没有团队，不定期更新网站，恳请各位老师耐心等候。</p>
+        <a href="mailto:g-21543731@moe-dl.edu.my?subject=网站反馈"
+            style="color: #555; text-decoration: underline; font-weight: bold; cursor: pointer;">
+            👉 点我发送反馈
+        </a>
+    </footer>
+
+    <div id="message-box" class="message-box"></div>
+
+    <script>
+        const initialsList = document.getElementById('initials-list');
+        const finalsList = document.getElementById('finals-list');
+        const initialDropzone = document.getElementById('initial-dropzone');
+        const finalDropzone = document.getElementById('final-dropzone');
+        const toneSelector = document.getElementById('tone-selector');
+        const resultDisplay = document.getElementById('result-display');
+        const relatedWordsList = document.getElementById('related-words-list');
+        const messageBox = document.getElementById('message-box');
+        const resetButton = document.getElementById('reset-button');
+        const explanationDisplay = document.getElementById('explanation-display');
+
+        let allWords = {}; // 存储所有汉字拼音数据
+        let currentInitial = '';
+        let currentFinal = '';
+        let currentTone = '';
+
+        let allWordsRaw = []; // Store raw data for explanation lookup
+
+        // This function correctly removes tone marks from pinyin strings and returns
+        // the pinyin with a numeric tone. This is the key to matching the database.
+        function removeToneMarks(pinyin) {
+            const toneMap = {
+                'ā': 'a', 'á': 'a', 'ǎ': 'a', 'à': 'a',
+                'ō': 'o', 'ó': 'o', 'ǒ': 'o', 'ò': 'o',
+                'ē': 'e', 'é': 'e', 'ě': 'e', 'è': 'e',
+                'ī': 'i', 'í': 'i', 'ǐ': 'i', 'ì': 'i',
+                'ū': 'u', 'ú': 'u', 'ǔ': 'u', 'ù': 'u',
+                'ǖ': 'v', 'ǘ': 'v', 'ǚ': 'v', 'ǜ': 'v'
+            };
+            const toneNumberMap = {
+                'ā': '1', 'á': '2', 'ǎ': '3', 'à': '4',
+                'ō': '1', 'ó': '2', 'ǒ': '3', 'ò': '4',
+                'ē': '1', 'é': '2', 'ě': '3', 'è': '4',
+                'ī': '1', 'í': '2', 'ǐ': '3', 'ì': '4',
+                'ū': '1', 'ú': '2', 'ǔ': '3', 'ù': '4',
+                'ǖ': '1', 'ǘ': '2', 'ǚ': '3', 'ǜ': '4'
+            };
+
+            let tone = '';
+            let pinyinWithoutTone = pinyin.replace(/\s+/g, '');
+
+            for (const key in toneMap) {
+                if (pinyinWithoutTone.includes(key)) {
+                    tone = toneNumberMap[key];
+                    pinyinWithoutTone = pinyinWithoutTone.replace(key, toneMap[key]);
+                    break;
+                }
+            }
+
+            // If no tone mark was found, check for a trailing number (e.g., 'ma1')
+            if (!tone) {
+                const toneMatch = pinyinWithoutTone.match(/(\d)$/);
+                if (toneMatch) {
+                    tone = toneMatch[1];
+                    pinyinWithoutTone = pinyinWithoutTone.slice(0, -1);
+                } else {
+                    tone = '5'; // Default to light tone
+                }
+            }
+
+            // Special case: 'ü' is represented as 'v' in our keys
+            pinyinWithoutTone = pinyinWithoutTone.replace('ü', 'v');
+
+
+            return pinyinWithoutTone + tone;
+        }
+
+        // 获取拼音数据
+        async function fetchData() {
+            const url = 'https://raw.githubusercontent.com/PSHONG9942/SJKC/main/word.json';
+            try {
+                const response = await fetch(url);
+                allWordsRaw = await response.json();
+
+                // 将数据转换为一个更易于查询的对象
+                allWordsRaw.forEach(item => {
+                    const normalizedPinyin = removeToneMarks(item.pinyin);
+                    if (!allWords[normalizedPinyin]) {
+                        // 如果是第一次遇到这个拼音，创建一个包含该汉字和其解释长度的对象数组
+                        allWords[normalizedPinyin] = [];
+                    }
+                    allWords[normalizedPinyin].push({
+                        word: item.word,
+                        explanation: item.explanation,
+                        explanationLength: item.explanation.length
+                    });
+                });
+
+                // 动态生成声母和韵母列表
+                generatePinyinItems();
+                showMessage('数据加载成功！', 2000);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                resultDisplay.textContent = '数据加载失败，请检查网络连接。';
+                showMessage('数据加载失败，请检查网络连接。', 3000);
+            }
+        }
+
+        // 动态生成声母和韵母元素
+        function generatePinyinItems() {
+            const initials = ['b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'ɡ', 'k', 'h', 'j', 'q', 'x', 'z', 'c', 's', 'zh', 'ch', 'sh', 'r', 'y', 'w'];
+            // 添加了 ü 以及其相关组合韵母
+            const finals = ['a', 'o', 'e', 'i', 'u', 'ai', 'ei', 'ui', 'ao', 'ou', 'iu', 'ie', 'ue', 'er', 'an', 'en', 'in', 'un', 'anɡ', 'enɡ', 'inɡ', 'onɡ', 'ü', 'üe', 'üan', 'ün'];
+
+            initials.forEach(item => {
+                initialsList.appendChild(createDraggableItem(item, 'initial'));
+            });
+
+            finals.forEach(item => {
+                finalsList.appendChild(createDraggableItem(item, 'final'));
+            });
+        }
+
+        function createDraggableItem(text, type) {
+            const item = document.createElement('div');
+            item.textContent = text;
+            item.classList.add('draggable-item');
+            item.setAttribute('draggable', true);
+            item.dataset.type = type;
+            item.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', e.target.textContent);
+                e.dataTransfer.setData('type', type);
+            });
+            return item;
+        }
+
+        // 实现拖放功能
+        initialDropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            initialDropzone.classList.add('hovered');
+        });
+        initialDropzone.addEventListener('dragleave', () => initialDropzone.classList.remove('hovered'));
+
+        initialDropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            initialDropzone.classList.remove('hovered');
+            const data = e.dataTransfer.getData('text/plain');
+            const type = e.dataTransfer.getData('type');
+            if (type === 'initial') {
+                currentInitial = data;
+                initialDropzone.textContent = data;
+                initialDropzone.style.fontSize = '3em';
+                initialDropzone.style.color = '#38a169';
+                checkPinyin();
+            }
+        });
+
+        finalDropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            finalDropzone.classList.add('hovered');
+        });
+        finalDropzone.addEventListener('dragleave', () => finalDropzone.classList.remove('hovered'));
+
+        finalDropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            finalDropzone.classList.remove('hovered');
+            const data = e.dataTransfer.getData('text/plain');
+            const type = e.dataTransfer.getData('type');
+            if (type === 'final') {
+                currentFinal = data;
+                finalDropzone.textContent = data;
+                finalDropzone.style.fontSize = '3em';
+                finalDropzone.style.color = '#38a169';
+                checkPinyin();
+            }
+        });
+
+        // 声调选择
+        toneSelector.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                // 移除所有按钮的 active 类
+                document.querySelectorAll('.tone-selector button').forEach(btn => btn.classList.remove('active'));
+
+                // 给当前点击的按钮添加 active 类
+                e.target.classList.add('active');
+
+                currentTone = e.target.getAttribute('data-tone');
+                checkPinyin();
+            }
+        });
+
+        // 检查拼音组合并显示结果
+        function checkPinyin() {
+            if ((currentInitial || currentFinal) && currentTone) {
+                let pinyinKey = '';
+
+                let processedInitial = currentInitial;
+                let processedFinal = currentFinal;
+
+                // Handle special initial characters like the 'ɡ' in the database
+                if (currentInitial === 'g') {
+                    processedInitial = 'ɡ';
+                }
+
+                // Handle finals with 'ü'
+                if (currentFinal.includes('ü')) {
+                    if (['j', 'q', 'x'].includes(currentInitial)) {
+                        processedFinal = currentFinal.replace('ü', 'u');
+                    } else if (currentInitial === 'y') {
+                        processedFinal = currentFinal.replace('ü', 'v');
+                    } else {
+                        processedFinal = currentFinal.replace('ü', 'v');
+                    }
+                }
+
+                // Build the pinyin key
+                if (!currentInitial) {
+                    // Pinyin with no initial, e.g., 'a', 'ai'
+                    pinyinKey = processedFinal.replace('ü', 'v') + currentTone;
+                } else if (currentInitial === 'y') {
+                    // Pinyin with initial 'y'
+                    if (currentFinal === 'i') {
+                        pinyinKey = 'i' + currentTone;
+                    } else if (currentFinal === 'ü') {
+                        pinyinKey = 'v' + currentTone;
+                    } else {
+                        pinyinKey = currentInitial + processedFinal + currentTone;
+                    }
+                } else if (currentInitial === 'w') {
+                    // Pinyin with initial 'w'
+                    if (currentFinal === 'u') {
+                        pinyinKey = 'u' + currentTone;
+                    } else {
+                        pinyinKey = currentInitial + processedFinal + currentTone;
+                    }
+                } else {
+                    // Regular pinyin combination
+                    pinyinKey = processedInitial + processedFinal + currentTone;
+                }
+
+                let words = allWords[pinyinKey];
+
+                if (words && words.length > 0) {
+                    // Sort by explanation length in descending order to prioritize common words
+                    words.sort((a, b) => b.explanationLength - a.explanationLength);
+
+                    // Display the most common word
+                    const mainWord = words[0].word;
+                    resultDisplay.textContent = mainWord;
+
+                    // Display its explanation
+                    showExplanation(mainWord);
+
+                    // Extract all words to display in the related words list
+                    const relatedWords = words.map(item => item.word);
+                    showRelatedWords(relatedWords);
+                } else {
+                    resultDisplay.textContent = '未找到匹配的汉字。';
+                    relatedWordsList.innerHTML = '';
+                    explanationDisplay.textContent = '这里将显示汉字的解释';
+                }
+            } else {
+                resultDisplay.textContent = '请组合完整的拼音和声调';
+                relatedWordsList.innerHTML = '';
+                explanationDisplay.textContent = '这里将显示汉字的解释';
+            }
+        }
+
+        // Add event listener to the related words list for click events
+        relatedWordsList.addEventListener('click', (e) => {
+            if (e.target.tagName === 'LI') {
+                const clickedWord = e.target.textContent;
+                // Update the main result display with the clicked word
+                resultDisplay.textContent = clickedWord;
+                // Show the explanation for the clicked word
+                showExplanation(clickedWord);
+            }
+        });
+
+        function showRelatedWords(words) {
+            relatedWordsList.innerHTML = '';
+            words.forEach(word => {
+                const li = document.createElement('li');
+                li.textContent = word;
+                relatedWordsList.appendChild(li);
+            });
+        }
+
+        function showExplanation(word) {
+            // Find the explanation for the given word from the raw data
+            const wordData = allWordsRaw.find(item => item.word === word);
+            if (wordData && wordData.explanation) {
+                explanationDisplay.textContent = wordData.explanation;
+            } else {
+                explanationDisplay.textContent = '未找到该汉字的解释。';
+            }
+        }
+
+        // Reset the game state
+        function resetGame() {
+            currentInitial = '';
+            currentFinal = '';
+            currentTone = '';
+            initialDropzone.textContent = '声母';
+            finalDropzone.textContent = '韵母';
+            initialDropzone.style.fontSize = '2em';
+            finalDropzone.style.fontSize = '2em';
+            initialDropzone.style.color = '#63b3ed';
+            finalDropzone.style.color = '#63b3ed';
+            resultDisplay.textContent = '请组合拼音并选择声调';
+            relatedWordsList.innerHTML = '';
+            explanationDisplay.textContent = '这里将显示汉字的解释';
+            document.querySelectorAll('.tone-selector button').forEach(btn => btn.classList.remove('active'));
+        }
+
+        // Bind reset button event
+        resetButton.addEventListener('click', resetGame);
+
+        // Custom message box for user feedback
+        function showMessage(text, duration) {
+            messageBox.textContent = text;
+            messageBox.style.display = 'block';
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, duration);
+        }
+
+        // Run this when the page loads
+        document.addEventListener('DOMContentLoaded', fetchData);
+    </script>
+</body>
+
+</html>

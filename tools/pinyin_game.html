@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="../images/logo.png" type="image/png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>趣味拼音大挑战</title>
+    <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.13.2/dist/index.min.js"></script>
+    <style>
+        :root {
+            --primary: #FF9F43;
+            --secondary: #54a0ff;
+            --bg: #f0f3f5;
+            --panel-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Microsoft YaHei', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            height: 100vh;
+            /* 占满全屏 */
+            display: flex;
+            flex-direction: column;
+            /* 垂直排列：导航-游戏-页脚 */
+            overflow: hidden;
+            /* 禁止整页滚动，只允许内部滚动 */
+        }
+
+        /* --- 1. 顶部导航栏 --- */
+        .navbar {
+            background: white;
+            padding: 10px 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            height: 60px;
+            flex-shrink: 0;
+            /* 禁止被压缩 */
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .back-link {
+            position: absolute;
+            left: -100px;
+            text-decoration: none;
+            color: #7f8fa6;
+            font-weight: bold;
+            font-size: 16px;
+            display: flex;
+            align-items: left;
+            gap: 5px;
+            transition: all 0.2s;
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+
+        .back-link:hover {
+            background-color: #f1f2f6;
+            color: var(--secondary);
+        }
+
+        .center-control {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .app-title {
+            font-weight: bold;
+            font-size: 22px;
+            color: var(--primary);
+            margin-right: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        input#input-hanzi {
+            padding: 8px;
+            border: 2px solid var(--secondary);
+            border-radius: 8px;
+            font-size: 18px;
+            width: 100%;
+            max-width: 100%;
+            max-width: 80px;
+            text-align: center;
+            outline: none;
+        }
+
+        input#input-hanzi:focus {
+            box-shadow: 0 0 0 3px rgba(84, 160, 255, 0.3);
+        }
+
+        button.action-btn {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: background 0.2s;
+        }
+
+        button.action-btn:hover {
+            background-color: #2e86de;
+        }
+
+        /* --- 2. 游戏主界面 (弹性区域) --- */
+        .main-container {
+            display: flex;
+            flex: 1;
+            /* 关键：自动占满导航和Footer剩余的空间 */
+            min-height: 0;
+            /* 关键：防止内部内容撑破容器导致无法滚动 */
+            padding: 20px;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* 左侧区 */
+        .left-panel {
+            flex: 3.5;
+            background: var(--panel-bg);
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-y: auto;
+            /* 允许内部滚动 */
+        }
+
+        .hanzi-box {
+            font-size: 120px;
+            font-weight: bold;
+            color: #2f3542;
+            margin-bottom: 40px;
+        }
+
+        /* 积木显示区 */
+        .construction-zone {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            height: 80px;
+            background: #dfe6e9;
+            border-radius: 15px;
+            padding: 20px 40px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 250px;
+        }
+
+        .pinyin-part {
+            font-size: 40px;
+            margin: 0 5px;
+            min-width: 30px;
+            border-bottom: 3px dashed #b2bec3;
+            color: var(--secondary);
+            text-align: center;
+        }
+
+        .tone-mark {
+            position: absolute;
+            top: -25px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 30px;
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        /* 提示反馈 */
+        .feedback-area {
+            height: 60px;
+            text-align: center;
+            margin-top: 20px;
+            padding: 0 10px;
+        }
+
+        .success-text {
+            color: #2ecc71;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .error-text {
+            color: #e74c3c;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .hint-text {
+            color: #e67e22;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* 右侧操作区 */
+        .right-panel {
+            flex: 6.5;
+            background: var(--panel-bg);
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            overflow-y: auto;
+            /* 关键：内容过多时只在这里滚动 */
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            color: #888;
+            font-weight: bold;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--primary);
+            padding-left: 10px;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .choice-btn {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.1s;
+            user-select: none;
+        }
+
+        .choice-btn:hover {
+            border-color: var(--primary);
+            background: #fff5e6;
+        }
+
+        .choice-btn.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: scale(1.05);
+            box-shadow: 0 2px 5px rgba(255, 159, 67, 0.4);
+        }
+
+        /* --- 3. 页脚 (Footer) --- */
+        footer {
+            flex-shrink: 0;
+            /* 禁止被压缩 */
+            text-align: center;
+            padding: 10px 20px;
+            color: #888;
+            font-size: 12px;
+            /*稍微调小一点以免占太多位置*/
+            line-height: 1.6;
+            width: 100%;
+            background: var(--bg);
+            /* 与背景同色 */
+            box-sizing: border-box;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .navbar {
+                height: auto;
+                padding: 10px;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .back-link {
+                position: static;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .center-control {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .main-container {
+                flex-direction: column;
+                overflow-y: auto;
+                height: auto;
+                flex: 1;
+            }
+
+            .left-panel,
+            .right-panel {
+                flex: none;
+                width: auto;
+            }
+
+            body {
+                overflow: auto;
+            }
+
+            /* 手机上允许整页滚动 */
+        }
+    </style>
+
+    <!-- Global Light Cyberpunk Theme -->
+    <link rel="stylesheet" href="../css/cyberpunk.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+</head>
+
+<body>
+
+    <div class="navbar">
+        <a href="../index.html" class="back-link"><span>🔙</span> 返回主页</a>
+        <div class="center-control">
+            <div class="app-title">🐼 拼音工坊</div>
+            <div class="input-group">
+                <input type="text" id="input-hanzi" placeholder="字" maxlength="1" value="猫">
+                <button class="action-btn" onclick="initGame()">开始出题</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container" id="game-interface" style="display:none;">
+
+        <div class="left-panel">
+            <div class="hanzi-box" id="target-hanzi">?</div>
+
+            <div class="construction-zone" id="construction-zone">
+                <div style="position: relative; width: auto; min-width: 100%; max-width: 40px;">
+                    <span class="tone-mark" id="disp-tone"></span>
+                    <span class="pinyin-part" id="disp-initial"></span>
+                    <span class="pinyin-part" id="disp-final"></span>
+                </div>
+            </div>
+
+            <div id="perfect-pinyin" style="display:none; font-size: 60px; color: #2ecc71;"></div>
+
+            <div class="feedback-area">
+                <div id="msg-title"></div>
+                <div id="msg-detail" style="font-size: 14px; color: #999; margin-top: 5px;"></div>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div>
+                <div class="section-title">第一步：选声母 (前面)</div>
+                <div class="options-grid" id="initial-options"></div>
+            </div>
+            <div>
+                <div class="section-title">第二步：选韵母 (后面)</div>
+                <div class="options-grid" id="final-options"></div>
+            </div>
+            <div>
+                <div class="section-title">第三步：选帽子 (声调)</div>
+                <div class="options-grid" id="tone-options"></div>
+            </div>
+            <div style="margin-top: 20px; text-align: right;">
+                <button class="action-btn"
+                    style="width: 100%; max-width: 100%; max-width: 100%; max-width: 200px; height: 50px; font-size: 20px;"
+                    onclick="checkAnswer()">提交答案 ✨</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p style="margin: 5px 0;">若发现问题，电邮至 g-21543731@moe-dl.edu.my 潘老师。</p>
+        <p style="margin: 5px 0;">没有团队，不定期更新网站，恳请各位老师耐心等候。</p>
+        <a href="mailto:g-21543731@moe-dl.edu.my?subject=网站反馈"
+            style="color: #555; text-decoration: underline; font-weight: bold; cursor: pointer;">
+            👉 点我发送反馈
+        </a>
+    </footer>
+
+    <script>
+        let pinyinPro = window.pinyinPro;
+
+        // 扩充的韵母表
+        const finalsList = [
+            'a', 'o', 'e', 'i', 'u', 'v',
+            'ai', 'ei', 'ui', 'ao', 'ou', 'iu', 'ie', 've', 'er',
+            'an', 'en', 'in', 'un', 'vn', 'ang', 'eng', 'ing', 'ong',
+            'ia', 'ua', 'uo', 'uai', 'iao', 'ian', 'iang', 'uan', 'uang', 'ion', 'iong'
+        ];
+
+        const initialsList = ['b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h', 'j', 'q', 'x', 'zh', 'ch', 'sh', 'r', 'z', 'c', 's', 'y', 'w'];
+
+        const tones = [
+            { label: '一声', val: 1, symbol: 'ˉ' },
+            { label: '二声', val: 2, symbol: 'ˊ' },
+            { label: '三声', val: 3, symbol: 'ˇ' },
+            { label: '四声', val: 4, symbol: 'ˋ' },
+            { label: '轻声', val: 0, symbol: '·' }
+        ];
+
+        let validAnswers = [];
+        let playerSelect = { initial: '', final: '', tone: -1 };
+
+        function initGame() {
+            if (!window.pinyinPro) {
+                alert("正在加载拼音库，请稍等几秒再试！");
+                return;
+            }
+            const { pinyin } = window.pinyinPro;
+
+            const hanzi = document.getElementById('input-hanzi').value.trim();
+            if (!hanzi) return alert("请输入汉字");
+
+            try {
+                const pinyinData = pinyin(hanzi, {
+                    type: 'all', toneType: 'num', v: true, multiple: true
+                });
+                validAnswers = pinyinData;
+            } catch (e) {
+                alert("生成失败，请换个字");
+                return;
+            }
+
+            // 显示界面
+            document.getElementById('game-interface').style.display = 'flex';
+            document.getElementById('target-hanzi').innerText = hanzi;
+
+            document.getElementById('construction-zone').style.display = 'flex';
+            document.getElementById('perfect-pinyin').style.display = 'none';
+            document.getElementById('msg-title').innerText = '';
+            document.getElementById('msg-detail').innerText = '';
+
+            playerSelect = { initial: '', final: '', tone: -1 };
+            updateDisplay();
+            renderButtons();
+        }
+
+        function renderButtons() {
+            const toneDiv = document.getElementById('tone-options');
+            const initDiv = document.getElementById('initial-options');
+            const finalDiv = document.getElementById('final-options');
+
+            toneDiv.innerHTML = ''; initDiv.innerHTML = ''; finalDiv.innerHTML = '';
+
+            tones.forEach(t => {
+                const btn = createBtn(t.symbol || '轻', () => selectPart('tone', t.val, t.symbol));
+                if (t.val === 0) btn.style.fontSize = "16px";
+                toneDiv.appendChild(btn);
+            });
+
+            initDiv.appendChild(createBtn('无', () => selectPart('initial', '', '')));
+            initialsList.forEach(s => {
+                initDiv.appendChild(createBtn(s, () => selectPart('initial', s, s)));
+            });
+
+            finalsList.forEach(y => {
+                const label = y.replace('v', 'ü');
+                finalDiv.appendChild(createBtn(label, () => selectPart('final', y, label)));
+            });
+        }
+
+        function createBtn(text, onClick) {
+            const btn = document.createElement('div');
+            btn.className = 'choice-btn';
+            btn.innerText = text;
+            btn.onclick = function () {
+                Array.from(this.parentNode.children).forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                onClick();
+            };
+            return btn;
+        }
+
+        function selectPart(type, value, symbol) {
+            playerSelect[type] = value;
+            if (type === 'tone') {
+                const showSymbol = (value === 0) ? '' : symbol;
+                document.getElementById('disp-tone').innerText = showSymbol;
+            }
+            if (type === 'initial') document.getElementById('disp-initial').innerText = symbol || '_';
+            if (type === 'final') document.getElementById('disp-final').innerText = symbol || '_';
+        }
+
+        function checkAnswer() {
+            const { pinyin } = window.pinyinPro;
+            const title = document.getElementById('msg-title');
+            const detail = document.getElementById('msg-detail');
+
+            if (playerSelect.tone === -1) {
+                title.innerText = "🕵️ 还没选声调呢！";
+                title.className = "error-text";
+                return;
+            }
+            if (!playerSelect.final) {
+                title.innerText = "🕵️ 韵母不能为空哦！";
+                title.className = "error-text";
+                return;
+            }
+
+            const usrInit = String(playerSelect.initial || "");
+            const usrFinal = String(playerSelect.final);
+            const usrTone = parseInt(playerSelect.tone);
+
+            let isPerfectMatch = false;
+
+            for (let ans of validAnswers) {
+                const dbInit = String(ans.initial || "");
+                const dbFinal = String(ans.final).replace(/\d/g, '');
+                const dbTone = parseInt(ans.num);
+
+                if (dbInit === usrInit && dbFinal === usrFinal && dbTone === usrTone) {
+                    isPerfectMatch = true;
+                    break;
+                }
+            }
+
+            if (isPerfectMatch) {
+                title.innerText = "🎉 太棒了！拼对啦！";
+                title.className = "success-text";
+                detail.innerText = "";
+
+                document.getElementById('construction-zone').style.display = 'none';
+                const perfectDiv = document.getElementById('perfect-pinyin');
+
+                const pinyinArr = pinyin(document.getElementById('target-hanzi').innerText, { type: 'array' });
+                perfectDiv.innerText = pinyinArr[0] || "";
+                perfectDiv.style.display = 'block';
+                return;
+            }
+
+            title.className = "hint-text";
+            detail.innerText = "";
+
+            const isComboRight = validAnswers.some(ans => {
+                const dbInit = String(ans.initial || "");
+                const dbFinal = String(ans.final).replace(/\d/g, '');
+                return dbInit === usrInit && dbFinal === usrFinal;
+            });
+
+            if (isComboRight) {
+                title.innerText = "💡 拼音字母拼对啦，但是【声调】不对哦！";
+                return;
+            }
+
+            const hasThisInitial = validAnswers.some(ans => String(ans.initial || "") === usrInit);
+            const hasThisFinal = validAnswers.some(ans => String(ans.final).replace(/\d/g, '') === usrFinal);
+
+            if (!hasThisInitial && !hasThisFinal) {
+                title.innerText = "哎呀，【声母】和【韵母】都不对哦！";
+                title.className = "error-text";
+            } else if (!hasThisInitial) {
+                title.innerText = "👉 【声母】选错啦，换一个试试？";
+            } else if (!hasThisFinal) {
+                title.innerText = "👉 【韵母】选错啦，换一个试试？";
+            } else {
+                title.innerText = "🤔 声母和韵母的搭配不对哦！";
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('disp-tone').innerText = '';
+            document.getElementById('disp-initial').innerText = '_';
+            document.getElementById('disp-final').innerText = '_';
+            document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+        }
+    </script>
+</body>
+
+</html>

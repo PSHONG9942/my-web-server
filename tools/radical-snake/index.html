@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>语文型贪食蛇 - 学习偏旁部首</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <a href="../../index.html" class="back-link">⬅ 返回主页</a>
+    <div id="game-container">
+        <!-- Dashboard UI -->
+        <div id="dashboard">
+            <div class="stat-box">
+                <span class="label">目标偏旁</span>
+                <span class="value highlight" id="target-component">-</span>
+            </div>
+            <div class="stat-box">
+                <span class="label">进度</span>
+                <span class="value" id="progress-display">0/3</span>
+            </div>
+            <div class="stat-box">
+                <span class="label">寿命</span>
+                <div class="value lives" id="lives-display">
+                    <!-- Heart icons will be injected here -->
+                </div>
+            </div>
+            <div class="stat-box">
+                <span class="label">长度</span>
+                <span class="value" id="length-display">1</span>
+            </div>
+            <div class="stat-box">
+                <span class="label">分数</span>
+                <span class="value" id="score-display">0</span>
+            </div>
+        </div>
+
+        <!-- Overlays -->
+        <div id="start-overlay" class="overlay">
+            <h1>语文型贪食蛇</h1>
+            <p>控制你的小蛇，寻找带有正确部首的汉字！<br>
+            当目标偏旁是“口字旁”时，吃下“吧”、“吃”等汉字。<br>
+            吃齐一定数量后难度升级！吃错汉字会扣除寿命！</p>
+            <p class="controls">控制：W A S D 或 方向键</p>
+            <button id="start-btn">开始游戏</button>
+        </div>
+
+        <div id="game-over-overlay" class="overlay hidden">
+            <h1 class="red-glow">游戏结束</h1>
+            <p>你最终组成了 <span id="final-score" class="highlight">0</span> 个汉字！</p>
+            <p id="game-over-reason">寿命耗尽</p>
+            <button id="restart-btn">重新开始</button>
+        </div>
+        
+        <div id="success-overlay" class="overlay-toast hidden">
+            <!-- Toast notification for correct combination -->
+        </div>
+
+        <!-- Game Canvas -->
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+    </div>
+
+    <!-- Footer -->
+    <footer style="text-align: center; margin-top: 50px; padding: 20px; color: #888; font-size: 14px; line-height: 1.6; width: 100%;">
+        <p style="margin: 5px 0;">若发现问题，电邮至 g-21543731@moe-dl.edu.my 潘老师。</p>
+        <p style="margin: 5px 0;">没有团队，不定期更新网站，恳请各位老师耐心等候。</p>
+        <a href="mailto:g-21543731@moe-dl.edu.my?subject=网站反馈"
+            style="color: #555; text-decoration: underline; font-weight: bold; cursor: pointer;">
+            👉 点我发送反馈
+        </a>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

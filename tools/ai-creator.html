@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>AI 创造营 - 华小老师专区</title>
+    <link rel="icon" href="../images/logo.png" type="image/png">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/cyberpunk.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <style>
+        .sandbox-container {
+            display: flex;
+            height: calc(100vh - 150px);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .chat-section {
+            flex: 1;
+            background: #1e1e24; /* 改为深色背景以确保文字清晰 */
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .preview-section {
+            flex: 2;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chat-history {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 10px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+        .msg-user {
+            background: rgba(0, 150, 255, 0.2);
+            border-left: 4px solid #0096ff;
+            color: #fff;
+        }
+
+        .msg-ai {
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #00e5ff;
+            color: #e0e0e0;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-area textarea {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            resize: none;
+            height: 60px;
+            font-family: inherit;
+        }
+
+        .input-area button {
+            background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .input-area button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.5);
+        }
+
+        .input-area button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #fff; /* 确保预览区默认是白底，方便普通网页显示 */
+        }
+
+        .preview-header {
+            background: #333;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff;
+        }
+
+        .preview-header h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .btn-save {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-save:hover {
+            background: #45a049;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #222;
+            padding: 30px;
+            border-radius: 12px;
+            width: 400px;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0 20px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .modal-buttons button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-cancel { background: #666; color: white; }
+        .btn-confirm { background: #00d2ff; color: black; font-weight: bold; }
+
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sandbox-container {
+                flex-direction: column;
+                height: auto;
+            }
+            .preview-section {
+                height: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard" style="max-width: 1400px;">
+        <header class="welcome-section" style="margin-bottom: 20px;">
+            <a href="../index.html" style="color: #00e5ff; text-decoration: none; font-size: 14px;">&larr; 返回主页</a>
+            <h1>AI 创造营</h1>
+            <p>通过对话让 AI 为你编写网页工具或游戏。满意后可发布至画廊！</p>
+        </header>
+
+        <div class="sandbox-container">
+            <div class="chat-section">
+                <div class="chat-history" id="chatHistory">
+                    <div class="message msg-ai">你好！我是 AI 编程助手。请告诉我你想制作什么样的网页、工具或游戏？比如：“帮我做一个九九乘法表测试游戏，界面要可爱一点。”</div>
+                </div>
+                <div class="input-area">
+                    <textarea id="promptInput" placeholder="描述你的奇思妙想... (Enter发送)" onkeypress="handleEnter(event)"></textarea>
+                    <button id="sendBtn" onclick="generateCode()">生成</button>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="preview-header">
+                    <h3>效果预览</h3>
+                    <button class="btn-save" onclick="openModal()" id="saveBtn" style="display: none;">💾 保存并发布</button>
+                </div>
+                <!-- sandbox 属性限制了外部访问，保证主站安全 -->
+                <iframe id="previewFrame" sandbox="allow-scripts allow-modals"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Modal -->
+    <div class="modal" id="saveModal">
+        <div class="modal-content">
+            <h3>保存并发布作品</h3>
+            <p style="font-size: 14px; color: #aaa; margin-bottom: 20px;">您的作品将被保存至创意画廊，与所有老师学生分享。</p>
+            
+            <label>作品名称：</label>
+            <input type="text" id="projectName" placeholder="例如：趣味拼音测试">
+            
+            <label>作者署名：</label>
+            <input type="text" id="authorName" placeholder="例如：陈老师 / 3M班小明">
+
+            <label>联系邮箱 (仅内部留存，不公开)：</label>
+            <input type="email" id="authorEmail" placeholder="example@moe-dl.edu.my">
+
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeModal()">取消</button>
+                <button class="btn-confirm" onclick="submitProject()" id="confirmSaveBtn">确认发布</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let chatMessages = [];
+        let currentCode = "";
+
+        function addMessage(role, content) {
+            const history = document.getElementById("chatHistory");
+            const div = document.createElement("div");
+            div.className = "message " + (role === 'user' ? "msg-user" : "msg-ai");
+            
+            if (content.includes("<span class='loader'></span>")) {
+                div.innerHTML = content;
+                div.id = "loadingMsg";
+            } else {
+                div.innerText = content;
+            }
+            
+            history.appendChild(div);
+            history.scrollTop = history.scrollHeight;
+        }
+
+        function removeLoading() {
+            const loadingMsg = document.getElementById("loadingMsg");
+            if (loadingMsg) loadingMsg.remove();
+        }
+
+        function handleEnter(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                generateCode();
+            }
+        }
+
+        async function generateCode() {
+            const input = document.getElementById("promptInput");
+            const btn = document.getElementById("sendBtn");
+            const prompt = input.value.trim();
+
+            if (!prompt) return;
+
+            input.value = "";
+            btn.disabled = true;
+
+            // 添加用户消息
+            addMessage('user', prompt);
+            chatMessages.push({ role: 'user', content: prompt });
+
+            // 添加 Loading 消息
+            addMessage('ai', "<span class='loader'></span> AI 正在疯狂敲代码中，请稍候...");
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messages: chatMessages })
+                });
+
+                removeLoading();
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentCode = data.code;
+                    
+                    // 记录 AI 回复到历史
+                    chatMessages.push({ role: 'assistant', content: currentCode });
+                    
+                    addMessage('ai', "代码已生成并在右侧渲染！如果您不满意，可以继续在下方提出修改建议。例如：'背景换成深色' 或 '把按钮变大点'。");
+                    
+                    // 注入到 iframe
+                    const iframe = document.getElementById("previewFrame");
+                    iframe.srcdoc = currentCode;
+
+                    // 显示保存按钮
+                    document.getElementById("saveBtn").style.display = "block";
+                } else {
+                    const err = await response.json();
+                    addMessage('ai', "生成失败：" + (err.error || "未知错误"));
+                }
+            } catch (error) {
+                removeLoading();
+                addMessage('ai', "网络错误，无法连接到 AI 服务器。");
+                console.error(error);
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function openModal() {
+            document.getElementById("saveModal").style.display = "flex";
+        }
+
+        function closeModal() {
+            document.getElementById("saveModal").style.display = "none";
+        }
+
+        async function submitProject() {
+            const title = document.getElementById("projectName").value.trim();
+            const author = document.getElementById("authorName").value.trim();
+            const email = document.getElementById("authorEmail").value.trim();
+            const btn = document.getElementById("confirmSaveBtn");
+
+            if (!title || !author) {
+                alert("请输入作品名称和作者署名！");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "发布中...";
+
+            try {
+                const response = await fetch('/api/projects', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: title,
+                        author: author,
+                        email: email,
+                        code: currentCode
+                    })
+                });
+
+                if (response.ok) {
+                    alert("发布成功！即将前往创意画廊。");
+                    window.location.href = "../creator-gallery.html";
+                } else {
+                    alert("发布失败，请重试。");
+                    btn.disabled = false;
+                    btn.innerText = "确认发布";
+                }
+            } catch (error) {
+                alert("网络错误！");
+                btn.disabled = false;
+                btn.innerText = "确认发布";
+            }
+        }
+    </script>
+</body>
+</html>

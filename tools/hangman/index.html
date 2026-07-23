@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="../../images/logo.png" type="image/png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Malaysian Primary Hangman Adventure</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Outfit:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+    <div class="background-decor">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <main class="container">
+        <header>
+            <h1>Hangman Adventure</h1>
+            <div id="stats" class="hidden">
+                <span id="score-display">Score: 0</span>
+                <span id="lives-display">Lives: ❤️❤️❤️❤️❤️❤️</span>
+            </div>
+        </header>
+
+        <!-- Level Selector -->
+        <section id="level-selector" class="view">
+            <h2>Select Your Level</h2>
+            <div class="grid selector-grid">
+                <button class="level-btn" data-step="1">Year 1</button>
+                <button class="level-btn" data-step="2">Year 2</button>
+                <button class="level-btn" data-step="3">Year 3</button>
+                <button class="level-btn" data-step="4">Year 4</button>
+                <button class="level-btn" data-step="5">Year 5</button>
+                <button class="level-btn" data-step="6">Year 6</button>
+                <button class="level-btn" data-step="Verbs">Verb Forms</button>
+                <button class="level-btn custom-btn" data-step="Custom">Customized</button>
+            </div>
+            <div class="nav-control" style="margin-top: 20px; text-align: center;">
+                <a href="../../index.html" class="secondary-btn" style="text-decoration: none; display: inline-block;">← Back to Home Page</a>
+            </div>
+        </section>
+
+        <!-- Unit Selector -->
+        <section id="unit-selector" class="view hidden">
+            <div class="nav-header">
+                <button id="back-to-levels" class="secondary-btn">← Back</button>
+                <h2 id="current-step-title">Select a Unit</h2>
+            </div>
+            <div id="unit-grid" class="grid selector-grid">
+                <!-- Units will be injected here -->
+            </div>
+        </section>
+
+        <!-- Rounds Selector -->
+        <section id="rounds-selector" class="view hidden">
+            <div class="nav-header">
+                <button id="back-to-units-from-rounds" class="secondary-btn">← Back</button>
+                <h2 id="rounds-title">How many rounds?</h2>
+            </div>
+            <div style="text-align: center; margin-top: 40px;">
+                <p style="font-family: 'Fredoka', sans-serif; font-size: 1.2rem; margin-bottom: 20px;">Enter the number of words you want to practice:</p>
+                <input type="number" id="rounds-input" min="1" value="10" style="padding: 10px 20px; font-size: 1.5rem; text-align: center; border-radius: 12px; border: 2px solid #ccc; width: 120px;">
+                <div style="margin-top: 30px;">
+                    <button id="start-rounds-btn" class="primary-btn" style="padding: 15px 40px; font-size: 1.2rem;">Start Game</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Game Area -->
+        <section id="game-area" class="view hidden">
+            <div class="nav-header">
+                <button id="back-to-units" class="secondary-btn">← Quit</button>
+                <h2 id="current-unit-title">Unit Name</h2>
+            </div>
+
+            <div class="game-container">
+                <div class="hangman-box">
+                    <svg id="hangman-svg" viewBox="0 0 100 100">
+                        <!-- Scaffold -->
+                        <line x1="10" y1="95" x2="90" y2="95" class="scaffold" />
+                        <line x1="30" y1="95" x2="30" y2="5" class="scaffold" />
+                        <line x1="30" y1="5" x2="70" y2="5" class="scaffold" />
+                        <line x1="70" y1="5" x2="70" y2="20" class="scaffold" />
+
+                        <!-- Man -->
+                        <circle cx="70" cy="30" r="10" class="body-part head hidden" />
+                        <line x1="70" y1="40" x2="70" y2="70" class="body-part torso hidden" />
+                        <line x1="70" y1="50" x2="55" y2="60" class="body-part arm-l hidden" />
+                        <line x1="70" y1="50" x2="85" y2="60" class="body-part arm-r hidden" />
+                        <line x1="70" y1="70" x2="55" y2="85" class="body-part leg-l hidden" />
+                        <line x1="70" y1="70" x2="85" y2="85" class="body-part leg-r hidden" />
+                        <g class="body-part eye-l hidden">
+                            <line x1="66" y1="26" x2="70" y2="30" />
+                            <line x1="70" y1="26" x2="66" y2="30" />
+                        </g>
+                        <g class="body-part eye-r hidden">
+                            <line x1="71" y1="26" x2="75" y2="30" />
+                            <line x1="75" y1="26" x2="71" y2="30" />
+                        </g>
+                    </svg>
+                </div>
+
+                <div class="word-box">
+                    <div id="word-display"></div>
+                    <p id="hint-display" class="hint-text">Hint: <span></span></p>
+                </div>
+            </div>
+
+            <div id="keyboard" class="keyboard">
+                <!-- Letters will be injected here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Overlay Modals -->
+    <div id="modal-overlay" class="overlay hidden">
+        <div class="modal">
+            <h2 id="modal-title">Great!</h2>
+            <p id="modal-message">You guessed the word correctly.</p>
+            
+            <div id="educational-content" class="educational-card">
+                <div class="translation-section">
+                    <p><strong>Chinese:</strong> <span id="trans-cn">-</span></p>
+                    <p><strong>Malay:</strong> <span id="trans-ms">-</span></p>
+                </div>
+                <hr>
+                <div class="sentence-section">
+                    <p class="sentence-en" id="sent-en"></p>
+                    <p class="sentence-cn" id="sent-cn"></p>
+                    <p class="sentence-ms" id="sent-ms"></p>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button id="modal-next-btn" class="primary-btn">Next Word</button>
+                <button id="modal-retry-btn" class="secondary-btn">Try Again</button>
+                <button id="modal-home-btn" class="secondary-btn">Home</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="vocab_data.js"></script>
+    <script src="index.js"></script>
+</body>
+
+</html>

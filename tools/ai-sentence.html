@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <link rel="icon" href="../images/logo.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ AI 趣味造句乐园 ✨</title>
+    <style>
+        body {
+            /* 活泼的背景色 */
+            background-color: #E0F7FA;
+            background-image: radial-gradient(#B2EBF2 2px, transparent 2px);
+            background-size: 30px 30px;
+            font-family: 'Comic Sans MS', 'YouYuan', '幼圆', 'Microsoft YaHei', sans-serif;
+            /* 优化：在嵌入环境中，利用 width: 100% 确保占满 iframe */
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            /* 优化：减少 padding，适应小屏幕嵌入 */
+            padding: 15px;
+            /* 修改：增加顶部内边距，给返回按钮留位置 */
+            padding-top: 60px;
+            box-sizing: border-box;
+        }
+
+        /* --- 新增：返回按钮样式 --- */
+        .back-link-wrapper {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 15px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border: 2px dashed #4DD0E1;
+            /* 配合主题的虚线边框 */
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: #00838F;
+            /* 深青色文字 */
+            font-weight: bold;
+            font-size: 1rem;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .back-link:hover {
+            color: #00BCD4;
+            text-decoration: underline;
+        }
+
+        /* ----------------------- */
+
+        .container {
+            background-color: white;
+            padding: 25px;
+            border-radius: 25px;
+            /* 像贴纸一样的阴影和边框 */
+            box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.1);
+            border: 4px dashed #4DD0E1;
+            position: relative;
+        }
+
+        h1 {
+            color: #FF6F00;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2em;
+            /* 稍微调小一点，防止标题换行 */
+            text-shadow: 2px 2px 0px #FFF3E0;
+        }
+
+        .description {
+            text-align: center;
+            color: #00838F;
+            margin-bottom: 25px;
+            font-size: 1.1em;
+            background-color: #E1F5FE;
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 50px;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            /* 防止描述文字换行太丑 */
+        }
+
+        /* 控件区域样式 */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+            background-color: #FFFDE7;
+            /* 淡黄色区域 */
+            padding: 20px;
+            border-radius: 20px;
+            border: 2px solid #FFF59D;
+        }
+
+        .selectors {
+            display: flex;
+            gap: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .selectors {
+                flex-direction: column;
+            }
+        }
+
+        select {
+            padding: 10px;
+            border: 3px solid #81D4FA;
+            border-radius: 15px;
+            font-size: 15px;
+            background-color: white;
+            cursor: pointer;
+            flex: 1;
+            color: #0277BD;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        select:hover {
+            border-color: #29B6F6;
+            transform: translateY(-2px);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #0288D1;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        @media (max-width: 600px) {
+            .input-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 3px solid #FFCC80;
+            border-radius: 15px;
+            font-size: 18px;
+            transition: border-color 0.3s;
+            color: #5D4037;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #FF9800;
+            background-color: #FFF8E1;
+        }
+
+        /* 两个按钮的通用样式 */
+        .btn {
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.1s;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(3px);
+        }
+
+        .btn:disabled {
+            background: #CFD8DC !important;
+            box-shadow: none !important;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 生成按钮 */
+        #generateBtn {
+            padding: 12px 30px;
+            background: linear-gradient(to bottom, #66BB6A, #43A047);
+            box-shadow: 0px 5px 0px #2E7D32;
+            text-shadow: 1px 1px 0 #2E7D32;
+            flex: 2;
+            /* 占据更多空间 */
+        }
+
+        #generateBtn:hover {
+            background: linear-gradient(to bottom, #81C784, #4CAF50);
+        }
+
+        /* 清除按钮 */
+        #clearBtn {
+            padding: 12px 15px;
+            background: linear-gradient(to bottom, #FF8A80, #D32F2F);
+            box-shadow: 0px 5px 0px #B71C1C;
+            flex: 0 0 auto;
+            /* 不拉伸，保持原本大小 */
+            font-size: 20px;
+        }
+
+        #clearBtn:hover {
+            background: linear-gradient(to bottom, #FF5252, #C62828);
+        }
+
+        #output {
+            min-height: 120px;
+            padding: 25px;
+            /* 练习本风格 */
+            background-color: #fff;
+            background-image: linear-gradient(#eee .1em, transparent .1em);
+            background-size: 100% 1.8em;
+            border-radius: 15px;
+            border: 3px solid #E0E0E0;
+            line-height: 1.8em;
+            white-space: pre-wrap;
+            color: #37474F;
+            margin-top: 20px;
+            font-size: 1.1em;
+            position: relative;
+        }
+
+        /* 增加 bold 标签的样式，让关键词更明显 */
+        #output b {
+            color: #D84315;
+            background-color: #FFCCBC;
+            padding: 2px 8px;
+            border-radius: 10px;
+            border-bottom: 2px solid #BF360C;
+            display: inline-block;
+            line-height: 1.2;
+        }
+
+        .loading {
+            color: #0097A7;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .retry-msg {
+            color: #F57F17;
+        }
+
+        .error {
+            color: #C62828;
+            background-color: #FFEBEE;
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid #FFCDD2;
+        }
+
+        /* 装饰用的小图标 */
+        .icon-deco {
+            font-size: 1.5em;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+
+        /* 打印适配 */
+        @media print {
+
+            .back-link-wrapper,
+            .controls,
+            h1,
+            .description {
+                display: none;
+            }
+
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+
+            .container {
+                box-shadow: none;
+                border: none;
+                padding: 0;
+            }
+
+            #output {
+                border: 1px solid #ccc;
+            }
+        }
+    </style>
+
+    <!-- Global Light Cyberpunk Theme -->
+    <link rel="stylesheet" href="../css/cyberpunk.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+</head>
+
+<body>
+
+    <div class="back-link-wrapper">
+        <a href="../index.html" class="back-link">← 返回工具箱主页</a>
+    </div>
+
+    <div class="container">
+        <h1>🦁 AI 趣味造句乐园 🎨</h1>
+        <p class="description">🤖 机器人老师帮你把词语变句子！</p>
+
+        <div class="controls">
+            <div class="selectors">
+                <select id="languageSelect">
+                    <option value="zh">🇨🇳 中文 (Chinese)</option>
+                    <option value="en">🇺🇸 English (英文)</option>
+                    <option value="ms">🇲🇾 Bahasa Melayu (马来文)</option>
+                </select>
+
+                <select id="gradeSelect">
+                    <option value="1">🌱 一年级 (Year 1)</option>
+                    <option value="2">🌿 二年级 (Year 2)</option>
+                    <option value="3">🌳 三年级 (Year 3)</option>
+                    <option value="4">🦋 四年级 (Year 4)</option>
+                    <option value="5">🦅 五年级 (Year 5)</option>
+                    <option value="6">🎓 六年级 (Year 6)</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="promptInput" placeholder="在此输入词语... (如: 开心, 朋友)">
+                <button id="clearBtn" class="btn" title="清空内容">🔄</button>
+                <button id="generateBtn" class="btn">✨ 变出句子！</button>
+            </div>
+        </div>
+
+        <div id="output">等待小主人的指令... ✏️</div>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px; margin-bottom: -20px; color: #888; font-size: 14px;">
+      Powered by Llama 3.3 70B Instruct | API: NVIDIA NIM
+    </div>
+
+    <footer
+        style="text-align: center; margin-top: 50px; padding: 20px; color: #888; font-size: 14px; line-height: 1.6; width: 100%;">
+        <p style="margin: 5px 0;">若发现问题，电邮至 g-21543731@moe-dl.edu.my 潘老师。</p>
+        <p style="margin: 5px 0;">没有团队，不定期更新网站，恳请各位老师耐心等候。</p>
+        <a href="mailto:g-21543731@moe-dl.edu.my?subject=网站反馈"
+            style="color: #555; text-decoration: underline; font-weight: bold; cursor: pointer;">
+            👉 点我发送反馈
+        </a>
+    </footer>
+
+    <script type="module">
+        // ==========================================
+        // ⚠️ API 已经转移到 Google Apps Script 后端
+        // ==========================================
+
+        // 把下面这个 URL 替换成你刚刚复制的 Google Apps Script Web App URL
+        const API_URL = "https://script.google.com/macros/s/AKfycbx7cUKMIoiiWJAyjRXhQpoNwtFgPHaPdrfVxJ-MT-aLdfxGRwHjsn4DP9QqljlY1I3M/exec";
+
+        // 你的模型名称
+        const MODEL_NAME = "meta/llama-3.3-70b-instruct";
+        // ==========================================
+
+
+        const outputDiv = document.getElementById('output');
+        const btn = document.getElementById('generateBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const input = document.getElementById('promptInput');
+        const langSelect = document.getElementById('languageSelect');
+        const gradeSelect = document.getElementById('gradeSelect');
+
+        // Prompt 配置
+        const promptConfig = {
+            zh: {
+                placeholder: "输入词语，如：'开心, 朋友'",
+                loading: "🤖 机器人正在努力思考... 稍等一下哦！",
+                btnText: "✨ 变出句子！",
+                // 将 System Prompt 和 User Prompt 合并发送给 Gemini
+                getPrompt: (word, grade) => `
+你是一位小学语文老师，正在为【${grade}年级】的学生造句。
+用户输入词语："${word}"
+
+任务：请使用上面的词语，造 3 个不同的中文句子。
+第1句：简单句（日常对话）
+第2句：生动句（像讲故事一样）
+第3句：${grade <= 3 ? '有趣的句子（充满想象力）' : '优美句（有文采）'}
+
+严格规则：
+1. 如果输入的不是中文，先翻译成中文，并使用翻译后的中文词语造句。
+2. 句子难度必须符合【${grade}年级】学生的水平。${grade <= 2 ? '句子要非常简短易懂。' : ''}
+3. 每句话必须包含该词语（如果进行了翻译，则必须包含翻译后的中文词语）。
+4. 【格式要求】只用 <b> 标签包裹目标词语（如果是翻译后的词，只包裹翻译后的中文词汇）。绝对不要包裹其他无关词汇！（例如：如果输入是“apple”，翻译成“苹果”后，正确输出：今天我吃了一个<b>苹果</b>。）
+5. 【重要限制】直接输出 1. 2. 3. 句子，绝对不要有任何解释、打招呼、或者分析词语数量的废话。`
+            },
+            en: {
+                placeholder: "Enter words, e.g., 'Apple, Eat'",
+                loading: "🤖 Thinking really hard... Just a sec!",
+                btnText: "✨ Magic!",
+                getPrompt: (word, grade) => `
+You are a primary school English teacher generating sentences for a Year ${grade} student.
+USER INPUT: "${word}"
+
+Task: Write 3 different English sentences using the exact USER INPUT words.
+Sentence 1: Simple daily conversation.
+Sentence 2: Storytelling style.
+Sentence 3: ${grade <= 3 ? 'Funny and imaginative.' : 'Beautiful and descriptive.'}
+
+Strict Rules:
+1. If the input is not in English, translate it to English first and use the translated words.
+2. Sentences must be suitable for a Year ${grade} student. ${grade <= 2 ? 'Keep them extremely short and simple.' : ''}
+3. EVERY sentence must include the target words (if translated, use the English translation).
+4. [Formatting] Wrap ONLY the target keywords (or their English translations) with HTML <b> tags. DO NOT wrap any other words! (Example: if input is "苹果", translate to "apple", write: I ate a red <b>apple</b> today.)
+5. [CRITICAL] ONLY output the 3 numbered sentences. NO greetings, NO explanations, NO meta-commentary about the word count.`
+            },
+            ms: {
+                placeholder: "Masukkan perkataan, contoh: 'Buku'",
+                loading: "🤖 Robot sedang berfikir... Tunggu sebentar!",
+                btnText: "✨ Bina Ayat!",
+                getPrompt: (word, grade) => `
+Anda adalah guru Bahasa Melayu sekolah rendah yang sedang membina ayat untuk murid Darjah ${grade}.
+Perkataan Pengguna: "${word}"
+
+Tugas: Bina 3 ayat Bahasa Melayu menggunakan perkataan di atas.
+Ayat 1: Ayat mudah (perbualan harian).
+Ayat 2: Gaya bercerita.
+Ayat 3: ${grade <= 3 ? 'Ayat yang lucu dan imaginatif.' : 'Ayat yang indah dan deskriptif.'}
+
+Peraturan Ketat:
+1. Jika perkataan BUKAN dalam Bahasa Melayu, terjemahkannya ke Bahasa Melayu dahulu dan gunakan perkataan yang diterjemah.
+2. Tahap kesukaran mestilah sesuai untuk Darjah ${grade}. ${grade <= 2 ? 'Ayat mestilah sangat pendek dan mudah.' : ''}
+3. SETIAP ayat mesti mengandungi perkataan sasaran (jika diterjemah, gunakan terjemahan Bahasa Melayu).
+4. [Format] Gunakan tag HTML <b> HANYA pada perkataan sasaran (atau terjemahannya). JANGAN highlight perkataan lain! (Contoh: jika perkataan ialah "apple", terjemah ke "epal", tulis: Saya makan sebiji <b>epal</b>.)
+5. [PENTING] HANYA keluarkan 3 ayat yang dinomborkan. JANGAN letak sapaan, jangan beri penjelasan, dan jangan komen tentang bilangan perkataan.`
+            }
+        };
+
+        // UI 交互逻辑
+        langSelect.addEventListener('change', () => {
+            const config = promptConfig[langSelect.value];
+            input.placeholder = config.placeholder;
+            btn.textContent = config.btnText;
+        });
+
+        // 清空按钮逻辑
+        clearBtn.addEventListener('click', () => {
+            input.value = '';
+            outputDiv.textContent = '等待小主人的指令... ✏️';
+            input.focus();
+        });
+
+        btn.addEventListener('click', handleGenerate);
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleGenerate();
+        });
+
+        // 辅助函数：等待
+        const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+        // 核心函数：带自动重试机制的 AI 调用 (使用标准的 OpenAI 格式 fetch 请求)
+        async function callAIWithRetry(prompt, retries = 3) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(API_URL, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "text/plain;charset=utf-8",
+                        },
+                        // (We use text/plain to prevent Google Apps Script CORS preflight issues)
+
+                        body: JSON.stringify({
+                            model: MODEL_NAME,
+                            messages: [
+                                { role: "system", content: "You are an API that ONLY outputs the requested sentences. You MUST NOT output any conversational text, greetings, pleasantries, or explanations. Start your response directly with the numbered sentences." },
+                                { role: "user", content: prompt }
+                            ],
+                            temperature: 0.7,
+                            max_tokens: 800
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`API Error (${response.status}): ${errorText}`);
+                    }
+
+                    const data = await response.json();
+
+                    if (data.choices && data.choices.length > 0) {
+                        return data.choices[0].message.content;
+                    } else {
+                        throw new Error("Invalid response format from AI API");
+                    }
+                } catch (error) {
+                    // 如果错误是 429 (Too Many Requests) 或者 503 (Service Unavailable)
+                    if (error.message.includes('429') || error.message.includes('503') || error.message.includes('API Error (429)')) {
+                        console.warn(`Rate limit hit. Retrying attempt ${i + 1}/${retries}...`);
+
+                        if (i === retries - 1) throw error; // 最后一次尝试如果还失败，则抛出错误
+
+                        // 指数退避: 2秒, 4秒, 8秒
+                        const waitTime = 2000 * Math.pow(2, i);
+
+                        // 更新 UI 提示
+                        outputDiv.innerHTML = `<span class="loading retry-msg">🚦 哎呀，机器人太忙了！正在排队第 ${i + 1} 次尝试... 请稍等 ${waitTime / 1000} 秒。</span>`;
+
+                        await sleep(waitTime);
+                        continue;
+                    }
+                    throw error; // 其他错误直接抛出
+                }
+            }
+        }
+
+        async function handleGenerate() {
+            const userWord = input.value.trim();
+            if (!userWord) return;
+
+            const lang = langSelect.value;
+            const grade = gradeSelect.value;
+            const config = promptConfig[lang];
+
+            // 增加转圈圈的动画图标
+            outputDiv.innerHTML = `<span class="loading"><span style="font-size:24px; animation: spin 2s linear infinite;">🎡</span> ${config.loading}</span>`;
+            btn.disabled = true;
+            clearBtn.disabled = true; // 生成时禁用清空按钮
+
+            const prompt = config.getPrompt(userWord, grade);
+
+            try {
+                // 调用 AI
+                const text = await callAIWithRetry(prompt);
+                // 移除可能的 Markdown 代码块包裹
+                const cleanText = text.replace(/^```html\n?/g, '').replace(/^```\n?/g, '').replace(/```$/g, '').trim();
+                outputDiv.innerHTML = cleanText;
+            } catch (error) {
+                let errorMsg = "发生错误: " + error.message;
+
+                if (error.message.includes("429")) {
+                    errorMsg = "🚦 现在用的小朋友太多啦！请稍等一分钟再试一次哦。";
+                } else if (error.message.includes("404")) {
+                    errorMsg = "⚠️ 机器人迷路了（模型版本错误），请联系老师。";
+                } else if (error.message.includes("400")) {
+                    errorMsg = "⚠️ 钥匙不对哦（API Key 无效）。";
+                }
+
+                outputDiv.innerHTML = `<div class="error">${errorMsg}</div>`;
+                console.error(error);
+            } finally {
+                btn.disabled = false;
+                clearBtn.disabled = false;
+                btn.textContent = config.btnText;
+            }
+        }
+    </script>
+</body>
+
+</html>

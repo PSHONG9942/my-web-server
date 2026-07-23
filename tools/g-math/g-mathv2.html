@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <!-- 添加 viewport-fit=cover 以更好适配全面屏设备 -->
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <link rel="icon" href="../../images/logo.png" type="image/png">
+    <title>G-MATH - 数学拼字游戏</title>
+    <style>
+        :root {
+            /* 基础颜色 */
+            --board-bg: #f0f0f0;
+            --tile-bg: #fdf5e6;
+            --tile-color: #333;
+            --dl-color: #a8e6cf;
+            --tl-color: #3d84a8;
+            --dw-color: #ffaaa5;
+            --tw-color: #ff8b94;
+            --accent: #4a4e69;
+            --dark-bg: #22223b;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        /* 默认 body 样式 (适用于竖屏/普通情况) */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark-bg);
+            color: white;
+            margin: 0;
+            padding: 0;
+            /* 竖屏默认允许滚动，高度自动 */
+            height: auto;
+            min-height: 100vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* === 顶部导航 === */
+        header {
+            height: 50px;
+            background: #1a1a2e;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            flex-shrink: 0;
+            z-index: 20;
+            position: relative;
+            /* 确保层级 */
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* 剩余牌数提示框样式 */
+        #remaining-info {
+            font-size: 0.9rem;
+            color: #ccc;
+            cursor: help;
+            /* 鼠标变成问号，提示可交互 */
+            position: relative;
+            padding: 5px 0;
+        }
+
+        #remaining-tooltip {
+            display: none;
+            /* 默认隐藏 */
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 340px;
+            /* 加宽容器以适应更大的牌 */
+            background: rgba(30, 30, 50, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            z-index: 1000;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+            flex-wrap: wrap;
+            gap: 6px;
+            /* 增加间距 */
+            justify-content: flex-start;
+            margin-top: 5px;
+            backdrop-filter: blur(5px);
+        }
+
+        /* 鼠标悬停时显示 */
+        #remaining-info:hover #remaining-tooltip {
+            display: flex;
+        }
+
+        /* 移动端点击也能显示 (通过active模拟) */
+        #remaining-info:active #remaining-tooltip {
+            display: flex;
+        }
+
+        /* 小箭头 */
+        #remaining-tooltip::after {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            right: 20px;
+            border-width: 6px;
+            border-style: solid;
+            border-color: transparent transparent rgba(30, 30, 50, 0.95) transparent;
+        }
+
+        /* Tooltip里的微型牌 - 已放大 */
+        .tiny-tile {
+            width: 34px;
+            height: 34px;
+            background: #fdf5e6;
+            color: #333;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 4px;
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        /* 运算符号稍微改个色以区分 */
+        .tiny-tile.op {
+            background: #e3f2fd;
+            color: #0d47a1;
+        }
+
+        /* === 主布局容器 === */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            padding: 10px;
+            width: 100%;
+        }
+
+        /* === 棋盘区域 === */
+        .board-area {
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #4a4e69;
+            padding: 8px;
+            border-radius: 8px;
+            box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(15, var(--cell-size));
+            grid-template-rows: repeat(15, var(--cell-size));
+            gap: 2px;
+            background-color: #333;
+            border: 2px solid #333;
+        }
+
+        .cell {
+            width: var(--cell-size);
+            height: var(--cell-size);
+            background-color: var(--board-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: calc(var(--cell-size) * 0.28);
+            color: #333;
+            font-weight: bold;
+            position: relative;
+            user-select: none;
+            cursor: pointer;
+        }
+
+        /* 特殊格子样式 */
+        .cell.dl {
+            background-color: var(--dl-color);
+            color: #004d40;
+        }
+
+        .cell.tl {
+            background-color: var(--tl-color);
+            color: white;
+        }
+
+        .cell.dw {
+            background-color: var(--dw-color);
+            color: #880e4f;
+        }
+
+        .cell.tw {
+            background-color: var(--tw-color);
+            color: #880e4f;
+        }
+
+        .cell.center {
+            background-color: var(--dw-color);
+            font-size: calc(var(--cell-size) * 0.6);
+        }
+
+        /* 牌样式 */
+        .tile {
+            width: calc(var(--cell-size) - 4px);
+            height: calc(var(--cell-size) - 4px);
+            background-color: var(--tile-bg);
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: calc(var(--cell-size) * 0.55);
+            font-weight: bold;
+            color: var(--tile-color);
+            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            cursor: grab;
+            z-index: 10;
+            position: relative;
+            transition: transform 0.1s, border 0.1s, box-shadow 0.1s;
+        }
+
+        .tile span.points {
+            position: absolute;
+            bottom: 2px;
+            right: 3px;
+            font-size: calc(var(--cell-size) * 0.25);
+            color: #666;
+        }
+
+        .tile.temp {
+            border: 2px solid #4caf50;
+            box-shadow: 0 0 5px #4caf50;
+        }
+
+        .tile.locked {
+            cursor: default;
+            background-color: #ddd;
+            color: #555;
+        }
+
+        .tile.selected {
+            transform: translateY(-8px) scale(1.1);
+            border: 2px solid #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.9);
+            z-index: 20;
+            background-color: #fffbf0;
+        }
+
+        .rack-swapping {
+            background: rgba(233, 196, 106, 0.2) !important;
+            border: 2px dashed #e9c46a !important;
+        }
+
+        /* === 侧边栏 === */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.07);
+            padding: 15px;
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #rack-container {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            min-height: calc(var(--cell-size) * 1.2 + 20px);
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            transition: background 0.3s;
+        }
+
+        #rack-container .tile {
+            transform: scale(1.1);
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        #rack-container .tile.selected {
+            transform: scale(1.2) translateY(-5px);
+        }
+
+        /* 排行榜优化：支持显示手牌 */
+        .score-board {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .player-score {
+            display: flex;
+            align-items: center;
+            /* 垂直居中 */
+            padding: 10px 5px;
+            /* 增加一点垂直padding */
+            font-size: 0.9rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            gap: 8px;
+            /* 元素间距 */
+        }
+
+        .p-name {
+            flex: 0 0 auto;
+            /* 不缩放 */
+            width: 70px;
+            /* 稍微加宽以容纳自定义名字 */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
+        .mini-rack {
+            flex: 1;
+            /* 占据中间剩余空间 */
+            display: flex;
+            gap: 3px;
+            /* 增加间距 */
+            justify-content: flex-start;
+            /* 靠左对齐，利用增加的空间 */
+            flex-wrap: wrap;
+            padding: 0 5px;
+        }
+
+        .mini-tile {
+            width: 24px;
+            /* 增大尺寸 18->24 */
+            height: 24px;
+            /* 增大尺寸 18->24 */
+            background-color: #fdf5e6;
+            color: #333;
+            border-radius: 3px;
+            font-size: 14px;
+            /* 增大字体 11->14 */
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            cursor: default;
+        }
+
+        .p-score {
+            flex: 0 0 auto;
+            font-weight: bold;
+            text-align: right;
+            width: 40px;
+        }
+
+        .player-score.active {
+            background: linear-gradient(90deg, rgba(255, 215, 0, 0.2) 0%, transparent 100%);
+            color: #ffd700;
+            font-weight: bold;
+            border-left: 4px solid #ffd700;
+        }
+
+        .player-score.eliminated {
+            opacity: 0.5;
+            background: rgba(0, 0, 0, 0.3);
+            color: #aaa;
+        }
+
+        .player-score.eliminated .p-name {
+            text-decoration: line-through;
+        }
+
+        /* 淘汰玩家的手牌变暗 */
+        .player-score.eliminated .mini-tile {
+            background-color: #ccc;
+            color: #777;
+        }
+
+        /* 按钮组 */
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+
+        button {
+            padding: 12px 5px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            filter: grayscale(100%);
+        }
+
+        .btn-play {
+            background: #2a9d8f;
+            color: white;
+            grid-column: span 3;
+            font-size: 1.1rem;
+            padding: 15px;
+        }
+
+        .btn-swap {
+            background: #e9c46a;
+            color: #333;
+        }
+
+        .btn-swap.active {
+            background: #ffca3a;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+            animation: pulse 2s infinite;
+        }
+
+        .btn-reset {
+            background: #e76f51;
+            color: white;
+        }
+
+        .btn-pass {
+            background: #264653;
+            color: white;
+        }
+
+        .btn-shuffle {
+            background: #457b9d;
+            color: white;
+            grid-column: span 2;
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .btn-help {
+            background: #607d8b;
+            color: white;
+            grid-column: span 1;
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.02);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        #message-area {
+            text-align: center;
+            color: #ffd700;
+            font-weight: bold;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: space-around;
+            font-size: 0.75rem;
+            padding: 10px;
+        }
+
+        .legend div {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            /* JS控制显示 */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: white;
+            color: #333;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-width: 600px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .tutorial-section {
+            text-align: left;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .tutorial-section h3 {
+            color: #2a9d8f;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+            margin-top: 0;
+        }
+
+        .tutorial-list {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+
+        .tutorial-list li {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .key-point {
+            font-weight: bold;
+            color: #e76f51;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .endgame-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .endgame-table th,
+        .endgame-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .endgame-table th {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .score-change.negative {
+            color: #e76f51;
+        }
+
+        .score-change.positive {
+            color: #2a9d8f;
+            font-weight: bold;
+        }
+
+        /* 输入框样式 */
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border 0.2s;
+        }
+
+        .input-group input:focus {
+            border-color: #2a9d8f;
+            outline: none;
+        }
+
+        /* === 响应式布局：针对横屏 (Landscape) === */
+        @media (orientation: landscape) {
+            body {
+                height: 100vh;
+                /* 强制全屏高度 */
+                height: 100dvh;
+                /* 适配移动端动态地址栏 */
+                overflow: hidden;
+                /* 锁定滚动，确保内容在屏幕内 */
+            }
+
+            /* 计算单元格大小：预留顶部 Header(50px) 和 上下缓冲(约60px)，以及 dvh 支持 */
+            :root {
+                --available-h: calc(100dvh - 100px);
+                /* 减去更多空间以防底部被遮挡 */
+                --cell-size: min(calc(var(--available-h) / 15), calc(55vw / 15));
+                --sidebar-padding: 20px;
+            }
+
+            .main-wrapper {
+                height: calc(100dvh - 50px);
+                overflow: hidden;
+                align-items: center;
+                justify-content: flex-start;
+                gap: 2vw;
+                padding: 5px var(--sidebar-padding);
+            }
+
+            .board-area {
+                padding: 4px;
+            }
+
+            /* 侧边栏适配：高度跟随棋盘，内部使用 flex 分配空间 */
+            .sidebar {
+                flex: 1;
+                /* 高度与棋盘对齐，确保不超出一屏 */
+                height: calc(15 * var(--cell-size) + 12px);
+                min-width: 320px;
+                /* 增加宽度 280->320，让容器更宽 */
+                gap: 2vh;
+                /* 使用相对单位间距 */
+            }
+
+            /* 让侧边栏内部元素自适应高度 */
+            .panel {
+                padding: 1.5vh;
+                /* 减少内边距 */
+            }
+
+            /* 字体大小随视口高度缩放，防止在小横屏设备上太大 */
+            .panel,
+            button,
+            .player-score {
+                font-size: clamp(0.8rem, 2.2vh, 1rem);
+            }
+
+            h4 {
+                margin: 0 0 0.5vh 0;
+            }
+
+            #rack-container {
+                min-height: calc(var(--cell-size) * 1.2 + 10px);
+                padding: 5px;
+            }
+
+            /* 按钮更紧凑 */
+            button {
+                padding: 1.2vh 5px;
+            }
+
+            /* 隐藏多余空白 */
+            .score-board {
+                overflow-y: auto;
+                /* 如果积分榜太长，允许内部滚动 */
+                flex-shrink: 1;
+                /* 允许压缩 */
+            }
+        }
+
+        /* === 响应式布局：针对竖屏 (Portrait) === */
+        @media (orientation: portrait) {
+            :root {
+                --cell-size: calc((100vw - 20px) / 15);
+            }
+
+            .main-wrapper {
+                flex-direction: column;
+                justify-content: flex-start;
+                padding: 10px;
+                height: auto;
+                /* 允许撑开 */
+                overflow: visible;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                flex: none;
+                gap: 10px;
+            }
+
+            .board-area {
+                margin-bottom: 10px;
+            }
+
+            .score-board {
+                display: none;
+            }
+
+            /* 移动端竖屏隐藏详细积分榜 */
+            .mobile-score {
+                display: inline-block !important;
+                color: #ffd700;
+                font-size: 0.9rem;
+            }
+
+            #rack-container .tile {
+                transform: scale(1);
+            }
+
+            #rack-container .tile.selected {
+                transform: scale(1.1) translateY(-5px);
+            }
+        }
+
+        .mobile-score {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>G-MATH 🧮 <span class="mobile-score" id="mobile-score-display"></span></h1>
+        <!-- 修改：增加id，包裹剩余数显示，添加 tooltip 容器 -->
+        <div id="remaining-info">
+            剩余: <span id="tiles-left-header" style="font-weight:bold; color:white;">0</span>
+            <div id="remaining-tooltip"></div>
+        </div>
+    </header>
+
+    <div class="main-wrapper">
+        <div class="board-area">
+            <div id="game-board"></div>
+        </div>
+
+        <div class="sidebar">
+            <div id="message-area">欢迎来到 G-MATH!</div>
+
+            <div class="panel score-board">
+                <h4 style="border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:5px;">
+                    📊 玩家积分
+                </h4>
+                <div id="players-list"></div>
+            </div>
+
+            <div class="panel">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                    <div style="font-weight:bold; color:#ddd;">🖐️ 你的手牌:</div>
+                    <div style="font-size:0.8em; color:#aaa;" id="rack-hint">(点击选中，再点棋盘)</div>
+                </div>
+                <div id="rack-container"></div>
+            </div>
+
+            <div class="actions">
+                <button class="btn-play" id="btn-play" onclick="game.playTurn()">✅ 确认出牌</button>
+
+                <button class="btn-swap" id="btn-swap" onclick="game.toggleSwapMode()">♻️ 换牌</button>
+                <button class="btn-reset" id="btn-reset" onclick="game.recallTiles()">↩️ 收回</button>
+                <button class="btn-pass" id="btn-pass" onclick="game.passTurn()">⏭️ 跳过</button>
+
+                <button class="btn-shuffle" onclick="game.shuffleRack()">🔀 整理</button>
+                <button class="btn-help" onclick="game.showTutorial()">❓ 说明</button>
+            </div>
+
+            <div class="panel legend">
+                <div><span style="color:var(--dl-color)">■</span> 2倍数</div>
+                <div><span style="color:var(--tl-color)">■</span> 3倍数</div>
+                <div><span style="color:var(--dw-color)">■</span> 2倍式</div>
+                <div><span style="color:var(--tw-color)">■</span> 3倍式</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Game Over -->
+    <div id="modal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <h2 id="modal-title" style="margin-top:0">🏆 游戏结束</h2>
+            <div id="modal-msg"></div>
+            <button onclick="location.reload()"
+                style="background:#2a9d8f; color:white; padding:15px 30px; font-size:1.1rem; margin-top: 20px;">再玩一次</button>
+        </div>
+    </div>
+
+    <!-- Modal: Setup (Names) -->
+    <div id="setup-modal" class="modal" style="display: flex;">
+        <div class="modal-content" style="max-width: 400px;">
+            <h2 style="color:#4a4e69; margin-top:0;">👥 欢迎加入 G-MATH</h2>
+            <p style="color:#666; margin-bottom:20px;">请输入玩家名字:</p>
+
+            <div class="input-group">
+                <label>玩家 1</label>
+                <input type="text" id="p1-name" value="玩家 1" maxlength="8">
+            </div>
+            <div class="input-group">
+                <label>玩家 2</label>
+                <input type="text" id="p2-name" value="玩家 2" maxlength="8">
+            </div>
+            <div class="input-group">
+                <label>玩家 3</label>
+                <input type="text" id="p3-name" value="玩家 3" maxlength="8">
+            </div>
+            <div class="input-group">
+                <label>玩家 4</label>
+                <input type="text" id="p4-name" value="玩家 4" maxlength="8">
+            </div>
+
+            <button onclick="submitSetup()"
+                style="background:#2a9d8f; color:white; padding:12px 40px; font-size:1.1rem; margin-top:10px; width:100%;">下一步
+                ➡</button>
+        </div>
+    </div>
+
+    <!-- Modal: Tutorial -->
+    <div id="tutorial-modal" class="modal">
+        <div class="modal-content" style="text-align:left; max-width: 650px;">
+            <span class="close-btn"
+                onclick="document.getElementById('tutorial-modal').style.display='none'">&times;</span>
+            <h2 style="text-align:center; margin-top:0; color:#4a4e69;">📖 G-MATH 游戏指南</h2>
+
+            <div class="tutorial-section">
+                <h3>🎯 游戏目标</h3>
+                <p>利用手中的数字和符号牌，在棋盘上拼出<strong>正确的数学等式</strong>，争取获得最高分！</p>
+            </div>
+
+            <div class="tutorial-section">
+                <h3>🕹️ 玩法流程</h3>
+                <ul class="tutorial-list">
+                    <li><strong>第一步：</strong>首位玩家出牌必须覆盖棋盘中心的 <span style="color:#ffaaa5; font-weight:bold;">★</span> 星号。
+                    </li>
+                    <li><strong>连接：</strong>之后的出牌必须横向或纵向排列，并与棋盘上已有的牌相连。</li>
+                    <li><strong>等式：</strong>必须形成数学上成立的等式（包含 <code>=</code>）。<br>
+                        <small style="color:#555; background:#eee; padding:2px 5px; border-radius:4px;">✔
+                            例子：<code>2+3=5</code> 或连等式 <code>32÷8=7-3=4</code></small>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="tutorial-section">
+                <h3>🖐️ 操作指南 (支持触屏)</h3>
+                <ul class="tutorial-list">
+                    <li><strong>出牌：</strong>点击手牌选中（变亮） -> 点击棋盘格子放置。</li>
+                    <li><strong>调整：</strong>点击棋盘上刚放下的牌，可以将其收回手牌。</li>
+                    <li><strong>换牌：</strong>手牌不好？点击“♻️ 换牌”进入换牌模式。<br>
+                        <span style="color:#e76f51; font-size:0.9em;">(注意：换牌视为未得分操作，会跳过本回合)</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="tutorial-section">
+                <h3>🏆 竞技规则</h3>
+                <ul class="tutorial-list">
+                    <li><strong>淘汰机制：</strong>同一玩家连续 <span class="key-point">3次</span> 未得分（跳过或换牌），将被<span
+                            class="key-point">直接淘汰</span>出局！</li>
+                    <li><strong>游戏结束：</strong>当牌库空了且有人出完牌，或者场上只剩1人时结束。</li>
+                    <li><strong>胜负：</strong>最终积分最高者获胜。</li>
+                </ul>
+            </div>
+
+            <div
+                style="background:#e3f2fd; padding:12px; border-radius:8px; margin-top:15px; text-align:center; border:1px solid #bbdefb; color:#0d47a1;">
+                🖥️ <strong>体验升级：</strong> 建议按键盘 <strong>F11</strong> 进入全屏模式，操作更顺畅！
+            </div>
+
+            <div style="text-align:center; margin-top:20px;">
+                <button onclick="document.getElementById('tutorial-modal').style.display='none'"
+                    style="background:#2a9d8f; color:white; padding:12px 40px; font-size:1.1rem; border:none; border-radius:8px; cursor:pointer; font-weight:bold; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">开始挑战！</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * G-MATH 游戏逻辑 (JavaScript)
+         */
+        // 1. 配置与数据
+        const BOARD_SIZE = 15;
+        const RACK_SIZE = 8;
+
+        // 牌库分布: 调整为 3:2 比例 (总数 100 张)
+        const TILE_DISTRIBUTION = {
+            '0': { count: 6, score: 1 },
+            '1': { count: 6, score: 1 },
+            '2': { count: 6, score: 2 },
+            '3': { count: 6, score: 2 },
+            '4': { count: 6, score: 2 },
+            '5': { count: 6, score: 3 },
+            '6': { count: 6, score: 3 },
+            '7': { count: 6, score: 4 },
+            '8': { count: 6, score: 4 },
+            '9': { count: 6, score: 4 },
+            '+': { count: 7, score: 2 },
+            '-': { count: 7, score: 2 },
+            '×': { count: 7, score: 4 },
+            '÷': { count: 7, score: 4 },
+            '=': { count: 20, score: 1 } // 大幅增加，防止卡手
+        };
+
+        const SPECIAL_CELLS = {
+            'TW': ['0,0', '0,7', '0,14', '7,0', '7,14', '14,0', '14,7', '14,14'],
+            'DW': ['1,1', '2,2', '3,3', '4,4', '10,10', '11,11', '12,12', '13,13', '1,13', '2,12', '3,11', '4,10', '10,4', '11,3', '12,2', '13,1'],
+            'TL': ['1,5', '1,9', '5,1', '5,5', '5,9', '5,13', '9,1', '9,5', '9,9', '9,13', '13,5', '13,9'],
+            'DL': ['0,3', '0,11', '2,6', '2,8', '3,0', '3,7', '3,14', '6,2', '6,6', '6,8', '6,12', '7,3', '7,11', '8,2', '8,6', '8,8', '8,12', '11,0', '11,7', '11,14', '12,6', '12,8', '14,3', '14,11']
+        };
+
+        class Tile {
+            constructor(char, id) {
+                this.char = char;
+                this.score = TILE_DISTRIBUTION[char].score;
+                this.id = id;
+                this.element = this.createElement();
+            }
+
+            createElement() {
+                const el = document.createElement('div');
+                el.className = 'tile';
+                el.draggable = true;
+                el.id = `tile-${this.id}`;
+                el.dataset.tileId = this.id;
+                el.innerHTML = `${this.char}<span class="points">${this.score}</span>`;
+                el.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', this.id);
+                    e.dataTransfer.effectAllowed = "move";
+                    game.draggedTileId = this.id;
+                    game.selectTile(this.id, true);
+                });
+                return el;
+            }
+        }
+
+        class Game {
+            constructor() {
+                this.players = [
+                    { name: "玩家 1", score: 0, rack: [], misses: 0, active: true },
+                    { name: "玩家 2", score: 0, rack: [], misses: 0, active: true },
+                    { name: "玩家 3", score: 0, rack: [], misses: 0, active: true },
+                    { name: "玩家 4", score: 0, rack: [], misses: 0, active: true }
+                ];
+                this.currentPlayerIndex = 0;
+                this.numberBag = [];
+                this.operatorBag = [];
+                this.boardState = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null));
+                this.isFirstTurn = true;
+                this.tempPlacedTiles = [];
+                this.selectedTileIds = new Set();
+                this.isSwapping = false;
+                this.draggedTileId = null;
+                this.consecutivePasses = 0;
+                this.init();
+            }
+
+            init() {
+                this.generateTileBag();
+                this.renderBoard();
+                this.shuffleBag();
+                this.players.forEach(p => this.drawTiles(p));
+                // 注意：init这里先不updateUI，等名字输入完再update
+            }
+
+            setPlayerNames(names) {
+                for (let i = 0; i < 4; i++) {
+                    if (names[i] && names[i].trim() !== "") {
+                        this.players[i].name = names[i].trim();
+                    }
+                }
+                this.updateUI();
+                this.showMessage(`👉 ${this.players[this.currentPlayerIndex].name} 请出牌`);
+            }
+
+            showTutorial() { document.getElementById('tutorial-modal').style.display = 'flex'; }
+
+            generateTileBag() {
+                this.numberBag = [];
+                this.operatorBag = [];
+                let idCounter = 0;
+                for (let char in TILE_DISTRIBUTION) {
+                    const count = TILE_DISTRIBUTION[char].count;
+                    const isNumber = /^[0-9]$/.test(char);
+                    for (let i = 0; i < count; i++) {
+                        const tile = new Tile(char, idCounter++);
+                        if (isNumber) this.numberBag.push(tile);
+                        else this.operatorBag.push(tile);
+                    }
+                }
+            }
+
+            shuffleBag() {
+                const shuffle = (arr) => {
+                    for (let i = arr.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [arr[i], arr[j]] = [arr[j], arr[i]];
+                    }
+                };
+                shuffle(this.numberBag);
+                shuffle(this.operatorBag);
+            }
+
+            drawTiles(player) {
+                let currentNums = player.rack.filter(t => /^[0-9]$/.test(t.char)).length;
+                let currentOps = player.rack.filter(t => !/^[0-9]$/.test(t.char)).length;
+                const MAX_NUMS = 5;
+                const MAX_OPS = 3;
+                let shortageMsg = "";
+
+                while (currentNums < MAX_NUMS && this.numberBag.length > 0) {
+                    player.rack.push(this.numberBag.pop());
+                    currentNums++;
+                }
+                while (currentOps < MAX_OPS && this.operatorBag.length > 0) {
+                    player.rack.push(this.operatorBag.pop());
+                    currentOps++;
+                }
+
+                if (currentNums < MAX_NUMS && this.numberBag.length === 0) shortageMsg = "数字牌耗尽";
+                if (currentOps < MAX_OPS && this.operatorBag.length === 0) {
+                    shortageMsg = shortageMsg ? "牌库耗尽" : "运算牌耗尽";
+                }
+                return shortageMsg;
+            }
+
+            renderBoard() {
+                const boardEl = document.getElementById('game-board');
+                boardEl.innerHTML = '';
+                for (let r = 0; r < BOARD_SIZE; r++) {
+                    for (let c = 0; c < BOARD_SIZE; c++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'cell';
+                        cell.dataset.r = r;
+                        cell.dataset.c = c;
+                        const key = `${r},${c}`;
+                        if (r === 7 && c === 7) { cell.classList.add('center'); cell.innerHTML = '★'; }
+                        else if (SPECIAL_CELLS.TW.includes(key)) { cell.classList.add('tw'); cell.innerText = 'TW'; }
+                        else if (SPECIAL_CELLS.DW.includes(key)) { cell.classList.add('dw'); cell.innerText = 'DW'; }
+                        else if (SPECIAL_CELLS.TL.includes(key)) { cell.classList.add('tl'); cell.innerText = 'TL'; }
+                        else if (SPECIAL_CELLS.DL.includes(key)) { cell.classList.add('dl'); cell.innerText = 'DL'; }
+
+                        cell.onclick = () => this.handleBoardClick(r, c);
+                        cell.addEventListener('dragover', (e) => e.preventDefault());
+                        cell.addEventListener('drop', (e) => this.handleDropOnBoard(e, r, c));
+                        boardEl.appendChild(cell);
+                    }
+                }
+            }
+
+            renderRack() {
+                const rackContainer = document.getElementById('rack-container');
+                rackContainer.innerHTML = '';
+                const player = this.players[this.currentPlayerIndex];
+                if (this.isSwapping) rackContainer.classList.add('rack-swapping');
+                else rackContainer.classList.remove('rack-swapping');
+
+                player.rack.forEach(tile => {
+                    const tileEl = tile.element;
+                    tileEl.classList.remove('temp', 'locked');
+                    if (this.selectedTileIds.has(tile.id)) tileEl.classList.add('selected');
+                    else tileEl.classList.remove('selected');
+
+                    tileEl.onclick = (e) => {
+                        e.stopPropagation();
+                        this.handleRackTileClick(tile.id);
+                    };
+                    rackContainer.appendChild(tileEl);
+                });
+            }
+
+            handleRackTileClick(tileId) {
+                if (this.isSwapping) {
+                    if (this.selectedTileIds.has(tileId)) this.selectedTileIds.delete(tileId);
+                    else this.selectedTileIds.add(tileId);
+                } else {
+                    if (this.selectedTileIds.has(tileId)) {
+                        this.selectedTileIds.clear();
+                    } else {
+                        this.selectedTileIds.clear();
+                        this.selectedTileIds.add(tileId);
+                    }
+                }
+                this.renderRack();
+            }
+
+            handleBoardClick(r, c) {
+                if (this.boardState[r][c] && !this.isTemp(r, c)) return;
+                if (this.isTemp(r, c)) {
+                    const tile = this.boardState[r][c];
+                    this.boardState[r][c] = null;
+                    const tempIdx = this.tempPlacedTiles.findIndex(t => t.r === r && t.c === c);
+                    if (tempIdx > -1) this.tempPlacedTiles.splice(tempIdx, 1);
+                    this.updateCellUI(r, c);
+                    this.players[this.currentPlayerIndex].rack.push(tile);
+                    this.selectedTileIds.clear();
+                    this.selectedTileIds.add(tile.id);
+                    this.renderRack();
+                    this.showMessage("已收回牌，点击空格放置");
+                    return;
+                }
+                if (this.selectedTileIds.size === 1 && !this.isSwapping) {
+                    const tileId = Array.from(this.selectedTileIds)[0];
+                    const player = this.players[this.currentPlayerIndex];
+                    const tileIndex = player.rack.findIndex(t => t.id == tileId);
+                    if (tileIndex > -1) {
+                        const tile = player.rack[tileIndex];
+                        this.placeTileTemp(tile, r, c);
+                        player.rack.splice(tileIndex, 1);
+                        this.selectedTileIds.clear();
+                        this.renderRack();
+                    }
+                }
+            }
+
+            selectTile(tileId, forceExclusive = true) {
+                if (forceExclusive) this.selectedTileIds.clear();
+                this.selectedTileIds.add(tileId);
+                this.renderRack();
+            }
+
+            handleDropOnBoard(e, r, c) {
+                e.preventDefault();
+                if (this.boardState[r][c] !== null) return;
+                const player = this.players[this.currentPlayerIndex];
+                const tileIndex = player.rack.findIndex(t => t.id == this.draggedTileId);
+                if (tileIndex > -1) {
+                    const tile = player.rack[tileIndex];
+                    this.placeTileTemp(tile, r, c);
+                    player.rack.splice(tileIndex, 1);
+                } else {
+                    const existingTempIndex = this.tempPlacedTiles.findIndex(t => t.tile.id == this.draggedTileId);
+                    if (existingTempIndex > -1) {
+                        const oldPos = this.tempPlacedTiles[existingTempIndex];
+                        this.boardState[oldPos.r][oldPos.c] = null;
+                        this.updateCellUI(oldPos.r, oldPos.c);
+                        this.tempPlacedTiles.splice(existingTempIndex, 1);
+                        this.placeTileTemp(oldPos.tile, r, c);
+                    }
+                }
+                this.selectedTileIds.clear();
+                this.renderRack();
+            }
+
+            placeTileTemp(tile, r, c) {
+                this.boardState[r][c] = tile;
+                this.tempPlacedTiles.push({ r, c, tile });
+                this.updateCellUI(r, c, true);
+            }
+
+            updateCellUI(r, c, isTemp = false) {
+                const index = r * BOARD_SIZE + c;
+                const cell = document.getElementById('game-board').children[index];
+                const tile = this.boardState[r][c];
+                if (!tile) {
+                    cell.innerHTML = '';
+                    const key = `${r},${c}`;
+                    if (r === 7 && c === 7) cell.innerHTML = '★';
+                    else if (SPECIAL_CELLS.TW.includes(key)) cell.innerText = 'TW';
+                    else if (SPECIAL_CELLS.DW.includes(key)) cell.innerText = 'DW';
+                    else if (SPECIAL_CELLS.TL.includes(key)) cell.innerText = 'TL';
+                    else if (SPECIAL_CELLS.DL.includes(key)) cell.innerText = 'DL';
+                    return;
+                }
+                cell.innerHTML = '';
+                const tileEl = tile.element;
+                tileEl.classList.remove('selected');
+                tileEl.onclick = null;
+                if (isTemp) tileEl.classList.add('temp');
+                else tileEl.classList.add('locked');
+                tileEl.draggable = isTemp;
+                cell.appendChild(tileEl);
+            }
+
+            recallTiles() {
+                const player = this.players[this.currentPlayerIndex];
+                this.tempPlacedTiles.forEach(item => {
+                    this.boardState[item.r][item.c] = null;
+                    this.updateCellUI(item.r, item.c);
+                    player.rack.push(item.tile);
+                });
+                this.tempPlacedTiles = [];
+                this.selectedTileIds.clear();
+                this.renderRack();
+            }
+
+            passTurn() {
+                if (this.isSwapping) this.toggleSwapMode();
+                this.recallTiles();
+                const player = this.players[this.currentPlayerIndex];
+                player.misses++;
+                this.consecutivePasses++;
+                if (this.consecutivePasses >= 4) {
+                    this.endGame(true);
+                    return;
+                }
+                if (this.checkElimination(player)) return;
+                this.nextTurn(false);
+            }
+
+            toggleSwapMode() {
+                if (this.tempPlacedTiles.length > 0) {
+                    this.showMessage("❌ 请先收回棋盘上的牌", true);
+                    return;
+                }
+                if (!this.isSwapping) {
+                    this.isSwapping = true;
+                    this.selectedTileIds.clear();
+                    document.getElementById('btn-swap').innerText = "✅ 确认交换";
+                    document.getElementById('btn-swap').classList.add('active');
+                    document.getElementById('rack-hint').innerText = "(多选模式：请选择要丢弃的牌)";
+                    this.showMessage("请选择要交换的牌，再次点击按钮确认");
+                    this.toggleButtons(false);
+                } else {
+                    this.executeSwap();
+                }
+                this.renderRack();
+            }
+
+            executeSwap() {
+                if (this.selectedTileIds.size === 0) {
+                    this.exitSwapMode();
+                    this.showMessage("未选择牌，已取消换牌");
+                    return;
+                }
+                if (this.numberBag.length === 0 && this.operatorBag.length === 0) {
+                    this.exitSwapMode();
+                    this.showMessage("❌ 牌库空了，无法换牌", true);
+                    return;
+                }
+                const player = this.players[this.currentPlayerIndex];
+                const newRack = [];
+                const tilesToSwap = [];
+                player.rack.forEach(tile => {
+                    if (this.selectedTileIds.has(tile.id)) tilesToSwap.push(tile);
+                    else newRack.push(tile);
+                });
+                tilesToSwap.forEach(tile => {
+                    tile.element.classList.remove('selected');
+                    if (/^[0-9]$/.test(tile.char)) this.numberBag.push(tile);
+                    else this.operatorBag.push(tile);
+                });
+                player.rack = newRack;
+                this.shuffleBag();
+                this.drawTiles(player);
+                const count = tilesToSwap.length;
+                this.exitSwapMode();
+                this.showMessage(`♻️ 成功交换 ${count} 张牌`);
+                player.misses++;
+                this.consecutivePasses = 0;
+                if (this.checkElimination(player)) return;
+                this.nextTurn(true);
+            }
+
+            checkElimination(player) {
+                if (player.misses >= 3) {
+                    player.active = false;
+                    this.showMessage(`🚫 ${player.name} 连续3次未得分，已退出比赛！`, true);
+                    const activePlayers = this.players.filter(p => p.active);
+                    if (activePlayers.length <= 1) {
+                        setTimeout(() => this.endGame(true), 1500);
+                    } else {
+                        setTimeout(() => this.nextTurn(false), 1500);
+                    }
+                    return true;
+                }
+                return false;
+            }
+
+            exitSwapMode() {
+                this.isSwapping = false;
+                this.selectedTileIds.clear();
+                document.getElementById('btn-swap').innerText = "♻️ 换牌";
+                document.getElementById('btn-swap').classList.remove('active');
+                document.getElementById('rack-hint').innerText = "(点击选中，再次点击棋盘放置)";
+                this.toggleButtons(true);
+                this.renderRack();
+            }
+
+            toggleButtons(enable) {
+                const ids = ['btn-play', 'btn-reset', 'btn-pass'];
+                ids.forEach(id => {
+                    document.getElementById(id).disabled = !enable;
+                });
+            }
+
+            shuffleRack() {
+                const p = this.players[this.currentPlayerIndex];
+                for (let i = p.rack.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [p.rack[i], p.rack[j]] = [p.rack[j], p.rack[i]];
+                }
+                this.renderRack();
+            }
+
+            playTurn() {
+                if (this.isSwapping) return;
+                if (this.tempPlacedTiles.length === 0) {
+                    this.showMessage("⚠️ 请先在棋盘上放置牌", true);
+                    return;
+                }
+                const rows = this.tempPlacedTiles.map(t => t.r);
+                const cols = this.tempPlacedTiles.map(t => t.c);
+                const isRow = rows.every(r => r === rows[0]);
+                const isCol = cols.every(c => c === cols[0]);
+                if (!isRow && !isCol) {
+                    this.showMessage("⚠️ 必须排在同一行或同一列", true);
+                    return;
+                }
+                this.tempPlacedTiles.sort((a, b) => isRow ? a.c - b.c : a.r - b.r);
+                let lineTiles = [];
+                if (isRow) lineTiles = this.getContiguousLine(rows[0], this.tempPlacedTiles[0].c, 'row');
+                else lineTiles = this.getContiguousLine(this.tempPlacedTiles[0].r, cols[0], 'col');
+                if (this.isFirstTurn) {
+                    const usesCenter = lineTiles.some(t => t.r === 7 && t.c === 7);
+                    if (!usesCenter) { this.showMessage("⚠️ 必须经过中心星号(★)", true); return; }
+                    if (lineTiles.length < 3) { this.showMessage("⚠️ 第一步至少需要3张牌", true); return; }
+                } else {
+                    const isConnected = lineTiles.some(t => !this.tempPlacedTiles.includes(t));
+                    let adjacentContact = false;
+                    if (!isConnected) {
+                        for (let t of this.tempPlacedTiles) {
+                            if (this.hasNeighbor(t.r, t.c)) { adjacentContact = true; break; }
+                        }
+                    }
+                    if (!isConnected && !adjacentContact) { this.showMessage("⚠️ 必须与现有牌相连", true); return; }
+                }
+                if (!this.isValidEquation(lineTiles)) {
+                    this.showMessage("❌ 无效等式: " + this.tilesToString(lineTiles), true);
+                    return;
+                }
+                let totalScore = this.calculateScore(lineTiles, isRow ? 'row' : 'col');
+                for (let temp of this.tempPlacedTiles) {
+                    let crossLine = [];
+                    if (isRow) crossLine = this.getContiguousLine(temp.r, temp.c, 'col');
+                    else crossLine = this.getContiguousLine(temp.r, temp.c, 'row');
+                    if (crossLine.length > 1) {
+                        if (!this.isValidEquation(crossLine)) {
+                            this.showMessage("❌ 垂直方向等式无效", true);
+                            return;
+                        }
+                        totalScore += this.calculateScore(crossLine, isRow ? 'col' : 'row');
+                    }
+                }
+                this.confirmMove(totalScore);
+            }
+
+            hasNeighbor(r, c) {
+                const dirs = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+                for (let d of dirs) {
+                    const nr = r + d[0], nc = c + d[1];
+                    if (nr >= 0 && nr < BOARD_SIZE && nc >= 0 && nc < BOARD_SIZE) {
+                        if (this.boardState[nr][nc] && !this.isTemp(nr, nc)) return true;
+                    }
+                }
+                return false;
+            }
+
+            isTemp(r, c) { return this.tempPlacedTiles.some(t => t.r === r && t.c === c); }
+
+            getContiguousLine(startR, startC, dir) {
+                let line = [];
+                let currR = startR, currC = startC;
+                if (dir === 'row') {
+                    while (currC > 0 && this.boardState[currR][currC - 1]) currC--;
+                    while (currC < BOARD_SIZE && this.boardState[currR][currC]) {
+                        line.push({ r: currR, c: currC, tile: this.boardState[currR][currC] });
+                        currC++;
+                    }
+                } else {
+                    while (currR > 0 && this.boardState[currR - 1][currC]) currR--;
+                    while (currR < BOARD_SIZE && this.boardState[currR][currC]) {
+                        line.push({ r: currR, c: currC, tile: this.boardState[currR][currC] });
+                        currR++;
+                    }
+                }
+                return line;
+            }
+
+            isValidEquation(lineObjects) {
+                const str = this.tilesToString(lineObjects);
+                if (!str.includes('=')) return false;
+                const parts = str.split('=');
+                if (parts.some(p => p === '')) return false;
+                let targetValue = null;
+                try {
+                    const firstPart = parts[0].replace(/×/g, '*').replace(/÷/g, '/');
+                    if (/[^0-9+\-×÷]/.test(parts[0])) return false;
+                    if (/\/0/.test(firstPart)) return false;
+                    targetValue = new Function(`return ${firstPart}`)();
+                    for (let i = 1; i < parts.length; i++) {
+                        const currentPartStr = parts[i].replace(/×/g, '*').replace(/÷/g, '/');
+                        if (/[^0-9+\-×÷]/.test(parts[i])) return false;
+                        if (/\/0/.test(currentPartStr)) return false;
+                        const currentValue = new Function(`return ${currentPartStr}`)();
+                        if (Math.abs(currentValue - targetValue) > 0.0001) return false;
+                    }
+                    return true;
+                } catch (e) { return false; }
+            }
+
+            tilesToString(lineObjects) { return lineObjects.map(obj => obj.tile.char).join(''); }
+
+            calculateScore(lineObjects, dir) {
+                let score = 0;
+                let wordMultiplier = 1;
+                lineObjects.forEach(obj => {
+                    let tileScore = obj.tile.score;
+                    if (this.isTemp(obj.r, obj.c)) {
+                        const key = `${obj.r},${obj.c}`;
+                        if (SPECIAL_CELLS.DL.includes(key)) tileScore *= 2;
+                        if (SPECIAL_CELLS.TL.includes(key)) tileScore *= 3;
+                        if (SPECIAL_CELLS.DW.includes(key) || (obj.r === 7 && obj.c === 7 && this.isFirstTurn)) wordMultiplier *= 2;
+                        if (SPECIAL_CELLS.TW.includes(key)) wordMultiplier *= 3;
+                    }
+                    score += tileScore;
+                });
+                return score * wordMultiplier;
+            }
+
+            confirmMove(points) {
+                const player = this.players[this.currentPlayerIndex];
+                player.score += points;
+                player.misses = 0;
+                this.consecutivePasses = 0;
+                this.showMessage(`🎉 有效！得分: ${points}`);
+                this.tempPlacedTiles.forEach(t => {
+                    const el = t.tile.element;
+                    el.classList.remove('temp');
+                    el.classList.add('locked');
+                    el.draggable = false;
+                    this.updateCellUI(t.r, t.c);
+                });
+                this.tempPlacedTiles = [];
+                this.isFirstTurn = false;
+                this.selectedTileIds.clear();
+                this.nextTurn(true);
+            }
+
+            nextTurn(isValidMove = false) {
+                const player = this.players[this.currentPlayerIndex];
+                let warning = "";
+                if (player.active) {
+                    warning = this.drawTiles(player);
+                }
+                const bagsEmpty = this.numberBag.length === 0 && this.operatorBag.length === 0;
+                if (player.rack.length === 0 && bagsEmpty) {
+                    this.endGame(false, player);
+                    return;
+                }
+                let loops = 0;
+                do {
+                    this.currentPlayerIndex = (this.currentPlayerIndex + 1) % 4;
+                    loops++;
+                } while (!this.players[this.currentPlayerIndex].active && loops < 4);
+                if (loops >= 4) {
+                    this.endGame(true);
+                    return;
+                }
+                this.updateUI();
+                let msg = `👉 轮到 ${this.players[this.currentPlayerIndex].name}`;
+                if (warning && player.rack.length < RACK_SIZE) {
+                    msg += ` (${warning}，无法补齐)`;
+                }
+                this.showMessage(msg);
+            }
+
+            endGame(isForced = false, finishingPlayer = null) {
+                let msgHTML = "";
+                if (isForced) {
+                    msgHTML += `<div style="color:#e76f51; margin-bottom:10px;">🚫 连续4次跳过或仅剩一人，比赛结束！</div>`;
+                } else if (finishingPlayer) {
+                    msgHTML += `<div style="color:#2a9d8f; margin-bottom:10px;">🎉 ${finishingPlayer.name} 出完了所有牌！</div>`;
+                }
+                this.players.sort((a, b) => b.score - a.score);
+                const winner = this.players[0];
+                let tableHTML = `<table class="endgame-table">
+            <tr><th>名次</th><th>玩家</th><th>状态</th><th>最终得分</th></tr>`;
+                this.players.forEach((p, index) => {
+                    const status = p.active ? '完赛' : '淘汰';
+                    const medal = index === 0 ? '🥇' : (index === 1 ? '🥈' : (index === 2 ? '🥉' : ''));
+                    tableHTML += `<tr>
+                <td>${medal} ${index + 1}</td>
+                <td>${p.name}</td>
+                <td style="color:${p.active ? '#2a9d8f' : '#e76f51'}">${status}</td>
+                <td><strong>${p.score}</strong></td>
+            </tr>`;
+                });
+                tableHTML += `</table>`;
+                document.getElementById('modal-title').innerText = "🏆 最终战报";
+                document.getElementById('modal-msg').innerHTML = msgHTML + tableHTML;
+                document.getElementById('modal').style.display = 'flex';
+            }
+
+            updateUI() {
+                const list = document.getElementById('players-list');
+                list.innerHTML = '';
+                this.players.forEach((p, i) => {
+                    const div = document.createElement('div');
+                    div.className = `player-score ${i === this.currentPlayerIndex ? 'active' : ''} ${!p.active ? 'eliminated' : ''}`;
+
+                    // 构建迷你手牌 HTML - 渲染真实的手牌内容
+                    let rackHtml = '<div class="mini-rack">';
+
+                    // 自动排序手牌，数字在前，符号在后，方便查看
+                    const sortedRack = [...p.rack].sort((a, b) => {
+                        const isNumA = /^[0-9]$/.test(a.char);
+                        const isNumB = /^[0-9]$/.test(b.char);
+                        if (isNumA && !isNumB) return -1;
+                        if (!isNumA && isNumB) return 1;
+                        return a.char.localeCompare(b.char);
+                    });
+
+                    sortedRack.forEach(t => {
+                        // 给符号添加特殊样式区分
+                        const isOp = !/^[0-9]$/.test(t.char);
+                        const opClass = isOp ? 'op' : '';
+                        rackHtml += `<span class="mini-tile ${opClass}">${t.char}</span>`;
+                    });
+                    rackHtml += '</div>';
+
+                    div.innerHTML = `<span class="p-name">${p.name}</span> ${rackHtml} <span class="p-score">${p.score}</span>`;
+                    list.appendChild(div);
+                });
+                const cp = this.players[this.currentPlayerIndex];
+                document.getElementById('mobile-score-display').innerText = `${cp.name}: ${cp.score}分`;
+                document.getElementById('tiles-left-header').innerText = `${this.numberBag.length + this.operatorBag.length} (数:${this.numberBag.length} | 符:${this.operatorBag.length})`;
+
+                // 更新剩余牌数Tooltip的内容
+                const allRemaining = [...this.numberBag, ...this.operatorBag].sort((a, b) => {
+                    const isNumA = /^[0-9]$/.test(a.char);
+                    const isNumB = /^[0-9]$/.test(b.char);
+                    if (isNumA && !isNumB) return -1;
+                    if (!isNumA && isNumB) return 1;
+                    return a.char.localeCompare(b.char);
+                });
+
+                let tooltipHtml = '';
+                allRemaining.forEach(t => {
+                    const isOp = !/^[0-9]$/.test(t.char);
+                    const opClass = isOp ? 'op' : '';
+                    tooltipHtml += `<span class="tiny-tile ${opClass}">${t.char}</span>`;
+                });
+                document.getElementById('remaining-tooltip').innerHTML = tooltipHtml;
+
+                this.renderRack();
+            }
+
+            showMessage(msg, isError = false) {
+                const el = document.getElementById('message-area');
+                el.style.color = isError ? '#ff6b6b' : '#ffd700';
+                el.innerText = msg;
+                el.style.transform = "scale(1.02)";
+                setTimeout(() => el.style.transform = "scale(1)", 200);
+            }
+        }
+
+        // 全局函数：提交设置
+        function submitSetup() {
+            const names = [
+                document.getElementById('p1-name').value,
+                document.getElementById('p2-name').value,
+                document.getElementById('p3-name').value,
+                document.getElementById('p4-name').value
+            ];
+            game.setPlayerNames(names);
+
+            // 隐藏设置弹窗，显示教程
+            document.getElementById('setup-modal').style.display = 'none';
+            document.getElementById('tutorial-modal').style.display = 'flex';
+        }
+
+        const game = new Game();
+
+    </script>
+</body>
+
+</html>

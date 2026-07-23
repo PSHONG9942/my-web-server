@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="icon" href="../images/logo.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 英语语法纠错助手 - 华小老师专区</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* 页面特定样式 */
+        :root {
+            --primary-color: #f39c12;
+            /* 橙色主题 */
+            --primary-hover: #e67e22;
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-main: #333;
+            --text-sub: #666;
+            --border-radius: 12px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding-top: 50px;
+            /* 为顶部标题和返回按钮留出空间 */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 返回按钮样式 (参考 radical.html，但适配本页主题色) */
+        .back-link-wrapper {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: var(--primary-color);
+            /* 使用主题橙色，也可改为 #28a745 保持绿色 */
+            font-weight: bold;
+            font-size: 1rem;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .back-link:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
+        }
+
+        /* 主容器 */
+        .main-wrapper {
+            width: 100%;
+            max-width: 1000px;
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .tool-header {
+            text-align: center;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+
+        .tool-header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .tool-header p {
+            color: var(--text-sub);
+        }
+
+        /* 输入区域卡片 */
+        .editor-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 30px;
+            margin-bottom: 20px;
+            border-top: 4px solid var(--primary-color);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+            background-color: #fafafa;
+        }
+
+        textarea:focus {
+            border-color: var(--primary-color);
+            background-color: #fff;
+            outline: none;
+        }
+
+        .action-area {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 15px;
+        }
+
+        button#checkBtn {
+            padding: 12px 30px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 4px 6px rgba(243, 156, 18, 0.2);
+        }
+
+        button#checkBtn:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        button#checkBtn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .loading-spinner {
+            display: none;
+            color: var(--text-sub);
+            font-size: 0.9rem;
+        }
+
+        /* 结果展示区 */
+        #resultsArea {
+            display: none;
+            animation: fadeIn 0.5s;
+            width: 100%;
+        }
+
+        .result-section {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 25px;
+            margin-bottom: 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .result-section h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .improved-text {
+            font-size: 1.2rem;
+            color: #2c3e50;
+            line-height: 1.6;
+            background: #f0fdf4;
+            /* 浅绿色背景 */
+            padding: 20px;
+            border-left: 4px solid #2ecc71;
+            border-radius: 4px;
+        }
+
+        .feedback-item {
+            background: #fffcf2;
+            /* 浅橙/黄色背景 */
+            border-left: 4px solid #f1c40f;
+            padding: 12px 15px;
+            margin-bottom: 12px;
+            border-radius: 4px;
+            font-size: 1.2rem;
+        }
+
+        .feedback-item strong {
+            color: #c0392b;
+        }
+
+        .feedback-item strong:last-of-type {
+            color: #27ae60;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 底部版权 */
+        .footer {
+            margin-top: auto;
+            padding: 20px;
+            text-align: center;
+            color: #aaa;
+            font-size: 0.8rem;
+        }
+
+        @media print {
+
+            .back-link-wrapper,
+            .action-area {
+                display: none;
+            }
+        }
+    </style>
+
+    <!-- Global Light Cyberpunk Theme -->
+    <link rel="stylesheet" href="../css/cyberpunk.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+</head>
+
+<body>
+
+    <div class="back-link-wrapper">
+        <a href="../index.html" class="back-link">← 返回工具箱主页</a>
+    </div>
+
+    <div class="main-wrapper">
+        <header class="tool-header">
+            <h1>AI Grammar Coach</h1>
+            <p>输入学生写的英文句子，AI 将自动分析语法错误并提供改进建议。</p>
+        </header>
+
+        <div class="editor-card">
+            <textarea id="userInput" placeholder="请输入英文句子... 例如: I have go to school yesterday."></textarea>
+            <div class="action-area">
+                <div id="loading" class="loading-spinner">正在连接 AI 服务器...</div>
+                <button id="checkBtn" onclick="checkGrammar()">开始检测</button>
+            </div>
+        </div>
+
+        <div id="resultsArea">
+            <div class="result-section">
+                <h3>🔍 错误分析与反馈 (Teacher's Feedback)</h3>
+                <div id="feedbackList"></div>
+            </div>
+
+            <div class="result-section">
+                <h3>✨ 修改建议 (Improved Version)</h3>
+                <div id="improvedText" class="improved-text"></div>
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px; margin-bottom: -20px; color: #888; font-size: 14px;">
+      Powered by Llama 3.3 70B Instruct | API: NVIDIA NIM
+    </div>
+
+    <footer
+        style="text-align: center; margin-top: 50px; padding: 20px; color: #888; font-size: 14px; line-height: 1.6; width: 100%;">
+        <p style="margin: 5px 0;">若发现问题，电邮至 g-21543731@moe-dl.edu.my 潘老师。</p>
+        <p style="margin: 5px 0;">没有团队，不定期更新网站，恳请各位老师耐心等候。</p>
+        <a href="mailto:g-21543731@moe-dl.edu.my?subject=网站反馈"
+            style="color: #555; text-decoration: underline; font-weight: bold; cursor: pointer;">
+            👉 点我发送反馈
+        </a>
+    </footer>
+
+    <script>
+        // ==========================================
+        // 🟢 配置区：Google Apps Script Proxy URL
+        // 请在此处粘贴你部署后的 Web App URL
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9RRGbXqrXGRIQuNMGa_o7GCuS3aXlWpLhJxlPOS6igyxqEcHiM0tmPaoQmc0ZOgA/exec";
+        // ==========================================
+
+        async function checkGrammar() {
+            const input = document.getElementById('userInput').value;
+            const btn = document.getElementById('checkBtn');
+            const loading = document.getElementById('loading');
+            const resultsArea = document.getElementById('resultsArea');
+
+            if (!input.trim()) {
+                alert("请输入一些文字！");
+                return;
+            }
+
+            if (GAS_WEB_APP_URL === "" || GAS_WEB_APP_URL.includes("在此处粘贴")) {
+                alert("请先按照说明部署 Google Apps Script 并将 URL 粘贴到代码中的 GAS_WEB_APP_URL 处。");
+                return;
+            }
+
+            // UI Updates
+            btn.disabled = true;
+            btn.innerText = "检测中...";
+            loading.style.display = "block";
+            resultsArea.style.display = "none";
+
+            try {
+                // 我们通过 GAS 代理请求，GAS 会处理 System Prompt 和 API Key
+                const response = await fetch(GAS_WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ text: input })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`网络响应错误: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(`AI 服务器错误: ${data.error}`);
+                }
+
+                displayResults(data);
+
+            } catch (error) {
+                console.error("Error:", error);
+                alert(`连接失败: ${error.message}\n请确保 GAS 已正确部署且权限设置为 "Anyone"。`);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "开始检测";
+                loading.style.display = "none";
+            }
+        }
+
+        function displayResults(data) {
+            const feedbackList = document.getElementById('feedbackList');
+            const improvedText = document.getElementById('improvedText');
+
+            feedbackList.innerHTML = "";
+            console.log("AI Response Data:", data); // 调试用：在控制台查看 AI 返回的原始数据
+
+            if (data && data.improved_version) {
+                // 更加鲁棒的检查：兼容字符串 "true" 和布尔值 true
+                const hasErrors = data.has_errors === true || data.has_errors === "true";
+
+                if (hasErrors && data.feedback && Array.isArray(data.feedback) && data.feedback.length > 0) {
+                    data.feedback.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'feedback-item';
+                        div.innerHTML = `
+                            <strong>"${item.original || ''}"</strong> 修改为 <strong>"${item.correction || ''}"</strong><br>
+                            <span style="font-size: 0.9em; color: #666; margin-top:4px; display:block;">💡 原因: ${item.reason || '语法改进'}</span>
+                        `;
+                        feedbackList.appendChild(div);
+                    });
+                } else {
+                    feedbackList.innerHTML = "<p style='color:#27ae60; font-weight:bold; text-align:center;'>🎉 太棒了！没有发现明显的语法错误。</p>";
+                }
+                improvedText.innerText = data.improved_version;
+            } else {
+                feedbackList.innerHTML = "<p style='color:red;'>解析返回数据时出错，或数据格式不完整。</p>";
+                improvedText.innerText = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
+            }
+
+            document.getElementById('resultsArea').style.display = "block";
+        }
+    </script>
+
+</body>
+
+</html>
