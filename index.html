@@ -25,6 +25,43 @@
             /* 上下内边距 */
             font-size: 14px;
         }
+
+        /* Gemini 渐变动画风格 */
+        .gemini-card {
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 0 20px rgba(155, 114, 203, 0.3) !important;
+            border: none !important;
+        }
+        .gemini-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 2px; /* 边框厚度 */
+            background: linear-gradient(45deg, #4285f4, #9b72cb, #d96570, #4285f4);
+            background-size: 300% 300%;
+            animation: geminiBgGradient 4s ease infinite;
+            -webkit-mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            z-index: -1;
+        }
+        @keyframes geminiBgGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .gemini-title {
+            background: linear-gradient(90deg, #4285f4, #9b72cb, #d96570, #4285f4) !important;
+            background-size: 300% 100% !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            animation: geminiBgGradient 4s ease infinite !important;
+        }
     </style>
 
     <!-- Global Light Cyberpunk Theme -->
@@ -43,9 +80,9 @@
 
         <div class="grid">
 
-            <div class="feature-card theme-purple" style="border: 2px solid #00d2ff; box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);">
+            <div class="feature-card theme-purple gemini-card">
                 <div class="card-icon">🤖</div>
-                <h3 style="background: -webkit-linear-gradient(135deg, #00d2ff, #3a7bd5); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI 创造营 & 画廊</h3>
+                <h3 class="gemini-title">AI 创造营 & 画廊</h3>
                 <p>一句话让 AI 为你定制网页工具和游戏！还能浏览并体验全网师生的奇妙创意。</p>
                 <div class="card-links">
                     <a href="tools/ai-creator.html" style="background: rgba(0, 210, 255, 0.2); color: #00e5ff; font-weight: bold;">✨ 开始创作</a>
