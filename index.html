@@ -26,33 +26,35 @@
             font-size: 14px;
         }
 
-        /* Gemini 背景渐变动画风格 */
+        /* Gemini / Macaron 背景渐变动画风格 */
         .gemini-card {
-            background: linear-gradient(135deg, #4285f4, #9b72cb, #d96570, #4285f4) !important;
-            background-size: 300% 300% !important;
-            animation: geminiBgGradient 6s ease infinite !important;
+            background: linear-gradient(-45deg, #ff9a9e, #fecfef, #a1c4fd, #c2e9fb) !important;
+            background-size: 400% 400% !important;
+            animation: geminiBgGradient 8s ease infinite !important;
             border: none !important;
-            color: #ffffff !important;
-            box-shadow: 0 10px 25px rgba(155, 114, 203, 0.3) !important;
+            box-shadow: 0 10px 25px rgba(161, 196, 253, 0.4) !important;
         }
         
-        /* 确保卡片内的文字在渐变背景上清晰可见 */
-        .gemini-card p, .gemini-title {
-            color: #ffffff !important;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.2);
-            -webkit-text-fill-color: #ffffff !important; /* 覆盖可能存在的透明度 */
+        /* 确保卡片内的文字在浅色渐变背景上清晰可见 (使用深色) */
+        .gemini-card p, .gemini-card h3 {
+            color: #333333 !important;
+            text-shadow: none !important;
+            -webkit-text-fill-color: #333333 !important; 
             background: none !important;
         }
         
         /* 让按钮在渐变背景上也更加好看 */
         .gemini-card .card-links a {
-            background: rgba(255, 255, 255, 0.2) !important;
-            color: #ffffff !important;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(4px);
+            background: rgba(255, 255, 255, 0.6) !important;
+            color: #333333 !important;
+            border: 1px solid rgba(255, 255, 255, 0.8) !important;
+            backdrop-filter: blur(8px);
+            font-weight: bold;
         }
         .gemini-card .card-links a:hover {
-            background: rgba(255, 255, 255, 0.3) !important;
+            background: rgba(255, 255, 255, 0.9) !important;
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
         @keyframes geminiBgGradient {
