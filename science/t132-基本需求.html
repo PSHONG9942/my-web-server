@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-MY">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单元三：生物的基本需求</title>
+    <link rel="icon" href="../images/logo.png" type="image/png">
+    <style>
+        /* 返回按钮样式 */
+        .back-btn-corner {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 999;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: #555;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+            transition: all 0.2s;
+            border: 1px solid #ccc;
+        }
+
+        .back-btn-corner:hover {
+            background: white;
+            transform: scale(1.05);
+            color: #000;
+        }
+
+        /* --- 全局样式 --- */
+        body {
+            font-family: 'Comic Sans MS', 'Segoe UI', sans-serif;
+            /* 用可爱的字体 */
+            background-color: #ffeaa7;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            user-select: none;
+            overflow: hidden;
+            /* 防止滚动 */
+        }
+
+        h1 {
+            color: #d35400;
+            margin-bottom: 5px;
+        }
+
+        p {
+            color: #e67e22;
+            font-size: 18px;
+        }
+
+        /* --- 首页：角色选择 --- */
+        #selection-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 80vh;
+        }
+
+        .char-cards {
+            display: flex;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .char-card {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            width: 150px;
+            cursor: pointer;
+            box-shadow: 0 8px 0 #bdc3c7;
+            transition: transform 0.2s;
+            border: 4px solid white;
+        }
+
+        .char-card:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #bdc3c7;
+        }
+
+        .char-card:hover {
+            border-color: #f39c12;
+        }
+
+        .char-card span {
+            font-size: 60px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .char-card h3 {
+            margin: 0;
+            color: #2c3e50;
+        }
+
+        /* --- 游戏主界面 (默认隐藏) --- */
+        #game-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            height: 90vh;
+            position: relative;
+        }
+
+        /* 顶部进度栏 */
+        .status-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 10px 20px;
+            border-radius: 30px;
+        }
+
+        .need-slot {
+            width: 50px;
+            height: 50px;
+            border: 3px dashed #bdc3c7;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #ccc;
+        }
+
+        .need-slot.filled {
+            border-style: solid;
+            border-color: #2ecc71;
+            background: #eafaf1;
+            animation: popIn 0.3s;
+        }
+
+        /* 中间角色区域 */
+        .character-zone {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            width: 300px;
+            height: 300px;
+        }
+
+        .main-character {
+            font-size: 150px;
+            transition: all 0.5s;
+            filter: grayscale(80%);
+            /* 默认是灰的/悲伤的 */
+            transform: scale(0.9);
+        }
+
+        .main-character.happy {
+            filter: grayscale(0%);
+            transform: scale(1.1);
+            animation: bounce 1s infinite;
+        }
+
+        /* 气泡对话框 */
+        .bubble {
+            background: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            position: absolute;
+            top: -20px;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: white transparent;
+            display: block;
+            width: 0;
+            margin-left: -10px;
+        }
+
+        /* 底部物品栏 */
+        .inventory-bar {
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            display: flex;
+            gap: 15px;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .item {
+            width: 70px;
+            height: 70px;
+            font-size: 35px;
+            border: 2px solid #ecf0f1;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            background: #f9f9f9;
+            user-select: none;
+        }
+
+        .item span {
+            font-size: 12px;
+            margin-top: 5px;
+            color: #7f8c8d;
+            font-weight: bold;
+        }
+
+        .item:active {
+            cursor: grabbing;
+            transform: scale(1.1);
+        }
+
+        .item.used {
+            opacity: 0.3;
+            pointer-events: none;
+            filter: grayscale(100%);
+        }
+
+        /* 游戏内返回按钮 */
+        .btn-back {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 10px 15px;
+            background: #95a5a6;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            z-index: 1000;
+            /* 确保层级高 */
+        }
+
+        /* 动画 */
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: scale(1.1) translateY(0);
+            }
+
+            50% {
+                transform: scale(1.1) translateY(-20px);
+            }
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes shake {
+            0% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-10px);
+            }
+
+            75% {
+                transform: translateX(10px);
+            }
+
+            100% {
+                transform: translateX(0);
+            }
+        }
+    </style>
+
+    <!-- Global Light Cyberpunk Theme -->
+    <link rel="stylesheet" href="../css/cyberpunk.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+</head>
+
+<body>
+
+    <a href="index.html" class="back-btn-corner" id="island-back-btn">⬅ 返回菜单</a>
+
+    <div id="selection-screen">
+        <h1>🔍 谁需要帮助？</h1>
+        <p>选择一个生物，帮它找到生存的基本需求吧！</p>
+
+        <div class="char-cards">
+            <div class="char-card" onclick="startGame('human')">
+                <span>👦</span>
+                <h3>人类</h3>
+            </div>
+            <div class="char-card" onclick="startGame('animal')">
+                <span>🐱</span>
+                <h3>动物</h3>
+            </div>
+            <div class="char-card" onclick="startGame('plant')">
+                <span>🌱</span>
+                <h3>植物</h3>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-screen">
+        <button class="btn-back" onclick="goHome()">⬅ 返回</button>
+
+        <div class="status-bar" id="status-bar"></div>
+
+        <div class="character-zone" id="drop-zone">
+            <div class="bubble" id="msg-bubble">我好饿...</div>
+            <div class="main-character" id="char-display">👦</div>
+        </div>
+
+        <div class="inventory-bar" id="inventory"></div>
+    </div>
+
+    <script>
+        // 游戏配置数据
+        const gameConfig = {
+            human: {
+                name: "人类",
+                emoji: "👦",
+                bg: "#dff9fb", // 浅蓝背景
+                needs: ["food", "water", "air", "shelter"], // 4个需求
+                msg: "我需要什么才能活下去？"
+            },
+            animal: {
+                name: "动物",
+                emoji: "🐱",
+                bg: "#fce38a", // 浅黄背景
+                needs: ["food", "water", "air", "shelter"], // 4个需求
+                msg: "喵~ 救救我~"
+            },
+            plant: {
+                name: "植物",
+                emoji: "🌱",
+                bg: "#d4edda", // 浅绿背景
+                needs: ["sun", "water", "air"], // 植物不需要 shelter
+                msg: "我想快快长大..."
+            }
+        };
+
+        // 物品库 (type 对应 needs)
+        const allItems = [
+            { id: "i1", icon: "🍔", name: "食物", type: "food" },
+            { id: "i2", icon: "💧", name: "水", type: "water" },
+            { id: "i3", icon: "🌬️", name: "空气", type: "air" },
+            { id: "i4", icon: "🏠", name: "庇护所", type: "shelter" },
+            { id: "i5", icon: "☀️", name: "食物", type: "sun" }, // 植物的"食物"
+            { id: "i6", icon: "🚗", name: "汽车", type: "toy" },   // 干扰项
+            { id: "i7", icon: "📱", name: "手机", type: "toy" },   // 干扰项
+            { id: "i8", icon: "🧸", name: "玩具", type: "toy" },   // 干扰项
+            { id: "i9", icon: "🐟", name: "鱼", type: "food" }     // 动物的食物
+        ];
+
+        let currentMode = null;
+        let needsMet = 0;
+        let totalNeeds = 0;
+
+        // --- 核心逻辑 ---
+
+        function startGame(mode) {
+            currentMode = mode;
+            const config = gameConfig[mode];
+
+            // 1. 切换界面
+            document.getElementById('selection-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'flex';
+            document.body.style.backgroundColor = config.bg;
+
+            // ⚠️ 关键修改：隐藏“返回菜单”按钮，避免重叠
+            document.getElementById('island-back-btn').style.display = 'none';
+
+            // 2. 初始化角色
+            const charDisplay = document.getElementById('char-display');
+            charDisplay.innerText = config.emoji;
+            charDisplay.classList.remove('happy');
+            showMessage(config.msg);
+
+            // 3. 初始化顶部需求槽 (空圆圈)
+            const statusBar = document.getElementById('status-bar');
+            statusBar.innerHTML = '';
+            totalNeeds = config.needs.length;
+            needsMet = 0;
+
+            config.needs.forEach(needType => {
+                const slot = document.createElement('div');
+                slot.className = 'need-slot';
+                slot.dataset.type = needType; // 标记这个槽需要什么
+                slot.innerText = '?';
+                statusBar.appendChild(slot);
+            });
+
+            // 4. 初始化物品栏 (筛选适合当前模式的物品 + 干扰项)
+            const inventory = document.getElementById('inventory');
+            inventory.innerHTML = '';
+
+            let currentItems = allItems.filter(item => {
+                if (item.type === 'toy') return true;
+                if (mode === 'plant') {
+                    return ['water', 'air', 'sun'].includes(item.type);
+                } else {
+                    if (item.type === 'sun') return false;
+                    if (mode === 'human' && item.icon === '🐟') return false;
+                    if (mode === 'animal' && item.icon === '🍔') return false;
+                    return true;
+                }
+            });
+
+            currentItems.sort(() => 0.5 - Math.random());
+
+            currentItems.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.draggable = true;
+                div.id = item.id;
+                div.dataset.type = item.type;
+                div.dataset.icon = item.icon;
+                div.innerHTML = `<div>${item.icon}</div><span>${item.name}</span>`;
+
+                div.ondragstart = (ev) => {
+                    ev.dataTransfer.setData("type", item.type);
+                    ev.dataTransfer.setData("icon", item.icon);
+                    ev.dataTransfer.setData("id", item.id);
+                };
+
+                div.onclick = () => checkItem(item.type, item.icon, item.id);
+
+                inventory.appendChild(div);
+            });
+
+            const dropZone = document.getElementById('drop-zone');
+            dropZone.ondragover = (ev) => ev.preventDefault();
+            dropZone.ondrop = (ev) => {
+                ev.preventDefault();
+                const type = ev.dataTransfer.getData("type");
+                const icon = ev.dataTransfer.getData("icon");
+                const id = ev.dataTransfer.getData("id");
+                checkItem(type, icon, id);
+            };
+        }
+
+        function checkItem(type, icon, id) {
+            const config = gameConfig[currentMode];
+            const itemElement = document.getElementById(id);
+            if (itemElement.classList.contains('used')) return;
+
+            if (config.needs.includes(type)) {
+                handleCorrect(type, icon, id);
+            } else {
+                handleWrong();
+            }
+        }
+
+        function handleCorrect(type, icon, id) {
+            showMessage(`太好了！我也需要${getNeedName(type)}！`);
+            const slots = document.querySelectorAll('.need-slot');
+            for (let slot of slots) {
+                if (slot.dataset.type === type && !slot.classList.contains('filled')) {
+                    slot.classList.add('filled');
+                    slot.innerText = icon;
+                    document.getElementById(id).classList.add('used');
+                    needsMet++;
+                    checkWin();
+                    return;
+                }
+            }
+            showMessage("我已经有这个了！");
+        }
+
+        function handleWrong() {
+            const charDisplay = document.getElementById('char-display');
+            charDisplay.style.animation = 'shake 0.5s';
+            setTimeout(() => charDisplay.style.animation = '', 500);
+            const msgs = ["我不想要这个...", "这不是基本需求哦！", "为了生存，我不需要玩具！"];
+            showMessage(msgs[Math.floor(Math.random() * msgs.length)]);
+        }
+
+        function checkWin() {
+            if (needsMet === totalNeeds) {
+                const charDisplay = document.getElementById('char-display');
+                charDisplay.classList.add('happy');
+                let successMsg = "";
+                if (currentMode === 'plant') {
+                    successMsg = "谢谢你！有了水、空气和食物，我就能自己制造食物啦！🌻";
+                } else {
+                    successMsg = "谢谢！有了食物、水、空气和庇护所，我就能生存了！❤️";
+                }
+                showMessage(successMsg);
+                document.body.style.backgroundColor = "#ffeaa7";
+            }
+        }
+
+        function showMessage(text) {
+            const bubble = document.getElementById('msg-bubble');
+            bubble.innerText = text;
+            bubble.style.opacity = 1;
+            clearTimeout(window.msgTimeout);
+            window.msgTimeout = setTimeout(() => {
+                bubble.style.opacity = 0;
+            }, 3000);
+        }
+
+        function getNeedName(type) {
+            const map = { 'food': '食物', 'water': '水', 'air': '空气', 'shelter': '庇护所', 'sun': '阳光' };
+            return map[type] || type;
+        }
+
+        function goHome() {
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('selection-screen').style.display = 'flex';
+            document.body.style.backgroundColor = '#ffeaa7';
+
+            // ⚠️ 关键修改：恢复显示“返回菜单”按钮
+            document.getElementById('island-back-btn').style.display = '';
+        }
+
+    </script>
+</body>
+
+</html>

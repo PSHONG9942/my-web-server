@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="zh-MY">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单元九：地球表面的形状 (地形)</title>
+    <link rel="icon" href="../images/logo.png" type="image/png">
+    <style>
+        /* --- 基础设置 --- */
+        body {
+            font-family: 'Comic Sans MS', 'KaiTi', 'Segoe UI', sans-serif;
+            background-color: #E0F7FA;
+            /* 天空蓝 */
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            user-select: none;
+            color: #006064;
+        }
+
+        /* 返回按钮 */
+        .back-btn-corner {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 999;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            color: #00838F;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            font-size: 1.2rem;
+            transition: all 0.2s;
+            border: 2px solid #4DD0E1;
+        }
+
+        .back-btn-corner:hover {
+            background: #B2EBF2;
+            transform: scale(1.05);
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0 #B2EBF2;
+        }
+
+        p.intro {
+            font-size: 1.5rem;
+            color: #0097A7;
+            margin-bottom: 30px;
+        }
+
+        /* --- 游戏模式切换 --- */
+        .mode-switch {
+            margin-bottom: 30px;
+        }
+
+        .mode-btn {
+            padding: 12px 30px;
+            font-size: 1.3rem;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            background: white;
+            color: #00838F;
+            margin: 0 10px;
+            box-shadow: 0 4px 0 #B2EBF2;
+            transition: all 0.2s;
+            font-weight: bold;
+        }
+
+        .mode-btn.active {
+            background: #00BCD4;
+            color: white;
+            box-shadow: 0 4px 0 #00838F;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .mode-btn:active {
+            transform: translateY(2px);
+            box-shadow: none;
+        }
+
+        /* --- 地形卡片容器 --- */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 卡片样式 */
+        .land-card {
+            background: white;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            border: 4px solid white;
+        }
+
+        .land-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        .land-card.matched {
+            border-color: #66BB6A;
+            background: #E8F5E9;
+            pointer-events: none;
+        }
+
+        /* CSS 画图区 */
+        .scene-box {
+            height: 160px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            position: relative;
+            overflow: hidden;
+            background: #81D4FA;
+            /* 默认天空 */
+        }
+
+        /* 各种地形的 CSS 画法 */
+        /* 高山 */
+        .scene-mountain {
+            background: linear-gradient(#4FC3F7, #E1F5FE);
+        }
+
+        .scene-mountain::after {
+            content: "⛰️";
+            font-size: 120px;
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 山丘 */
+        .scene-hill {
+            background: #B3E5FC;
+        }
+
+        .scene-hill::after {
+            content: "";
+            position: absolute;
+            bottom: -50px;
+            left: -20%;
+            width: 140%;
+            height: 100px;
+            background: #8BC34A;
+            border-radius: 50% 50% 0 0;
+        }
+
+        .scene-hill::before {
+            content: "🌲";
+            font-size: 40px;
+            position: absolute;
+            bottom: 30px;
+            left: 60%;
+            z-index: 2;
+        }
+
+        /* 湖 */
+        .scene-lake {
+            background: #C8E6C9;
+        }
+
+        .scene-lake::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 80px;
+            background: #4FC3F7;
+            border-radius: 50% 40% 60% 50%;
+            border: 4px solid #81C784;
+        }
+
+        .scene-lake::before {
+            content: "🦆";
+            font-size: 30px;
+            position: absolute;
+            top: 55%;
+            left: 45%;
+            z-index: 2;
+        }
+
+        /* 河 */
+        .scene-river {
+            background: #DCEDC8;
+        }
+
+        .scene-river::after {
+            content: "";
+            position: absolute;
+            width: 200%;
+            height: 60px;
+            background: #29B6F6;
+            bottom: 0;
+            left: -50%;
+            transform: rotate(-15deg);
+            border-top: 5px solid #AED581;
+        }
+
+        /* 海 */
+        .scene-sea {
+            background: linear-gradient(#29B6F6 60%, #0288D1 60%);
+        }
+
+        .scene-sea::after {
+            content: "🚢";
+            font-size: 50px;
+            position: absolute;
+            top: 30px;
+            right: 20px;
+            animation: float 3s infinite ease-in-out;
+        }
+
+        /* 海滩 */
+        .scene-beach {
+            background: linear-gradient(#29B6F6 50%, #FFF176 50%);
+        }
+
+        .scene-beach::after {
+            content: "🏖️";
+            font-size: 60px;
+            position: absolute;
+            bottom: 10px;
+            right: 20px;
+        }
+
+        .scene-beach::before {
+            content: "🌴";
+            font-size: 50px;
+            position: absolute;
+            bottom: 20px;
+            left: 10px;
+        }
+
+        /* 池塘 */
+        .scene-pond {
+            background: #AED581;
+        }
+
+        .scene-pond::after {
+            content: "";
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 60px;
+            background: #81D4FA;
+            border-radius: 50%;
+            border: 3px solid #558B2F;
+        }
+
+        .scene-pond::before {
+            content: "🐸";
+            font-size: 30px;
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            z-index: 2;
+        }
+
+        /* 山谷 */
+        .scene-valley {
+            background: #B3E5FC;
+        }
+
+        .scene-valley::before {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: -20px;
+            width: 100px;
+            height: 120px;
+            background: #795548;
+            clip-path: polygon(0 100%, 50% 0, 100% 100%);
+        }
+
+        .scene-valley::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            right: -20px;
+            width: 100px;
+            height: 120px;
+            background: #795548;
+            clip-path: polygon(0 100%, 50% 0, 100% 100%);
+        }
+
+        .valley-house {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 30px;
+            z-index: 5;
+        }
+
+        /* 文字样式 */
+        .card-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #006064;
+            margin-bottom: 5px;
+        }
+
+        .card-desc {
+            font-size: 1rem;
+            color: #555;
+            display: none;
+        }
+
+        /* 默认隐藏描述 */
+
+        /* 挑战模式样式 */
+        .drop-zone {
+            border: 3px dashed #BDBDBD;
+            background: #F5F5F5;
+            height: 40px;
+            margin-top: 10px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            color: #999;
+        }
+
+        .drop-zone.hover {
+            background: #E1F5FE;
+            border-color: #03A9F4;
+        }
+
+        .drop-zone.correct {
+            border: none;
+            background: #C8E6C9;
+            color: #2E7D32;
+            font-weight: bold;
+            animation: popIn 0.3s;
+        }
+
+        /* 标签库 */
+        .tag-container {
+            display: none;
+            /* 初始隐藏 */
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 20px;
+            background: white;
+            border-radius: 20px;
+            margin: 20px auto;
+            max-width: 800px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            bottom: 20px;
+            z-index: 100;
+        }
+
+        .tag {
+            background: #00BCD4;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: grab;
+            box-shadow: 0 4px 0 #0097A7;
+            transition: all 0.1s;
+        }
+
+        .tag:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+            box-shadow: 0 2px 0 #0097A7;
+        }
+
+        .tag.hidden {
+            display: none;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+
+    <!-- Global Light Cyberpunk Theme -->
+    <link rel="stylesheet" href="../css/cyberpunk.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+</head>
+
+<body>
+
+    <a href="index.html" class="back-btn-corner">⬅ 返回菜单</a>
+
+    <h1>🌏 地形大探索</h1>
+    <p class="intro">点击卡片认识地形，或者切换到挑战模式来配对！</p>
+
+    <div class="mode-switch">
+        <button class="mode-btn active" onclick="setMode('learn')">📖 学习模式</button>
+        <button class="mode-btn" onclick="setMode('play')">🎮 挑战模式</button>
+    </div>
+
+    <div class="gallery-grid" id="gallery">
+    </div>
+
+    <div class="tag-container" id="tag-pool">
+        <div style="width: 100%; text-align: center; color: #555; margin-bottom: 10px;">把下面的标签拖到对应的图片上</div>
+    </div>
+
+    <script>
+        // 音效
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            if (type === 'correct') {
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'click') {
+                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.1);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            }
+        }
+
+        const terrains = [
+            { id: 'mountain', name: '高山 (Gunung)', cssClass: 'scene-mountain', desc: '很高很高，山顶可能有云。' },
+            { id: 'hill', name: '山丘 (Bukit)', cssClass: 'scene-hill', desc: '比高山矮，很容易爬上去。' },
+            { id: 'lake', name: '湖 (Tasik)', cssClass: 'scene-lake', desc: '被陆地包围的一大片静水。' },
+            { id: 'river', name: '河 (Sungai)', cssClass: 'scene-river', desc: '水会流动，从高处流向大海。' },
+            { id: 'sea', name: '海 (Laut)', cssClass: 'scene-sea', desc: '非常大，水是咸的，有波浪。' },
+            { id: 'beach', name: '海滩 (Pantai)', cssClass: 'scene-beach', desc: '海边的沙地，可以捡贝壳。' },
+            { id: 'pond', name: '池塘 (Kolam)', cssClass: 'scene-pond', desc: '小小的水洼，可能会有青蛙。' },
+            { id: 'valley', name: '山谷 (Lurah)', cssClass: 'scene-valley', desc: '两座山之间的低地。', extra: '<div class="valley-house">🏠</div>' }
+        ];
+
+        let currentMode = 'learn';
+
+        function init() {
+            const grid = document.getElementById('gallery');
+            const tagPool = document.getElementById('tag-pool');
+            grid.innerHTML = '';
+            tagPool.innerHTML = '<div style="width: 100%; text-align: center; color: #555; margin-bottom: 10px;">把下面的标签拖到对应的图片上</div>';
+
+            terrains.forEach(t => {
+                // 1. 创建卡片
+                const card = document.createElement('div');
+                card.className = 'land-card';
+                card.innerHTML = `
+                    <div class="scene-box ${t.cssClass}">${t.extra || ''}</div>
+                    <div class="card-info">
+                        <div class="card-name">${t.name}</div>
+                        <div class="card-desc">${t.desc}</div>
+                    </div>
+                    <div class="drop-zone" data-id="${t.id}" style="display:none;">拖到这里</div>
+                `;
+
+                // 学习模式点击
+                card.onclick = () => {
+                    if (currentMode === 'learn') {
+                        playSound('click');
+                        const desc = card.querySelector('.card-desc');
+                        desc.style.display = desc.style.display === 'block' ? 'none' : 'block';
+                    }
+                };
+
+                // 拖放事件
+                const zone = card.querySelector('.drop-zone');
+                zone.ondragover = e => e.preventDefault();
+                zone.ondragenter = () => zone.classList.add('hover');
+                zone.ondragleave = () => zone.classList.remove('hover');
+                zone.ondrop = e => handleDrop(e, t.id, zone, card);
+
+                grid.appendChild(card);
+
+                // 2. 创建标签 (用于挑战模式)
+                const tag = document.createElement('div');
+                tag.className = 'tag';
+                tag.draggable = true;
+                tag.innerText = t.name;
+                tag.id = `tag-${t.id}`;
+                tag.ondragstart = e => e.dataTransfer.setData('text', t.id);
+                tagPool.appendChild(tag);
+            });
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const names = document.querySelectorAll('.card-name');
+            const descs = document.querySelectorAll('.card-desc');
+            const zones = document.querySelectorAll('.drop-zone');
+            const tagPool = document.getElementById('tag-pool');
+
+            if (mode === 'learn') {
+                names.forEach(el => el.style.display = 'block');
+                descs.forEach(el => el.style.display = 'none'); // 重置为折叠
+                zones.forEach(el => el.style.display = 'none');
+                tagPool.style.display = 'none';
+
+                // 重置所有匹配状态
+                document.querySelectorAll('.land-card').forEach(c => c.classList.remove('matched'));
+                document.querySelectorAll('.tag').forEach(t => t.classList.remove('hidden'));
+                zones.forEach(z => {
+                    z.className = 'drop-zone';
+                    z.innerText = '拖到这里';
+                });
+
+            } else {
+                names.forEach(el => el.style.display = 'none'); // 隐藏名字
+                descs.forEach(el => el.style.display = 'none'); // 隐藏描述
+                zones.forEach(el => el.style.display = 'flex'); // 显示拖放区
+                tagPool.style.display = 'flex';
+                // 打乱标签顺序
+                const tags = Array.from(tagPool.children).slice(1); // 跳过标题
+                tags.sort(() => Math.random() - 0.5);
+                tags.forEach(t => tagPool.appendChild(t));
+            }
+        }
+
+        function handleDrop(e, targetId, zone, card) {
+            e.preventDefault();
+            zone.classList.remove('hover');
+            const draggedId = e.dataTransfer.getData('text');
+
+            if (draggedId === targetId) {
+                // 答对
+                playSound('correct');
+                zone.classList.add('correct');
+                zone.innerText = document.getElementById(`tag-${draggedId}`).innerText;
+                document.getElementById(`tag-${draggedId}`).classList.add('hidden');
+                card.classList.add('matched');
+
+                // 显示名字（作为奖励）
+                card.querySelector('.card-name').style.display = 'block';
+            } else {
+                // 答错
+                zone.style.background = '#FFEBEE';
+                setTimeout(() => zone.style.background = '#F5F5F5', 500);
+            }
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

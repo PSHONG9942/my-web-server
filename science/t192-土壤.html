@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-MY">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单元九：土壤</title>
+    <link rel="icon" href="../images/logo.png" type="image/png">
+    <style>
+        /* --- 基础设置 --- */
+        body {
+            font-family: 'Comic Sans MS', 'KaiTi', 'Segoe UI', sans-serif;
+            background-color: #EFEBE9;
+            /* 泥土色背景 */
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            user-select: none;
+            color: #5D4037;
+        }
+
+        /* 返回按钮 */
+        .back-btn-corner {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 999;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            color: #795548;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            font-size: 1.2rem;
+            transition: all 0.2s;
+            border: 2px solid #8D6E63;
+        }
+
+        .back-btn-corner:hover {
+            background: #D7CCC8;
+            transform: scale(1.05);
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            color: #4E342E;
+            text-shadow: 2px 2px 0 #D7CCC8;
+        }
+
+        p.intro {
+            font-size: 1.5rem;
+            color: #6D4C41;
+            margin-bottom: 30px;
+        }
+
+        /* --- 选项卡导航 --- */
+        .tab-nav {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            padding: 15px 30px;
+            font-size: 1.4rem;
+            border: none;
+            border-radius: 15px 15px 0 0;
+            cursor: pointer;
+            background: #D7CCC8;
+            color: #5D4037;
+            font-weight: bold;
+            transition: all 0.2s;
+            border-bottom: 4px solid transparent;
+        }
+
+        .tab-btn.active {
+            background: #FFF;
+            border-bottom: 4px solid #8D6E63;
+            transform: translateY(-5px);
+            box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        /* --- 内容区域 --- */
+        .content-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            min-height: 500px;
+            display: none;
+        }
+
+        .content-panel.active {
+            display: block;
+            animation: fadeUp 0.5s;
+        }
+
+        /* --- 1. 认识土壤 (放大镜修复) --- */
+        .soil-grid {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .soil-card {
+            width: 250px;
+            padding: 20px;
+            border-radius: 20px;
+            background: #FAFAFA;
+            border: 2px solid #EEE;
+            transition: transform 0.3s;
+        }
+
+        .soil-card:hover {
+            transform: scale(1.02);
+            border-color: #8D6E63;
+        }
+
+        .soil-img-container {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 15px;
+            position: relative;
+            /* 移除 overflow:hidden 以便放大镜可以稍微突出一点，或者保持它在内部 */
+            cursor: none;
+            /* 隐藏鼠标，用放大镜代替 */
+        }
+
+        .soil-texture {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 5px solid rgba(0, 0, 0, 0.1);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 放大镜本体 */
+        .magnifier {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            /* 调大尺寸 */
+            border: 6px solid #555;
+            /* 加粗边框，像镜框 */
+            border-radius: 50%;
+            background-color: white;
+            /* 默认背景 */
+            background-repeat: repeat;
+            pointer-events: none;
+            /* 让鼠标事件穿透 */
+            display: none;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), inset 0 0 10px rgba(0, 0, 0, 0.2);
+            /* 增加立体感 */
+            z-index: 100;
+        }
+
+        /* 放大镜的手柄 (装饰) */
+        .magnifier::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            right: -20px;
+            width: 30px;
+            height: 10px;
+            background: #4E342E;
+            transform: rotate(45deg);
+            border-radius: 5px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .soil-img-container:hover .magnifier {
+            display: block;
+        }
+
+        /* 土壤纹理 (CSS 模拟) */
+        /* 黏土：极细，红色 */
+        .texture-clay {
+            background: #E57373;
+            background-image: radial-gradient(#EF9A9A 15%, transparent 16%);
+            background-size: 6px 6px;
+        }
+
+        /* 壤土：中等，深褐色 */
+        .texture-loam {
+            background: #5D4037;
+            background-image: radial-gradient(#3E2723 20%, transparent 21%);
+            background-size: 12px 12px;
+        }
+
+        /* 沙土：粗大，黄色 */
+        .texture-sand {
+            background: #FFCA28;
+            background-image: radial-gradient(#FFF59D 25%, transparent 26%);
+            background-size: 16px 16px;
+        }
+
+        /* --- 2. 渗水实验 --- */
+        .lab-bench {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            height: 400px;
+            padding-bottom: 20px;
+        }
+
+        .experiment-set {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 200px;
+            position: relative;
+        }
+
+        .funnel {
+            width: 0;
+            height: 0;
+            border-left: 60px solid transparent;
+            border-right: 60px solid transparent;
+            border-top: 100px solid rgba(255, 255, 255, 0.8);
+            position: relative;
+            filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.1));
+            z-index: 10;
+        }
+
+        .funnel::before {
+            content: "";
+            position: absolute;
+            top: -100px;
+            left: -55px;
+            width: 110px;
+            height: 90px;
+            clip-path: polygon(0 0, 100% 0, 55% 100%, 45% 100%);
+            z-index: -1;
+        }
+
+        .f-clay::before {
+            background: #E57373;
+        }
+
+        .f-loam::before {
+            background: #5D4037;
+        }
+
+        .f-sand::before {
+            background: #FFCA28;
+        }
+
+        .beaker {
+            width: 100px;
+            height: 150px;
+            border: 4px solid #9E9E9E;
+            border-top: none;
+            border-radius: 0 0 15px 15px;
+            margin-top: 10px;
+            position: relative;
+            background: rgba(255, 255, 255, 0.3);
+            overflow: hidden;
+        }
+
+        .water {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 0;
+            background: #42A5F5;
+            transition: height 5s linear;
+            opacity: 0.8;
+        }
+
+        .drip {
+            position: absolute;
+            top: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 0;
+            background: #42A5F5;
+            transition: height 0.2s;
+            z-index: 5;
+        }
+
+        .btn-pour {
+            background: #29B6F6;
+            color: white;
+            border: none;
+            padding: 10px 40px;
+            font-size: 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #0288D1;
+            margin-top: 30px;
+            font-weight: bold;
+        }
+
+        .btn-pour:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        /* --- 3. 种植园 --- */
+        .garden-scene {
+            display: flex;
+            gap: 20px;
+            height: 400px;
+        }
+
+        .soil-plot {
+            flex: 1;
+            border-radius: 20px;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            border: 4px dashed rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+        }
+
+        .soil-plot.hover {
+            background-color: rgba(255, 255, 255, 0.5);
+            border-color: #4CAF50;
+        }
+
+        .plot-clay {
+            background: #EF9A9A;
+        }
+
+        .plot-loam {
+            background: #8D6E63;
+        }
+
+        .plot-sand {
+            background: #FFF59D;
+        }
+
+        .plant-box {
+            width: 100%;
+            max-width: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: #FFF3E0;
+            padding: 15px;
+            border-radius: 20px;
+        }
+
+        .plant-item {
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: grab;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 4px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .plant-item:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+
+        .plant-icon {
+            font-size: 3rem;
+        }
+
+        .planted {
+            animation: grow 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes grow {
+            0% {
+                transform: scale(0);
+            }
+
+            100% {
+                transform: scale(1.5);
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+
+    <!-- Global Light Cyberpunk Theme -->
+    <link rel="stylesheet" href="../css/cyberpunk.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+</head>
+
+<body>
+
+    <a href="index.html" class="back-btn-corner">⬅ 返回菜单</a>
+
+    <h1>🌱 土壤小百科</h1>
+    <p class="intro">观察不同土壤的特点，看看它们适合种什么？</p>
+
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab('info')">🔍 认识土壤</button>
+        <button class="tab-btn" onclick="switchTab('lab')">💧 渗水实验</button>
+        <button class="tab-btn" onclick="switchTab('garden')">🌻 小小农夫</button>
+    </div>
+
+    <div id="tab-info" class="content-panel active">
+        <div class="soil-grid">
+            <div class="soil-card">
+                <div class="soil-img-container" onmousemove="moveMagnifier(event)">
+                    <div class="soil-texture texture-clay"></div>
+                    <div class="magnifier"></div>
+                </div>
+                <h2>黏土 (Tanah Liat)</h2>
+                <p>颗粒很细，很黏。水很难流过。通常是红色的。</p>
+            </div>
+
+            <div class="soil-card">
+                <div class="soil-img-container" onmousemove="moveMagnifier(event)">
+                    <div class="soil-texture texture-loam"></div>
+                    <div class="magnifier"></div>
+                </div>
+                <h2>壤土 (Tanah Kebun)</h2>
+                <p>有沙也有黏土，还有腐殖质（枯叶）。最适合种树！</p>
+            </div>
+
+            <div class="soil-card">
+                <div class="soil-img-container" onmousemove="moveMagnifier(event)">
+                    <div class="soil-texture texture-sand"></div>
+                    <div class="magnifier"></div>
+                </div>
+                <h2>沙土 (Pasir)</h2>
+                <p>颗粒很大，很粗糙。水流得很快。通常在海边。</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-lab" class="content-panel">
+        <div style="text-align: center; margin-bottom: 20px; font-weight: bold; color: #555;">点击“倒水”，观察谁流得最快（渗水性最强）？
+        </div>
+        <div class="lab-bench">
+            <div class="experiment-set">
+                <div class="funnel f-clay"></div>
+                <div class="drip" id="drip-clay"></div>
+                <div class="beaker">
+                    <div class="water" id="water-clay"></div>
+                </div>
+                <h3>黏土</h3>
+            </div>
+            <div class="experiment-set">
+                <div class="funnel f-loam"></div>
+                <div class="drip" id="drip-loam"></div>
+                <div class="beaker">
+                    <div class="water" id="water-loam"></div>
+                </div>
+                <h3>壤土</h3>
+            </div>
+            <div class="experiment-set">
+                <div class="funnel f-sand"></div>
+                <div class="drip" id="drip-sand"></div>
+                <div class="beaker">
+                    <div class="water" id="water-sand"></div>
+                </div>
+                <h3>沙土</h3>
+            </div>
+        </div>
+        <button class="btn-pour" onclick="startExperiment()">🚿 开始倒水</button>
+    </div>
+
+    <div id="tab-garden" class="content-panel">
+        <div class="garden-scene">
+            <div class="soil-plot plot-clay" data-type="clay"><span>黏土</span></div>
+            <div class="soil-plot plot-loam" data-type="loam"><span>壤土</span></div>
+            <div class="soil-plot plot-sand" data-type="sand"><span>沙土</span></div>
+
+            <div class="plant-box">
+                <div style="font-weight: bold; text-align: center;">植物仓库</div>
+                <div class="plant-item" draggable="true" data-plant="cactus" data-target="sand">
+                    <div class="plant-icon">🌵</div><span>仙人掌</span>
+                </div>
+                <div class="plant-item" draggable="true" data-plant="vegetable" data-target="loam">
+                    <div class="plant-icon">🥬</div><span>蔬菜/花</span>
+                </div>
+                <div class="plant-item" draggable="true" data-plant="lotus" data-target="clay">
+                    <div class="plant-icon">🪷</div><span>荷花/稻米</span>
+                </div>
+            </div>
+        </div>
+        <div id="garden-msg"
+            style="text-align: center; margin-top: 20px; font-weight: bold; color: #4CAF50; height: 30px;"></div>
+    </div>
+
+    <script>
+        // --- 选项卡切换 ---
+        function switchTab(id) {
+            document.querySelectorAll('.content-panel').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            document.getElementById('tab-' + id).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // --- 1. 放大镜逻辑 (修复核心代码) ---
+        function moveMagnifier(e) {
+            const container = e.currentTarget;
+            const magnifier = container.querySelector('.magnifier');
+            const texture = container.querySelector('.soil-texture');
+
+            // 获取鼠标在容器内的相对坐标
+            const rect = container.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // 1. 移动放大镜 (让它跟随鼠标，偏移中心点)
+            // 放大镜尺寸100px，所以减去50
+            magnifier.style.left = (x - 50) + 'px';
+            magnifier.style.top = (y - 50) + 'px';
+
+            // 2. 复制背景样式 (获取 soil-texture 的背景)
+            const style = window.getComputedStyle(texture);
+            magnifier.style.backgroundColor = style.backgroundColor;
+            magnifier.style.backgroundImage = style.backgroundImage;
+
+            // 3. 放大背景尺寸 (Zoom Effect)
+            // 解析原始 size (例如 "6px 6px")
+            let originalSize = parseFloat(style.backgroundSize);
+            if (isNaN(originalSize)) originalSize = 10;
+
+            const zoomLevel = 2.5; // 放大倍数
+            const newSize = originalSize * zoomLevel;
+            magnifier.style.backgroundSize = `${newSize}px ${newSize}px`;
+
+            // 4. 移动背景位置，制造透视感
+            // 原理：背景移动方向要和鼠标相反，才能产生“透镜”扫过的感觉
+            const bgX = -x * zoomLevel + 50;
+            const bgY = -y * zoomLevel + 50;
+            magnifier.style.backgroundPosition = `${bgX}px ${bgY}px`;
+        }
+
+        // --- 2. 渗水实验逻辑 ---
+        function startExperiment() {
+            // 重置
+            ['clay', 'loam', 'sand'].forEach(type => {
+                document.getElementById(`drip-${type}`).style.height = '0';
+                document.getElementById(`water-${type}`).style.height = '0';
+                document.getElementById(`water-${type}`).style.transition = 'none';
+            });
+
+            setTimeout(() => {
+                // 开始水流动画
+                animateWater('sand', 90, 2000); // 沙土: 最快
+                animateWater('loam', 60, 3500); // 壤土: 中等
+                animateWater('clay', 20, 5000); // 黏土: 最慢
+            }, 100);
+        }
+
+        function animateWater(type, height, duration) {
+            const drip = document.getElementById(`drip-${type}`);
+            const water = document.getElementById(`water-${type}`);
+
+            // 水流下来
+            drip.style.height = '140px';
+
+            // 杯中水涨高
+            water.style.transition = `height ${duration}ms linear`;
+            water.style.height = height + '%';
+
+            // 结束后停止水流
+            setTimeout(() => {
+                drip.style.height = '0';
+            }, duration);
+        }
+
+        // --- 3. 种植园拖放逻辑 ---
+        const plants = document.querySelectorAll('.plant-item');
+        const plots = document.querySelectorAll('.soil-plot');
+
+        plants.forEach(p => {
+            p.addEventListener('dragstart', e => {
+                e.dataTransfer.setData('plant', p.dataset.plant);
+                e.dataTransfer.setData('target', p.dataset.target);
+                e.dataTransfer.setData('icon', p.querySelector('.plant-icon').innerText);
+            });
+        });
+
+        plots.forEach(plot => {
+            plot.addEventListener('dragover', e => {
+                e.preventDefault();
+                plot.classList.add('hover');
+            });
+            plot.addEventListener('dragleave', () => plot.classList.remove('hover'));
+            plot.addEventListener('drop', e => {
+                e.preventDefault();
+                plot.classList.remove('hover');
+                const plantType = e.dataTransfer.getData('plant');
+                const targetType = e.dataTransfer.getData('target');
+                const icon = e.dataTransfer.getData('icon');
+
+                if (plot.dataset.type === targetType) {
+                    // 种植成功
+                    plot.innerHTML = `<div class="plant-icon planted">${icon}</div><span>${plot.innerText}</span>`;
+                    document.getElementById('garden-msg').innerText = "太棒了！植物很喜欢这里的土壤！🎉";
+                    document.getElementById('garden-msg').style.color = "#4CAF50";
+                } else {
+                    // 种植失败
+                    document.getElementById('garden-msg').innerText = "哎呀，这这种土壤不适合它生长哦... 🌱";
+                    document.getElementById('garden-msg').style.color = "#FF5722";
+                }
+            });
+        });
+
+    </script>
+</body>
+
+</html>

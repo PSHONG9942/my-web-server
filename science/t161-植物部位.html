@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-MY">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单元六：植物的各部分</title>
+    <link rel="icon" href="../images/logo.png" type="image/png">
+    <style>
+        /* --- 基础设置 --- */
+        body {
+            font-family: 'Comic Sans MS', 'KaiTi', 'Segoe UI', sans-serif;
+            background-color: #E8F5E9;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            user-select: none;
+            color: #2E7D32;
+        }
+
+        /* 返回按钮 */
+        .back-btn-corner {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 999;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            color: #2E7D32;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            font-size: 1.2rem;
+            transition: all 0.2s;
+            border: 2px solid #A5D6A7;
+        }
+
+        .back-btn-corner:hover {
+            background: #C8E6C9;
+            transform: scale(1.05);
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0 #C8E6C9;
+        }
+
+        p.intro {
+            font-size: 1.5rem;
+            color: #558B2F;
+            margin-bottom: 40px;
+        }
+
+        /* --- 主游戏区 --- */
+        .game-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 50px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding-bottom: 50px;
+        }
+
+        /* 左侧：花园 (画布) */
+        .garden-area {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            max-width: 600px;
+            height: 700px;
+            /* 背景：上面是天，下面是土 */
+            background: linear-gradient(to bottom, #E3F2FD 0%, #E3F2FD 65%, #795548 65%, #5D4037 100%);
+            border: 8px solid #fff;
+            border-radius: 30px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .garden-area::after {
+            content: "泥土 (Tanah)";
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        /* --- 放置区域 (Drop Zone) --- */
+        .drop-zone {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.3);
+            border: 3px dashed #90A4AE;
+            border-radius: 10px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        /* 提示文字样式 */
+        .zone-hint {
+            color: #546E7A;
+            font-weight: bold;
+            font-size: 1.2rem;
+            pointer-events: none;
+            /* 防止文字挡住拖放 */
+        }
+
+        .drop-zone.hovered {
+            background-color: rgba(255, 235, 59, 0.6);
+            border-color: #FBC02D;
+            transform: scale(1.05);
+        }
+
+        /* 放置成功后：去除边框，背景透明 */
+        .drop-zone.filled {
+            border: none;
+            background-color: transparent;
+            /* 关键：让里面的 CSS 图形撑满 */
+            padding: 0;
+        }
+
+        /* 隐藏提示文字 */
+        .drop-zone.filled .zone-hint {
+            display: none;
+        }
+
+        /* 成功后的标签 */
+        .part-label {
+            position: absolute;
+            background: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2E7D32;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.5s;
+            z-index: 20;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .drop-zone.filled .part-label {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- CSS 绘图样式 (无需图片，无需SVG路径) --- */
+
+        /* 1. 茎：纯色长方形 */
+        .css-stem {
+            width: 100%;
+            height: 100%;
+            background-color: #66BB6A;
+            border-radius: 10px;
+            border: 2px solid #388E3C;
+            box-shadow: inset 5px 0 0 rgba(0, 0, 0, 0.1);
+            /* 立体感 */
+        }
+
+        /* 2. 花：圆形 + 阴影模拟花瓣 */
+        .css-flower {
+            width: 80%;
+            height: 80%;
+            background-color: #FFC107;
+            /* 花蕊颜色 */
+            border-radius: 50%;
+            position: relative;
+            border: 4px solid #FF9800;
+            /* 使用 box-shadow 模拟一圈花瓣，不用画图 */
+            box-shadow:
+                0 0 0 15px #FFEB3B,
+                0 0 0 20px #FBC02D;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 笑脸 */
+        .css-flower::after {
+            content: "^_^";
+            color: #E65100;
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        /* 3. 叶子：圆角矩形 */
+        .css-leaf {
+            width: 90%;
+            height: 50%;
+            background-color: #4CAF50;
+            border: 2px solid #2E7D32;
+            /* 精髓：左上和右下圆角大，形成叶子形状 */
+            border-radius: 0 50% 0 50%;
+            position: relative;
+        }
+
+        /* 叶脉 */
+        .css-leaf::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #2E7D32;
+            transform: rotate(-5deg);
+        }
+
+        /* 4. 根：简单的几条线 */
+        .css-root-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* 主根 */
+        .css-root-main {
+            width: 10px;
+            height: 100%;
+            background-color: #795548;
+            border-radius: 5px;
+        }
+
+        /* 侧根 (伪元素) */
+        .css-root-main::before,
+        .css-root-main::after {
+            content: "";
+            position: absolute;
+            background-color: #795548;
+            width: 6px;
+            height: 60%;
+            top: 20%;
+            border-radius: 5px;
+        }
+
+        .css-root-main::before {
+            left: -15px;
+            transform: rotate(20deg);
+            height: 50%;
+        }
+
+        .css-root-main::after {
+            right: -15px;
+            transform: rotate(-20deg);
+            height: 50%;
+        }
+
+
+        /* 右侧：零件仓库 */
+        .parts-inventory {
+            flex: 1;
+            background: #fff;
+            padding: 30px;
+            border-radius: 30px;
+            min-width: 350px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            border: 4px solid #C8E6C9;
+        }
+
+        .inventory-title {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            border-bottom: 2px dashed #C8E6C9;
+            padding-bottom: 10px;
+        }
+
+        .draggable-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #FAFAFA;
+            border: 3px solid #E0E0E0;
+            border-radius: 20px;
+            padding: 10px;
+            cursor: grab;
+            transition: all 0.2s;
+            height: 110px;
+        }
+
+        .draggable-item:hover {
+            transform: translateX(-10px);
+            border-color: #66BB6A;
+            background: #F1F8E9;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .draggable-item:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+
+        .draggable-item.used {
+            opacity: 0;
+            pointer-events: none;
+            height: 0;
+            padding: 0;
+            margin: 0;
+            border: none;
+            overflow: hidden;
+        }
+
+        /* 预览图的特殊样式 (在仓库里显示时) */
+        .preview-box {
+            width: 100%;
+            max-width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 响应式 */
+        @media (max-width: 1100px) {
+            .game-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .garden-area {
+                width: 90vw;
+                height: 120vw;
+                max-width: 100%;
+                max-width: 100%;
+                max-width: 600px;
+                max-height: 700px;
+            }
+
+            .parts-inventory {
+                width: 90%;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .draggable-item {
+                width: 100px;
+                height: 100px;
+            }
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes celebrate {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.02);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* 胜利信息 */
+        #win-message {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            border: 8px solid #FFD54F;
+            z-index: 2000;
+            font-size: 2rem;
+            animation: popIn 0.5s;
+            text-align: center;
+        }
+    </style>
+
+    <!-- Global Light Cyberpunk Theme -->
+    <link rel="stylesheet" href="../css/cyberpunk.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+</head>
+
+<body>
+
+    <a href="index.html" class="back-btn-corner">⬅ 返回菜单</a>
+
+    <h1>🌻 植物拼拼乐</h1>
+    <p class="intro">植物也想快快长大！帮它把身体部位拼好吧！</p>
+
+    <div class="game-container">
+        <div class="garden-area" id="garden">
+
+            <div class="drop-zone" data-type="root"
+                style="bottom: 50px; left: 50%; transform: translateX(-50%); width: 100px; height: 120px;">
+                <span class="zone-hint">根</span>
+                <div class="part-label" style="top: 50%; left: 130%;">根 Root</div>
+            </div>
+
+            <div class="drop-zone" data-type="stem"
+                style="bottom: 170px; left: 50%; transform: translateX(-50%); width: 25px; height: 280px; z-index: 1;">
+                <span class="zone-hint">茎</span>
+                <div class="part-label" style="top: 50%; left: 150%;">茎 Stem</div>
+            </div>
+
+            <div class="drop-zone" data-type="leaf"
+                style="bottom: 250px; left: 50%; margin-left: -100px; width: 80px; height: 40px;">
+                <span class="zone-hint">叶</span>
+                <div class="part-label" style="bottom: -40px;">叶 Leaf</div>
+            </div>
+
+            <div class="drop-zone" data-type="leaf"
+                style="bottom: 320px; left: 50%; margin-left: 20px; width: 80px; height: 40px; transform: scaleX(-1);">
+                <span class="zone-hint" style="transform: scaleX(-1);">叶</span>
+                <div class="part-label" style="bottom: -40px; transform: scaleX(-1);">叶 Leaf</div>
+            </div>
+
+            <div class="drop-zone" data-type="flower"
+                style="bottom: 450px; left: 50%; transform: translateX(-50%); width: 120px; height: 120px;">
+                <span class="zone-hint">花</span>
+                <div class="part-label" style="top: -40px;">花 Flower</div>
+            </div>
+        </div>
+
+        <div class="parts-inventory">
+            <div class="inventory-title">植物零件库 📦</div>
+
+            <div class="draggable-item" draggable="true" data-id="root">
+                <div class="preview-box">
+                    <div class="css-root-container">
+                        <div class="css-root-main"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="draggable-item" draggable="true" data-id="stem">
+                <div class="preview-box" style="height: 100px;">
+                    <div class="css-stem" style="width: 100%; max-width: 20px;"></div>
+                </div>
+            </div>
+
+            <div class="draggable-item" draggable="true" data-id="flower">
+                <div class="preview-box">
+                    <div class="css-flower"></div>
+                </div>
+            </div>
+
+            <div class="draggable-item" draggable="true" data-id="leaf">
+                <div class="preview-box">
+                    <div class="css-leaf"></div>
+                </div>
+            </div>
+
+            <div class="draggable-item" draggable="true" data-id="leaf">
+                <div class="preview-box">
+                    <div class="css-leaf"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="win-message">
+        🎉 恭喜你！<br>
+        <span style="font-size: 1.2rem; color: #555;">你成功种出了一朵太阳花！🌻</span>
+        <br>
+        <button onclick="location.reload()"
+            style="margin-top:20px; padding:12px 30px; font-size:1.2rem; background:#4CAF50; color:white; border:none; border-radius:30px; cursor:pointer; font-weight:bold; box-shadow: 0 5px 0 #2E7D32;">再玩一次</button>
+    </div>
+
+    <script>
+        // 音效
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+
+            if (type === 'correct') {
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'win') {
+                [523, 659, 783, 1046].forEach((freq, i) => {
+                    setTimeout(() => {
+                        const o = audioCtx.createOscillator();
+                        const g = audioCtx.createGain();
+                        o.connect(g); g.connect(audioCtx.destination);
+                        o.frequency.value = freq;
+                        g.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                        g.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+                        o.start(); o.stop(audioCtx.currentTime + 0.5);
+                    }, i * 100);
+                });
+            }
+        }
+
+        // 拖拽逻辑
+        const draggables = document.querySelectorAll('.draggable-item');
+        const dropZones = document.querySelectorAll('.drop-zone');
+        let filledCount = 0;
+        const totalZones = dropZones.length;
+
+        draggables.forEach(draggable => {
+            draggable.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('type', draggable.dataset.id);
+                // 存储拖拽物的内容 HTML (即那个 div 图形)
+                window.currentDragHTML = draggable.querySelector('.preview-box').innerHTML;
+                window.currentDragElement = draggable;
+            });
+        });
+
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                if (!zone.classList.contains('filled')) {
+                    zone.classList.add('hovered');
+                }
+            });
+
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('hovered');
+            });
+
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('hovered');
+
+                const type = e.dataTransfer.getData('type');
+
+                // 检查匹配
+                if (zone.dataset.type === type && !zone.classList.contains('filled')) {
+                    // 放置成功
+                    zone.classList.add('filled');
+
+                    // 1. 获取拖拽过来的 HTML 内容
+                    let content = window.currentDragHTML;
+
+                    // 2. 将内容注入到放置区
+                    // 注意：保留原本里面的 .part-label
+                    const label = zone.querySelector('.part-label');
+                    zone.innerHTML = content;
+                    if (label) zone.appendChild(label); // 把标签加回去
+
+                    // 3. 特殊处理：调整注入后的 CSS 图形大小以填满框
+                    // 茎
+                    const stem = zone.querySelector('.css-stem');
+                    if (stem) stem.style.width = "100%";
+                    // 根
+                    const root = zone.querySelector('.css-root-main');
+                    if (root) { root.style.width = "15px"; root.style.height = "100%"; }
+                    // 叶
+                    const leaf = zone.querySelector('.css-leaf');
+                    if (leaf) { leaf.style.width = "100%"; leaf.style.height = "100%"; }
+                    // 花
+                    const flower = zone.querySelector('.css-flower');
+                    if (flower) { flower.style.width = "100%"; flower.style.height = "100%"; }
+
+                    // 4. 标记原元素已使用
+                    window.currentDragElement.classList.add('used');
+
+                    playSound('correct');
+                    filledCount++;
+
+                    // 检查是否全部完成
+                    if (filledCount === totalZones) {
+                        setTimeout(() => {
+                            playSound('win');
+                            document.getElementById('win-message').style.display = 'block';
+                            document.querySelector('.garden-area').style.animation = 'celebrate 0.5s infinite alternate';
+                        }, 500);
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

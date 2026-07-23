@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="zh-MY">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="../images/logo.png" type="image/png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单元四：人类的感官实验室</title>
+    <style>
+        /* --- 基础风格 --- */
+        body {
+            font-family: 'Segoe UI', 'Comic Sans MS', sans-serif;
+            background-color: #f0f4c3;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            user-select: none;
+        }
+
+        h1 {
+            color: #558b2f;
+            margin-bottom: 5px;
+        }
+
+        p.subtitle {
+            color: #689f38;
+            margin-bottom: 30px;
+        }
+
+        /* --- 游戏主容器 --- */
+        #game-container {
+            max-width: 100%;
+            max-width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            position: relative;
+            min-height: 520px;
+            /* 稍微加高一点 */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* --- 1. 刺激物显示区 --- */
+        .stimulus-zone {
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 2px dashed #ddd;
+            position: relative;
+        }
+
+        .stimulus-emoji {
+            font-size: 100px;
+            transition: all 0.5s;
+            cursor: default;
+        }
+
+        .stimulus-text {
+            font-size: 24px;
+            color: #333;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        /* 特效动画 */
+        .effect-shake {
+            animation: shake 0.5s infinite;
+        }
+
+        .effect-glow {
+            animation: glow 1.5s infinite alternate;
+            filter: drop-shadow(0 0 10px gold);
+        }
+
+        .effect-stink::after {
+            content: '💨';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            font-size: 40px;
+            animation: floatUp 2s infinite;
+            opacity: 0.6;
+        }
+
+        .effect-cold::after {
+            content: '❄️';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 40px;
+            animation: floatUp 2s infinite;
+            opacity: 0.8;
+        }
+
+        .effect-love {
+            animation: heartbeat 1.5s infinite;
+        }
+
+        /* --- 2. 交互区 --- */
+        .interaction-zone {
+            padding: 20px 0;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .instruction {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        /* 器官按钮 */
+        .organs-grid {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .organ-btn {
+            background: #fff;
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 80px;
+            height: 90px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .organ-btn:hover {
+            transform: translateY(-5px);
+            border-color: #8bc34a;
+            background: #f1f8e9;
+        }
+
+        .organ-btn:active {
+            transform: scale(0.95);
+        }
+
+        .organ-icon {
+            font-size: 35px;
+            margin-bottom: 5px;
+        }
+
+        .organ-name {
+            font-size: 14px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        /* 属性按钮 (已修复 display 问题) */
+        .attributes-grid {
+            display: flex;
+            /* 确保这里是 flex */
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            animation: slideUp 0.3s;
+        }
+
+        .attr-btn {
+            background: #e1f5fe;
+            color: #0277bd;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 0 #b3e5fc;
+            margin-bottom: 10px;
+        }
+
+        .attr-btn:hover {
+            background: #b3e5fc;
+            transform: translateY(-2px);
+        }
+
+        .attr-btn:active {
+            transform: translateY(2px);
+            box-shadow: none;
+        }
+
+        /* --- 反馈弹窗 --- */
+        .feedback-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .feedback-overlay h2 {
+            color: #2ecc71;
+            font-size: 30px;
+            margin: 10px 0;
+        }
+
+        .feedback-overlay button {
+            padding: 10px 30px;
+            font-size: 20px;
+            background: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+
+        .feedback-overlay button:hover {
+            background-color: #27ae60;
+        }
+
+        /* 返回按钮样式 */
+        .back-btn-corner {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 999;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: #555;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+            transition: all 0.2s;
+            border: 1px solid #ccc;
+        }
+
+        .back-btn-corner:hover {
+            background: white;
+            transform: scale(1.05);
+            color: #000;
+        }
+
+        /* 动画定义 */
+        @keyframes shake {
+            0% {
+                transform: translate(1px, 1px) rotate(0deg);
+            }
+
+            50% {
+                transform: translate(-1px, 2px) rotate(-1deg);
+            }
+
+            100% {
+                transform: translate(1px, -2px) rotate(-1deg);
+            }
+        }
+
+        @keyframes glow {
+            from {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+
+            to {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0);
+                opacity: 0.6;
+            }
+
+            100% {
+                transform: translateY(-30px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes heartbeat {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+
+    <!-- Global Light Cyberpunk Theme -->
+    <link rel="stylesheet" href="../css/cyberpunk.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+</head>
+
+<body>
+    <a href="index.html" class="back-btn-corner">⬅ 返回菜单</a>
+    <h1>🧠 感官实验室 (Makmal Deria)</h1>
+    <p class="subtitle">先选择器官，再告诉我它是什么感觉！</p>
+    <p id="progress-text" style="color: #999; font-size: 14px;">第 1 / 10 题</p>
+
+    <div id="game-container">
+        <div class="stimulus-zone">
+            <div id="q-emoji" class="stimulus-emoji">❓</div>
+            <div id="q-text" class="stimulus-text">准备好了吗？</div>
+        </div>
+
+        <div class="interaction-zone">
+            <div id="step-1">
+                <p class="instruction" id="instruction-text">我要用什么器官来感觉它？</p>
+                <div class="organs-grid">
+                    <div class="organ-btn" onclick="checkOrgan('eye')">
+                        <div class="organ-icon">👀</div>
+                        <div class="organ-name">眼睛</div>
+                    </div>
+                    <div class="organ-btn" onclick="checkOrgan('ear')">
+                        <div class="organ-icon">👂</div>
+                        <div class="organ-name">耳朵</div>
+                    </div>
+                    <div class="organ-btn" onclick="checkOrgan('nose')">
+                        <div class="organ-icon">👃</div>
+                        <div class="organ-name">鼻子</div>
+                    </div>
+                    <div class="organ-btn" onclick="checkOrgan('tongue')">
+                        <div class="organ-icon">👅</div>
+                        <div class="organ-name">舌头</div>
+                    </div>
+                    <div class="organ-btn" onclick="checkOrgan('skin')">
+                        <div class="organ-icon">✋</div>
+                        <div class="organ-name">皮肤</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="step-2" style="display:none;">
+                <p class="instruction">它是什么感觉？</p>
+                <div class="attributes-grid" id="attr-container"></div>
+            </div>
+        </div>
+
+        <div class="feedback-overlay" id="feedback">
+            <div style="font-size: 60px;">🎉</div>
+            <h2 id="feedback-msg">太棒了！</h2>
+            <p id="feedback-detail" style="color:#666; font-size:18px; margin-top:5px;">...</p>
+            <button id="next-btn" onclick="nextLevel()">下一题 ➡</button>
+        </div>
+    </div>
+
+    <script>
+        // --- 完整题库 (10题) ---
+        const allLevels = [
+            {
+                id: 1, emoji: "🍋", text: "切开的柠檬", organ: "tongue", effect: "",
+                options: [{ label: "甜 (Manis)", correct: false }, { label: "酸 (Masam)", correct: true }, { label: "咸 (Masin)", correct: false }],
+                successMsg: "舌头尝到了酸味！(Masam)"
+            },
+            {
+                id: 2, emoji: "🚑", text: "救护车经过", organ: "ear", effect: "effect-shake",
+                options: [{ label: "很香 (Wangi)", correct: false }, { label: "很滑 (Licin)", correct: false }, { label: "很吵 (Bising)", correct: true }],
+                successMsg: "耳朵听到了吵闹的声音！(Bising)"
+            },
+            {
+                id: 3, emoji: "🗑️", text: "垃圾桶", organ: "nose", effect: "effect-stink",
+                options: [{ label: "臭 (Busuk)", correct: true }, { label: "香 (Wangi)", correct: false }, { label: "辣 (Pedas)", correct: false }],
+                successMsg: "鼻子闻到了臭味！(Busuk)"
+            },
+            {
+                id: 4, emoji: "🌵", text: "仙人掌", organ: "skin", effect: "",
+                options: [{ label: "软 (Lembut)", correct: false }, { label: "刺/痛 (Sakit)", correct: true }, { label: "冷 (Sejuk)", correct: false }],
+                successMsg: "皮肤感觉到了刺痛！(Sakit)"
+            },
+            {
+                id: 5, emoji: "🌈", text: "天上的彩虹", organ: "eye", effect: "effect-glow",
+                options: [{ label: "七彩 (Berwarna)", correct: true }, { label: "大声 (Kuat)", correct: false }, { label: "苦 (Pahit)", correct: false }],
+                successMsg: "眼睛看到了颜色！(Melihat)"
+            },
+            {
+                id: 6, emoji: "☕", text: "刚煮好的热咖啡", organ: "skin", effect: "effect-stink",
+                options: [{ label: "冷 (Sejuk)", correct: false }, { label: "粗 (Kasar)", correct: false }, { label: "热 (Panas)", correct: true }],
+                successMsg: "皮肤感觉到了热！(Panas)"
+            },
+            // --- 新增题目 ---
+            {
+                id: 7, emoji: "🧸", text: "泰迪熊玩偶", organ: "skin", effect: "effect-love",
+                options: [{ label: "硬 (Keras)", correct: false }, { label: "软 (Lembut)", correct: true }, { label: "热 (Panas)", correct: false }],
+                successMsg: "皮肤摸起来软软的！(Lembut)"
+            },
+            {
+                id: 8, emoji: "🧊", text: "冰块", organ: "skin", effect: "effect-cold",
+                options: [{ label: "冷 (Sejuk)", correct: true }, { label: "热 (Panas)", correct: false }, { label: "烫 (Panas)", correct: false }],
+                successMsg: "皮肤感觉到了冷！(Sejuk)"
+            },
+            {
+                id: 9, emoji: "🌺", text: "盛开的花朵", organ: "nose", effect: "effect-love",
+                options: [{ label: "臭 (Busuk)", correct: false }, { label: "香 (Wangi)", correct: true }, { label: "酸 (Masam)", correct: false }],
+                successMsg: "鼻子闻到了香味！(Wangi)"
+            },
+            {
+                id: 10, emoji: "🥁", text: "大鼓", organ: "ear", effect: "effect-shake",
+                options: [{ label: "小声 (Perlahan)", correct: false }, { label: "大声 (Kuat)", correct: true }, { label: "甜 (Manis)", correct: false }],
+                successMsg: "耳朵听到了大声的声音！(Kuat)"
+            }
+        ];
+
+        let currentQueue = []; // 存放打乱后的题目
+        let currentIndex = 0;
+        let currentLevelData = null;
+
+        // --- 初始化 ---
+        function initGame() {
+            // 1. 复制并打乱题库 (随机算法)
+            currentQueue = [...allLevels].sort(() => 0.5 - Math.random());
+            currentIndex = 0;
+
+            // 2. 确保反馈弹窗隐藏
+            document.getElementById('feedback').style.display = 'none';
+
+            // 3. 开始加载第一题
+            loadLevel();
+        }
+
+        // --- 加载关卡 ---
+        function loadLevel() {
+            // 更新进度文字
+            document.getElementById('progress-text').innerText = `第 ${currentIndex + 1} / ${currentQueue.length} 题`;
+
+            currentLevelData = currentQueue[currentIndex];
+
+            // 重置界面
+            document.getElementById('step-1').style.display = 'block';
+            document.getElementById('step-2').style.display = 'none';
+            document.getElementById('attr-container').innerHTML = '';
+            document.getElementById('instruction-text').innerText = "我要用什么器官来感觉它？";
+
+            // 设置题目和特效
+            const emojiDiv = document.getElementById('q-emoji');
+            emojiDiv.innerText = currentLevelData.emoji;
+            document.getElementById('q-text').innerText = currentLevelData.text;
+            emojiDiv.className = 'stimulus-emoji';
+            if (currentLevelData.effect) emojiDiv.classList.add(currentLevelData.effect);
+        }
+
+        // --- 第一步：检查器官 ---
+        function checkOrgan(selectedOrgan) {
+            if (selectedOrgan === currentLevelData.organ) {
+                playCorrectAnimation();
+                showAttributes();
+            } else {
+                shakeScreen();
+                document.getElementById('instruction-text').innerText = "不对哦，再想一想！🤔";
+            }
+        }
+
+        // --- 第二步：显示属性选项 ---
+        function showAttributes() {
+            document.getElementById('step-1').style.display = 'none';
+            document.getElementById('step-2').style.display = 'block'; // 父级显示
+            // 注意：CSS里 .attributes-grid 已经是 display: flex 了
+
+            const container = document.getElementById('attr-container');
+            container.innerHTML = '';
+
+            const shuffledOptions = [...currentLevelData.options].sort(() => 0.5 - Math.random());
+
+            shuffledOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'attr-btn';
+                btn.innerText = opt.label;
+                btn.onclick = () => checkAttribute(opt.correct);
+                container.appendChild(btn);
+            });
+        }
+
+        function checkAttribute(isCorrect) {
+            if (isCorrect) showSuccess();
+            else shakeScreen();
+        }
+
+        // --- 胜利反馈 ---
+        function showSuccess() {
+            const overlay = document.getElementById('feedback');
+            const btn = document.getElementById('next-btn'); // 获取按钮
+
+            document.getElementById('feedback-msg').innerText = "答对了！🎉";
+            document.getElementById('feedback-detail').innerText = currentLevelData.successMsg;
+
+            // 【关键修复】确保按钮功能是“下一题”
+            btn.innerText = "下一题 ➡";
+            btn.onclick = nextLevel;
+
+            overlay.style.display = 'flex';
+        }
+
+        function nextLevel() {
+            document.getElementById('feedback').style.display = 'none'; // 隐藏弹窗
+            currentIndex++;
+
+            if (currentIndex < currentQueue.length) {
+                loadLevel();
+            } else {
+                endGame();
+            }
+        }
+
+        // --- 错误动画 ---
+        function shakeScreen() {
+            const container = document.getElementById('game-container');
+            container.animate([
+                { transform: 'translateX(0)' }, { transform: 'translateX(-10px)' },
+                { transform: 'translateX(10px)' }, { transform: 'translateX(0)' }
+            ], { duration: 300 });
+        }
+
+        function playCorrectAnimation() {
+            document.getElementById('q-emoji').animate([
+                { transform: 'scale(1)' }, { transform: 'scale(1.5)' }, { transform: 'scale(1)' }
+            ], { duration: 300 });
+        }
+
+        // --- 游戏结束 ---
+        function endGame() {
+            const overlay = document.getElementById('feedback');
+            const btn = document.getElementById('next-btn');
+
+            document.getElementById('feedback-msg').innerText = "全部完成！🏆";
+            document.getElementById('feedback-detail').innerText = "你已经掌握了所有感官知识！";
+
+            // 切换按钮为重玩模式
+            btn.innerText = "再玩一次 🔄";
+            btn.onclick = initGame; // 绑定回初始化函数
+
+            overlay.style.display = 'flex';
+        }
+
+        // 启动
+        window.onload = initGame;
+    </script>
+</body>
+
+</html>

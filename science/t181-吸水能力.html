@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="zh-MY">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单元八：吸水能力</title>
+    <link rel="icon" href="../images/logo.png" type="image/png">
+    <style>
+        /* --- 基础设置 --- */
+        body {
+            font-family: 'Comic Sans MS', 'KaiTi', 'Segoe UI', sans-serif;
+            background-color: #E1F5FE;
+            /* 浅蓝背景 */
+            background-image: radial-gradient(#B3E5FC 10%, transparent 10%);
+            background-size: 30px 30px;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            user-select: none;
+            color: #0277BD;
+        }
+
+        /* 返回按钮 */
+        .back-btn-corner {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 999;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            color: #0277BD;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            font-size: 1.2rem;
+            transition: all 0.2s;
+            border: 2px solid #4FC3F7;
+        }
+
+        .back-btn-corner:hover {
+            background: #E0F7FA;
+            transform: scale(1.05);
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0 #B3E5FC;
+        }
+
+        p.intro {
+            font-size: 1.5rem;
+            color: #01579B;
+            margin-bottom: 30px;
+        }
+
+        /* --- 关卡切换按钮 --- */
+        .level-selector {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .level-btn {
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            background: #fff;
+            color: #0288D1;
+            box-shadow: 0 5px 0 #81D4FA;
+            transition: all 0.2s;
+            font-weight: bold;
+            border: 2px solid #B3E5FC;
+        }
+
+        .level-btn.active {
+            background: #039BE5;
+            color: white;
+            box-shadow: 0 5px 0 #01579B;
+            border-color: #01579B;
+        }
+
+        .level-btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .level-btn:active {
+            transform: translateY(2px);
+            box-shadow: none;
+        }
+
+        /* --- 游戏区域容器 --- */
+        .game-stage {
+            display: none;
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 15px 40px rgba(3, 155, 229, 0.15);
+            border: 6px solid #81D4FA;
+            min-height: 600px;
+            /* 增加高度，防止内容溢出 */
+            position: relative;
+        }
+
+        .game-stage.active {
+            display: block;
+            animation: popIn 0.5s;
+        }
+
+        /* ================= 第一关：吸水分类 ================= */
+        .sorting-area {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 40px;
+        }
+
+        .sort-zone {
+            width: 350px;
+            height: 350px;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 20px;
+            transition: all 0.3s;
+            position: relative;
+            background: #FAFAFA;
+        }
+
+        /* 吸水篮 */
+        #zone-absorb {
+            border: 5px dashed #29B6F6;
+            background: #E1F5FE;
+        }
+
+        /* 不吸水篮 */
+        #zone-no-absorb {
+            border: 5px dashed #BDBDBD;
+            background: #F5F5F5;
+        }
+
+        .zone-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        /* 物品库 */
+        .items-pool {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            padding: 20px;
+            background: #E0F2F1;
+            border-radius: 20px;
+            min-height: 120px;
+        }
+
+        .item {
+            width: 90px;
+            height: 90px;
+            background: white;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            cursor: grab;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            border: 3px solid #fff;
+            position: relative;
+            z-index: 10;
+        }
+
+        .item span {
+            font-size: 0.9rem;
+            margin-top: 2px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .item:active {
+            cursor: grabbing;
+            transform: scale(1.1);
+            z-index: 100;
+        }
+
+        .item.stuck {
+            position: absolute;
+            transform: scale(0.8);
+            box-shadow: none;
+            border: none;
+            background: transparent;
+            pointer-events: none;
+        }
+
+        /* ================= 第二关：强弱比拼 (修复布局) ================= */
+
+        /* 1. 待测试物品架 (改成相对定位，放在上面) */
+        .test-rack {
+            position: relative;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            /* 增加底部间距，防止撞到烧杯 */
+            z-index: 10;
+        }
+
+        .test-item {
+            width: 100px;
+            height: 120px;
+            background: white;
+            border: 3px solid #CFD8DC;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .test-item:hover {
+            transform: translateY(-5px);
+            border-color: #039BE5;
+            background: #E1F5FE;
+        }
+
+        .test-item.active {
+            border-color: #FF9800;
+            background: #FFF3E0;
+        }
+
+        /* 2. 实验台 (放在下面) */
+        .lab-bench {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            height: 350px;
+            padding: 0 50px;
+            position: relative;
+            background: linear-gradient(to top, #cfd8dc 0%, #fff 20%);
+            border-radius: 20px;
+            /* 四角都圆角 */
+            margin-top: 20px;
+        }
+
+        /* 大烧杯 */
+        .beaker-container {
+            width: 250px;
+            height: 200px;
+            border: 4px solid #90A4AE;
+            border-top: none;
+            border-radius: 0 0 20px 20px;
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.5);
+            overflow: visible;
+            /* 允许上面的东西漏出来一点 */
+        }
+
+        /* 遮罩层：只遮住下半部分的水，不遮住上面悬挂的物品 */
+        .beaker-mask {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+            border-radius: 0 0 15px 15px;
+        }
+
+        /* 水 */
+        .water {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 70%;
+            background: rgba(33, 150, 243, 0.6);
+            border-top: 2px solid rgba(33, 150, 243, 0.8);
+            transition: height 0.5s;
+        }
+
+        .water::after {
+            /* 水波纹 */
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 实验中悬挂的物品 */
+        .danging-item {
+            position: absolute;
+            top: -180px;
+            /* 初始位置更高一点 */
+            left: 50%;
+            transform: translateX(-50%);
+            transition: top 1s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .rope {
+            width: 2px;
+            height: 100px;
+            background: #795548;
+        }
+
+        .item-visual {
+            font-size: 60px;
+            filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.2));
+            background: white;
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        /* 评分显示 */
+        .result-panel {
+            position: absolute;
+            top: 50px;
+            right: 50px;
+            width: 100%;
+            max-width: 200px;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .stars {
+            font-size: 2rem;
+            color: #FFD700;
+            margin: 10px 0;
+        }
+
+        .water-drop-anim {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #2196F3;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            opacity: 0;
+        }
+
+        /* 动画 */
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes drip {
+            0% {
+                top: 60px;
+                opacity: 1;
+            }
+
+            100% {
+                top: 150px;
+                opacity: 0;
+            }
+        }
+    </style>
+
+    <!-- Global Light Cyberpunk Theme -->
+    <link rel="stylesheet" href="../css/cyberpunk.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+</head>
+
+<body>
+
+    <a href="index.html" class="back-btn-corner">⬅ 返回菜单</a>
+
+    <h1>💧 吸水能力大挑战</h1>
+    <p class="intro">有些东西会喝水，有些东西不会。你知道它们的秘密吗？</p>
+
+    <div class="level-selector">
+        <button class="level-btn active" onclick="switchLevel(1)">1. 吸水分类王</button>
+        <button class="level-btn" onclick="switchLevel(2)">2. 吸水力大比拼</button>
+    </div>
+
+    <div id="level-1" class="game-stage active">
+        <div class="sorting-area">
+            <div class="sort-zone" id="zone-absorb" data-type="absorb">
+                <div class="zone-title" style="color: #0277BD;">🧻 会吸水 (Menyerap)</div>
+                <div style="font-size: 100px; opacity: 0.1; position: absolute; top: 100px;">💧</div>
+            </div>
+            <div class="sort-zone" id="zone-no-absorb" data-type="no-absorb">
+                <div class="zone-title" style="color: #757575;">🛡️ 不会吸水 (Tidak)</div>
+                <div style="font-size: 100px; opacity: 0.1; position: absolute; top: 100px;">🚫</div>
+            </div>
+        </div>
+
+        <div class="items-pool" id="items-container"></div>
+        <div id="feedback-l1"
+            style="font-size: 1.5rem; margin-top: 20px; font-weight: bold; color: #4CAF50; height: 40px;"></div>
+    </div>
+
+    <div id="level-2" class="game-stage" style="display:flex; flex-direction:column;">
+        <p style="color: #555; font-size: 1.2rem; margin-bottom: 20px;">点击上方的物品，看看它能吸多少水？</p>
+
+        <div class="test-rack">
+            <div class="test-item" onclick="testAbsorbency('tissue')">
+                <div style="font-size:40px;">🧻</div>
+                <span style="font-weight:bold; color:#555;">纸巾</span>
+            </div>
+            <div class="test-item" onclick="testAbsorbency('sponge')">
+                <div style="font-size:40px;">🧽</div>
+                <span style="font-weight:bold; color:#555;">海绵</span>
+            </div>
+            <div class="test-item" onclick="testAbsorbency('paper')">
+                <div style="font-size:40px;">📰</div>
+                <span style="font-weight:bold; color:#555;">报纸</span>
+            </div>
+            <div class="test-item" onclick="testAbsorbency('cardboard')">
+                <div style="font-size:40px;">📦</div>
+                <span style="font-weight:bold; color:#555;">硬纸板</span>
+            </div>
+        </div>
+
+        <div class="lab-bench">
+            <div class="beaker-container">
+                <div class="beaker-mask">
+                    <div class="water" id="water-level"></div>
+                </div>
+
+                <div id="dangler" class="danging-item">
+                    <div class="rope"></div>
+                    <div class="item-visual" id="dangler-icon">❓</div>
+                    <div class="water-drop-anim" id="drop1" style="left:50%;"></div>
+                </div>
+            </div>
+
+            <div class="result-panel" id="result-display">
+                <h3 style="margin:0; color:#0277BD;" id="res-name">海绵</h3>
+                <div class="stars" id="res-stars">⭐⭐⭐</div>
+                <p style="margin:0; color:#555; font-weight:bold;" id="res-desc">吸水能力强</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================= 音效系统 =================
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+
+            if (type === 'correct') {
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'splash') {
+                // 入水声
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+
+        function switchLevel(level) {
+            // 隐藏所有
+            document.getElementById('level-1').classList.remove('active');
+            document.getElementById('level-2').style.display = 'none'; // 特殊处理 level 2 flex
+            document.getElementById('level-2').classList.remove('active');
+
+            // 按钮状态
+            document.querySelectorAll('.level-btn').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.level-btn')[level - 1].classList.add('active');
+
+            if (level === 1) {
+                document.getElementById('level-1').classList.add('active');
+                initLevel1();
+            }
+            if (level === 2) {
+                document.getElementById('level-2').style.display = 'flex'; // 恢复 flex 布局
+                document.getElementById('level-2').classList.add('active');
+                resetLevel2();
+            }
+        }
+
+        // ================= 第一关：分类逻辑 =================
+        const sortItems = [
+            { name: "海绵", icon: "🧽", type: "absorb" },
+            { name: "硬币", icon: "💰", type: "no-absorb" },
+            { name: "毛巾", icon: "🧣", type: "absorb" },
+            { name: "塑料瓶", icon: "🥤", type: "no-absorb" },
+            { name: "纸巾", icon: "🧻", type: "absorb" },
+            { name: "钥匙", icon: "🔑", type: "no-absorb" },
+            { name: "棉花", icon: "☁️", type: "absorb" },
+            { name: "玻璃珠", icon: "🔮", type: "no-absorb" },
+            { name: "报纸", icon: "📰", type: "absorb" },
+            { name: "橡皮", icon: "🧼", type: "no-absorb" }
+        ];
+
+        function initLevel1() {
+            const container = document.getElementById('items-container');
+            container.innerHTML = '';
+            document.getElementById('feedback-l1').innerText = '';
+
+            const shuffled = [...sortItems].sort(() => 0.5 - Math.random());
+
+            shuffled.forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'item';
+                el.draggable = true;
+                el.dataset.type = item.type;
+                el.innerHTML = `${item.icon}<span>${item.name}</span>`;
+
+                el.ondragstart = (e) => {
+                    e.dataTransfer.setData('type', item.type);
+                    window.currentDragItem = el;
+                };
+                // 点击支持
+                el.onclick = () => simulateDrop(el, item.type);
+                container.appendChild(el);
+            });
+        }
+
+        const dropZones = document.querySelectorAll('.sort-zone');
+        dropZones.forEach(zone => {
+            zone.ondragover = (e) => e.preventDefault();
+            zone.ondrop = (e) => {
+                e.preventDefault();
+                const type = e.dataTransfer.getData('type');
+                checkDrop(zone, type, window.currentDragItem);
+            };
+        });
+
+        function checkDrop(zone, type, element) {
+            if (zone.dataset.type === type) {
+                playSound('correct');
+                element.classList.add('stuck');
+                const x = Math.random() * 200 + 50;
+                const y = Math.random() * 200 + 50;
+                element.style.left = x + 'px';
+                element.style.top = y + 'px';
+                zone.appendChild(element);
+                checkWinL1();
+            } else {
+                playSound('wrong');
+                document.getElementById('feedback-l1').innerText = "放错了哦！再试一次。";
+                setTimeout(() => document.getElementById('feedback-l1').innerText = "", 1000);
+            }
+        }
+
+        function simulateDrop(element, type) {
+            const targetZone = document.getElementById(type === 'absorb' ? 'zone-absorb' : 'zone-no-absorb');
+            checkDrop(targetZone, type, element);
+        }
+
+        function checkWinL1() {
+            if (document.getElementById('items-container').children.length === 0) {
+                document.getElementById('feedback-l1').innerText = "🎉 太棒了！你已经学会分辨吸水物体了！";
+            }
+        }
+
+        // ================= 第二关：强弱实验逻辑 =================
+        // 定义物品属性
+        const absorbData = {
+            'tissue': { name: '纸巾', icon: '🧻', level: 3, desc: '吸水能力：强', stars: '⭐⭐⭐' },
+            'sponge': { name: '海绵', icon: '🧽', level: 3, desc: '吸水能力：强', stars: '⭐⭐⭐' },
+            'paper': { name: '报纸', icon: '📰', level: 2, desc: '吸水能力：中', stars: '⭐⭐' },
+            'cardboard': { name: '硬纸板', icon: '📦', level: 1, desc: '吸水能力：弱', stars: '⭐' }
+        };
+
+        let isTesting = false;
+
+        function resetLevel2() {
+            isTesting = false;
+            document.getElementById('dangler').style.top = "-180px";
+            document.getElementById('result-display').style.opacity = 0;
+            document.getElementById('water-level').style.height = "70%"; // Reset water
+            // 重置按钮样式
+            document.querySelectorAll('.test-item').forEach(el => el.classList.remove('active'));
+        }
+
+        function testAbsorbency(itemKey) {
+            if (isTesting) return;
+            isTesting = true;
+            resetLevel2();
+
+            // 激活按钮样式
+            event.currentTarget.classList.add('active');
+
+            const data = absorbData[itemKey];
+            const dangler = document.getElementById('dangler');
+            const danglerIcon = document.getElementById('dangler-icon');
+            const waterLevel = document.getElementById('water-level');
+            const resultPanel = document.getElementById('result-display');
+
+            // 1. 设置物品
+            danglerIcon.innerText = data.icon;
+
+            // 2. 下降 (入水) - 深度调整
+            dangler.style.top = "0px";
+            setTimeout(() => {
+                playSound('splash');
+
+                // 3. 吸水 (水位稍微下降一点点，模拟被吸走)
+                waterLevel.style.height = "65%";
+
+                // 4. 上升 (出水)
+                setTimeout(() => {
+                    dangler.style.top = "-150px";
+
+                    // 5. 滴水展示结果
+                    setTimeout(() => {
+                        showResult(data);
+                        isTesting = false;
+                    }, 1000);
+
+                }, 1500); // 浸泡 1.5秒
+
+            }, 1000); // 下降耗时
+        }
+
+        function showResult(data) {
+            document.getElementById('res-name').innerText = data.name;
+            document.getElementById('res-stars').innerText = data.stars;
+            document.getElementById('res-desc').innerText = data.desc;
+            document.getElementById('result-display').style.opacity = 1;
+            playSound('correct');
+        }
+
+        // 初始化
+        initLevel1();
+    </script>
+</body>
+
+</html>

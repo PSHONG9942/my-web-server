@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-MY">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="../images/logo.png" type="image/png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>一年级科学：动物身体部位大拼图</title>
+    <style>
+        /* --- 基础样式 --- */
+        body {
+            font-family: 'Comic Sans MS', 'Microsoft YaHei', sans-serif;
+            background-color: #e0f7fa;
+            text-align: center;
+            margin: 0;
+            padding: 10px;
+            /* 减少页面边距 */
+            user-select: none;
+            /* 防止页面滚动 (如果内容确实很少的话) */
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h1 {
+            color: #006064;
+            margin: 5px 0;
+            font-size: 24px;
+        }
+
+        p {
+            color: #00838f;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        /* --- 游戏容器 (变紧凑) --- */
+        .game-wrapper {
+            width: 100%;
+            max-width: 800px;
+            /* 【改】限制整体宽度，防止太宽 */
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            /* min-height 不需要了，让内容撑开 */
+        }
+
+        /* --- 进度条 --- */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #eee;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #4dd0e1;
+            width: 0%;
+            transition: width 0.5s;
+        }
+
+        /* --- 核心游戏区 (垂直布局) --- */
+        .play-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            /* 【改】减小上下间距 */
+            width: 100%;
+        }
+
+        /* --- 动物展示区 (变小) --- */
+        .animal-stage {
+            width: 100%;
+            max-width: 100%;
+            max-width: 100%;
+            max-width: 600px;
+            /* 【改】限制图片区域最大宽度，高度会自动变小 */
+            aspect-ratio: 16 / 9;
+            /* 保持横屏比例 */
+            background: #e1f5fe;
+            border: 3px dashed #b3e5fc;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 大图片样式 */
+        .animal-img-big {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.3s;
+        }
+
+        .missing-part-hint {
+            position: absolute;
+            bottom: 10px;
+            /* 【改】靠下一点 */
+            font-size: 16px;
+            color: #ff5722;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 5px 15px;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        /* --- 选项区 (水平排列) --- */
+        .options-grid {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            gap: 10px;
+            /* 【改】减小选项间距 */
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .option-card {
+            flex: 1;
+            min-width: 140px;
+            /* 【改】允许选项卡变得更小一点 */
+            max-width: 100%;
+            max-width: 200px;
+            padding: 10px;
+            /* 【改】减小内边距 */
+            background: white;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s;
+            box-shadow: 0 3px 0 #ddd;
+        }
+
+        .option-card:hover {
+            transform: translateY(-3px);
+            border-color: #29b6f6;
+            background: #f0fbff;
+        }
+
+        .option-card:active {
+            transform: scale(0.98);
+            box-shadow: none;
+        }
+
+        .option-icon-box {
+            width: 50px;
+            height: 35px;
+            /* 【改】图标变小一点 */
+            margin-right: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .option-img-small {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .option-text {
+            font-size: 15px;
+            font-weight: bold;
+            color: #555;
+            text-align: left;
+            line-height: 1.2;
+        }
+
+        .option-sub {
+            display: none;
+        }
+
+        /* 【改】隐藏多余的问号，节省空间 */
+
+        /* --- 动画与弹窗 --- */
+        .correct-animation {
+            animation: bounce 0.6s;
+        }
+
+        .shake-animation {
+            animation: shake 0.4s;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .btn {
+            background: #00bcd4;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        /* 返回按钮样式 */
+        .back-btn-corner {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 999;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: #555;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+            transition: all 0.2s;
+            border: 1px solid #ccc;
+        }
+
+        .back-btn-corner:hover {
+            background: white;
+            transform: scale(1.05);
+            color: #000;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes shake {
+            0% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-10px);
+            }
+
+            75% {
+                transform: translateX(10px);
+            }
+
+            100% {
+                transform: translateX(0);
+            }
+        }
+    </style>
+
+    <!-- Global Light Cyberpunk Theme -->
+    <link rel="stylesheet" href="../css/cyberpunk.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+</head>
+
+<body>
+    <a href="index.html" class="back-btn-corner">⬅ 返回菜单</a>
+    <h1>🧩 动物拼拼乐</h1>
+    <p>看图片，回答问题：这是什么部位？</p>
+
+    <div class="game-wrapper">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress"></div>
+        </div>
+
+        <div class="play-area">
+            <div class="animal-stage">
+                <div id="animal-display"
+                    style="width:100%; height:100%; display:flex; justify-content:center; align-items:center;"></div>
+                <div id="question-text" class="missing-part-hint">...</div>
+            </div>
+
+            <div class="options-grid" id="options-container">
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="win-modal">
+        <div class="modal-content">
+            <div style="font-size: 60px;">🏆</div>
+            <h2 style="color: #0097a7;">太棒了！</h2>
+            <p>你已经认识了所有的动物身体部位！</p>
+            <button class="btn" onclick="restartGame()">再玩一次 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        // --- 游戏数据 (图片路径保持不变) ---
+        const levels = [
+            // Level 1: 基础部位
+            {
+                animalImg: "images/animal_lion.png",
+                targetCode: "body",
+                question: "我的肚子好大！这是我的...",
+                options: [
+                    { label: "身体 (Badan)", type: "body", img: "images/part_body.png" },
+                    { label: "翅膀 (Kepak)", type: "wing", img: "images/part_wing.png" },
+                    { label: "壳 (Cangkerang)", type: "shell", img: "images/part_shell.png" }
+                ]
+            },
+            {
+                animalImg: "images/animal_giraffe.png",
+                targetCode: "head",
+                question: "我有长长的脖子，上面是我的...",
+                options: [
+                    { label: "头 (Kepala)", type: "head", img: "images/part_head.png" },
+                    { label: "尾巴 (Ekor)", type: "tail", img: "images/part_tail.png" },
+                    { label: "鳍 (Sirip)", type: "fin", img: "images/part_fin.png" }
+                ]
+            },
+            // Level 2: 鸟类/昆虫特征
+            {
+                animalImg: "images/animal_eagle.png",
+                targetCode: "beak",
+                question: "我要用这个尖尖的嘴巴捉小鸡！",
+                options: [
+                    { label: "喙 (Paruh)", type: "beak", img: "images/part_beak.png" },
+                    { label: "鳞 (Sisik)", type: "scale", img: "images/part_scale.png" },
+                    { label: "角 (Tanduk)", type: "horn", img: "images/part_horn.png" }
+                ]
+            },
+            {
+                animalImg: "images/animal_parrot.png",
+                targetCode: "feather",
+                question: "我身上五颜六色的是什么？",
+                options: [
+                    { label: "羽毛 (Bulu Pelepah)", type: "feather", img: "images/part_feather.png" },
+                    { label: "毛发 (Bulu Halus)", type: "fur", img: "images/part_fur.png" },
+                    { label: "皮肤 (Kulit)", type: "skin", img: "images/part_body.png" }
+                ]
+            },
+            {
+                animalImg: "images/animal_butterfly.png",
+                targetCode: "antenna",
+                question: "我头上有两根细细的东西...",
+                options: [
+                    { label: "触角 (Sesungut)", type: "antenna", img: "images/part_antenna.png" },
+                    { label: "腿 (Kaki)", type: "leg", img: "images/part_leg.png" },
+                    { label: "蹼 (Selaput Renang)", type: "web", img: "images/part_web.png" }
+                ]
+            },
+            // Level 3: 水生/爬行特征
+            {
+                animalImg: "images/animal_turtle.png",
+                targetCode: "shell",
+                question: "遇到危险我会躲进这个硬硬的房子里！",
+                options: [
+                    { label: "外壳 (Cangkerang)", type: "shell", img: "images/part_shell.png" },
+                    { label: "翅膀 (Kepak)", type: "wing", img: "images/part_wing.png" },
+                    { label: "鳍 (Sirip)", type: "fin", img: "images/part_fin.png" }
+                ]
+            },
+            {
+                animalImg: "images/animal_duck.png",
+                targetCode: "web",
+                question: "我要游泳，因为我的脚有...",
+                options: [
+                    { label: "蹼 (Selaput Renang)", type: "web", img: "images/part_web.png" },
+                    { label: "角 (Tanduk)", type: "horn", img: "images/part_horn.png" },
+                    { label: "鳞 (Sisik)", type: "scale", img: "images/part_scale.png" }
+                ]
+            },
+            {
+                animalImg: "images/animal_goldfish.png",
+                targetCode: "scale",
+                question: "我身上一片一片闪闪发亮的是...",
+                options: [
+                    { label: "鳞 (Sisik)", type: "scale", img: "images/part_scale.png" },
+                    { label: "毛发 (Bulu Halus)", type: "fur", img: "images/part_fur.png" },
+                    { label: "羽毛 (Bulu Pelepah)", type: "feather", img: "images/part_feather.png" }
+                ]
+            },
+            {
+                animalImg: "images/animal_buffalo.png",
+                targetCode: "horn",
+                question: "我头上有两个坚硬的武器！",
+                options: [
+                    { label: "角 (Tanduk)", type: "horn", img: "images/part_horn.png" },
+                    { label: "触角 (Sesungut)", type: "antenna", img: "images/part_antenna.png" },
+                    { label: "喙 (Paruh)", type: "beak", img: "images/part_beak.png" }
+                ]
+            },
+            {
+                animalImg: "images/animal_fish.png",
+                targetCode: "fin",
+                question: "我没有腿，但我用这个来游泳！",
+                options: [
+                    { label: "鳍 (Sirip)", type: "fin", img: "images/part_fin.png" },
+                    { label: "腿 (Kaki)", type: "leg", img: "images/part_leg.png" },
+                    { label: "蹼 (Selaput Renang)", type: "web", img: "images/part_web.png" }
+                ]
+            }
+        ];
+
+        let currentQ = 0;
+        let shuffledLevels = [];
+
+        function initGame() {
+            currentQ = 0;
+            shuffledLevels = [...levels].sort(() => 0.5 - Math.random());
+            document.getElementById('win-modal').style.display = 'none';
+            loadLevel();
+        }
+
+        function loadLevel() {
+            const progress = ((currentQ) / shuffledLevels.length) * 100;
+            document.getElementById('progress').style.width = `${progress}%`;
+
+            if (currentQ >= shuffledLevels.length) {
+                document.getElementById('progress').style.width = `100%`;
+                setTimeout(() => {
+                    document.getElementById('win-modal').style.display = 'flex';
+                }, 500);
+                return;
+            }
+
+            const data = shuffledLevels[currentQ];
+
+            // 1. 设置左侧大图
+            const animalDiv = document.getElementById('animal-display');
+            animalDiv.innerHTML = `<img src="${data.animalImg}" class="animal-img-big" alt="Animal">`;
+
+            // 移除之前的正确动画类
+            animalDiv.classList.remove('correct-animation');
+
+            document.getElementById('question-text').innerText = data.question;
+
+            // 3. 设置右侧选项
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            const options = [...data.options].sort(() => 0.5 - Math.random());
+
+            options.forEach(opt => {
+                const card = document.createElement('div');
+                card.className = 'option-card';
+                card.onclick = () => checkAnswer(opt.type, data.targetCode, card);
+
+                card.innerHTML = `
+                    <div class="option-icon-box">
+                        <img src="${opt.img}" class="option-img-small" alt="${opt.label}">
+                    </div>
+                    <div class="option-text">
+                        ${opt.label}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function checkAnswer(selectedType, correctType, cardElement) {
+            if (cardElement.classList.contains('clicked')) return;
+            cardElement.classList.add('clicked');
+
+            if (selectedType === correctType) {
+                // 正确
+                cardElement.style.backgroundColor = '#d4edda';
+                cardElement.style.borderColor = '#28a745';
+
+                // 动物动画
+                document.getElementById('animal-display').classList.add('correct-animation');
+
+                setTimeout(() => {
+                    currentQ++;
+                    loadLevel();
+                }, 1000);
+            } else {
+                // 错误
+                cardElement.style.backgroundColor = '#f8d7da';
+                cardElement.style.borderColor = '#dc3545';
+                cardElement.classList.add('shake-animation');
+                setTimeout(() => cardElement.classList.remove('shake-animation'), 400);
+            }
+        }
+
+        function restartGame() {
+            initGame();
+        }
+
+        window.onload = initGame;
+    </script>
+</body>
+
+</html>
