@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>华小老师专区 - 免费数字教具资源分享</title>
+    <meta name="description" content="专为马来西亚华小老师设计的免费数字教具网站。提供习字簿生成器、课堂点名系统、AI语法纠错、G-MATH数学游戏等实用工具。">
+    <link rel="icon" href="images/logo.png" type="image/png">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* 针对科学卡片的小调整，让6个按钮排版更整齐 */
+        .science-links {
+            display: grid !important;
+            /* 强制使用网格布局 */
+            grid-template-columns: repeat(3, 1fr);
+            /* 一行3个 */
+            gap: 10px;
+            width: 100%;
+        }
+
+        .science-links a {
+            text-align: center;
+            padding: 8px 0;
+            /* 上下内边距 */
+            font-size: 14px;
+        }
+    </style>
+
+    <!-- Global Light Cyberpunk Theme -->
+    <link rel="stylesheet" href="css/cyberpunk.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+
+<body>
+    <div class="dashboard">
+        <header class="welcome-section">
+            <img src="images/logo.png" class="mini-logo" alt="Logo" onclick="triggerArchive()" style="cursor: default;">
+            <h1>华小老师专区</h1>
+            <p>收录部分华小老师<b>可能</b>需要的数字教具（持续更新中...）</p>
+        </header>
+
+        <div class="grid">
+
+            <div class="feature-card theme-blue">
+                <div class="card-icon">✍️</div>
+                <h3>习字簿生成器</h3>
+                <p>输入最多四字词语，系统自动生成田字格（字词、拼音、笔画数、部首）</p>
+                <div class="card-links">
+                    <a href="tools/standard.html">标准版</a>
+                    <a href="tools/grade1.html">一年级</a>
+                    <a href="tools/radical.html">部首版</a>
+                </div>
+            </div>
+
+            <div class="feature-card theme-navy">
+                <div class="card-icon">📋</div>
+                <h3>点名簿生成器</h3>
+                <p>输入学生名单，系统将生成点名格供老师们点名。（可打印或下载成PDF）</p>
+                <div class="card-links">
+                    <a href="tools/attendance/index.html">点击进入</a>
+                </div>
+            </div>
+
+            <div class="feature-card theme-royal">
+                <div class="card-icon">🔬</div>
+                <h3>科学探险岛</h3>
+                <p>涵盖小学一至六年级科学互动资源，让孩子们在玩乐中探索科学奥秘！</p>
+                <div class="card-links science-links">
+                    <a href="science/index.html">一年级</a>
+                    <a href="#" onclick="alert('二年级资源正在开发中，敬请期待！🚧')">二年级</a>
+                    <a href="#" onclick="alert('三年级资源正在开发中，敬请期待！🚧')">三年级</a>
+                    <a href="#" onclick="alert('四年级资源正在开发中，敬请期待！🚧')">四年级</a>
+                    <a href="#" onclick="alert('五年级资源正在开发中，敬请期待！🚧')">五年级</a>
+                    <a href="#" onclick="alert('六年级资源正在开发中，敬请期待！🚧')">六年级</a>
+                </div>
+            </div>
+
+            <div class="feature-card theme-sky">
+                <div class="card-icon">🔤</div>
+                <h3>拼音大挑战</h3>
+                <p>趣味拼音小游戏，测试学生对声母、韵母及声调的掌握程度。</p>
+                <div class="card-links">
+                    <a href="tools/pinyin.html">开始挑战</a>
+                </div>
+            </div>
+
+            <div class="feature-card theme-purple">
+                <div class="card-icon">🔍</div>
+                <h3>拼音探秘</h3>
+                <p>输入句子，根据拼音字母提示猜出完整句子，趣味十足游戏！</p>
+                <div class="card-links">
+                    <a href="tools/pinyin_advanced.html">开始探秘</a>
+                </div>
+            </div>
+
+            <div class="feature-card theme-steel">
+                <div class="card-icon">🔱</div>
+                <h3>拼音工坊</h3>
+                <p>你对汉语拼音了解多少？根据汉字，输入正确的汉语拼音</p>
+                <div class="card-links">
+                    <a href="tools/pinyin_game.html">开始游戏</a>
+                </div>
+            </div>
+
+            <div class="feature-card theme-green">
+                <div class="card-icon">💬</div>
+                <h3>AI 趣味造句</h3>
+                <p>输入词语，AI 老师帮你变出三个不同难度的句子！支持华语、国语和英语。</p>
+                <div class="card-links">
+                    <a href="tools/ai-sentence.html">开始造句</a>
+                </div>
+            </div>
+
+            <div class="feature-card theme-forest">
+                <div class="card-icon">📝</div>
+                <h3>AI 英语语法纠错</h3>
+                <p>智能检测句子语法错误，提供修改建议与解释，辅助英语教学。</p>
+                <div class="card-links">
+                    <a href="tools/grammar.html">开始检测</a>
+                </div>
+            </div>
+
+            <div class="feature-card theme-orange">
+                <div class="card-icon">🪢</div>
+                <h3>HANGMAN大冒险</h3>
+                <p>趣味英语猜词游戏！支持中文与马来语翻译及例句，适合小学生积累词汇。</p>
+                <div class="card-links">
+                    <a href="tools/hangman/index.html">开始挑战</a>
+                </div>
+            </div>
+
+            <div class="feature-card theme-mint">
+                <div class="card-icon">🧮</div>
+                <h3>竖式解题助手</h3>
+                <p>输入算式，自动展示详细的竖式计算步骤。支持加减乘除，是批改作业的好帮手。</p>
+                <div class="card-links">
+                    <a href="tools/solver.html">开始解题</a>
+                </div>
+            </div>
+
+            <div class="feature-card theme-olive">
+                <div class="card-icon">🔢</div>
+                <h3>G-MATH</h3>
+                <p>包含标准版、进阶版及联机对战模式的数学计算游戏。</p>
+                <div class="card-links">
+                    <a href="tools/g-math.html">选择版本</a>
+                </div>
+            </div>
+
+            <div class="feature-card theme-purple">
+                <div class="card-icon">🔠</div>
+                <h3 style="font-family: Orbitron, sans-serif;">Scrabble</h3>
+                <p>原汁原味的经典英文拼字桌面游戏。内置官方字典校验，支持最高4人本地游玩，考验你的词汇储备！</p>
+                <div class="card-links">
+                    <a href="tools/scrabble.html">开始游戏</a>
+                </div>
+            </div>
+
+            <div class="feature-card theme-orange">
+                <div class="card-icon">📙</div>
+                <h3 style="font-family: Orbitron, sans-serif;">Sahibba</h3>
+                <p>经典马来文拼字游戏。<br><strong style="color: #fff; background-color: #d32f2f; padding: 3px 6px; border-radius: 4px; display: inline-block; margin-top: 5px; font-size: 0.9em; box-shadow: 0 2px 4px rgba(0,0,0,0.2); letter-spacing: 0.5px;">⚠️ 马来文字词还在更新，老师们如有少了任何字词，请反馈。</strong></p>
+                <div class="card-links">
+                    <a href="tools/sahibba.html">开始游戏</a>
+                </div>
+            </div>
+
+            <div class="feature-card theme-cyan">
+                <div class="card-icon">💰</div>
+                <h3>财富大作战</h3>
+                <p>当你拥有RM10,000启动资金，你会怎么让自己在12个月内成为富豪？</p>
+                <div class="card-links">
+                    <a href="https://gene-money-game.my.canva.site/">进入游戏</a>
+                </div>
+            </div>
+
+            <div class="feature-card theme-lime">
+                <div class="card-icon">🎲</div>
+                <h3>Jutaria 模拟游戏</h3>
+                <p>基于马来西亚地图的经典大富翁游戏。支持 2-4 人本地对战，体验买地、收租乐趣。</p>
+                <div class="card-links">
+                    <a href="tools/game.html">开始游戏</a>
+                </div>
+            </div>
+
+            <div class="feature-card theme-rose">
+                <div class="card-icon">🧩</div>
+                <h3>Kirable 数字桌游</h3>
+                <p>极简几何风的拼算式游戏！支持单人挑战及带智能防作弊的 CPU 模式，锻炼逻辑组合能力。</p>
+                <div class="card-links">
+                    <a href="tools/kirable.html">开始游玩</a>
+                </div>
+            </div>
+
+            <div class="feature-card theme-cyan">
+                <div class="card-icon">🏖️</div>
+                <h3>牛马退休日记</h3>
+                <p>距离光荣退休还有多久？输入日期，开启倒计时，每天摸鱼更有动力！</p>
+                <div class="card-links">
+                    <a href="tools/pencen.html">查看倒计时</a>
+                </div>
+            </div>
+
+            <div class="feature-card theme-red">
+                <div class="card-icon">⏱️</div>
+                <h3 style="font-family: Orbitron, sans-serif;">时空主宰极限秒表</h3>
+                <p>通用型精准计时系统，能够精确进行毫秒级分段统计与单圈表现分析等操作。</p>
+                <div class="card-links">
+                    <a href="https://time-dominator.pages.dev/" target="_blank">启动时空仪</a>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="secret-footer">
+            <a href="tools/files/index.html" title="教师内部专区">π</a>
+        </div>
+
+        <footer
+            style="text-align: center; margin-top: 50px; padding: 20px; color: #888; font-size: 14px; line-height: 1.6; width: 100%;">
+            <p style="margin: 5px 0;">若发现问题，电邮至 g-21543731@moe-dl.edu.my 潘老师。</p>
+            <p style="margin: 5px 0;">没有团队，不定期更新网站，恳请各位老师耐心等候。</p>
+            <a href="mailto:g-21543731@moe-dl.edu.my?subject=网站反馈"
+                style="color: #555; text-decoration: underline; font-weight: bold; cursor: pointer;">
+                👉 点我发送反馈
+            </a>
+        </footer>
+
+    </div>
+
+    <script>
+        let clickCount = 0;
+        let clickTimer;
+
+        function triggerArchive() {
+            clickCount++;
+            clearTimeout(clickTimer); // 清除之前的计时器
+
+            // 如果连续点击 5 次，就穿越到档案馆
+            if (clickCount === 5) {
+                window.location.href = 'archive.html';
+            }
+
+            // 如果 1.5 秒内没有继续点击，连击次数清零
+            clickTimer = setTimeout(() => {
+                clickCount = 0;
+            }, 1500);
+        }
+    </script>
+
+<!-- Cloudflare Pages Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "35ff815faa754da18646633e6bcb512c"}'></script><!-- Cloudflare Pages Analytics --></body>
+
+</html>
