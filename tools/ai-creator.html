@@ -227,11 +227,11 @@
                 <div class="chat-header" style="padding: 10px 15px; background: rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: space-between; border-radius: 12px 12px 0 0;">
                     <span style="font-size: 14px; color: #ccc;">🧠 选择 AI 模型:</span>
                     <select id="modelSelect" style="background: #2b2b36; color: #00d2ff; border: 1px solid rgba(0,210,255,0.3); padding: 5px 10px; border-radius: 5px; outline: none; cursor: pointer; font-size: 13px;">
-                        <option value="meta/llama-3.3-70b-instruct">Llama 3.3 70B (默认推荐 - 综合极佳)</option>
+                        <option value="google/gemma-4-31b-it" selected>Gemma 4 31B (默认推荐 - 审美绝佳/Bug极少)</option>
+                        <option value="meta/llama-3.3-70b-instruct">Llama 3.3 70B (综合极佳)</option>
                         <option value="deepseek-ai/deepseek-v4-pro">DeepSeek V4 Pro (最强代码模型)</option>
                         <option value="deepseek-ai/deepseek-v4-flash">DeepSeek V4 Flash (极速写代码)</option>
                         <option value="mistralai/mistral-medium-3.5-128b">Mistral 128B (逻辑极佳)</option>
-                        <option value="google/gemma-4-31b-it">Gemma 4 31B (轻量高效)</option>
                     </select>
                 </div>
                 <div class="chat-history" id="chatHistory" style="border-radius: 0;">
@@ -246,10 +246,11 @@
             <div class="preview-section">
                 <div class="preview-header">
                     <h3>效果预览</h3>
-                    <button class="btn-save" onclick="openModal()" id="saveBtn" style="display: none;">💾 保存并发布</button>
+                    <span style="font-size: 12px; color: #ff4757; margin-left: 10px;">⚠️ 警告：代码实时渲染过程中会产生画面闪烁，光敏性癫痫患者请注意。</span>
+                    <button class="btn-save" onclick="openModal()" id="saveBtn" style="display: none; margin-left: auto;">💾 保存并发布</button>
                 </div>
-                <!-- sandbox 属性限制了外部访问，保证主站安全 -->
-                <iframe id="previewFrame" sandbox="allow-scripts allow-modals"></iframe>
+                <!-- 移除了 sandbox 属性以解除限制，保证生成的 JS 功能和按钮全部可用 -->
+                <iframe id="previewFrame"></iframe>
             </div>
         </div>
     </div>
@@ -307,6 +308,8 @@
                 generateCode();
             }
         }
+
+        let renderTimeout = null;
 
         async function generateCode() {
             const input = document.getElementById("promptInput");
@@ -380,8 +383,14 @@
                                                 }
                                             }
                                         }
+                                        // 使用 debounce 减少闪烁频率 (每 500ms 渲染一次)
                                         currentCode = cleanText;
-                                        document.getElementById("previewFrame").srcdoc = currentCode;
+                                        if (!renderTimeout) {
+                                            renderTimeout = setTimeout(() => {
+                                                document.getElementById("previewFrame").srcdoc = currentCode;
+                                                renderTimeout = null;
+                                            }, 500);
+                                        }
                                         
                                         // 提取非代码的对话部分
                                         let chatText = fullText.replace(/```(?:html)?\s*[\s\S]*?(?:```|$)/ig, "").trim();
@@ -404,6 +413,10 @@
                     } else {
                         msgDiv.innerText = "代码已生成并在右侧渲染！如果您不满意，可以继续在下方提出修改建议。例如：'背景换成深色' 或 '把按钮变大点'。";
                     }
+                    
+                    // 最终完整渲染一次确保代码是最新的
+                    if (renderTimeout) clearTimeout(renderTimeout);
+                    document.getElementById("previewFrame").srcdoc = currentCode;
                     
                     // 记录 AI 回复到历史
                     chatMessages.push({ role: 'assistant', content: fullText });
