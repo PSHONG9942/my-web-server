@@ -39,7 +39,8 @@ export async function onRequestPost(context) {
                 messages: apiMessages,
                 temperature: 0.2,
                 top_p: 0.7,
-                max_tokens: 4000
+                max_tokens: 4000,
+                stream: true // 开启流式输出，防止长对话导致的 524 Timeout
             })
         });
 
@@ -48,18 +49,13 @@ export async function onRequestPost(context) {
             throw new Error(`NVIDIA API Error: ${response.status} - ${errorText}`);
         }
 
-        const data = await response.json();
-        let generatedHtml = data.choices[0].message.content;
-
-        // 简单的后处理：如果大模型还是加上了 ```html ... ```，则将其移除
-        if (generatedHtml.startsWith("```html")) {
-            generatedHtml = generatedHtml.replace(/^```html\n?/, "").replace(/\n?```$/, "");
-        } else if (generatedHtml.startsWith("```")) {
-            generatedHtml = generatedHtml.replace(/^```\n?/, "").replace(/\n?```$/, "");
-        }
-
-        return new Response(JSON.stringify({ code: generatedHtml }), {
-            headers: { "Content-Type": "application/json" }
+        // 直接将流转发给前端
+        return new Response(response.body, {
+            headers: {
+                "Content-Type": "text/event-stream",
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive"
+            }
         });
 
     } catch (error) {
