@@ -382,7 +382,14 @@
                                         }
                                         currentCode = cleanText;
                                         document.getElementById("previewFrame").srcdoc = currentCode;
-                                        msgDiv.innerText = "代码实时生成中... (" + currentCode.length + " bytes)";
+                                        
+                                        // 提取非代码的对话部分
+                                        let chatText = fullText.replace(/```(?:html)?\s*[\s\S]*?(?:```|$)/ig, "").trim();
+                                        if (chatText.length > 0) {
+                                            msgDiv.innerText = chatText + "\n\n(代码正在右侧实时渲染...)";
+                                        } else {
+                                            msgDiv.innerText = "代码实时生成中... (" + currentCode.length + " bytes)";
+                                        }
                                     }
                                 } catch (e) {
                                     // 忽略不完整的 JSON 解析错误
@@ -391,7 +398,12 @@
                         }
                     }
                     
-                    msgDiv.innerText = "代码已生成并在右侧渲染！如果您不满意，可以继续在下方提出修改建议。例如：'背景换成深色' 或 '把按钮变大点'。";
+                    let finalChatText = fullText.replace(/```(?:html)?\s*[\s\S]*?(?:```|$)/ig, "").trim();
+                    if (finalChatText.length > 0) {
+                        msgDiv.innerText = finalChatText;
+                    } else {
+                        msgDiv.innerText = "代码已生成并在右侧渲染！如果您不满意，可以继续在下方提出修改建议。例如：'背景换成深色' 或 '把按钮变大点'。";
+                    }
                     
                     // 记录 AI 回复到历史
                     chatMessages.push({ role: 'assistant', content: fullText });
