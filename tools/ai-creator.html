@@ -225,14 +225,17 @@
         <div class="sandbox-container">
             <div class="chat-section">
                 <div class="chat-header" style="padding: 10px 15px; background: rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: space-between; border-radius: 12px 12px 0 0;">
-                    <span style="font-size: 14px; color: #ccc;">🧠 选择 AI 模型:</span>
-                    <select id="modelSelect" style="background: #2b2b36; color: #00d2ff; border: 1px solid rgba(0,210,255,0.3); padding: 5px 10px; border-radius: 5px; outline: none; cursor: pointer; font-size: 13px;">
-                        <option value="google/gemma-4-31b-it" selected>Gemma 4 31B (默认推荐 - 审美绝佳/Bug极少)</option>
-                        <option value="meta/llama-3.3-70b-instruct">Llama 3.3 70B (综合极佳)</option>
-                        <option value="deepseek-ai/deepseek-v4-pro">DeepSeek V4 Pro (最强代码模型)</option>
-                        <option value="deepseek-ai/deepseek-v4-flash">DeepSeek V4 Flash (极速写代码)</option>
-                        <option value="mistralai/mistral-medium-3.5-128b">Mistral 128B (逻辑极佳)</option>
-                    </select>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <span style="font-size: 14px; color: #ccc;">🧠 模型:</span>
+                        <select id="modelSelect" style="background: #2b2b36; color: #00d2ff; border: 1px solid rgba(0,210,255,0.3); padding: 5px 10px; border-radius: 5px; outline: none; cursor: pointer; font-size: 13px;">
+                            <option value="google/gemma-4-31b-it" selected>Gemma 4 31B (推荐)</option>
+                            <option value="meta/llama-3.3-70b-instruct">Llama 3.3 70B</option>
+                            <option value="deepseek-ai/deepseek-v4-pro">DeepSeek V4 Pro</option>
+                            <option value="deepseek-ai/deepseek-v4-flash">DeepSeek V4 Flash</option>
+                            <option value="mistralai/mistral-medium-3.5-128b">Mistral 128B</option>
+                        </select>
+                    </div>
+                    <button onclick="startNewChat()" style="background: rgba(255, 71, 87, 0.2); color: #ff4757; border: 1px solid rgba(255, 71, 87, 0.4); padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 13px;">➕ 新对话</button>
                 </div>
                 <div class="chat-history" id="chatHistory" style="border-radius: 0;">
                     <div class="message msg-ai">你好！我是 AI 编程助手。请告诉我你想制作什么样的网页、工具或游戏？比如：“帮我做一个九九乘法表测试游戏，界面要可爱一点。”</div>
@@ -281,6 +284,57 @@
         let chatMessages = [];
         let currentCode = "";
 
+        // 本地化存储相关功能
+        function saveChatState() {
+            localStorage.setItem('aiCreatorChat', JSON.stringify({ chatMessages, currentCode }));
+        }
+
+        function loadChatState() {
+            const savedData = localStorage.getItem('aiCreatorChat');
+            if (savedData) {
+                try {
+                    const data = JSON.parse(savedData);
+                    chatMessages = data.chatMessages || [];
+                    currentCode = data.currentCode || "";
+
+                    if (chatMessages.length > 0) {
+                        const history = document.getElementById("chatHistory");
+                        history.innerHTML = ""; // 清空欢迎语
+                        
+                        chatMessages.forEach(msg => {
+                            let displayContent = msg.content;
+                            // 如果是 AI 回复，需要过滤掉 HTML 代码块以保持对话框整洁
+                            if (msg.role === 'assistant') {
+                                displayContent = msg.content.replace(/```(?:html)?\s*[\s\S]*?(?:```|$)/ig, "").trim();
+                                if (displayContent === "") {
+                                    displayContent = "代码已生成并在右侧渲染！如果您不满意，可以继续在下方提出修改建议。";
+                                }
+                            }
+                            addMessage(msg.role, displayContent);
+                        });
+
+                        // 恢复右侧代码渲染
+                        if (currentCode) {
+                            document.getElementById("previewFrame").srcdoc = currentCode;
+                            document.getElementById("saveBtn").style.display = "block";
+                        }
+                    }
+                } catch (e) {
+                    console.error("加载聊天记录失败", e);
+                }
+            }
+        }
+
+        function startNewChat() {
+            if (confirm("确定要开启新对话吗？当前的代码和聊天记录将被清除。")) {
+                localStorage.removeItem('aiCreatorChat');
+                location.reload();
+            }
+        }
+
+        // 页面加载时自动读取记录
+        window.addEventListener('DOMContentLoaded', loadChatState);
+
         function addMessage(role, content) {
             const history = document.getElementById("chatHistory");
             const div = document.createElement("div");
@@ -324,6 +378,7 @@
             // 添加用户消息
             addMessage('user', prompt);
             chatMessages.push({ role: 'user', content: prompt });
+            saveChatState();
 
             // 添加 Loading 消息
             addMessage('ai', "<span class='loader'></span> AI 正在疯狂敲代码中，请稍候...");
@@ -420,6 +475,7 @@
                     
                     // 记录 AI 回复到历史
                     chatMessages.push({ role: 'assistant', content: fullText });
+                    saveChatState();
                     
                     // 显示保存按钮
                     document.getElementById("saveBtn").style.display = "block";
