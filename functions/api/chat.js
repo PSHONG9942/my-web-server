@@ -28,25 +28,51 @@ export async function onRequestPost(context) {
         // 在 Cloudflare Pages 中，环境变量需要配置为 NVIDIA_API_KEY
         const apiKey = env.NVIDIA_API_KEY || "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"; 
 
-        const response = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${apiKey}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                model: model || "meta/llama-3.3-70b-instruct",
-                messages: apiMessages,
-                temperature: 0.2,
-                top_p: 0.7,
-                max_tokens: 4000,
-                stream: true // 开启流式输出，防止长对话导致的 524 Timeout
-            })
-        });
+        let response;
+        let retries = 3;
+        let currentModel = model || "meta/llama-3.3-70b-instruct";
+        let fallbackModel = "meta/llama-3.3-70b-instruct";
+        let lastErrorText = "";
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`NVIDIA API Error: ${response.status} - ${errorText}`);
+        while (retries > 0) {
+            try {
+                response = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${apiKey}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: currentModel,
+                        messages: apiMessages,
+                        temperature: 0.2,
+                        top_p: 0.7,
+                        max_tokens: 4000,
+                        stream: true 
+                    })
+                });
+
+                if (response.ok) {
+                    break;
+                } else {
+                    lastErrorText = await response.text();
+                    // 如果服务器报错 500 系列且当前不是备用模型，则降级到最稳定的 Llama 模型
+                    if (response.status >= 500 && currentModel !== fallbackModel) {
+                        currentModel = fallbackModel;
+                    }
+                }
+            } catch (err) {
+                lastErrorText = err.message;
+            }
+            
+            retries--;
+            if (retries > 0) {
+                await new Promise(resolve => setTimeout(resolve, 1500)); // 等待 1.5 秒后重试
+            }
+        }
+
+        if (!response || !response.ok) {
+            throw new Error(`NVIDIA API 彻底连接失败: ${response ? response.status : 'Unknown'} - ${lastErrorText}`);
         }
 
         // 直接将流转发给前端
