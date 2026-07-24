@@ -425,11 +425,11 @@
                     document.getElementById("saveBtn").style.display = "block";
                 } else {
                     const err = await response.json();
-                    addMessage('ai', "生成失败：" + (err.error || "未知错误"));
+                    addMessage('ai', "生成失败：" + (err.error || "未知错误") + "\n\n💡 提示：这通常是由于当前模型服务器繁忙导致。请在上方下拉菜单中**尝试切换其他模型**（比如 Llama 3.3 或 DeepSeek），然后再次点击生成！");
                 }
             } catch (error) {
                 removeLoading();
-                addMessage('ai', "网络错误，无法连接到 AI 服务器。");
+                addMessage('ai', "生成失败：" + error.message + "\n\n💡 提示：这通常是由于当前选中的模型服务器正在重启或负载过高。请在上方下拉菜单中**尝试更换其他模型**（比如 Llama 3.3 或 DeepSeek）再试一次！");
                 console.error(error);
             } finally {
                 btn.disabled = false;
