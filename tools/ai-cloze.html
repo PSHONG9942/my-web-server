@@ -328,7 +328,16 @@
                     body: JSON.stringify({ model: LLM_MODEL, messages: [{ role: "user", content: prompt }] })
                 });
                 
-                if(!textRes.ok) throw new Error("文本生成失败");
+                if(!textRes.ok) {
+                    let errMsg = "文本生成失败";
+                    try {
+                        const errData = await textRes.json();
+                        errMsg += ": " + (errData.error || errData.message || JSON.stringify(errData));
+                    } catch(e) {
+                        errMsg += " (Status: " + textRes.status + ")";
+                    }
+                    throw new Error(errMsg);
+                }
                 const textData = await textRes.json();
                 
                 let content = textData.choices[0].message.content;
