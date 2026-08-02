@@ -916,7 +916,7 @@
     </div>
 
     <div style="text-align: center; margin-bottom: 20px; color: #888; font-size: 14px;">
-      Powered by Gemini 3.1 Flash Lite | API: Google AI Studio
+      Powered by Gemini 3.5 Flash | API: Universal Gateway
     </div>
 
     <!-- Footer Area -->
@@ -1152,7 +1152,7 @@ Do not output any markdown code blocks, just the JSON string.`;
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            model: "meta/llama-3.3-70b-instruct",
+            model: "gemini-3.5-flash",
             messages: [
               { role: "system", content: systemPrompt },
               { role: "user", content: studentInput }
