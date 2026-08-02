@@ -71,6 +71,32 @@
     }
 
     /* -------------------------------------------------- */
+    /* 1.5 BACK LINK WIDGET                               */
+    /* -------------------------------------------------- */
+    .back-link-wrapper {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 100;
+    }
+
+    .back-link {
+      text-decoration: none;
+      color: var(--primary-accent);
+      font-weight: bold;
+      font-size: 1rem;
+      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .back-link:hover {
+      color: var(--primary-hover);
+      text-decoration: underline;
+    }
+
+    /* -------------------------------------------------- */
     /* 2. LAYOUT & UTILITIES                              */
     /* -------------------------------------------------- */
     .app-container {
@@ -745,6 +771,9 @@
 </head>
 
 <body>
+  <div class="back-link-wrapper">
+    <a href="../index.html" class="back-link">← 返回工具箱主页</a>
+  </div>
 
   <div class="app-container">
 
