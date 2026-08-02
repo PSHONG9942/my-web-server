@@ -372,8 +372,8 @@
         // ⚠️ API 已经转移到 Google Apps Script 后端
         // ==========================================
 
-        // 把下面这个 URL 替换成你刚刚复制的 Google Apps Script Web App URL
-        const API_URL = "https://script.google.com/macros/s/AKfycbx7cUKMIoiiWJAyjRXhQpoNwtFgPHaPdrfVxJ-MT-aLdfxGRwHjsn4DP9QqljlY1I3M/exec";
+        // 统一 AI 网关
+        const API_URL = "/api/gateway";
 
         // 你的模型名称
         const MODEL_NAME = "meta/llama-3.3-70b-instruct";
@@ -481,10 +481,8 @@ Peraturan Ketat:
                     const response = await fetch(API_URL, {
                         method: "POST",
                         headers: {
-                            "Content-Type": "text/plain;charset=utf-8",
+                            "Content-Type": "application/json"
                         },
-                        // (We use text/plain to prevent Google Apps Script CORS preflight issues)
-
                         body: JSON.stringify({
                             model: MODEL_NAME,
                             messages: [
