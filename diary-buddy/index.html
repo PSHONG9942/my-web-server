@@ -937,14 +937,9 @@
     // FRONTEND CONSTANTS & STATE MANAGEMENT
     // --------------------------------------------------
     // =================================================================
-    // 🔧 CONFIGURATION: PASTE YOUR DEPLOYED CLOUDFLARE WORKER URL HERE!
-    // Example: "https://diary-buddy-backend.your-subdomain.workers.dev"
+    // 🔧 CONFIGURATION: UNIVERSAL AI GATEWAY
     // =================================================================
-    const CLOUDFLARE_WORKER_URL = "https://diary-buddy-backend.g-21543731.workers.dev/";
-
-    const API_ENDPOINT = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-      ? "http://127.0.0.1:8787/api/restructure"
-      : (CLOUDFLARE_WORKER_URL ? `${CLOUDFLARE_WORKER_URL.trim().replace(/\/$/, '')}/api/restructure` : "/api/restructure");
+    const API_ENDPOINT = "/api/gateway";
 
     let selectedLang = "English";
     let requestsLeft = 15;
@@ -1144,14 +1139,24 @@
       }, 1000);
 
       try {
+        const systemPrompt = `You are a helpful diary assistant for a primary school student.
+The student writes in ${selectedLang} (with possible emojis). You need to restructure their entry into a beautiful English diary.
+Please output ONLY a JSON object with two keys:
+- "praise": A short, encouraging praise message (in the student's language or simple English) for their effort.
+- "diary": The restructured diary entry in English.
+Do not output any markdown code blocks, just the JSON string.`;
+
         const response = await fetch(API_ENDPOINT, {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            studentInput: studentInput,
-            language: selectedLang
+            model: "meta/llama-3.3-70b-instruct",
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: studentInput }
+            ]
           })
         });
 
@@ -1159,39 +1164,23 @@
         clearInterval(loadingTimer);
         progressBar.style.width = "100%";
 
-        // 1. Process custom rate-limiting headers in any outcome (Exposed CORS headers)
-        const headerLeft = response.headers.get("X-Class-Requests-Left");
-        const headerReset = response.headers.get("X-Class-Reset-Seconds");
-
-        if (headerLeft !== null) {
-          requestsLeft = parseInt(headerLeft, 10);
-        }
-        if (headerReset !== null) {
-          resetSeconds = parseInt(headerReset, 10);
-        }
-
-        // 2. Route responses based on HTTP codes
-        if (response.status === 429) {
-          // Class Queue rate-limit hit
-          const errorData = await response.json();
-          alert(`${errorData.error}\n${errorData.message}`);
-
-          // Revert view and trigger lockout
-          goToStep(2);
-          updateTrafficMeter();
-          return;
-        }
-
         if (!response.ok) {
           throw new Error("API server responded with error code.");
         }
 
-        const data = await response.json();
+        const responseData = await response.json();
+        let parsedData = {};
+        try {
+           const content = responseData.choices[0].message.content.replace(/^```json\n?/g, '').replace(/^```\n?/g, '').replace(/```$/g, '').trim();
+           parsedData = JSON.parse(content);
+        } catch (e) {
+           parsedData = { praise: "Great job writing! 🎉🥳", diary: responseData.choices[0].message.content };
+        }
 
         // 3. Render Results in notebook layout
         document.getElementById('resultRawContent').innerText = studentInput;
-        document.getElementById('praiseBanner').innerText = data.praise || "Great job writing! 🎉🥳";
-        document.getElementById('resultRestructuredContent').innerText = data.diary || "No entry recorded.";
+        document.getElementById('praiseBanner').innerText = parsedData.praise || "Great job writing! 🎉🥳";
+        document.getElementById('resultRestructuredContent').innerText = parsedData.diary || "No entry recorded.";
 
         // Go to Step 3 (Results screen)
         goToStep(3);

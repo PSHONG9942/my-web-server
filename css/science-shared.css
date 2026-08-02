@@ -1,0 +1,155 @@
+/* ==========================================================================
+   Shared Science Game UI Styles (Adaptive Fullscreen)
+   ========================================================================== */
+
+/* 1. Global Viewport Fit */
+body {
+    height: 100vh;
+    overflow: hidden !important; /* Prevent scrolling */
+    display: flex !important;
+    flex-direction: column;
+    margin: 0;
+    padding: 10px 20px 10px 20px !important;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+/* 2. Top Navigation & Titles */
+.back-btn-corner {
+    position: absolute !important;
+    top: 15px !important;
+    left: 20px !important;
+    z-index: 999;
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.9) !important;
+    padding: 8px 16px !important;
+    border-radius: 30px !important;
+    font-weight: bold;
+    font-size: 1.1rem !important;
+    color: #0277BD !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+    transition: all 0.2s;
+    border: 2px solid #4FC3F7 !important;
+}
+
+.back-btn-corner:hover {
+    background: #E0F7FA !important;
+    transform: scale(1.05) !important;
+}
+
+h1 {
+    font-size: 2.5rem !important;
+    margin-top: 10px !important;
+    margin-bottom: 5px !important;
+}
+
+p.intro {
+    font-size: 1.2rem !important;
+    margin-bottom: 10px !important;
+    color: #01579B;
+}
+
+/* 3. Level Selector */
+.level-selector {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 10px !important;
+    flex-shrink: 0;
+}
+
+.level-btn {
+    padding: 10px 30px !important;
+    font-size: 1.2rem !important;
+    border: none !important;
+    border-radius: 20px !important;
+    cursor: pointer;
+    background: #fff !important;
+    color: #0288D1 !important;
+    box-shadow: 0 4px 0 #81D4FA !important;
+    transition: all 0.2s !important;
+    font-weight: bold !important;
+    border: 2px solid #B3E5FC !important;
+}
+
+.level-btn.active {
+    background: #039BE5 !important;
+    color: white !important;
+    box-shadow: 0 4px 0 #01579B !important;
+    border-color: #01579B !important;
+}
+
+.level-btn:hover {
+    transform: translateY(-2px);
+}
+
+.level-btn:active {
+    transform: translateY(2px);
+    box-shadow: none !important;
+}
+
+/* 4. Game Stage Container (Fills remaining height) */
+.game-stage, .content-panel, .main-container {
+    display: none;
+    flex-grow: 1 !important;
+    overflow: hidden !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-radius: 30px !important;
+    padding: 15px 30px !important;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1) !important;
+    border: 4px solid #81D4FA !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+    min-height: 0 !important; /* Fix flex overflow */
+}
+
+.game-stage.active, .content-panel.active, .main-container.active {
+    display: flex !important;
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* 5. Inner Layout Helpers for Science Pages */
+.sorting-area, .game-board, .magnets-container, .lab-bench-area {
+    flex-grow: 1 !important;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: 10px !important;
+    min-height: 0 !important; /* Allow shrinking */
+}
+
+/* Ensure inner drop zones shrink proportionally if needed */
+.drop-zone, .sort-zone, .magnet-zone, .organ-zone {
+    max-height: 100% !important;
+    /* allow it to scale down via flex */
+}
+
+.items-pool, .inventory, .toolbox {
+    flex-shrink: 0 !important;
+    min-height: 100px !important;
+    max-height: 180px !important;
+    overflow-y: auto !important;
+    margin-bottom: 0 !important;
+    padding: 10px !important;
+}
+
+/* 6. Responsive / Low Height Fallbacks */
+@media screen and (max-height: 800px) {
+    h1 { font-size: 2rem !important; }
+    p.intro { font-size: 1rem !important; margin-bottom: 5px !important; }
+    .level-btn { padding: 8px 20px !important; font-size: 1rem !important; }
+    body { padding: 5px 10px !important; }
+    .back-btn-corner { padding: 5px 12px !important; font-size: 1rem !important; top: 10px !important; left: 10px !important;}
+    .game-stage, .content-panel, .main-container { padding: 10px !important; border-width: 3px !important; border-radius: 20px !important;}
+    .zone-title { font-size: 1.3rem !important; margin-bottom: 5px !important;}
+    .item { width: 70px !important; height: 70px !important; font-size: 2rem !important;}
+}
+
+@keyframes popIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
