@@ -23,8 +23,13 @@ export async function onRequest(context) {
         let apiUrl = "";
         let apiKey = "";
 
-        // Smart routing based on model name
-        if (model.startsWith("gemini-")) {
+        // Smart routing based on model name and request type
+        if (body.type === "image" || model.includes("stabilityai") || model.includes("stable-diffusion")) {
+            apiUrl = "https://integrate.api.nvidia.com/v1/images/generations";
+            apiKey = env.NVIDIA_API_KEY;
+            // Clean up custom fields before sending to upstream
+            if (body.type) delete body.type;
+        } else if (model.startsWith("gemini-")) {
             apiUrl = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
             apiKey = env.GEMINI_API_KEY;
         } else {
