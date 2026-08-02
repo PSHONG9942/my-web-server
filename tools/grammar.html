@@ -281,7 +281,7 @@
     </div>
 
     <div style="text-align: center; margin-top: 30px; margin-bottom: -20px; color: #888; font-size: 14px;">
-      Powered by Llama 3.3 70B Instruct | API: NVIDIA NIM
+      Powered by Llama 3.3 70B Instruct | API: Universal Gateway
     </div>
 
     <footer
@@ -296,9 +296,10 @@
 
     <script>
         // ==========================================
-        // 🟢 配置区：Google Apps Script Proxy URL
-        // 请在此处粘贴你部署后的 Web App URL
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9RRGbXqrXGRIQuNMGa_o7GCuS3aXlWpLhJxlPOS6igyxqEcHiM0tmPaoQmc0ZOgA/exec";
+        // 🟢 配置区：Universal AI Gateway
+        // ==========================================
+        const API_URL = "/api/gateway";
+        const MODEL_NAME = "meta/llama-3.3-70b-instruct";
         // ==========================================
 
         async function checkGrammar() {
@@ -312,11 +313,6 @@
                 return;
             }
 
-            if (GAS_WEB_APP_URL === "" || GAS_WEB_APP_URL.includes("在此处粘贴")) {
-                alert("请先按照说明部署 Google Apps Script 并将 URL 粘贴到代码中的 GAS_WEB_APP_URL 处。");
-                return;
-            }
-
             // UI Updates
             btn.disabled = true;
             btn.innerText = "检测中...";
@@ -324,23 +320,53 @@
             resultsArea.style.display = "none";
 
             try {
-                // 我们通过 GAS 代理请求，GAS 会处理 System Prompt 和 API Key
-                const response = await fetch(GAS_WEB_APP_URL, {
+                const systemPrompt = `You are a strict English grammar checker.
+Analyze the user's input for any grammatical, spelling, or punctuation errors.
+You MUST output ONLY a valid JSON object (no markdown formatting, no code blocks) with the following exact structure:
+{
+  "has_errors": boolean,
+  "feedback": [
+    {
+      "original": "the wrong word or phrase",
+      "correction": "the corrected word or phrase",
+      "reason": "Explanation of the error (in Chinese)"
+    }
+  ],
+  "improved_version": "The complete, corrected sentence."
+}
+If there are no errors, set "has_errors" to false, leave "feedback" empty [], and put the original sentence in "improved_version".`;
+
+                const response = await fetch(API_URL, {
                     method: 'POST',
-                    body: JSON.stringify({ text: input })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: MODEL_NAME,
+                        messages: [
+                            { role: "system", content: systemPrompt },
+                            { role: "user", content: input }
+                        ]
+                    })
                 });
 
                 if (!response.ok) {
                     throw new Error(`网络响应错误: ${response.status}`);
                 }
 
-                const data = await response.json();
-
-                if (data.error) {
-                    throw new Error(`AI 服务器错误: ${data.error}`);
+                const responseData = await response.json();
+                
+                let parsedData = {};
+                try {
+                    const content = responseData.choices[0].message.content.replace(/^```json\n?/g, '').replace(/^```\n?/g, '').replace(/```$/g, '').trim();
+                    parsedData = JSON.parse(content);
+                } catch(e) {
+                    throw new Error("AI 返回的数据格式无法解析");
                 }
 
-                displayResults(data);
+                if (parsedData.error) {
+                    throw new Error(`AI 服务器错误: ${parsedData.error}`);
+                }
+
+                displayResults(parsedData);
 
             } catch (error) {
                 console.error("Error:", error);
