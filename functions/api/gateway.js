@@ -25,10 +25,16 @@ export async function onRequest(context) {
 
         // Smart routing based on model name and request type
         if (body.type === "image" || model.includes("stabilityai") || model.includes("stable-diffusion")) {
-            apiUrl = "https://integrate.api.nvidia.com/v1/images/generations";
+            apiUrl = `https://ai.api.nvidia.com/v1/genai/${model}`;
             apiKey = env.NVIDIA_API_KEY;
-            // Clean up custom fields before sending to upstream
+            
+            // Clean up and reformat for NVIDIA GenAI endpoint
             if (body.type) delete body.type;
+            if (body.model) delete body.model;
+            if (body.response_format) {
+                delete body.response_format;
+                // GenAI models often expect output_format (optional) or just return base64 by default
+            }
         } else if (model.startsWith("gemini-")) {
             apiUrl = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
             apiKey = env.GEMINI_API_KEY;
