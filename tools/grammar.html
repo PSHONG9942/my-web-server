@@ -299,7 +299,7 @@
         // 🟢 配置区：Universal AI Gateway
         // ==========================================
         const API_URL = "/api/gateway";
-        const MODEL_NAME = "meta/llama-3.3-70b-instruct";
+        const MODEL_NAME = "meta/llama-3.1-70b-instruct";
         // ==========================================
 
         async function checkGrammar() {
@@ -370,7 +370,7 @@ If there are no errors, set "has_errors" to false, leave "feedback" empty [], an
 
             } catch (error) {
                 console.error("Error:", error);
-                alert(`连接失败: ${error.message}\n请确保 GAS 已正确部署且权限设置为 "Anyone"。`);
+                alert(`连接失败: ${error.message}\n网络超时或 AI 服务器未响应，请稍后再试。`);
             } finally {
                 btn.disabled = false;
                 btn.innerText = "开始检测";
