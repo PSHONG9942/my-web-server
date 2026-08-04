@@ -119,9 +119,18 @@
             cursor: not-allowed;
         }
 
-        .btn-generate { background-color: #f39c12; }
-        .btn-random { background-color: #9b59b6; }
-        .btn-check { background-color: var(--primary-color); margin-top: 20px;}
+        .btn-generate {
+            background-color: #f39c12;
+        }
+
+        .btn-random {
+            background-color: #9b59b6;
+        }
+
+        .btn-check {
+            background-color: var(--primary-color);
+            margin-top: 20px;
+        }
 
         .loading-overlay {
             display: none;
@@ -148,7 +157,7 @@
             max-width: 500px;
             height: auto;
             border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 30px;
             background-color: #eee;
             min-height: 200px;
@@ -223,11 +232,21 @@
         }
 
         @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
         }
-        
+
         .confetti-canvas {
             position: fixed;
             top: 0;
@@ -244,7 +263,7 @@
     <div class="back-link-wrapper">
         <a href="../index.html" class="back-link">← 返回工具箱主页</a>
     </div>
-    
+
     <canvas id="confetti" class="confetti-canvas"></canvas>
 
     <div class="main-wrapper">
@@ -263,7 +282,7 @@
                 <span style="color:#888;">或者</span>
             </div>
             <button class="btn-random" id="randomBtn" onclick="fetchRandomGame()">🎲 从题库随机抽取一题</button>
-            
+
             <div class="loading-overlay" id="loadingArea">
                 <p>正在呼叫 AI 大脑... 🧠 (可能需要10-20秒生成文字和图片)</p>
             </div>
@@ -271,7 +290,7 @@
 
         <div class="game-panel" id="gamePanel">
             <img id="gameImage" class="game-image" src="" alt="AI Generated Illustration">
-            
+
             <div id="sentenceArea" class="sentence-area">
                 <!-- Sentence will be injected here -->
             </div>
@@ -279,14 +298,16 @@
             <div id="wordBank" class="word-bank">
                 <!-- Word tiles will be injected here -->
             </div>
-            
+
             <button class="btn-check" id="checkBtn" onclick="checkAnswers()" style="display: none;">检查答案</button>
         </div>
     </div>
 
     <!-- Audio Effects -->
-    <audio id="snapSound" src="data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU..." preload="auto"></audio>
-    <audio id="successSound" src="data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU..." preload="auto"></audio>
+    <audio id="snapSound" src="data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU..."
+        preload="auto"></audio>
+    <audio id="successSound" src="data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU..."
+        preload="auto"></audio>
 
     <!-- Simple Confetti Script -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -294,10 +315,10 @@
     <script>
         const API_URL = "/api/gateway";
         const DB_URL = "/api/cloze-db";
-        const LLM_MODEL = "gemini-1.5-flash";
+        const LLM_MODEL = "gemini-3.5-flash";
         // NVIDIA NIM Image Model
-        const IMG_MODEL = "stabilityai/stable-diffusion-3-medium"; 
-        
+        const IMG_MODEL = "stabilityai/stable-diffusion-3-medium";
+
         let currentGameData = null;
 
         // --- 1. 生成新游戏 (AI Pipeline) ---
@@ -309,7 +330,7 @@
             const randBtn = document.getElementById('randomBtn');
             const loading = document.getElementById('loadingArea');
             const gamePanel = document.getElementById('gamePanel');
-            
+
             genBtn.disabled = true;
             randBtn.disabled = true;
             loading.style.display = 'block';
@@ -321,25 +342,25 @@
                 Pick 1 or 2 nouns or simple verbs to be blanks. 
                 Return ONLY a JSON object exactly like this: {"sentence": "the complete sentence", "blanks": ["word1"]}. 
                 Do not include markdown or codeblocks.`;
-                
+
                 const textRes = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ model: LLM_MODEL, messages: [{ role: "user", content: prompt }] })
                 });
-                
-                if(!textRes.ok) {
+
+                if (!textRes.ok) {
                     let errMsg = "文本生成失败";
                     try {
                         const errData = await textRes.json();
                         errMsg += ": " + (errData.error || errData.message || JSON.stringify(errData));
-                    } catch(e) {
+                    } catch (e) {
                         errMsg += " (Status: " + textRes.status + ")";
                     }
                     throw new Error(errMsg);
                 }
                 const textData = await textRes.json();
-                
+
                 let content = textData.choices[0].message.content;
                 content = content.replace(/^```json\n?/g, '').replace(/```$/g, '').trim();
                 const parsedText = JSON.parse(content);
@@ -348,15 +369,15 @@
                 const imgRes = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        type: "image", 
-                        model: IMG_MODEL, 
+                    body: JSON.stringify({
+                        type: "image",
+                        model: IMG_MODEL,
                         prompt: `A cute, colorful cartoon illustration for children: ${parsedText.sentence}`,
                         response_format: "b64_json"
                     })
                 });
-                
-                if(!imgRes.ok) throw new Error("图片生成失败 (NIM)");
+
+                if (!imgRes.ok) throw new Error("图片生成失败 (NIM)");
                 const imgData = await imgRes.json();
                 const base64Image = "data:image/jpeg;base64," + imgData.data[0].b64_json;
 
@@ -367,13 +388,13 @@
                     blanks: parsedText.blanks,
                     image_b64: base64Image
                 };
-                
+
                 const saveRes = await fetch(DB_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(dbPayload)
                 });
-                
+
                 // Start Game
                 startGame(dbPayload);
 
@@ -392,19 +413,19 @@
             const randBtn = document.getElementById('randomBtn');
             randBtn.disabled = true;
             randBtn.innerText = "🎲 抽取中...";
-            
+
             try {
                 const res = await fetch(DB_URL);
                 if (!res.ok) throw new Error("无法获取题库，可能是题库为空");
-                
+
                 const data = await res.json();
                 if (data.error) throw new Error(data.error);
-                
+
                 // Parse blanks if it's stored as JSON string
                 if (typeof data.blanks === 'string') {
                     data.blanks = JSON.parse(data.blanks);
                 }
-                
+
                 startGame(data);
             } catch (err) {
                 alert(err.message);
@@ -420,23 +441,23 @@
             document.getElementById('gamePanel').style.display = 'block';
             document.getElementById('checkBtn').style.display = 'inline-block';
             document.getElementById('gameImage').src = data.image_b64 || '../images/placeholder.png';
-            
+
             const sentenceArea = document.getElementById('sentenceArea');
             const wordBank = document.getElementById('wordBank');
             sentenceArea.innerHTML = '';
             wordBank.innerHTML = '';
-            
+
             let displaySentence = data.sentence;
-            
+
             // Create blanks in sentence
             data.blanks.forEach((word, index) => {
                 // Use regex to replace the exact word (case-insensitive, whole word)
                 const regex = new RegExp(`\\b${word}\\b`, 'gi');
                 displaySentence = displaySentence.replace(regex, `<div class="drop-zone" data-target="${word.toLowerCase()}" ondragover="allowDrop(event)" ondrop="drop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)"></div>`);
             });
-            
+
             sentenceArea.innerHTML = displaySentence;
-            
+
             // Create draggable tiles (shuffled)
             const shuffledBlanks = [...data.blanks].sort(() => Math.random() - 0.5);
             shuffledBlanks.forEach((word, index) => {
@@ -446,11 +467,11 @@
                 tile.id = 'word-' + index;
                 tile.innerText = word;
                 tile.dataset.word = word.toLowerCase();
-                
+
                 tile.ondragstart = drag;
                 wordBank.appendChild(tile);
             });
-            
+
             // Allow word bank to receive words back
             wordBank.ondragover = allowDrop;
             wordBank.ondrop = dropToBank;
@@ -462,13 +483,13 @@
         }
 
         function dragEnter(ev) {
-            if(ev.target.classList.contains('drop-zone')) {
+            if (ev.target.classList.contains('drop-zone')) {
                 ev.target.classList.add('hover');
             }
         }
 
         function dragLeave(ev) {
-            if(ev.target.classList.contains('drop-zone')) {
+            if (ev.target.classList.contains('drop-zone')) {
                 ev.target.classList.remove('hover');
             }
         }
@@ -480,27 +501,27 @@
         function drop(ev) {
             ev.preventDefault();
             ev.target.classList.remove('hover');
-            
-            if(!ev.target.classList.contains('drop-zone')) return;
-            
+
+            if (!ev.target.classList.contains('drop-zone')) return;
+
             // If dropzone already has a word, return it to bank
             if (ev.target.hasChildNodes()) {
                 const existingWord = ev.target.firstChild;
                 document.getElementById('wordBank').appendChild(existingWord);
             }
-            
+
             var data = ev.dataTransfer.getData("text");
             ev.target.appendChild(document.getElementById(data));
-            
+
             // Play snap sound (if we had a real one, skipping for now to avoid errors)
             // document.getElementById('snapSound').play().catch(e => {});
         }
-        
+
         function dropToBank(ev) {
             ev.preventDefault();
             var data = ev.dataTransfer.getData("text");
             if (ev.target.id === 'wordBank' || ev.target.classList.contains('word-tile')) {
-                 document.getElementById('wordBank').appendChild(document.getElementById(data));
+                document.getElementById('wordBank').appendChild(document.getElementById(data));
             }
         }
 
@@ -508,16 +529,16 @@
         function checkAnswers() {
             const dropZones = document.querySelectorAll('.drop-zone');
             let allCorrect = true;
-            
+
             dropZones.forEach(zone => {
                 zone.classList.remove('correct', 'incorrect');
-                
+
                 if (!zone.hasChildNodes()) {
                     zone.classList.add('incorrect');
                     allCorrect = false;
                     return;
                 }
-                
+
                 const tile = zone.firstChild;
                 if (tile.dataset.word === zone.dataset.target) {
                     zone.classList.add('correct');
@@ -531,7 +552,7 @@
                     }, 800);
                 }
             });
-            
+
             if (allCorrect) {
                 confetti({
                     particleCount: 150,
@@ -542,4 +563,5 @@
         }
     </script>
 </body>
+
 </html>
