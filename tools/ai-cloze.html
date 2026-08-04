@@ -388,7 +388,21 @@
                     throw new Error(errMsg);
                 }
                 const imgData = await imgRes.json();
-                const base64Image = "data:image/jpeg;base64," + imgData.data[0].b64_json;
+                
+                let b64 = "";
+                if (imgData.data && imgData.data[0] && imgData.data[0].b64_json) {
+                    b64 = imgData.data[0].b64_json;
+                } else if (imgData.artifacts && imgData.artifacts[0] && imgData.artifacts[0].base64) {
+                    b64 = imgData.artifacts[0].base64;
+                } else if (imgData.image) {
+                    b64 = imgData.image;
+                } else if (imgData.b64_json) {
+                    b64 = imgData.b64_json;
+                } else {
+                    throw new Error("图片返回格式未知: " + JSON.stringify(imgData));
+                }
+                
+                const base64Image = "data:image/jpeg;base64," + b64;
 
                 // Step 3: Save to D1 Database
                 const dbPayload = {
