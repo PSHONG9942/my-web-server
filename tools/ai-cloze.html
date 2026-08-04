@@ -315,8 +315,8 @@
     <script>
         const API_URL = "/api/gateway";
         const DB_URL = "/api/cloze-db";
-        const LLM_MODEL = "gemini-3.5-flash";
-        // 我们不再依赖 NVIDIA NIM 生成图片，改为使用完全免费的 Pollinations AI 节点
+        const LLM_MODEL = "google/gemma-4"; // 也可以换成 "deepseek-ai/deepseek-v4" 等
+        const IMG_MODEL = "black-forest-labs/flux.1-schnell"; // 使用 NIM 里的 FLUX 模型
 
         let currentGameData = null;
 
@@ -364,22 +364,43 @@
                 content = content.replace(/^```json\n?/g, '').replace(/```$/g, '').trim();
                 const parsedText = JSON.parse(content);
 
-                // Step 2: Generate Image using Pollinations AI (100% Free, No API Key needed)
-                const imagePrompt = `A cute colorful cartoon illustration for children: ${parsedText.sentence}. clean background, no text.`;
-                const pollUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=512&height=512&nologo=true`;
-                
-                const imgRes = await fetch(pollUrl);
-                if (!imgRes.ok) {
-                    throw new Error("免费画图接口超时或无响应，请重试");
-                }
-                
-                // Convert the received image blob to Base64 for storing in D1 Database
-                const imageBlob = await imgRes.blob();
-                const base64Image = await new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => resolve(reader.result);
-                    reader.readAsDataURL(imageBlob);
+                // Step 2: Generate Image using NIM (FLUX)
+                const imgRes = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: "image",
+                        model: IMG_MODEL,
+                        prompt: `A cute, colorful cartoon illustration for children: ${parsedText.sentence}`,
+                    })
                 });
+
+                if (!imgRes.ok) {
+                    let errMsg = "图片生成失败 (NIM)";
+                    try {
+                        const errData = await imgRes.json();
+                        errMsg += ": " + (errData.error || errData.message || errData.detail || JSON.stringify(errData));
+                    } catch (e) {
+                        errMsg += " (Status: " + imgRes.status + ")";
+                    }
+                    throw new Error(errMsg);
+                }
+                const imgData = await imgRes.json();
+
+                let b64 = "";
+                if (imgData.data && imgData.data[0] && imgData.data[0].b64_json) {
+                    b64 = imgData.data[0].b64_json;
+                } else if (imgData.artifacts && imgData.artifacts[0] && imgData.artifacts[0].base64) {
+                    b64 = imgData.artifacts[0].base64;
+                } else if (imgData.image) {
+                    b64 = imgData.image;
+                } else if (imgData.b64_json) {
+                    b64 = imgData.b64_json;
+                } else {
+                    throw new Error("图片返回格式未知: " + JSON.stringify(imgData));
+                }
+
+                const base64Image = "data:image/jpeg;base64," + b64;
 
                 // Step 3: Save to D1 Database
                 const dbPayload = {
