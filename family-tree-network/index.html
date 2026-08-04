@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家庭关系网 - 探索你的家族树</title>
+    <!-- 引入 3D 渲染库 -->
+    <script src="https://unpkg.com/three@0.147.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/three-spritetext@1.8.1/dist/three-spritetext.min.js"></script>
+    <script src="https://unpkg.com/3d-force-graph@1.73.3/dist/3d-force-graph.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 欢迎界面 -->
+    <div id="welcome-screen" class="screen">
+        <div class="glass-panel">
+            <a href="../index.html" style="display: block; text-align: left; margin-bottom: 15px; color: #94a3b8; text-decoration: none; font-size: 0.9rem; transition: color 0.3s;" onmouseover="this.style.color='#f8fafc'" onmouseout="this.style.color='#94a3b8'">← 返回主页</a>
+            <h1>构建你的家庭关系网</h1>
+            <p>输入你的名字，开始探索奇妙的亲戚称呼</p>
+            
+            <!-- 新建图谱界面 -->
+            <div id="new-tree-form">
+                <input type="text" id="user-name-input" placeholder="你的名字" autocomplete="off" />
+                <button id="start-btn" class="btn-primary" style="width: 100%; margin-top: 10px;">开始探索</button>
+            </div>
+
+            <!-- 读取存档界面 (默认隐藏) -->
+            <div id="load-tree-form" class="hidden">
+                <p class="subtitle-text" style="margin-bottom: 20px; color: #fbbf24;">检测到本地存在您上次构建的家族树存档</p>
+                <button id="continue-btn" class="btn-primary" style="width: 100%; margin-bottom: 10px;">🚀 继续上次编辑</button>
+                <button id="restart-btn" class="btn-danger" style="width: 100%;">🗑️ 删除存档并重新开始</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主界面 -->
+    <div id="main-screen" class="screen hidden">
+        <header>
+            <a href="../index.html" style="display: inline-block; margin-bottom: 5px; color: #94a3b8; text-decoration: none; font-size: 0.9rem; transition: color 0.3s;" onmouseover="this.style.color='#f8fafc'" onmouseout="this.style.color='#94a3b8'">← 返回主页</a>
+            <h2>家庭关系网</h2>
+            <p>点击家人头像，添加更多亲戚</p>
+        </header>
+        
+        <!-- 关系网容器 -->
+        <div id="network-container"></div>
+
+        <!-- 悬浮工具栏或提示 -->
+        <div class="tooltip" id="node-tooltip"></div>
+
+        <!-- 亲戚查询与定位面板 (计算器模式) -->
+        <div id="search-panel" class="glass-panel">
+            <h3 id="search-panel-toggle" style="font-size: 1.2rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin-bottom: 0;">
+                <span>亲戚计算器</span>
+                <span id="search-toggle-icon">➕</span>
+            </h3>
+            
+            <div id="search-panel-content" class="hidden" style="margin-top: 15px;">
+                <!-- 显示屏 -->
+            <div class="calc-screen" id="calc-screen">我</div>
+            
+            <!-- 键盘区 -->
+            <div class="calc-grid">
+                <button class="calc-btn" data-val="爸爸">父</button>
+                <button class="calc-btn" data-val="妈妈">母</button>
+                <button class="calc-btn" data-val="丈夫">夫</button>
+                <button class="calc-btn" data-val="妻子">妻</button>
+                
+                <button class="calc-btn" data-val="哥哥">兄</button>
+                <button class="calc-btn" data-val="弟弟">弟</button>
+                <button class="calc-btn" data-val="姐姐">姐</button>
+                <button class="calc-btn" data-val="妹妹">妹</button>
+                
+                <button class="calc-btn" data-val="儿子">子</button>
+                <button class="calc-btn" data-val="女儿">女</button>
+                <button class="calc-btn btn-action" id="calc-backspace">退格</button>
+                <button class="calc-btn btn-action" id="calc-clear">清空</button>
+            </div>
+
+            <div id="search-result-container" style="margin-top: 15px; text-align: left; min-height: 80px;">
+                <p class="subtitle-text" style="margin-bottom: 5px;">标准称呼：</p>
+                <p id="search-result-title" style="font-size: 1.1rem; color: #fbbf24; font-weight: bold; margin-bottom: 10px;">-</p>
+                <button id="locate-kinship-btn" class="btn-primary hidden" style="width: 100%; font-size: 0.9rem;">📌 在星系中定位</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加亲戚的模态框 -->
+    <div id="add-modal" class="modal hidden">
+        <div class="modal-content glass-panel">
+            <h3>添加亲戚</h3>
+            <p id="modal-subtitle">正在为 <span id="target-node-name"></span> 添加亲戚</p>
+            
+            <div class="form-group">
+                <label for="relation-type">关系类型</label>
+                <select id="relation-type">
+                    <option value="father">父亲</option>
+                    <option value="mother">母亲</option>
+                    <option value="brother">兄弟 (哥哥/弟弟)</option>
+                    <option value="sister">姐妹 (姐姐/妹妹)</option>
+                    <option value="spouse">配偶</option>
+                    <option value="child">孩子 (儿子/女儿)</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="gender-group">
+                <label>性别</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="gender" value="male" checked> 男</label>
+                    <label><input type="radio" name="gender" value="female"> 女</label>
+                </div>
+            </div>
+            
+            <div class="form-group" id="age-relative-group">
+                <label>年龄比 <span id="age-relative-name"></span> 大还是小？</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="age-relative" value="older" checked> 年长 (大)</label>
+                    <label><input type="radio" name="age-relative" value="younger"> 年幼 (小)</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="relative-name">名字 (选填)</label>
+                <input type="text" id="relative-name" placeholder="输入名字" />
+            </div>
+
+            <div class="modal-actions">
+                <button id="cancel-add-btn" class="btn-secondary">取消</button>
+                <button id="confirm-add-btn" class="btn-primary">添加</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 节点操作菜单 -->
+    <div id="action-menu" class="modal hidden">
+        <div class="modal-content glass-panel action-menu-panel">
+            <h3 id="action-node-title">人物操作</h3>
+            <p id="action-node-subtitle" class="subtitle-text">选择要执行的操作</p>
+            <div class="action-buttons">
+                <button id="btn-open-add" class="btn-primary">➕ 添加亲戚</button>
+                <button id="btn-open-edit" class="btn-primary">✏️ 编辑姓名</button>
+                <button id="btn-delete-node" class="btn-danger">🗑️ 删除此人</button>
+            </div>
+            <button id="cancel-action-btn" class="btn-secondary mt-15">取消</button>
+        </div>
+    </div>
+
+    <!-- 编辑名字模态框 -->
+    <div id="edit-modal" class="modal hidden">
+        <div class="modal-content glass-panel">
+            <h3>编辑姓名</h3>
+            <p class="subtitle-text">请输入新的真实姓名</p>
+            <div class="form-group">
+                <label for="edit-name-input">新姓名</label>
+                <input type="text" id="edit-name-input" placeholder="输入姓名" />
+            </div>
+            <div class="modal-actions">
+                <button id="cancel-edit-btn" class="btn-secondary">取消</button>
+                <button id="confirm-edit-btn" class="btn-primary">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入强大的开源亲戚称呼计算库 -->
+    <script src="https://cdn.jsdelivr.net/npm/relationship.js@latest/dist/relationship.min.js"></script>
+    <script src="logic.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
