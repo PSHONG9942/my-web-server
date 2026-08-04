@@ -377,7 +377,16 @@
                     })
                 });
 
-                if (!imgRes.ok) throw new Error("图片生成失败 (NIM)");
+                if (!imgRes.ok) {
+                    let errMsg = "图片生成失败 (NIM)";
+                    try {
+                        const errData = await imgRes.json();
+                        errMsg += ": " + (errData.error || errData.message || errData.detail || JSON.stringify(errData));
+                    } catch(e) {
+                        errMsg += " (Status: " + imgRes.status + ")";
+                    }
+                    throw new Error(errMsg);
+                }
                 const imgData = await imgRes.json();
                 const base64Image = "data:image/jpeg;base64," + imgData.data[0].b64_json;
 
