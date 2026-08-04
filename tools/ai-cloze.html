@@ -315,7 +315,7 @@
     <script>
         const API_URL = "/api/gateway";
         const DB_URL = "/api/cloze-db";
-        const LLM_MODEL = "google/gemma-4"; // 继续使用你喜欢的 Gemma 4 文本模型
+        const LLM_MODEL = "google/gemma-4-31b-it"; // 继续使用你喜欢的 Gemma 4 文本模型
         // 我们不再依赖 NVIDIA NIM 生成图片，改为使用免费无限制的 Pollinations AI 节点
         let currentGameData = null;
 
@@ -367,12 +367,12 @@
                 // 优化了 Prompt，专门用于减少 AI 产生文字和幻觉的几率
                 const imagePrompt = `A very simple cute flat vector illustration for preschool kids, white background, single subject, absolutely NO text, NO letters, NO words, depicting: ${parsedText.sentence}`;
                 const pollUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=512&height=512&nologo=true`;
-                
+
                 const imgRes = await fetch(pollUrl);
                 if (!imgRes.ok) {
                     throw new Error("免费画图接口超时或无响应，请重试");
                 }
-                
+
                 // Convert the received image blob to Base64 for storing in D1 Database
                 const imageBlob = await imgRes.blob();
                 const base64Image = await new Promise((resolve) => {
