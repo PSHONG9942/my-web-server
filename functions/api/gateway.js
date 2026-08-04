@@ -24,7 +24,7 @@ export async function onRequest(context) {
         let apiKey = "";
 
         // Smart routing based on model name and request type
-        if (body.type === "image" || model.includes("stabilityai") || model.includes("stable-diffusion")) {
+        if (body.type === "image" || model.includes("stabilityai") || model.includes("stable-diffusion") || model.includes("flux") || model.includes("black-forest-labs")) {
             apiUrl = `https://ai.api.nvidia.com/v1/genai/${model}`;
             apiKey = env.NVIDIA_API_KEY;
             
