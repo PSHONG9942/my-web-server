@@ -615,6 +615,43 @@
             `;
 
             document.getElementById('board-render').innerHTML = html;
+            updateActiveRowUI();
+        }
+
+        function updateActiveRowUI() {
+            // Determine active rows based on empty total score fields
+            const getActiveRowIdx = (pId) => {
+                for (let i = 0; i < 10; i++) {
+                    const totInput = document.getElementById(`${pId}-tot-${i}`);
+                    if (totInput && totInput.value === "") {
+                        return i;
+                    }
+                }
+                return 9; // Fallback to last row if all filled
+            };
+
+            const activeRowA = getActiveRowIdx('a');
+            const activeRowB = getActiveRowIdx('b');
+
+            // Apply classes
+            ['a', 'b'].forEach(pId => {
+                const sideEl = document.getElementById(`side-${pId}`);
+                if (!sideEl) return;
+                
+                const activeIdx = pId === 'a' ? activeRowA : activeRowB;
+                const rows = sideEl.querySelectorAll('.board-row');
+                
+                rows.forEach((row, i) => {
+                    // Only highlight the row for the active player
+                    if (i === activeIdx && gameState.activePlayer.toLowerCase() === pId) {
+                        row.classList.add('active-row-highlight');
+                        row.classList.remove('inactive-row');
+                    } else {
+                        row.classList.remove('active-row-highlight');
+                        row.classList.add('inactive-row');
+                    }
+                });
+            });
         }
 
         /* --- Tile Controls and Game Logic --- */
@@ -691,6 +728,7 @@
         }
 
         function drawTiles(type) {
+            if (gameState.timerActive) return;
             // Drawing is always allowed if slots are empty.
             // Swapping is the only action that locks the turn.
             if (gameState.hasSwapped) {
@@ -741,6 +779,7 @@
 
         // New Swap Tiles logic
         function swapTiles(type) {
+            if (gameState.timerActive) return;
             if (gameState.hasSwapped) {
                 alert(i18n[gameState.language].msg.alreadySwapped);
                 return;
@@ -977,6 +1016,15 @@
         }
 
         function endTurn(isSkipSwap = false, forceEval = false) {
+        function drawTiles(type) {
+            if (gameState.timerActive) return;
+            // Drawing is always allowed if slots are empty.
+            // Swapping is the only action that locks the turn.
+            if (gameState.hasSwapped) {
+                alert(i18n[gameState.language].msg.alreadySwapped);
+                return;
+            }
+
             const sideId = gameState.activePlayer === 'A' ? 'side-a' : 'side-b';
             const sideEl = document.getElementById(sideId);
             if (!sideEl) return;
@@ -1268,6 +1316,9 @@
                 document.getElementById('turn-timer').style.display = 'none';
                 document.getElementById('turn-timer').innerText = '01:00';
             }
+
+            // Update row UI highlights
+            updateActiveRowUI();
 
             // Handle CPU Turn in PvE
             if (gameState.gameMode === 'pve' && gameState.activePlayer === 'B') {
@@ -1596,10 +1647,9 @@
         function getHighestScorePlay(rackNumbers, rackSymbols) {
             let op = rackSymbols.length > 0 ? rackSymbols[0] : null;
 
-            let rackCounts = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 7:0, 8:0, 69:0};
+            let rackCounts = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0};
             for(let n of rackNumbers) {
-                if(n == 6 || n == 9) rackCounts[69]++;
-                else rackCounts[n] = (rackCounts[n] || 0) + 1;
+                rackCounts[n] = (rackCounts[n] || 0) + 1;
             }
 
             let possibleStrs = [];
@@ -1618,10 +1668,9 @@
                 let reqStr = AStr + (BStr || "") + CStr;
                 if (reqStr.length > rackNumbers.length) return;
 
-                let reqCounts = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 7:0, 8:0, 69:0};
+                let reqCounts = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0};
                 for(let char of reqStr) {
-                    if (char === '6' || char === '9') reqCounts[69]++;
-                    else reqCounts[char]++;
+                    reqCounts[char]++;
                 }
                 
                 for(let k in reqCounts) {
@@ -1736,3 +1785,4 @@
                 grandTotEl.value = finalTotal;
             }
         }
+}
