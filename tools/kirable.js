@@ -2,10 +2,6 @@
         const gameState = {
             language: 'en',
             players: 2,
-// Global Game State
-        const gameState = {
-            language: 'en',
-            players: 2,
             gameMode: 'pvp', // 'pvp', 'solo', or 'pve'
             pAName: '',
             pBName: '',
