@@ -643,17 +643,9 @@
                 tile.style.pointerEvents = 'none'; // Prevents clicking and dragging
             }
 
-            // 6 and 9 flip mechanics
-            if (value === 6 || value === 9) {
-                tile.title = "Double-click to flip between 6 and 9";
-                if (gameState.gameMode !== 'pve' || gameState.activePlayer !== 'B') {
-                    tile.style.textDecoration = "underline";
-                    tile.ondblclick = () => {
-                        const newVal = tile.dataset.value == 6 ? 9 : 6;
-                        tile.dataset.value = newVal;
-                        tile.innerText = newVal;
-                    };
-                }
+                        // 6 and 9 visual distinction
+            if (value === 6) {
+                tile.style.textDecoration = "underline";
             }
 
             // Drag Events natively attached to tile
