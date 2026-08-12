@@ -17,9 +17,7 @@
             timerSeconds: 60,
             midGameRecycleDone: false, // Tracks if mid-game tile recycle has occurred
             tutorialCompleted: false, // Tutorial State
-            tutorialStep: 0,
-            hintsUsedA: 0,
-            hintsUsedB: 0,
+            tutorialStep: 0
         };
 
         // Standard Kirable distribution
@@ -470,10 +468,7 @@
                                     <td><input type="text" id="a-bin-${i}" readonly style="text-align: center;"></td>
                                     <td><input type="number" id="a-tot-${i}" readonly></td>
                                 </tr>`).join('')}
-                                <tr>
-                                    <td colspan="5" style="text-align: right; padding-right: 1rem; color: #ef4444;">Hint Penalty (-10/ea):</td>
-                                    <td style="padding: 0; height: 30px;"><input type="text" id="a-hint-pen" style="color: #ef4444; font-weight: bold; font-size: 1rem;" readonly></td>
-                                </tr>
+
                                 <tr>
                                     <td colspan="5" style="text-align: right; padding-right: 1rem; font-weight: bold;">
                                         ${data.grandTotal}
@@ -508,10 +503,7 @@
                                     <td><input type="text" id="b-bin-${i}" readonly style="text-align: center;"></td>
                                     <td><input type="number" id="b-tot-${i}" readonly></td>
                                 </tr>`).join('')}
-                                <tr>
-                                    <td colspan="5" style="text-align: right; padding-right: 1rem; color: #ef4444;">Hint Penalty (-10/ea):</td>
-                                    <td style="padding: 0; height: 30px;"><input type="text" id="b-hint-pen" style="color: #ef4444; font-weight: bold; font-size: 1rem;" readonly></td>
-                                </tr>
+
                                 <tr>
                                     <td colspan="5" style="text-align: right; padding-right: 1rem; font-weight: bold;">
                                         ${data.grandTotal}
@@ -603,9 +595,6 @@
                         </div>
 
                         <div class="controls-row" style="margin-top:auto;">
-                            <button class="btn-action" id="btn-hint" onclick="showHint()" style="background: #8b5cf6; border-color: #7c3aed; color: white; margin-bottom: 0.5rem; display: none;">
-                                💡 Get Hint
-                            </button>
                         </div>
                     </div>
 
@@ -627,7 +616,7 @@
                         return i;
                     }
                 }
-                return 9; // Fallback to last row if all filled
+                return -1; // Fallback if all filled
             };
 
             const activeRowA = getActiveRowIdx('a');
@@ -1326,6 +1315,48 @@
                 document.getElementById('turn-timer').innerText = '01:00';
             }
 
+            // Check for Round End
+            let roundComplete = false;
+            if (gameState.gameMode === 'solo') {
+                const aLast = document.getElementById('a-tot-9');
+                if (aLast && aLast.value !== "") roundComplete = true;
+            } else {
+                const bLast = document.getElementById('b-tot-9');
+                if (bLast && bLast.value !== "") roundComplete = true;
+            }
+
+            if (roundComplete) {
+                setTimeout(() => {
+                    if (gameState.viewingRound === 3) {
+                        alert(gameState.language === 'cn' ? "游戏结束！" : (gameState.language === 'my' ? "Tamat Permainan!" : "Game Over!"));
+                    } else if (gameState.viewingRound === gameState.unlockedRounds) {
+                        gameState.unlockedRounds++;
+                        alert(gameState.language === 'cn' ? `第 ${gameState.viewingRound} 回合结束！进入第 ${gameState.unlockedRounds} 回合。` :
+                              gameState.language === 'my' ? `Pusingan ${gameState.viewingRound} Tamat! Teruskan ke Pusingan ${gameState.unlockedRounds}.` :
+                              `Round ${gameState.viewingRound} Complete! Proceeding to Round ${gameState.unlockedRounds}.`);
+                        
+                        selectRound(gameState.unlockedRounds);
+                        initBags();
+                        renderGameBoard();
+                        gameState.activePlayer = 'A';
+                        
+                        if (gameState.gameMode !== 'pve') {
+                            document.getElementById('btn-start-timer').style.display = 'inline-block';
+                            document.getElementById('turn-timer').style.display = 'none';
+                            document.getElementById('turn-timer').innerText = '01:00';
+                        }
+                        
+                        const displayEl = document.getElementById('active-player-display');
+                        displayEl.innerHTML = `<span> </span> <span>${gameState.pAName || 'Player A'}</span>`;
+                        displayEl.style.color = 'var(--primary)';
+                    }
+                }, 1500); // Wait a bit so they see the final score before it resets
+                
+                // Update UI one last time to clear highlights before reset
+                updateActiveRowUI();
+                return; // Stop here, no CPU turn or further UI updates in this flow
+            }
+
             // Update row UI highlights
             updateActiveRowUI();
 
@@ -1570,87 +1601,6 @@
             applyTranslations(gameState.language);
         });
 
-        // --- Hint System (Easiest Play) ---
-        function getKirableHint(rackNumbers, rackSymbols) {
-            let op = rackSymbols.length > 0 ? rackSymbols[0] : null;
-
-            let rackCounts = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 7:0, 8:0, 69:0};
-            for(let n of rackNumbers) {
-                if(n == 6 || n == 9) rackCounts[69]++;
-                else rackCounts[n] = (rackCounts[n] || 0) + 1;
-            }
-
-            let possibleStrs = [];
-            for(let i=0; i<10; i++) possibleStrs.push(i.toString());
-            for(let i=0; i<100; i++) possibleStrs.push(i.toString().padStart(2, '0'));
-            for(let i=0; i<1000; i++) possibleStrs.push(i.toString().padStart(3, '0'));
-
-            let bestPlay = null;
-            let bestCost = Infinity;
-
-            function evaluateCandidate(AStr, BStr, CStr, scoreBase) {
-                let lLen = op ? (AStr.length + 1 + BStr.length) : AStr.length;
-                let rLen = CStr.length;
-                if (!((lLen <= 5 && rLen <= 3) || (rLen <= 5 && lLen <= 3))) return;
-
-                let reqStr = AStr + (BStr || "") + CStr;
-                if (reqStr.length > rackNumbers.length) return;
-
-                let reqCounts = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 7:0, 8:0, 69:0};
-                for(let char of reqStr) {
-                    if (char === '6' || char === '9') reqCounts[69]++;
-                    else reqCounts[char]++;
-                }
-                
-                for(let k in reqCounts) {
-                    if (reqCounts[k] > rackCounts[k]) return;
-                }
-
-                let tilesUsed = reqStr.length + (op ? 1 : 0);
-                
-                let cost = scoreBase + (tilesUsed * 0.01); 
-
-                if (cost < bestCost) {
-                    bestCost = cost;
-                    bestPlay = {
-                        equation: op ? `${parseInt(AStr,10)} ${op} ${parseInt(BStr,10)} = ${parseInt(CStr,10)}` : `${parseInt(AStr,10)} = ${parseInt(CStr,10)}`,
-                        score: scoreBase,
-                        tilesUsed: tilesUsed
-                    };
-                }
-            }
-
-            if (op) {
-                for (let AStr of possibleStrs) {
-                    for (let BStr of possibleStrs) {
-                        let A = parseInt(AStr, 10);
-                        let B = parseInt(BStr, 10);
-                        let C = null;
-
-                        if (op === '+') C = A + B;
-                        else if (op === '-') C = A - B;
-                        else if (op === 'x') C = A * B;
-                        else if (op === '÷') {
-                            if (B !== 0 && A % B === 0) C = A / B;
-                        }
-
-                        if (C !== null && C >= 0 && Number.isInteger(C) && C <= 999) {
-                            let baseCStr = C.toString();
-                            evaluateCandidate(AStr, BStr, baseCStr, C);
-                        }
-                    }
-                }
-            } else {
-                for (let AStr of possibleStrs) {
-                    let A = parseInt(AStr, 10);
-                    let C = A;
-                    let baseCStr = C.toString();
-                    evaluateCandidate(AStr, null, baseCStr, C);
-                }
-            }
-
-            return bestPlay;
-        }
 
         // --- Post-Turn Analysis (Highest Score) ---
         function getHighestScorePlay(rackNumbers, rackSymbols) {
@@ -1737,40 +1687,6 @@
             return bestPlay;
         }
 
-        function showHint() {
-            const rackId = gameState.activePlayer === 'A' ? 'rack-pa' : 'rack-pb';
-            const rackEl = document.getElementById(rackId);
-            
-            let numTiles = Array.from(rackEl.querySelectorAll('.number-slot .tile'));
-            let symTiles = Array.from(rackEl.querySelectorAll('.symbol-slot .tile'));
-
-            let rackNumbers = numTiles.map(t => t.dataset.value);
-            let rackSymbols = symTiles.map(t => t.dataset.value);
-
-            let hint = getKirableHint(rackNumbers, rackSymbols);
-
-            if (hint) {
-                let deductMsg = gameState.language === 'cn' ? "使用提示将被扣除 10 分！\n\n" : 
-                                gameState.language === 'my' ? "Penggunaan petunjuk akan dipotong 10 mata!\n\n" : 
-                                "WARNING: Using this hint costs 10 points for this round!\n\n";
-
-                let bodyMsg = gameState.language === 'cn' ? `推荐算式：${hint.equation}\n分数：${hint.score} 分\n使用牌数：${hint.tilesUsed}` : 
-                              gameState.language === 'my' ? `Persamaan Disyorkan: ${hint.equation}\nMata: ${hint.score}\nJubin Digunakan: ${hint.tilesUsed}` : 
-                              `Easiest Play: ${hint.equation}\nScore: ${hint.score} Points\nTiles Used: ${hint.tilesUsed}`;
-
-                alert(deductMsg + bodyMsg);
-
-                // Apply penalty
-                if (gameState.activePlayer === 'A') gameState.hintsUsedA++; else gameState.hintsUsedB++;
-                updateGrandTotalUI(gameState.activePlayer);
-            } else {
-                let msg = gameState.language === 'cn' ? "无法用当前的牌组成有效的算式。请尝试换牌！" : 
-                          gameState.language === 'my' ? "Tiada persamaan sah yang boleh dibentuk. Sila tukar jubin!" : 
-                          "No valid equations can be formed with your current tiles. Try swapping!";
-                alert(`💡 Hint:\n\n${msg}`);
-            }
-        }
-
         function updateGrandTotalUI(playerIdentifier) {
             const pId = playerIdentifier.toLowerCase();
             let grandTotal = 0;
@@ -1781,16 +1697,8 @@
                 }
             }
             
-            let penalty = (pId === 'a' ? gameState.hintsUsedA : gameState.hintsUsedB) * 10;
-            let finalTotal = grandTotal - penalty;
-            
-            let penaltyEl = document.getElementById(`${pId}-hint-pen`);
-            if (penaltyEl) {
-                penaltyEl.value = penalty > 0 ? `-${penalty}` : "";
-            }
-            
             let grandTotEl = document.getElementById(`${pId}-grand-tot`);
             if (grandTotEl) {
-                grandTotEl.value = finalTotal;
+                grandTotEl.value = grandTotal;
             }
         }
