@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-MY">
+
+<head>
+    <link rel="icon" href="../images/logo.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小学数学竖式解题助手 (Math Helper)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=ZCOOL+KuaiLe&display=swap"
+        rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'ZCOOL KuaiLe', 'Noto Sans SC', cursive;
+            /* 使用快乐体 */
+            background-color: #fff5e6;
+            /* 暖暖的米黄色背景 */
+            background-image: radial-gradient(#ffcc00 15%, transparent 16%), radial-gradient(#ff99cc 15%, transparent 16%);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
+            padding-top: 80px;
+            /* 修改：增加顶部间距，给返回按钮留位 */
+        }
+
+        /* --- 新增：返回按钮样式 (保持与其他页面一致) --- */
+        .back-link-wrapper {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 15px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            font-family: 'Noto Sans SC', sans-serif;
+            /* 按钮文字用清晰字体 */
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: #0abde3;
+            /* 使用青色主题呼应 */
+            font-weight: bold;
+            font-size: 1rem;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .back-link:hover {
+            color: #0097e6;
+            text-decoration: underline;
+        }
+
+        /* ---------------------------------- */
+
+        /* 标题样式 */
+        h1 {
+            color: #ff6b6b;
+            text-shadow: 3px 3px 0px #ffeaa7;
+        }
+
+        /* 卡片容器 */
+        .card {
+            background-color: #ffffff;
+            border: 4px solid #48dbfb;
+            box-shadow: 8px 8px 0px #0abde3;
+        }
+
+        /* 竖式显示区域 - 模拟方格作业本 */
+        .vertical-math {
+            font-family: 'Courier New', Courier, monospace;
+            /* 必须使用等宽字体 */
+            font-size: 28px;
+            line-height: 1.4;
+            white-space: pre;
+            background-color: #fff;
+            /* 方格背景 */
+            background-image:
+                linear-gradient(#e1f5fe 1px, transparent 1px),
+                linear-gradient(90deg, #e1f5fe 1px, transparent 1px);
+            background-size: 20px 20px;
+
+            color: #333;
+            padding: 20px 40px;
+            border-radius: 20px;
+            border: 3px dashed #54a0ff;
+            display: inline-block;
+            font-weight: bold;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        /* 输入框样式 - 像糖果一样 */
+        .input-box {
+            border: 3px solid #ff9ff3;
+            color: #5f27cd;
+            background: #fff;
+            transition: all 0.2s;
+            font-family: 'Noto Sans SC', sans-serif;
+            /* 输入数字时用清晰字体 */
+        }
+
+        .input-box:focus {
+            border-color: #f368e0;
+            outline: none;
+            transform: scale(1.05);
+            box-shadow: 0 0 0 4px rgba(243, 104, 224, 0.2);
+        }
+
+        /* 按钮样式 - Q弹的效果 */
+        .btn-primary {
+            background: linear-gradient(to bottom, #1dd1a1, #10ac84);
+            border-bottom: 5px solid #0d8263;
+            transition: all 0.1s;
+            text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary:active {
+            transform: translateY(4px);
+            border-bottom: 0px solid #0d8263;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.1);
+        }
+
+        /* 选择框特别样式 */
+        select.input-box {
+            background-color: #fff0f6;
+            cursor: pointer;
+        }
+
+        /* 步骤列表装饰 */
+        .step-item {
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .step-item::before {
+            content: '⭐';
+            position: absolute;
+            left: 0;
+            top: 2px;
+            font-size: 14px;
+        }
+
+        /* 打印适配 */
+        @media print {
+
+            .back-link-wrapper,
+            .btn-primary,
+            header {
+                display: none;
+            }
+
+            body {
+                background: white;
+                padding-top: 0;
+            }
+
+            .card {
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+        }
+    </style>
+
+    <!-- Global Light Cyberpunk Theme -->
+    <link rel="stylesheet" href="../css/cyberpunk.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+</head>
+
+<body class="min-h-screen flex flex-col items-center px-4 pb-8">
+
+    <div class="back-link-wrapper">
+        <a href="../index.html" class="back-link">← 返回工具箱主页</a>
+    </div>
+
+    <header class="text-center mb-6 animate-bounce">
+        <h1 class="text-4xl md:text-5xl font-bold mb-2">🎈 数学解题乐园 🎈</h1>
+        <p
+            class="text-lg text-gray-500 font-bold bg-white px-4 py-1 rounded-full inline-block border-2 border-yellow-400">
+            一起快乐学竖式！
+        </p>
+    </header>
+
+    <main class="w-full max-w-3xl card p-6 rounded-3xl relative">
+        <div class="absolute -top-6 -left-6 text-5xl transform -rotate-12 select-none">✏️</div>
+        <div class="absolute -bottom-4 -right-4 text-5xl transform rotate-12 select-none">📏</div>
+
+        <div class="flex flex-col md:flex-row gap-4 justify-center items-center mb-8 mt-2">
+            <div class="w-full md:w-1/3">
+                <input type="number" id="num1" placeholder="数字 1"
+                    class="input-box w-full p-4 rounded-full text-center text-2xl font-bold" step="any">
+            </div>
+
+            <div class="w-full md:w-1/4">
+                <select id="operator"
+                    class="input-box w-full p-4 rounded-full text-center text-2xl font-bold appearance-none">
+                    <option value="add">➕ 加法</option>
+                    <option value="sub">➖ 减法</option>
+                    <option value="mul">✖️ 乘法</option>
+                    <option value="div">➗ 除法</option>
+                </select>
+            </div>
+
+            <div class="w-full md:w-1/3">
+                <input type="number" id="num2" placeholder="数字 2"
+                    class="input-box w-full p-4 rounded-full text-center text-2xl font-bold" step="any">
+            </div>
+        </div>
+
+        <button onclick="calculate()"
+            class="btn-primary w-full text-white font-bold py-4 rounded-3xl text-3xl mb-8 tracking-wider">
+            🚀 开始魔法计算！
+        </button>
+
+        <div id="result-container" class="hidden">
+            <div class="text-center mb-8 bg-yellow-50 p-6 rounded-3xl border-2 border-yellow-200">
+                <h3 class="text-2xl font-bold text-orange-500 mb-4">👀 看看竖式怎么写：</h3>
+                <div class="flex justify-center">
+                    <div id="vertical-output" class="vertical-math text-left shadow-lg transform rotate-1"></div>
+                </div>
+            </div>
+
+            <div class="bg-green-50 p-6 rounded-3xl border-2 border-green-200 relative overflow-hidden">
+                <div class="absolute top-0 right-0 opacity-10 text-9xl transform translate-x-10 -translate-y-4">💡</div>
+                <h3 class="text-2xl font-bold text-green-600 mb-4">🧠 聪明的解题思路：</h3>
+                <ul id="steps-output" class="space-y-3 text-gray-700 text-xl text-left pl-2">
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <footer
+        style="text-align: center; margin-top: 50px; padding: 20px; color: #888; font-size: 14px; line-height: 1.6; width: 100%;">
+        <p style="margin: 5px 0;">若发现问题，电邮至 g-21543731@moe-dl.edu.my 潘老师。</p>
+        <p style="margin: 5px 0;">没有团队，不定期更新网站，恳请各位老师耐心等候。</p>
+        <a href="mailto:g-21543731@moe-dl.edu.my?subject=网站反馈"
+            style="color: #555; text-decoration: underline; font-weight: bold; cursor: pointer;">
+            👉 点我发送反馈
+        </a>
+    </footer>
+
+    <script>
+        function calculate() {
+            const n1Input = document.getElementById('num1').value;
+            const n2Input = document.getElementById('num2').value;
+            const n1 = parseFloat(n1Input);
+            const n2 = parseFloat(n2Input);
+            const op = document.getElementById('operator').value;
+
+            const container = document.getElementById('result-container');
+            const outputDiv = document.getElementById('vertical-output');
+            const stepsUl = document.getElementById('steps-output');
+
+            if (isNaN(n1) || isNaN(n2)) {
+                alert("哎呀！请一定要输入两个数字哦 🔢");
+                return;
+            }
+
+            container.classList.remove('hidden');
+            outputDiv.innerHTML = '';
+            stepsUl.innerHTML = '';
+
+            container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            let steps = [];
+
+            switch (op) {
+                case 'add':
+                    renderAddition(n1, n2, outputDiv, steps);
+                    break;
+                case 'sub':
+                    renderSubtraction(n1, n2, outputDiv, steps);
+                    break;
+                case 'mul':
+                    renderMultiplication(n1, n2, outputDiv, steps);
+                    break;
+                case 'div':
+                    if (n2 === 0) {
+                        outputDiv.innerText = "😵";
+                        steps.push("糟糕！除数不能是 0 哦！");
+                    } else {
+                        renderLongDivision(n1, n2, outputDiv, steps);
+                    }
+                    break;
+            }
+
+            steps.forEach(step => {
+                let li = document.createElement('li');
+                li.className = "step-item";
+                li.innerText = step;
+                stepsUl.appendChild(li);
+            });
+        }
+
+        // ================= 工具函数 =================
+        function pad(str, length) {
+            str = str.toString();
+            while (str.length < length) str = ' ' + str;
+            return str;
+        }
+
+        function repeat(char, length) {
+            if (length <= 0) return "";
+            return char.repeat(length);
+        }
+
+        function cleanFloat(num) {
+            return parseFloat(num.toPrecision(12));
+        }
+
+        function getDecLen(num) {
+            const str = num.toString();
+            if (str.indexOf('.') === -1) return 0;
+            return str.split('.')[1].length;
+        }
+
+        // ================= 加法 =================
+        function renderAddition(a, b, container, steps) {
+            let res = cleanFloat(a + b);
+            let s1 = a.toString();
+            let s2 = b.toString();
+            let sRes = res.toString();
+
+            if (s1.indexOf('.') !== -1 && s2.indexOf('.') === -1) s2 += ".0";
+            if (s2.indexOf('.') !== -1 && s1.indexOf('.') === -1) s1 += ".0";
+
+            let int1 = s1.split('.')[0].length;
+            let int2 = s2.split('.')[0].length;
+            let intRes = sRes.split('.')[0].length;
+            let finalMaxInt = Math.max(int1, int2, intRes);
+
+            function smartPad(str, intW) {
+                let [i, d] = str.split('.');
+                let res = pad(i, intW);
+                if (d !== undefined) res += '.' + d;
+                return res;
+            }
+
+            let line1Core = smartPad(s1, finalMaxInt);
+            let line2Core = smartPad(s2, finalMaxInt);
+            let lineResCore = smartPad(sRes, finalMaxInt);
+
+            let coreWidth = Math.max(line1Core.length, line2Core.length, lineResCore.length);
+
+            let line1 = "  " + line1Core;
+            let line2 = "+ " + pad(line2Core, coreWidth);
+            let lineWidth = Math.max(line1.length, line2.length, lineResCore.length + 2);
+            let line3 = repeat('-', lineWidth);
+            let line4 = "  " + lineResCore;
+
+            container.innerText = `${line1}\n${line2}\n${line3}\n${line4}`;
+
+            steps.push(`记得要把小数点对齐哦！`);
+            steps.push(`计算一下：${a} + ${b} = ${res}`);
+        }
+
+        // ================= 减法 =================
+        function renderSubtraction(a, b, container, steps) {
+            let res = cleanFloat(a - b);
+            let s1 = a.toString();
+            let s2 = b.toString();
+            let sRes = res.toString();
+
+            if (s1.indexOf('.') !== -1 && s2.indexOf('.') === -1) s2 += ".0";
+            if (s2.indexOf('.') !== -1 && s1.indexOf('.') === -1) s1 += ".0";
+
+            let int1 = s1.split('.')[0].length;
+            let int2 = s2.split('.')[0].length;
+            let intRes = sRes.split('.')[0].length;
+            let finalMaxInt = Math.max(int1, int2, intRes);
+
+            function smartPad(str, intW) {
+                let [i, d] = str.split('.');
+                let res = pad(i, intW);
+                if (d !== undefined) res += '.' + d;
+                return res;
+            }
+
+            let line1Core = smartPad(s1, finalMaxInt);
+            let line2Core = smartPad(s2, finalMaxInt);
+            let lineResCore = smartPad(sRes, finalMaxInt);
+
+            let line1 = "  " + line1Core;
+            let line2 = "- " + line2Core;
+            let lineWidth = Math.max(line1.length, line2.length, lineResCore.length + 2);
+            let line3 = repeat('-', lineWidth);
+            let line4 = "  " + lineResCore;
+
+            container.innerText = `${line1}\n${line2}\n${line3}\n${line4}`;
+            steps.push(`小数点要对齐，如果位数不够，记得补 0。`);
+            steps.push(`算出来啦：${res}`);
+        }
+
+        // ================= 乘法 =================
+        function renderMultiplication(a, b, container, steps) {
+            let res = cleanFloat(a * b);
+            let s1 = a.toString();
+            let s2 = b.toString();
+            let dec1 = getDecLen(a);
+            let dec2 = getDecLen(b);
+            let totalDec = dec1 + dec2;
+            let sRes = res.toFixed(totalDec);
+
+            let maxW = Math.max(s1.length, s2.length, sRes.length);
+
+            let line1 = "   " + pad(s1, maxW);
+            let line2 = "x  " + pad(s2, maxW);
+            let line3 = "   " + repeat('-', maxW);
+            let line4 = "   " + pad(sRes, maxW);
+
+            container.innerText = `${line1}\n${line2}\n${line3}\n${line4}`;
+            steps.push(`乘法要向右边对齐，先把它当成整数来算。`);
+            if (totalDec > 0) steps.push(`最后数一数，一共有 ${totalDec} 位小数，记得点上小数点哦！`);
+            steps.push(`答案是：${res}`);
+        }
+
+        // ================= 长除法 =================
+        function renderLongDivision(dividend, divisor, container, steps) {
+            let originalDivisor = divisor;
+            let originalDividend = dividend;
+
+            let shift = 0;
+            while (!Number.isInteger(divisor)) {
+                divisor *= 10;
+                dividend *= 10;
+                shift++;
+            }
+            divisor = Math.round(divisor);
+            dividend = cleanFloat(dividend);
+
+            if (shift > 0) {
+                steps.push(`注意哦：因为除数是小数 (${originalDivisor})，我们先把小数点向右移动 ${shift} 位。`);
+                steps.push(`现在算式变成了：${dividend} ÷ ${divisor}`);
+            }
+
+            let sDividend = dividend.toString();
+            let sDivisor = divisor.toString();
+            let digits = sDividend.split('');
+            let quotientStr = "";
+            let lines = [];
+            let remainder = 0;
+
+            const baseIndentLen = sDivisor.length + 3;
+            let visualLines = [];
+
+            let digitIndex = 0;
+            let finalQ = dividend / divisor;
+            let finalQStr = finalQ.toString();
+            if (finalQStr.length > 10) finalQStr = finalQ.toFixed(4);
+
+            let outputBuffer = "";
+            let processedStr = "";
+
+            if (dividend < divisor && !sDividend.includes('.')) {
+                sDividend += ".0";
+                digits = sDividend.split('');
+            }
+
+            remainder = 0;
+            let visualOffset = baseIndentLen;
+            let quotientRes = "";
+            let maxSteps = sDividend.length + 3;
+            let stepCount = 0;
+            let ptr = 0;
+            let workingVal = 0;
+            let problemLine = `${sDivisor} ) ${sDividend}`;
+
+            while (stepCount < maxSteps) {
+                let digitChar = '';
+
+                if (ptr < sDividend.length) {
+                    digitChar = sDividend[ptr];
+                    ptr++;
+                } else {
+                    if (remainder === 0) break;
+                    if (!quotientRes.includes('.')) {
+                        quotientRes += '.';
+                    }
+                    digitChar = '0';
+                }
+
+                if (digitChar === '.') {
+                    quotientRes += '.';
+                    continue;
+                }
+
+                let d = parseInt(digitChar);
+                workingVal = workingVal * 10 + d;
+
+                let q = Math.floor(workingVal / divisor);
+                quotientRes += q.toString();
+
+                let product = q * divisor;
+
+                if (q > 0 || stepCount === maxSteps - 1) {
+                    let prodStr = product.toString();
+                    let currentPos = ptr;
+                    let padLen = baseIndentLen + currentPos - prodStr.length;
+
+                    visualLines.push(repeat(' ', padLen) + prodStr);
+                    visualLines.push(repeat(' ', padLen) + repeat('-', prodStr.length));
+
+                    let rem = workingVal - product;
+                    workingVal = rem;
+                }
+                stepCount++;
+                if (remainder === 0 && ptr >= sDividend.length) break;
+            }
+
+            let finalOutput = "";
+            let divDotIndex = sDividend.indexOf('.');
+            let quoDotIndex = quotientRes.indexOf('.');
+            let quotientLine = "";
+
+            if (divDotIndex === -1 && quoDotIndex === -1) {
+                let padL = sDividend.length - quotientRes.length;
+                if (padL < 0) padL = 0;
+                quotientLine = repeat(' ', baseIndentLen + padL) + quotientRes;
+            } else {
+                let padding = Math.max(0, sDividend.length - quotientRes.length);
+                quotientLine = repeat(' ', baseIndentLen + padding) + quotientRes;
+            }
+
+            finalOutput += quotientLine + "\n";
+            finalOutput += repeat(' ', baseIndentLen) + repeat('-', sDividend.length) + "\n";
+            finalOutput += problemLine + "\n";
+            finalOutput += visualLines.join('\n');
+
+            if (workingVal > 0) {
+                let remStr = workingVal.toString();
+                finalOutput += "\n" + repeat(' ', baseIndentLen + 1) + "余 " + remStr;
+            }
+
+            container.innerText = finalOutput;
+
+            steps.push(`这是标准的长除法过程。`);
+            steps.push(`商是：${quotientRes}`);
+            if (workingVal > 0) steps.push(`还有余数：${workingVal}`);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="zh-MY">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../images/logo.png" type="image/png">
+    <meta charset="UTF-8">
+    <title>Jutaria Malaysia</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=ZCOOL+KuaiLe&display=swap"
+        rel="stylesheet">
+
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #FFF9E6;
+            font-family: 'Fredoka', 'ZCOOL KuaiLe', sans-serif;
+            user-select: none;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        #ui-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* --- UI 按钮 (左上退出，右上声音) --- */
+
+        #mute-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            /* 右上角 */
+            width: 50px;
+            height: 50px;
+            background: #FFF;
+            border-radius: 50%;
+            border: 3px solid #757575;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            pointer-events: auto;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+            z-index: 100;
+        }
+
+        #mute-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        #exit-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            /* 左上角 */
+            width: 50px;
+            height: 50px;
+            background: #EF5350;
+            border-radius: 50%;
+            border: 3px solid #B71C1C;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            pointer-events: auto;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            transition: 0.2s;
+        }
+
+        #exit-btn:hover {
+            background: #D32F2F;
+        }
+
+        #exit-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        #info-card {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 40px;
+            border-radius: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            border: 4px solid #B2DFDB;
+            text-align: center;
+            min-width: 380px;
+            pointer-events: auto;
+            transition: 0.3s;
+            z-index: 20;
+            display: none;
+        }
+
+        #round-counter {
+            display: block;
+            margin-top: 5px;
+            font-size: 1.2rem;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .inflation-warning {
+            color: #D32F2F !important;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* --- 钱包调整: 上移至按钮旁，垂直排列 --- */
+        .wallet-group {
+            position: absolute;
+            top: 20px;
+            /* 与按钮顶部对齐 */
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: auto;
+        }
+
+        /* 左侧钱包：放在退出按钮(宽50+左20+间距20)右边 */
+        #wallet-left {
+            left: 90px;
+            align-items: flex-start;
+        }
+
+        /* 右侧钱包：放在声音按钮(宽50+右20+间距20)左边 */
+        #wallet-right {
+            right: 90px;
+            align-items: flex-end;
+        }
+
+        .money-badge {
+            background: #FFF;
+            border: 3px solid #CCC;
+            padding: 6px 15px;
+            border-radius: 40px;
+            font-size: 1.1rem;
+            color: #5D4037;
+            font-weight: 700;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, opacity 0.3s;
+            opacity: 0.8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Fredoka', 'ZCOOL KuaiLe', sans-serif;
+            max-width: 220px;
+            /* 稍微限制宽度防止在大屏上也太宽 */
+        }
+
+        .money-badge.active {
+            opacity: 1;
+            transform: scale(1.05);
+            z-index: 10;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+            border-width: 4px;
+        }
+
+        .money-badge .icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: inline-block;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .money-badge.bankrupt {
+            filter: grayscale(1);
+            opacity: 0.5;
+            text-decoration: line-through;
+        }
+
+        .money-badge.jailed {
+            border-color: #5D4037 !important;
+            background: #D7CCC8 !important;
+        }
+
+        .money-badge.jailed::after {
+            content: "🔒";
+            margin-left: 5px;
+        }
+
+        /* --- 画廊调整: 下移，确保不挡住上面的钱包 --- */
+        .side-gallery {
+            position: fixed;
+            top: 30%;
+            /* 原来是15%，现在下移到30%，避开顶部区域 */
+            bottom: 5%;
+            /* 稍微离底边近一点 */
+            width: 240px;
+            background: #fff;
+            border-radius: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+            border: 8px solid #FFF;
+            pointer-events: auto;
+        }
+
+        #gallery-left {
+            left: 20px;
+            transform: translateX(-380px);
+        }
+
+        #gallery-right {
+            right: 20px;
+            transform: translateX(380px);
+        }
+
+        .side-gallery.active {
+            transform: translateX(0) !important;
+        }
+
+        /* Loading Screen Style */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #FFF9E6;
+            z-index: 20000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loader-bar-bg {
+            width: 300px;
+            height: 20px;
+            background: #E0E0E0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .loader-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: #66BB6A;
+            transition: width 0.2s;
+        }
+
+        .loading-text {
+            font-size: 2rem;
+            color: #5D4037;
+            font-weight: bold;
+        }
+
+        /* Modals */
+        .game-modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: #FFF;
+            padding: 40px;
+            border-radius: 40px;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+            border: 10px solid #FFCC80;
+            text-align: center;
+            pointer-events: auto;
+            width: 500px;
+            z-index: 10000;
+            display: none;
+        }
+
+        .game-modal.active {
+            display: block !important;
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0;
+            }
+
+            to {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-title {
+            font-size: 2.8rem;
+            color: #E65100;
+            font-family: 'Fredoka', 'ZCOOL KuaiLe', cursive;
+            margin-bottom: 10px;
+        }
+
+        .modal-subtitle {
+            font-size: 1.5rem;
+            color: #8D6E63;
+            margin-bottom: 30px;
+            font-weight: bold;
+            font-family: 'Fredoka', 'ZCOOL KuaiLe', cursive;
+        }
+
+        #resume-area {
+            display: none;
+            margin-bottom: 25px;
+            border-bottom: 2px dashed #BDBDBD;
+            padding-bottom: 20px;
+        }
+
+        .btn-resume {
+            background: #7E57C2;
+            box-shadow: 0 8px 0 #512DA8;
+            width: 250px;
+        }
+
+        #card-desc,
+        #upgrade-desc,
+        #rent-desc,
+        #win-desc,
+        #buy-desc,
+        #jail-desc,
+        #exit-desc {
+            font-size: 1.8rem;
+            color: #4A148C;
+            margin: 20px 0;
+            font-family: 'Fredoka', 'ZCOOL KuaiLe', cursive;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .buy-price {
+            font-size: 3rem;
+            color: #2E7D32;
+            font-weight: 900;
+            margin: 15px 0;
+            font-family: 'Fredoka', 'ZCOOL KuaiLe', cursive;
+        }
+
+        #card-modal {
+            border-color: #AB47BC;
+            background: #F3E5F5;
+        }
+
+        #card-title {
+            color: #8E24AA;
+        }
+
+        #upgrade-modal {
+            border-color: #29B6F6;
+            background: #E1F5FE;
+        }
+
+        #upgrade-title {
+            color: #0277BD;
+        }
+
+        #jail-modal {
+            border-color: #616161;
+            background: #F5F5F5;
+        }
+
+        #jail-title {
+            color: #424242;
+        }
+
+        #exit-modal {
+            border-color: #D32F2F;
+            background: #FFEBEE;
+        }
+
+        #exit-title {
+            color: #B71C1C;
+        }
+
+        #win-modal {
+            background: #FFF9C4;
+            border-color: #FBC02D;
+            width: 100%;
+            max-width: 100%;
+            max-width: 600px;
+        }
+
+        #win-title {
+            color: #F57F17;
+            font-size: 3rem;
+        }
+
+        #win-list {
+            text-align: left;
+            margin: 20px 0;
+            font-size: 1.4rem;
+            color: #5D4037;
+        }
+
+        .win-row {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed #CCC;
+            padding: 5px 0;
+        }
+
+        .setup-btn-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .setup-btn {
+            border: none;
+            padding: 20px 0;
+            width: 100px;
+            border-radius: 25px;
+            font-size: 2rem;
+            font-family: 'Fredoka', 'ZCOOL KuaiLe', cursive;
+            cursor: pointer;
+            color: white;
+            transition: transform 0.1s;
+            position: relative;
+        }
+
+        .setup-btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 0 0 transparent !important;
+        }
+
+        .btn-2p {
+            background: #FF7043;
+            box-shadow: 0 8px 0 #D84315;
+        }
+
+        .btn-3p {
+            background: #42A5F5;
+            box-shadow: 0 8px 0 #1565C0;
+        }
+
+        .btn-4p {
+            background: #66BB6A;
+            box-shadow: 0 8px 0 #2E7D32;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+
+        .btn {
+            border: none;
+            padding: 15px 30px;
+            border-radius: 20px;
+            font-size: 1.6rem;
+            cursor: pointer;
+            font-family: 'Fredoka', 'ZCOOL KuaiLe', cursive;
+            color: white;
+        }
+
+        .btn-yes {
+            background: #66BB6A;
+            box-shadow: 0 8px 0 #2E7D32;
+        }
+
+        .btn-no {
+            background: #EF5350;
+            box-shadow: 0 8px 0 #C62828;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #333 !important;
+        }
+
+        .btn-pay {
+            background: #FBC02D;
+            box-shadow: 0 8px 0 #F57F17;
+            color: #5D4037;
+            width: 100%;
+            font-size: 2rem;
+            border-radius: 20px;
+            padding: 15px;
+        }
+
+        .btn-ok {
+            background: #AB47BC;
+            box-shadow: 0 8px 0 #7B1FA2;
+            color: white;
+            width: 100%;
+            font-size: 2rem;
+            border-radius: 20px;
+            padding: 15px;
+        }
+
+        .btn-up {
+            background: #29B6F6;
+            box-shadow: 0 8px 0 #0277BD;
+            color: white;
+        }
+
+        .btn-jail-pay {
+            background: #FF9800;
+            box-shadow: 0 8px 0 #E65100;
+        }
+
+        .btn-jail-roll {
+            background: #9E9E9E;
+            box-shadow: 0 8px 0 #616161;
+        }
+
+        .btn-feedback {
+            background: #1E88E5;
+            box-shadow: 0 8px 0 #0D47A1;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        #roll-button-ui {
+            position: absolute;
+            bottom: 35px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #66BB6A;
+            color: white;
+            border: none;
+            padding: 18px 70px;
+            border-radius: 60px;
+            font-family: 'Fredoka', 'ZCOOL KuaiLe', cursive;
+            font-size: 2.6rem;
+            box-shadow: 0 10px 0 #2E7D32, 0 12px 25px rgba(0, 0, 0, 0.25);
+            cursor: pointer;
+            pointer-events: auto;
+            transition: all 0.1s;
+            display: none;
+            z-index: 50;
+        }
+
+        #roll-button-ui:active {
+            transform: translate(-50%, 6px);
+            box-shadow: 0 4px 0 #2E7D32;
+        }
+
+        #roll-button-ui:disabled {
+            background: #BDBDBD;
+            box-shadow: 0 4px 0 #9E9E9E;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        #game-toast {
+            position: absolute;
+            top: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #FFF;
+            padding: 10px 30px;
+            border-radius: 50px;
+            font-size: 1.5rem;
+            font-family: 'Fredoka', 'ZCOOL KuaiLe', sans-serif;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+            z-index: 10001;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+
+    <!-- Global Light Cyberpunk Theme -->
+    <link rel="stylesheet" href="../css/cyberpunk.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+</head>
+
+<body>
+
+    <div id="ui-layer">
+        <div id="loading-screen">
+            <div class="loading-text">Loading Assets...</div>
+            <div class="loader-bar-bg">
+                <div id="loader-bar" class="loader-bar-fill"></div>
+            </div>
+            <div id="loader-percent" style="margin-top: 10px; color: #8D6E63; font-weight: bold;">0%</div>
+        </div>
+
+        <div id="exit-btn" onclick="window.showExitModal()">🚪</div>
+        <div id="mute-btn" onclick="window.toggleMute()">🔊</div>
+        <div id="game-toast"></div>
+
+        <div id="setup-modal" class="game-modal" style="border-color: #42A5F5;">
+            <div class="modal-title" style="color:#1565C0; font-size: 3rem;">Jutaria Malaysia</div>
+            <div class="modal-subtitle">请选择玩家人数 / Select Players</div>
+            <div id="resume-area">
+                <p style="color:#5E35B1; font-size:1.4rem; font-weight:bold;">发现旧的游戏存档 / Found Save Game</p>
+                <button class="setup-btn btn-resume" onclick="window.resumeGame()">继续游戏 Resume</button>
+            </div>
+            <div class="setup-btn-group">
+                <button class="setup-btn btn-2p" onclick="window.startGame(2)">2 人</button>
+                <button class="setup-btn btn-3p" onclick="window.startGame(3)">3 人</button>
+                <button class="setup-btn btn-4p" onclick="window.startGame(4)">4 人</button>
+            </div>
+        </div>
+
+        <div id="wallet-left" class="wallet-group"></div>
+        <div id="wallet-right" class="wallet-group"></div>
+
+        <div id="info-card">
+            <div id="location-text"><span class="lang-en">Welcome!</span><span class="lang-zh">游戏开始</span></div>
+            <div id="round-counter">Round: 1 / 20</div>
+        </div>
+
+        <button id="roll-button-ui" onclick="window.handleMainButton()">掷骰子 Baling</button>
+
+        <div id="gallery-left" class="side-gallery"><img id="img-left" src=""
+                style="width:100%;height:100%;object-fit:cover;"></div>
+        <div id="gallery-right" class="side-gallery"><img id="img-right" src=""
+                style="width:100%;height:100%;object-fit:cover;"></div>
+
+        <div id="buy-modal" class="game-modal">
+            <div class="modal-title">购买资产 / Buy Asset</div>
+            <div id="buy-desc"></div>
+            <div id="buy-price" class="buy-price"></div>
+            <div class="btn-group">
+                <button class="btn btn-no" onclick="window.handleBuy(false)">不买 Skip</button>
+                <button class="btn btn-yes" onclick="window.handleBuy(true)">买下 Buy</button>
+            </div>
+        </div>
+
+        <div id="upgrade-modal" class="game-modal">
+            <div id="upgrade-title" class="modal-title">房屋升级 / Upgrade</div>
+            <div id="upgrade-desc"></div>
+            <div id="upgrade-price" class="buy-price" style="color:#0277BD;"></div>
+            <div class="btn-group">
+                <button class="btn btn-no" onclick="window.handleUpgrade(false)">不升 Skip</button>
+                <button class="btn btn-up" onclick="window.handleUpgrade(true)">升级 Upgrade</button>
+            </div>
+        </div>
+
+        <div id="jail-modal" class="game-modal">
+            <div id="jail-title" class="modal-title">监狱风云 / Jail</div>
+            <div id="jail-desc"></div>
+            <div class="btn-group">
+                <button class="btn btn-jail-pay" onclick="window.handleJailDecision('pay')">支付 RM 50</button>
+                <button class="btn btn-jail-roll" onclick="window.handleJailDecision('roll')">碰运气 (Roll)</button>
+            </div>
+        </div>
+
+        <div id="exit-modal" class="game-modal">
+            <div id="exit-title" class="modal-title">退出游戏 / Exit</div>
+            <div id="exit-desc" style="flex-direction:column; min-height:100px;">
+                <p style="margin:5px 0;">是否要给老师发送反馈？<br>Would you like to send feedback?</p>
+                <p style="font-size:1.2rem; color:#757575;">g-21543731@moe-dl.edu.my</p>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-no" onclick="window.closeExitModal()">取消 Cancel</button>
+                <button class="btn btn-yes" onclick="window.sendFeedback()">📩 发送反馈 Send</button>
+            </div>
+            <div style="margin-top:20px;">
+                <button class="btn" style="background:#757575; font-size:1.2rem; padding:10px 20px;"
+                    onclick="window.location.href='../index.html'">直接返回主页</button>
+            </div>
+        </div>
+
+        <div id="rent-modal" class="game-modal" style="border-color: #EF5350;">
+            <div class="modal-title" style="color:#D32F2F">支付费用 / Pay Fee</div>
+            <div id="rent-desc"></div>
+            <div id="rent-price" class="buy-price" style="color:#D32F2F;"></div>
+            <button class="btn btn-pay" onclick="window.handleRent()">给钱 Pay Money!</button>
+        </div>
+
+        <div id="card-modal" class="game-modal">
+            <div id="card-title" class="modal-title">机会 / Chance</div>
+            <div id="card-desc"></div>
+            <button class="btn btn-ok" onclick="window.handleCardConfirm()">确定 OK</button>
+        </div>
+
+        <div id="win-modal" class="game-modal">
+            <div id="win-title" class="modal-title">🎉 冠军 / WINNER 🎉</div>
+            <div id="win-desc"></div>
+            <div id="win-list" style="width: 80%; margin: 20px auto;"></div>
+            <button class="btn btn-yes" onclick="location.reload()">再玩一次 / Replay</button>
+            <button class="btn btn-feedback" onclick="window.sendFeedback()">📩 给老师反馈 / Send Feedback</button>
+        </div>
+    </div>
+
+    <div id="game-container"></div>
+
+    <script>
+        const CARDS_CHANCE = [
+            { text: "中马票！\nMenang Tiket Loteri\n获得 RM 100", amount: 100 },
+            { text: "超速驾驶中 Saman！\nKena Saman Speeding\n罚款 RM 50", amount: -50 },
+            { text: "开车去 KLCC 逛街\nPergi ke KLCC\n移动到双峰塔", move: 39 },
+            { text: "捡到钱！\nJumpa Duit\n获得 RM 20", amount: 20 },
+            { text: "请大家喝 Teh Tarik\nBelanja Teh Tarik\n每人获得 RM 10", payAll: 10 },
+            { text: "吃猫山王榴莲\nMakan Durian Musang King\n消费 RM 60", amount: -60 },
+            { text: "新年拿红包\nDapat Ang Pao\n获得 RM 88", amount: 88 },
+            { text: "Balik Kampung!\n回乡过年\n移动到起点 (GO)", move: 0 },
+            { text: "车胎爆了\nTukar Tayar Kereta\n支付 RM 30", amount: -30 },
+            { text: "赢得 Wau 比赛\nMenang Pertandingan Wau\n获得 RM 50", amount: 50 },
+            { text: "去马六甲一日游\nLawatan ke Melaka\n移动到古城门 (A Famosa)", move: 13 },
+            { text: "为 Touch 'n Go 充值\nTopup Touch 'n Go\n支付 RM 20", amount: -20 }
+        ];
+
+        const CARDS_CHEST = [
+            { text: "申请 Bantuan 获批\nBantuan Diluluskan\n获得 RM 150", amount: 150 },
+            { text: "车坏了修车\nKereta Rosak\n支付修车费 RM 100", amount: -100 },
+            { text: "去坐牢！\nMasuk Penjara\n前往监狱", move: 10, direct: true },
+            { text: "卖掉旧报纸\nJual Surat Khabar Lama\n获得 RM 30", amount: 30 },
+            { text: "忘记还 PTPTN\nLupa Bayar PTPTN\n罚款 RM 50", amount: -50 },
+            { text: "缴付电费\nBayar Bil Elektrik TNB\n支付 RM 60", amount: -60 },
+            { text: "获得年度花红\nDapat Bonus Tahunan\n获得 RM 200", amount: 200 },
+            { text: "开学费用\nYuran Sekolah Anak\n支付 RM 50", amount: -50 },
+            { text: "售卖 Kuih Raya\nJual Kuih Raya\n赚取 RM 75", amount: 75 },
+            { text: "缴付门牌税\nBayar Cukai Pintu\n支付 RM 40", amount: -40 },
+            { text: "索赔汽车保险\nClaim Insurans Kereta\n获得 RM 120", amount: 120 },
+            { text: "去 Langkawi 度假\nPergi Bercuti ke Langkawi\n移动到浮罗交怡", move: 3 }
+        ];
+
+        window.sendFeedback = function () {
+            const email = "g-21543731@moe-dl.edu.my";
+            const subject = "Jutaria Game Feedback";
+            const body = "老师您好，我是__________。\n\n我的反馈：\n\n";
+            window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        };
+
+        window.showExitModal = function () { document.getElementById('exit-modal').style.display = 'block'; document.getElementById('exit-modal').classList.add('active'); };
+        window.closeExitModal = function () { const m = document.getElementById('exit-modal'); m.classList.remove('active'); m.style.display = 'none'; };
+
+        window.addEventListener('beforeunload', function (e) { e.preventDefault(); e.returnValue = ''; });
+
+        const SoundManager = {
+            ctx: null, muted: false,
+            init: function () { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+            playTone: function (freq, type, duration, vol = 0.1) {
+                if (this.muted || !this.ctx) return;
+                const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                osc.type = type; osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(); osc.stop(this.ctx.currentTime + duration);
+            },
+            play: function (type) {
+                if (this.muted) return; this.init(); if (this.ctx.state === 'suspended') this.ctx.resume();
+                switch (type) {
+                    case 'roll': this.playTone(600, 'square', 0.05, 0.05); setTimeout(() => this.playTone(500, 'square', 0.05, 0.05), 100); break;
+                    case 'step': this.playTone(200, 'triangle', 0.1, 0.1); break;
+                    case 'money_in': this.playTone(1200, 'sine', 0.3, 0.2); setTimeout(() => this.playTone(1800, 'sine', 0.4, 0.2), 100); break;
+                    case 'money_out': this.playTone(300, 'sawtooth', 0.3, 0.1); setTimeout(() => this.playTone(200, 'sawtooth', 0.3, 0.1), 150); break;
+                    case 'win': [440, 554, 659, 880].forEach((f, i) => setTimeout(() => this.playTone(f, 'square', 0.4, 0.2), i * 200)); break;
+                    case 'upgrade': this.playTone(600, 'sine', 0.2, 0.1); setTimeout(() => this.playTone(800, 'sine', 0.4, 0.1), 100); break;
+                    case 'fail': this.playTone(150, 'sawtooth', 0.4, 0.2); break;
+                }
+            },
+            toggle: function () { this.muted = !this.muted; document.getElementById('mute-btn').innerText = this.muted ? '🔇' : '🔊'; }
+        };
+        window.toggleMute = () => SoundManager.toggle();
+
+        const SAVE_KEY = 'jutaria_save_v9'; // Bump version
+        const MAX_ROUNDS = 20;
+
+        const TILE_SIZE = 240; const BOARD_SIZE = 11; const BOARD_PIXEL_WIDTH = TILE_SIZE * BOARD_SIZE;
+        const OFFSET = 600; const WORLD_SIZE = BOARD_PIXEL_WIDTH + (OFFSET * 2);
+        const CENTER_X = WORLD_SIZE / 2; const CENTER_Y = WORLD_SIZE / 2;
+        const BAR_THICKNESS = 30; const BAR_MARGIN = 10;
+        const ZOOM_CLOSEUP = 0.8;
+
+        const COLORS = { brown: 0xA1887F, lightblue: 0x81D4FA, pink: 0xF48fb1, orange: 0xFFCC80, red: 0xEF9A9A, yellow: 0xFFF59D, green: 0xA5D6A7, darkblue: 0x9FA8DA, card_bg: 0xFFFFFF };
+        const FONT_MAIN = '"Fredoka", "ZCOOL KuaiLe", cursive';
+
+        const PLAYER_CONFIG = [
+            { color: 0xFF5252, name: "Red", hex: "#FF5252", bg: "#FFEBEE" },
+            { color: 0x448AFF, name: "Blue", hex: "#448AFF", bg: "#E3F2FD" },
+            { color: 0x66BB6A, name: "Green", hex: "#66BB6A", bg: "#E8F5E9" },
+            { color: 0xFFCA28, name: "Yellow", hex: "#FFCA28", bg: "#FFF8E1" }
+        ];
+        const OFFSETS = [{ x: -25, y: -25 }, { x: 25, y: 25 }, { x: 25, y: -25 }, { x: -25, y: 25 }];
+
+        const tilesData = [
+            { name: "GO\nMULA\n起点", type: "corner", price: 0, keyword: "Start" },
+            { name: "Padang Besar\n巴东勿刹", color: "brown", price: 60, type: "property", owner: null, level: 0, keyword: "padang_besar" },
+            { name: "Chance\nNasib\n机会", type: "chance", price: 0, keyword: "Question" },
+            { name: "Langkawi\n浮罗交怡", color: "brown", price: 60, type: "property", owner: null, level: 0, keyword: "langkawi" },
+            { name: "Income Tax\n所得税", type: "tax", price: 200, keyword: "Tax" },
+            { name: "Cameron\n金马仑", type: "station", price: 200, owner: null, level: 0, keyword: "cameron" },
+            { name: "Ipoh OldTown\n怡保旧街场", color: "lightblue", price: 100, type: "property", owner: null, level: 0, keyword: "ipoh" },
+            { name: "Community\n公益金", type: "chest", price: 0, keyword: "Chest" },
+            { name: "Taiping Lake\n太平湖", color: "lightblue", price: 100, type: "property", owner: null, level: 0, keyword: "taiping" },
+            { name: "Pangkor Is.\n邦咯岛", color: "lightblue", price: 120, type: "property", owner: null, level: 0, keyword: "pangkor" },
+            { name: "Jail\n监狱", type: "corner", price: 0, keyword: "Jail" },
+            { name: "Jonker Walk\n鸡场街", color: "pink", price: 140, type: "property", owner: null, level: 0, keyword: "jonker" },
+            { name: "TNB\n国能", type: "utility", price: 150, owner: null, level: 0, keyword: "Electric" },
+            { name: "A Famosa\n古城门", color: "pink", price: 140, type: "property", owner: null, level: 0, keyword: "afamosa" },
+            { name: "Stadthuys\n红屋", color: "pink", price: 160, type: "property", owner: null, level: 0, keyword: "stadthuys" },
+            { name: "Port Dickson\n波德申", type: "station", price: 200, owner: null, level: 0, keyword: "pd" },
+            { name: "Georgetown\n乔治市", color: "orange", price: 180, type: "property", owner: null, level: 0, keyword: "penang" },
+            { name: "Community\n公益金", type: "chest", price: 0, keyword: "Chest" },
+            { name: "Gurney Dr.\n新关仔角", color: "orange", price: 180, type: "property", owner: null, level: 0, keyword: "gurney" },
+            { name: "Ferringhi\n峇都丁宜", color: "orange", price: 200, type: "property", owner: null, level: 0, keyword: "ferringhi" },
+            { name: "Free Park\n停车", type: "corner", price: 0, keyword: "Parking" },
+            { name: "Mt Kinabalu\n神山", color: "red", price: 220, type: "property", owner: null, level: 0, keyword: "kinabalu" },
+            { name: "Chance\n机会", type: "chance", price: 0, keyword: "Question" },
+            { name: "Kundasang\n昆达山", color: "red", price: 220, type: "property", owner: null, level: 0, keyword: "kundasang" },
+            { name: "Sipadan Is.\n西巴丹岛", color: "red", price: 240, type: "property", owner: null, level: 0, keyword: "sipadan" },
+            { name: "Wakaf Che Yeh\n华卡切耶", type: "station", price: 200, owner: null, level: 0, keyword: "kelantan" },
+            { name: "Kuching\n古晋", color: "yellow", price: 260, type: "property", owner: null, level: 0, keyword: "kuching" },
+            { name: "Mulu Caves\n姆鲁山洞", color: "yellow", price: 260, type: "property", owner: null, level: 0, keyword: "mulu" },
+            { name: "Air Selangor\n雪州水务", type: "utility", price: 150, owner: null, level: 0, keyword: "Water" },
+            { name: "Bako Park\n巴哥公园", color: "yellow", price: 280, type: "property", owner: null, level: 0, keyword: "bako" },
+            { name: "Police\n警察", type: "corner", price: 0, keyword: "Police" },
+            { name: "Legoland\n乐高乐园", color: "green", price: 300, type: "property", owner: null, level: 0, keyword: "legoland" },
+            { name: "Desaru\n迪沙鲁", color: "green", price: 300, type: "property", owner: null, level: 0, keyword: "desaru" },
+            { name: "Community\n公益金", type: "chest", price: 0, keyword: "Chest" },
+            { name: "JB Square\n新山广场", color: "green", price: 320, type: "property", owner: null, level: 0, keyword: "jb" },
+            { name: "KLIA\n吉隆坡机场", type: "station", price: 200, owner: null, level: 0, keyword: "klia" },
+            { name: "Chance\n机会", type: "chance", price: 0, keyword: "Question" },
+            { name: "Batu Caves\n黑风洞", color: "darkblue", price: 350, type: "property", owner: null, level: 0, keyword: "batu_caves" },
+            { name: "Tax Mewah\n奢侈税", type: "tax", price: 100, keyword: "Luxury" },
+            { name: "KLCC\n双峰塔", color: "darkblue", price: 400, type: "property", owner: null, level: 0, keyword: "klcc" }
+        ];
+
+        const config = { type: Phaser.AUTO, scale: { mode: Phaser.Scale.RESIZE, parent: 'game-container', width: '100%', height: '100%' }, backgroundColor: '#FFF9E6', scene: { preload: preload, create: create } };
+        const game = new Phaser.Game(config);
+
+        let players = [], currentPlayerIndex = 0;
+        let houseGroup, diceContainer, die1G, die2G, isMoving = false, minZoom = 0.1, isInputLocked = false;
+        let onBuyCallback = null, onRentCallback = null, onCardCallback = null, onUpgradeCallback = null, onJailCallback = null, phaserScene = null;
+        let houseGraphicsMap = {};
+        let currentRound = 1;
+
+        function preload() {
+            const bar = document.getElementById('loader-bar');
+            const txt = document.getElementById('loader-percent');
+
+            // Loading events
+            this.load.on('progress', function (value) {
+                const percent = Math.floor(value * 100) + '%';
+                bar.style.width = percent;
+                txt.innerText = percent;
+            });
+
+            this.load.on('complete', function () {
+                // Assets loaded -> Hide loader -> Show Setup Modal
+                setTimeout(() => {
+                    const loader = document.getElementById('loading-screen');
+                    loader.style.opacity = '0';
+                    loader.style.transition = 'opacity 0.5s';
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                        document.getElementById('setup-modal').style.display = 'block';
+                        document.getElementById('setup-modal').classList.add('active');
+                    }, 500);
+                }, 500);
+            });
+
+            tilesData.forEach(tile => {
+                if ((tile.type === 'property' || tile.type === 'station') && tile.keyword) {
+                    this.load.image(tile.keyword, `./assets/${tile.keyword}_1.png`);
+                }
+            });
+        }
+
+        function create() {
+            phaserScene = this; const s = this;
+            s.cameras.main.setBounds(-5000, -5000, 15000, 15000);
+            drawBoard(s);
+            houseGroup = s.add.group().setDepth(350);
+
+            diceContainer = s.add.container(0, 0).setScrollFactor(0).setDepth(2000).setVisible(false);
+            die1G = s.add.graphics(); die2G = s.add.graphics(); diceContainer.add([die1G, die2G]);
+
+            const resetCameraView = () => {
+                const padding = 200;
+                const scaleX = s.scale.width / (BOARD_PIXEL_WIDTH + padding);
+                const scaleY = s.scale.height / (BOARD_PIXEL_WIDTH + padding);
+                minZoom = Math.min(scaleX, scaleY);
+                if (!isMoving) {
+                    s.cameras.main.stopFollow(); s.cameras.main.removeBounds();
+                    s.cameras.main.setZoom(minZoom).centerOn(CENTER_X, CENTER_Y);
+                    s.cameras.main.setBounds(-5000, -5000, 15000, 15000);
+                }
+            };
+            resetCameraView(); s.scale.on('resize', resetCameraView);
+
+            s.input.on('wheel', (p, g, dx, dy) => {
+                if (isInputLocked) return;
+                s.cameras.main.stopFollow();
+                let targetZoom = Phaser.Math.Clamp(s.cameras.main.zoom * (dy > 0 ? 0.9 : 1.1), minZoom, 1.2);
+                s.cameras.main.setZoom(targetZoom);
+            });
+
+            let isDrag = false; let dStart = { x: 0, y: 0 };
+            s.input.on('pointerdown', (p) => {
+                SoundManager.init();
+                if (isInputLocked) return;
+                isDrag = true; dStart.x = p.x; dStart.y = p.y; s.cameras.main.stopFollow();
+            });
+            s.input.on('pointerup', () => isDrag = false);
+            s.input.on('pointermove', (p) => {
+                if (isInputLocked || !isDrag) return;
+                s.cameras.main.scrollX -= (p.x - dStart.x) / s.cameras.main.zoom;
+                s.cameras.main.scrollY -= (p.y - dStart.y) / s.cameras.main.zoom;
+                dStart.x = p.x; dStart.y = p.y;
+            });
+
+            if (localStorage.getItem(SAVE_KEY)) document.getElementById('resume-area').style.display = 'block';
+
+            window.startGame = (num) => initGame(num);
+            window.resumeGame = () => loadGame();
+            window.handleMainButton = () => {
+                if (isMoving) return;
+                const p = players[currentPlayerIndex];
+                if (p.inJail) {
+                    showJailModal();
+                } else {
+                    rollDice(phaserScene);
+                }
+            };
+            window.triggerRoll = () => { if (!isMoving) rollDice(s); };
+            window.handleBuy = (b) => { if (onBuyCallback) onBuyCallback(b); };
+            window.handleRent = () => { if (onRentCallback) onRentCallback(); };
+            window.handleCardConfirm = () => { if (onCardCallback) onCardCallback(); };
+            window.handleUpgrade = (b) => { if (onUpgradeCallback) onUpgradeCallback(b); };
+            window.handleJailDecision = (c) => { if (onJailCallback) onJailCallback(c); };
+
+            s.input.on('pointerdown', () => SoundManager.init());
+        }
+
+        function saveGameState() {
+            const state = {
+                players: players.map(p => ({
+                    id: p.id, money: p.money, currentIdx: p.currentIdx, active: p.active, color: p.color, name: p.name,
+                    inJail: p.inJail, jailTurns: p.jailTurns
+                })),
+                currentPlayerIndex: currentPlayerIndex,
+                currentRound: currentRound,
+                tileStates: tilesData.map((t, i) => ({ index: i, owner: t.owner, level: t.level }))
+            };
+            localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+        }
+
+        function loadGame() {
+            const save = JSON.parse(localStorage.getItem(SAVE_KEY));
+            if (!save) return;
+            document.getElementById('setup-modal').classList.remove('active');
+            document.getElementById('setup-modal').style.display = 'none';
+            document.getElementById('info-card').style.display = 'block';
+            document.getElementById('roll-button-ui').style.display = 'block';
+            const s = phaserScene;
+            const wLeft = document.getElementById('wallet-left');
+            const wRight = document.getElementById('wallet-right');
+            wLeft.innerHTML = ''; wRight.innerHTML = '';
+            players = []; houseGroup.clear(true, true); houseGraphicsMap = {};
+
+            const mid = Math.ceil(save.players.length / 2);
+
+            save.players.forEach((sp, i) => {
+                const c = getCoords(sp.currentIdx);
+                const offset = OFFSETS[sp.id];
+                const pToken = createPlayerToken(s, sp.color, c.x + offset.x, c.y + offset.y);
+                if (!sp.active) pToken.setAlpha(0.3);
+
+                players.push({
+                    container: pToken, money: sp.money, currentIdx: sp.currentIdx,
+                    color: sp.color, name: sp.name, id: sp.id, active: sp.active,
+                    inJail: sp.inJail || false, jailTurns: sp.jailTurns || 0
+                });
+
+                const badge = document.createElement('div');
+                badge.className = 'money-badge'; if (!sp.active) badge.classList.add('bankrupt');
+                if (sp.inJail) badge.classList.add('jailed');
+                badge.id = `p${sp.id}-badge`;
+                const cfg = PLAYER_CONFIG[sp.id];
+                badge.style.borderColor = cfg.hex; badge.style.backgroundColor = cfg.bg;
+                badge.innerHTML = `<span class="icon" style="background:${cfg.hex}"></span> ${cfg.name}: RM <span id="p${sp.id}-money">${sp.money}</span>`;
+                if (i < mid) wLeft.appendChild(badge); else wRight.appendChild(badge);
+            });
+
+            currentPlayerIndex = save.currentPlayerIndex;
+            currentRound = save.currentRound || 1;
+            updateRoundUI();
+
+            save.tileStates.forEach(ts => {
+                const t = tilesData[ts.index];
+                t.owner = ts.owner; t.level = ts.level || 0;
+                if (t.owner !== null) {
+                    const ownerP = players.find(p => p.id === t.owner);
+                    if (ownerP) addOwnershipBar(s, ts.index, ownerP.color);
+                }
+                if (t.level > 0) updateTileVisuals(s, ts.index, t.level);
+            });
+
+            updateTurnUI();
+            isMoving = false; isInputLocked = false;
+            const btn = document.getElementById('roll-button-ui');
+            btn.disabled = false;
+
+            const currentP = players[currentPlayerIndex];
+            if (currentP.inJail) {
+                btn.innerText = "坐牢中 (In Jail)";
+                btn.style.backgroundColor = "#FF9800";
+            } else {
+                btn.innerText = "掷骰子 Baling";
+                btn.style.backgroundColor = "#66BB6A";
+            }
+
+            s.cameras.main.stopFollow();
+            s.cameras.main.pan(CENTER_X, CENTER_Y, 1500, 'Power2');
+            s.cameras.main.zoomTo(minZoom, 1500, 'Power2');
+
+            showToast("游戏进度已恢复！");
+        }
+
+        function initGame(numPlayers) {
+            localStorage.removeItem(SAVE_KEY);
+            document.getElementById('setup-modal').classList.remove('active');
+            document.getElementById('setup-modal').style.display = 'none';
+            document.getElementById('info-card').style.display = 'block';
+            document.getElementById('roll-button-ui').style.display = 'block';
+            const s = phaserScene;
+            const wLeft = document.getElementById('wallet-left');
+            const wRight = document.getElementById('wallet-right');
+            wLeft.innerHTML = ''; wRight.innerHTML = '';
+            players = []; houseGroup.clear(true, true); houseGraphicsMap = {};
+            const startCoords = getCoords(0);
+            const mid = Math.ceil(numPlayers / 2);
+            currentRound = 1; updateRoundUI();
+
+            for (let i = 0; i < numPlayers; i++) {
+                const cfg = PLAYER_CONFIG[i]; const offset = OFFSETS[i];
+                const pToken = createPlayerToken(s, cfg.color, startCoords.x + offset.x, startCoords.y + offset.y);
+                players.push({
+                    container: pToken, money: 1500, currentIdx: 0, color: cfg.color, name: cfg.name, id: i, active: true,
+                    inJail: false, jailTurns: 0
+                });
+
+                const badge = document.createElement('div');
+                badge.className = 'money-badge'; badge.id = `p${i}-badge`;
+                badge.style.borderColor = cfg.hex; badge.style.backgroundColor = cfg.bg;
+                badge.innerHTML = `<span class="icon" style="background:${cfg.hex}"></span> ${cfg.name}: RM <span id="p${i}-money">1500</span>`;
+
+                if (i < mid) wLeft.appendChild(badge); else wRight.appendChild(badge);
+            }
+            currentPlayerIndex = 0; updateTurnUI();
+            saveGameState();
+
+            const btn = document.getElementById('roll-button-ui');
+            btn.innerText = "掷骰子 Baling";
+            btn.style.backgroundColor = "#66BB6A";
+            btn.disabled = false;
+
+            s.cameras.main.stopFollow();
+            s.cameras.main.pan(CENTER_X, CENTER_Y, 1500, 'Power2');
+            s.cameras.main.zoomTo(minZoom, 1500, 'Power2');
+        }
+
+        function createPlayerToken(s, color, x, y) {
+            const p = s.add.container(x, y).setDepth(500);
+            p.add(s.add.circle(0, 0, 35, color).setStrokeStyle(6, 0xFFFFFF));
+            p.add(s.add.circle(-12, -8, 5, 0xffffff)); p.add(s.add.circle(12, -8, 5, 0xffffff));
+            p.add(s.add.arc(0, 5, 15, 0, 180, false).setStrokeStyle(3, 0xffffff));
+            // 彻底移除阴影创建
+            return p;
+        }
+
+        function showJailModal() {
+            const p = players[currentPlayerIndex];
+            const modal = document.getElementById('jail-modal');
+            modal.classList.add('active'); modal.style.display = 'block';
+            onJailCallback = (choice) => {
+                modal.classList.remove('active'); modal.style.display = 'none';
+                onJailCallback = null;
+                if (choice === 'pay') {
+                    if (p.money >= 50) {
+                        p.money -= 50; updateMoneyUI(); showFloatingText(phaserScene, p.container.x, p.container.y, -50);
+                        p.inJail = false; p.jailTurns = 0;
+                        document.getElementById(`p${p.id}-badge`).classList.remove('jailed');
+                        showToast(`${p.name} 支付保释金出狱!`);
+                        rollDice(phaserScene);
+                    } else {
+                        showToast(`${p.name} 没钱支付! 只能碰运气`);
+                        handleJailRoll(phaserScene, p);
+                    }
+                } else { handleJailRoll(phaserScene, p); }
+            };
+        }
+
+        function handleJailRoll(s, p) {
+            isMoving = true; document.getElementById('roll-button-ui').disabled = true;
+            diceContainer.setVisible(true).setPosition(s.scale.width / 2, s.scale.height / 2).setScale(0.1);
+            s.tweens.add({ targets: diceContainer, scale: 1, duration: 300, ease: 'Back.out' });
+            let count = 0;
+            s.time.addEvent({
+                delay: 80, repeat: 15, callback: () => {
+                    const d1 = Phaser.Math.Between(1, 6), d2 = Phaser.Math.Between(1, 6);
+                    drawDie(die1G, -80, 0, d1); drawDie(die2G, 80, 0, d2);
+                    if (++count > 15) {
+                        s.time.delayedCall(1000, () => {
+                            s.tweens.add({ targets: diceContainer, scale: 0, duration: 200, onComplete: () => diceContainer.setVisible(false) });
+                            if (d1 === d2) {
+                                p.inJail = false; p.jailTurns = 0;
+                                document.getElementById(`p${p.id}-badge`).classList.remove('jailed');
+                                SoundManager.play('win'); showToast("双数！成功出狱！");
+                                moveToken(s, d1 + d2);
+                            } else {
+                                p.jailTurns++; SoundManager.play('fail');
+                                if (p.jailTurns >= 3) {
+                                    p.money -= 50; updateMoneyUI();
+                                    p.inJail = false; p.jailTurns = 0;
+                                    document.getElementById(`p${p.id}-badge`).classList.remove('jailed');
+                                    showToast("坐满3轮，罚款出狱，开始移动");
+                                    moveToken(s, d1 + d2);
+                                } else {
+                                    showToast(`出狱失败 (还剩 ${3 - p.jailTurns} 轮)`);
+                                    finishTurn(s);
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        function rollDice(s) {
+            if (isMoving) return;
+            isMoving = true; isInputLocked = true;
+            document.getElementById('roll-button-ui').disabled = true; hideGallery();
+            SoundManager.play('roll');
+
+            s.cameras.main.panEffect.reset(); s.cameras.main.zoomEffect.reset();
+            const currentP = players[currentPlayerIndex];
+            s.cameras.main.startFollow(currentP.container, true, 0.08, 0.08);
+            s.cameras.main.zoomTo(ZOOM_CLOSEUP, 1000, 'Power2');
+
+            diceContainer.setVisible(true).setPosition(s.scale.width / 2, s.scale.height / 2).setScale(0.1);
+            s.tweens.add({ targets: diceContainer, scale: 1, duration: 300, ease: 'Back.out' });
+
+            let count = 0;
+            s.time.addEvent({
+                delay: 80, repeat: 15, callback: () => {
+                    const d1 = Phaser.Math.Between(1, 6), d2 = Phaser.Math.Between(1, 6);
+                    drawDie(die1G, -80, 0, d1); drawDie(die2G, 80, 0, d2);
+                    if (++count > 15) {
+                        const total = d1 + d2; const colorHex = PLAYER_CONFIG[currentPlayerIndex].hex;
+                        document.getElementById('location-text').innerHTML = `<span style="color:${colorHex}; font-size:2.2rem">🎲 ${d1} + ${d2} = ${total}</span>`;
+                        s.time.delayedCall(1000, () => {
+                            s.tweens.add({ targets: diceContainer, scale: 0, duration: 200, onComplete: () => diceContainer.setVisible(false) });
+                            moveToken(s, total);
+                        });
+                    }
+                }
+            });
+        }
+
+        function moveTokenDirectly(s, p, targetIdx) {
+            isMoving = true; isInputLocked = true;
+            const c = getCoords(targetIdx);
+            const offset = OFFSETS[p.id];
+            const targetX = c.x + offset.x;
+            const targetY = c.y + offset.y;
+
+            s.tweens.add({
+                targets: p.container, scale: 2, alpha: 0, duration: 500, // 修复：移除了 p.shadow
+                onComplete: () => {
+                    p.currentIdx = targetIdx;
+                    s.cameras.main.pan(c.x, c.y, 800, 'Power2', false, (camera, progress) => {
+                        if (progress === 1) {
+                            p.container.setPosition(targetX, targetY - 200);
+                            s.tweens.add({
+                                targets: p.container, y: targetY, scale: 1, alpha: 1, duration: 800, ease: 'Bounce.out',
+                                onComplete: () => {
+                                    SoundManager.play('step');
+                                    if (targetIdx === 10) {
+                                        p.inJail = true; p.jailTurns = 0;
+                                        document.getElementById(`p${p.id}-badge`).classList.add('jailed');
+                                        showToast(`${p.name} 被关进监狱！`);
+                                    }
+                                    finishTurn(s);
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function moveToken(s, steps) {
+            const p = players[currentPlayerIndex];
+            if (steps === 0) { handleTileArrival(s, p); return; }
+
+            let nextIdx = p.currentIdx + 1;
+            if (nextIdx >= 40) {
+                nextIdx = 0;
+                p.money += 200; updateMoneyUI();
+                SoundManager.play('money_in');
+                showToast(`经过起点！获得 RM 200`, p);
+                showFloatingText(s, p.container.x, p.container.y, 200);
+            }
+
+            p.currentIdx = nextIdx;
+            const c = getCoords(p.currentIdx); const offset = OFFSETS[p.id];
+
+            SoundManager.play('step');
+            // 修复：只保留 container 动画，移除了 p.shadow 动画
+            s.tweens.add({ targets: p.container, x: c.x + offset.x, y: c.y + offset.y, duration: 250, onComplete: () => moveToken(s, steps - 1) });
+        }
+
+        function handleTileArrival(s, p) {
+            const t = tilesData[p.currentIdx]; updateInfoText(t);
+            if (t.type === 'property' || t.type === 'station') { updateGallery(t); } else { hideGallery(); }
+
+            if (p.currentIdx === 30) {
+                showToast(`${p.name} 被警察抓了！前往监狱！`);
+                SoundManager.play('fail');
+                s.time.delayedCall(1000, () => {
+                    moveTokenDirectly(s, p, 10);
+                });
+                return;
+            }
+
+            if (p.currentIdx === 10 && !p.inJail) { finishTurn(s); return; }
+            if (t.type === 'corner') { finishTurn(s); return; }
+
+            const isPurchasable = (t.type === 'property' || t.type === 'station' || t.type === 'utility');
+
+            if (isPurchasable) {
+                if (t.owner === null) {
+                    if (p.money >= t.price) showBuyModal(t, s, p); else finishTurn(s);
+                } else if (t.owner === p.id) {
+                    if (t.type === 'property' && t.level < 5) {
+                        showUpgradeModal(t, s, p);
+                    } else {
+                        finishTurn(s);
+                    }
+                } else {
+                    const landlord = players.find(pl => pl.id === t.owner);
+                    if (landlord && landlord.active) { showRentModal(t, s, p); } else { finishTurn(s); }
+                }
+            }
+            else if (t.type === 'chance' || t.type === 'chest') {
+                showCardEvent(t.type, s, p);
+            }
+            else if (t.type === 'tax') {
+                p.money -= t.price; updateMoneyUI(); showFloatingText(s, p.container.x, p.container.y, -t.price);
+                SoundManager.play('money_out');
+                finishTurn(s);
+            }
+            else { finishTurn(s); }
+        }
+
+        function showCardEvent(type, s, p) {
+            try {
+                const cards = (type === 'chance') ? CARDS_CHANCE : CARDS_CHEST;
+                const card = cards[Phaser.Math.Between(0, cards.length - 1)];
+
+                const modal = document.getElementById('card-modal');
+                document.getElementById('card-title').innerText = (type === 'chance') ? "机会 / Chance" : "公益金 / Community";
+                document.getElementById('card-desc').innerText = card.text.replace(/\n/g, '\n');
+                modal.style.borderColor = (type === 'chance') ? '#AB47BC' : '#29B6F6';
+                modal.classList.add('active'); modal.style.display = 'block';
+
+                onCardCallback = () => {
+                    modal.classList.remove('active'); modal.style.display = 'none';
+                    if (card.amount) {
+                        p.money += card.amount; updateMoneyUI();
+                        if (card.amount > 0) SoundManager.play('money_in'); else SoundManager.play('money_out');
+                        showFloatingText(s, p.container.x, p.container.y, card.amount);
+                        finishTurn(s);
+                    } else if (card.move !== undefined) {
+                        if (card.direct) { moveTokenDirectly(s, p, card.move); }
+                        else {
+                            let steps = card.move - p.currentIdx;
+                            if (steps < 0) steps += 40;
+                            moveToken(s, steps);
+                        }
+                    } else if (card.payAll) {
+                        const amount = card.payAll; let count = 0; SoundManager.play('money_out');
+                        players.forEach(otherP => {
+                            if (otherP.id !== p.id && otherP.active) {
+                                otherP.money += amount; showFloatingText(s, otherP.container.x, otherP.container.y, amount); count++;
+                            }
+                        });
+                        p.money -= (amount * count); updateMoneyUI();
+                        showFloatingText(s, p.container.x, p.container.y, -(amount * count));
+                        finishTurn(s);
+                    } else { finishTurn(s); }
+                    onCardCallback = null;
+                };
+            } catch (e) {
+                console.error("Card Error:", e);
+                finishTurn(s);
+            }
+        }
+
+        function showUpgradeModal(t, s, p) {
+            const isHotelUpgrade = (t.level === 4);
+            const upgradeCost = Math.floor(t.price * (isHotelUpgrade ? 1.0 : 0.5));
+            if (p.money < upgradeCost) { finishTurn(s); return; }
+
+            const modal = document.getElementById('upgrade-modal');
+            document.getElementById('upgrade-title').innerText = isHotelUpgrade ? "升级酒店" : "建造房屋";
+            document.getElementById('upgrade-desc').innerText = isHotelUpgrade ? "升级为大酒店 (租金 x8) !" : `建造第 ${t.level + 1} 间房子 (租金 x${t.level + 2})`;
+            document.getElementById('upgrade-price').innerText = `花费 RM ${upgradeCost}`;
+            modal.classList.add('active'); modal.style.display = 'block';
+
+            onUpgradeCallback = (confirm) => {
+                modal.classList.remove('active'); modal.style.display = 'none';
+                try {
+                    if (confirm) {
+                        p.money -= upgradeCost; t.level += 1; updateMoneyUI();
+                        SoundManager.play('upgrade');
+                        showFloatingText(s, p.container.x, p.container.y, -upgradeCost);
+                        updateTileVisuals(s, p.currentIdx, t.level);
+                        showToast(isHotelUpgrade ? "酒店落成！🎉" : "房屋建造完成！🏠");
+                    }
+                } catch (e) { console.error("Upgrade Error:", e); } finally { onUpgradeCallback = null; finishTurn(s); }
+            };
+        }
+
+        function updateTileVisuals(s, tileIdx, level) {
+            try {
+                if (houseGraphicsMap[tileIdx]) houseGraphicsMap[tileIdx].destroy();
+                const c = getCoords(tileIdx); const g = s.add.graphics();
+                let startX = c.x, startY = c.y, stepX = 0, stepY = 0;
+                const dist = TILE_SIZE / 2 + 45;
+                if (tileIdx > 0 && tileIdx < 10) { startY = c.y + dist; startX = c.x - 45; stepX = 30; }
+                else if (tileIdx > 10 && tileIdx < 20) { startX = c.x - dist; startY = c.y + 45; stepY = -30; }
+                else if (tileIdx > 20 && tileIdx < 30) { startY = c.y - dist; startX = c.x + 45; stepX = -30; }
+                else if (tileIdx > 30 && tileIdx < 40) { startX = c.x + dist; startY = c.y - 45; stepY = 30; }
+
+                if (level === 5) {
+                    const centerX = (tileIdx > 10 && tileIdx < 20) || (tileIdx > 30) ? startX : c.x;
+                    const centerY = (tileIdx > 0 && tileIdx < 10) || (tileIdx > 20 && tileIdx < 30) ? startY : c.y;
+                    g.fillStyle(0xF44336, 1); g.lineStyle(2, 0xFFFFFF);
+                    g.fillRect(centerX - 15, centerY - 10, 30, 20);
+                    g.fillTriangle(centerX - 20, centerY - 10, centerX + 20, centerY - 10, centerX, centerY - 25);
+                } else {
+                    g.fillStyle(0x4CAF50, 1); g.lineStyle(1, 0xFFFFFF);
+                    for (let i = 0; i < level; i++) {
+                        const hx = startX + (i * stepX); const hy = startY + (i * stepY);
+                        g.fillRect(hx - 8, hy - 6, 16, 12); g.fillTriangle(hx - 10, hy - 6, hx + 10, hy - 6, hx, hy - 14);
+                    }
+                }
+                g.setScale(0); s.tweens.add({ targets: g, scale: 1, duration: 500, ease: 'Back.out' });
+                houseGroup.add(g); houseGraphicsMap[tileIdx] = g;
+            } catch (e) { console.error("Draw House Error:", e); }
+        }
+
+        function showBuyModal(t, s, p) {
+            const modal = document.getElementById('buy-modal');
+            document.getElementById('buy-desc').innerText = t.name.replace(/\n/g, ' / ');
+            document.getElementById('buy-price').innerText = `RM ${t.price}`;
+            modal.classList.add('active'); modal.style.display = 'block';
+            onBuyCallback = (isBuy) => {
+                modal.classList.remove('active'); modal.style.display = 'none';
+                if (isBuy) {
+                    p.money -= t.price; t.owner = p.id; updateMoneyUI();
+                    SoundManager.play('money_out');
+                    showFloatingText(s, p.container.x, p.container.y, -t.price);
+                    addOwnershipBar(s, p.currentIdx, p.color);
+                }
+                onBuyCallback = null; finishTurn(s);
+            };
+        }
+
+        function showRentModal(t, s, victim) {
+            let rent = 0; let descText = "";
+            const inflationMulti = currentRound > 10 ? 2 : 1;
+
+            if (t.type === 'property') {
+                let multiplier = 1 + t.level; if (t.level === 5) multiplier = 8;
+                rent = Math.floor(t.price * 0.2 * multiplier * inflationMulti);
+                const levelText = t.level === 5 ? "HOTEL" : (t.level > 0 ? `${t.level} 房` : "空地");
+                const landlord = players.find(pl => pl.id === t.owner);
+                descText = `房东: ${landlord.name} (${levelText})`;
+            } else if (t.type === 'utility') {
+                const count = tilesData.filter(x => x.type === 'utility' && x.owner === t.owner).length;
+                rent = Math.floor(t.price * 0.2) * (count === 2 ? 2 : 1) * inflationMulti;
+                const landlord = players.find(pl => pl.id === t.owner);
+                descText = `房东: ${landlord.name} (拥有 ${count} 个公用设施)`;
+            } else if (t.type === 'station') {
+                const count = tilesData.filter(x => x.type === 'station' && x.owner === t.owner).length;
+                const multi = [1, 2, 4, 8];
+                rent = Math.floor(t.price * 0.2) * multi[count - 1] * inflationMulti;
+                const landlord = players.find(pl => pl.id === t.owner);
+                descText = `房东: ${landlord.name} (拥有 ${count} 个车站)`;
+            }
+
+            if (inflationMulti > 1) descText += "\n(通货膨胀 x2)";
+
+            const landlord = players.find(pl => pl.id === t.owner);
+            if (landlord) {
+                const modal = document.getElementById('rent-modal');
+                document.getElementById('rent-desc').innerText = descText;
+                document.getElementById('rent-price').innerText = `租金: RM ${rent}`;
+                modal.classList.add('active'); modal.style.display = 'block';
+                onRentCallback = () => {
+                    modal.classList.remove('active'); modal.style.display = 'none';
+                    victim.money -= rent; landlord.money += rent; updateMoneyUI();
+                    SoundManager.play('money_out');
+                    showFloatingText(s, victim.container.x, victim.container.y, -rent);
+                    showFloatingText(s, landlord.container.x, landlord.container.y, rent);
+                    onRentCallback = null; finishTurn(s);
+                };
+            } else { finishTurn(s); }
+        }
+
+        function addOwnershipBar(s, tileIdx, color) {
+            try {
+                const center = getCoords(tileIdx);
+                const bar = s.add.graphics();
+                bar.fillStyle(color, 1);
+                const barWidth = TILE_SIZE - 20;
+                bar.fillRoundedRect(-barWidth / 2, -BAR_THICKNESS / 2, barWidth, BAR_THICKNESS, 15);
+                const halfTile = TILE_SIZE / 2;
+                const dist = halfTile + BAR_MARGIN + BAR_THICKNESS / 2;
+                if (tileIdx > 0 && tileIdx < 10) {
+                    bar.setPosition(center.x, center.y + dist);
+                } else if (tileIdx > 10 && tileIdx < 20) {
+                    bar.setPosition(center.x - dist, center.y); bar.setAngle(90);
+                } else if (tileIdx > 20 && tileIdx < 30) {
+                    bar.setPosition(center.x, center.y - dist);
+                } else if (tileIdx > 30 && tileIdx < 40) {
+                    bar.setPosition(center.x + dist, center.y); bar.setAngle(90);
+                }
+                bar.setScale(0);
+                s.tweens.add({ targets: bar, scaleX: 1, scaleY: 1, duration: 400, ease: 'Back.out' });
+                houseGroup.add(bar);
+            } catch (e) { console.error("Bar Error:", e); }
+        }
+
+        function finishTurn(s) {
+            saveGameState();
+            isMoving = false; isInputLocked = false;
+
+            const btn = document.getElementById('roll-button-ui');
+            btn.disabled = false;
+
+            const currentP = players[currentPlayerIndex];
+            if (currentP.money < 0) {
+                currentP.active = false; currentP.container.setAlpha(0.3);
+                document.getElementById(`p${currentP.id}-badge`).classList.add('bankrupt');
+                showToast(`${currentP.name} 破产了! Bankrupt!`);
+            }
+            const activePlayers = players.filter(p => p.active);
+
+            if (activePlayers.length === 1 || currentRound > MAX_ROUNDS) {
+                checkGameEnd(activePlayers); // 修复：调用新函数，解决变量名错误
+                return;
+            }
+
+            let nextIdx = (currentPlayerIndex + 1) % players.length;
+            while (!players[nextIdx].active) { nextIdx = (nextIdx + 1) % players.length; }
+
+            if (nextIdx === 0) {
+                currentRound++;
+                updateRoundUI();
+            }
+
+            currentPlayerIndex = nextIdx; updateTurnUI();
+
+            const nextP = players[nextIdx];
+            if (nextP.inJail) {
+                btn.innerText = "坐牢中 (In Jail)";
+                btn.style.backgroundColor = "#FF9800";
+            } else {
+                btn.innerText = "掷骰子 Baling";
+                btn.style.backgroundColor = "#66BB6A";
+            }
+
+            s.cameras.main.stopFollow();
+            s.cameras.main.pan(CENTER_X, CENTER_Y, 1500, 'Power2');
+            s.cameras.main.zoomTo(minZoom, 1500, 'Power2');
+            saveGameState();
+        }
+
+        function checkGameEnd(activePlayers) {
+            localStorage.removeItem(SAVE_KEY);
+            SoundManager.play('win');
+            document.getElementById('roll-button-ui').style.display = 'none';
+
+            let results = players.map(p => {
+                let assets = p.money;
+                tilesData.forEach(t => {
+                    if (t.owner === p.id) {
+                        assets += t.price;
+                        if (t.type === 'property') assets += (t.price * 0.5 * t.level);
+                    }
+                });
+                return { name: p.name, total: Math.floor(assets), active: p.active };
+            });
+
+            results.sort((a, b) => b.total - a.total);
+            const winner = results[0];
+
+            document.getElementById('win-title').innerText = `🏆 冠军: ${winner.name}`;
+
+            let listHtml = "";
+            results.forEach((r, i) => {
+                listHtml += `<div class="win-row"><span>${i + 1}. ${r.name} ${r.active ? '' : '(破产)'}</span> <span>RM ${r.total}</span></div>`;
+            });
+            document.getElementById('win-list').innerHTML = listHtml;
+
+            // 修复：确保 modal 变量正确定义
+            const modal = document.getElementById('win-modal');
+            modal.classList.add('active'); modal.style.display = 'block';
+        }
+
+        function updateRoundUI() {
+            const div = document.getElementById('round-counter');
+            div.innerText = `Round: ${currentRound} / ${MAX_ROUNDS}`;
+            if (currentRound > 10) div.classList.add('inflation-warning');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('game-toast');
+            toast.innerText = msg; toast.style.opacity = 1; toast.style.top = '140px';
+            setTimeout(() => { toast.style.opacity = 0; toast.style.top = '120px'; }, 3000);
+        }
+
+        function showFloatingText(s, x, y, amount) {
+            const str = amount >= 0 ? `+ RM ${amount}` : `- RM ${Math.abs(amount)}`;
+            const color = amount >= 0 ? '#4CAF50' : '#F44336';
+            const txt = s.add.text(x, y - 50, str, { fontFamily: FONT_MAIN, fontSize: '40px', color: color, stroke: '#FFF', strokeThickness: 6, fontStyle: 'bold' }).setOrigin(0.5).setDepth(2000);
+            s.tweens.add({ targets: txt, y: y - 150, alpha: 0, duration: 2000, ease: 'Power2', onComplete: () => txt.destroy() });
+        }
+
+        function updateMoneyUI() { players.forEach(p => { document.getElementById(`p${p.id}-money`).innerText = p.money; }); }
+        function updateTurnUI() {
+            const infoCard = document.getElementById('info-card'); const locText = document.getElementById('location-text'); const pCfg = PLAYER_CONFIG[currentPlayerIndex];
+            players.forEach(p => { const badge = document.getElementById(`p${p.id}-badge`); if (p.id === currentPlayerIndex) badge.classList.add('active'); else badge.classList.remove('active'); });
+            infoCard.style.borderColor = pCfg.hex; infoCard.style.boxShadow = `0 0 20px ${pCfg.hex}40`;
+            locText.innerHTML = `<span class="lang-en" style="color:${pCfg.hex}">${pCfg.name}'s Turn</span><span class="lang-zh">轮到 ${pCfg.name}</span>`;
+        }
+
+        function updateInfoText(t) { const n = t.name.split('\n'); document.getElementById('location-text').innerHTML = `<span class="lang-en">${n[0]}</span><span class="lang-ms">${n[1] || ''}</span><span class="lang-zh">${n[2] || ''}</span>`; }
+        function hideGallery() { document.getElementById('gallery-left').classList.remove('active'); document.getElementById('gallery-right').classList.remove('active'); }
+        function updateGallery(t) {
+            if (!t || !t.keyword) return; const localPath = "./assets/"; const imgLeft = document.getElementById('img-left'); const imgRight = document.getElementById('img-right');
+            const fallback = "https://via.placeholder.com/240x400?text=Malaysia";
+            imgLeft.onerror = () => { imgLeft.src = fallback; }; imgRight.onerror = () => { imgRight.src = fallback; };
+            imgLeft.src = `${localPath}${t.keyword}_1.png`; imgRight.src = `${localPath}${t.keyword}_2.png`;
+            document.getElementById('gallery-left').classList.add('active'); document.getElementById('gallery-right').classList.add('active');
+        }
+
+        function getCoords(i) {
+            let x, y;
+            if (i <= 10) { x = (10 - i) * TILE_SIZE; y = 10 * TILE_SIZE; }
+            else if (i <= 20) { x = 0; y = (20 - i) * TILE_SIZE; }
+            else if (i <= 30) { x = (i - 20) * TILE_SIZE; y = 0; }
+            else { x = 10 * TILE_SIZE; y = (i - 30) * TILE_SIZE; }
+            return { x: x + OFFSET + TILE_SIZE / 2, y: y + OFFSET + TILE_SIZE / 2 };
+        }
+
+        function drawBoard(s) {
+            tilesData.forEach((t, i) => {
+                const c = getCoords(i);
+                const shadow = s.add.graphics(); shadow.fillStyle(0x000000, 0.05).fillRoundedRect(c.x - TILE_SIZE / 2 + 8, c.y - TILE_SIZE / 2 + 8, TILE_SIZE - 10, TILE_SIZE - 10, 30); shadow.setDepth(1);
+                const base = s.add.graphics(); base.fillStyle(0xffffff).lineStyle(4, 0xD7CCC8).fillRoundedRect(c.x - TILE_SIZE / 2, c.y - TILE_SIZE / 2, TILE_SIZE - 10, TILE_SIZE - 10, 30).strokeRoundedRect(c.x - TILE_SIZE / 2, c.y - TILE_SIZE / 2, TILE_SIZE - 10, TILE_SIZE - 10, 30); base.setDepth(2);
+
+                if ((t.type === 'property' || t.type === 'station') && t.keyword) {
+                    if (s.textures.exists(t.keyword)) {
+                        const bgImg = s.add.image(c.x, c.y, t.keyword); bgImg.setDisplaySize(TILE_SIZE - 20, TILE_SIZE - 20); bgImg.setAlpha(0.2); bgImg.setDepth(3);
+                    } else {
+                        const debugRect = s.add.graphics(); debugRect.fillStyle(0xFF0000, 0.2).fillRoundedRect(c.x - TILE_SIZE / 2 + 10, c.y - TILE_SIZE / 2 + 10, TILE_SIZE - 20, TILE_SIZE - 20, 25); debugRect.setDepth(3);
+                    }
+                }
+
+                const topContent = s.add.container(0, 0).setDepth(4);
+                const g = s.add.graphics();
+                if (t.color) g.fillStyle(COLORS[t.color]).fillRoundedRect(c.x - TILE_SIZE / 2 + 10, c.y - TILE_SIZE / 2 + 10, TILE_SIZE - 30, 45, 10);
+                const textName = s.add.text(c.x, c.y + (t.color ? 20 : 0), t.name, { fontFamily: FONT_MAIN, fontSize: '26px', color: '#5D4037', align: 'center', wordWrap: { width: TILE_SIZE - 40 } }).setOrigin(0.5);
+                topContent.add([g, textName]);
+                if (t.price > 0) {
+                    const textPrice = s.add.text(c.x, c.y + TILE_SIZE / 2 - 30, `RM${t.price}`, { fontFamily: FONT_MAIN, fontSize: '22px', color: '#E65100', fontWeight: 'bold' }).setOrigin(0.5);
+                    topContent.add(textPrice);
+                }
+            });
+        }
+
+        function drawDie(g, ox, oy, v) {
+            g.clear().fillStyle(0xffffff).fillRoundedRect(ox - 50, oy - 50, 100, 100, 20).fillStyle(0x3E2723);
+            const dot = (dx, dy) => g.fillCircle(ox + dx, oy + dy, 10);
+            if (v % 2 === 1) dot(0, 0); if (v > 1) { dot(-25, -25); dot(25, 25); } if (v > 3) { dot(25, -25); dot(-25, 25); } if (v === 6) { dot(-25, 0); dot(25, 0); }
+        }
+    </script>
+
+</body>
+
+</html>

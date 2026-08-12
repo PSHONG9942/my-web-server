@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Scrabble Game</title>
+    <link rel="icon" href="../images/logo.png" type="image/png">
+    <style>
+        :root {
+            /* Base Colors matching G-MATH style */
+            --board-bg: #f0f0f0;
+            --tile-bg: #fdf5e6;
+            --tile-color: #333;
+            --dl-color: #a8e6cf;
+            --tl-color: #3d84a8;
+            --dw-color: #ffaaa5;
+            --tw-color: #ff8b94;
+            --accent: #4a4e69;
+            --dark-bg: #22223b;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark-bg);
+            color: white;
+            margin: 0;
+            padding: 0;
+            height: auto;
+            min-height: 100vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* === Header === */
+        header {
+            height: 50px;
+            background: #1a1a2e;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            flex-shrink: 0;
+            z-index: 20;
+            position: relative;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* === Loading Overlay === */
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark-bg);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid #ffd700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* === Main Wrapper === */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            padding: 10px;
+            width: 100%;
+        }
+
+        /* === Board Area === */
+        .board-area {
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #4a4e69;
+            padding: 8px;
+            border-radius: 8px;
+            box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(15, var(--cell-size));
+            grid-template-rows: repeat(15, var(--cell-size));
+            gap: 2px;
+            background-color: #333;
+            border: 2px solid #333;
+        }
+
+        .cell {
+            width: var(--cell-size);
+            height: var(--cell-size);
+            background-color: var(--board-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: calc(var(--cell-size) * 0.28);
+            color: #333;
+            font-weight: bold;
+            position: relative;
+            user-select: none;
+            cursor: pointer;
+        }
+
+        .cell.dl {
+            background-color: var(--dl-color);
+            color: #004d40;
+        }
+
+        .cell.tl {
+            background-color: var(--tl-color);
+            color: white;
+        }
+
+        .cell.dw {
+            background-color: var(--dw-color);
+            color: #880e4f;
+        }
+
+        .cell.tw {
+            background-color: var(--tw-color);
+            color: #880e4f;
+        }
+
+        .cell.center {
+            background-color: var(--dw-color);
+            font-size: calc(var(--cell-size) * 0.6);
+            color: #fff;
+        }
+
+        /* === Tiles === */
+        .tile {
+            width: calc(var(--cell-size) - 4px);
+            height: calc(var(--cell-size) - 4px);
+            background-color: var(--tile-bg);
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: calc(var(--cell-size) * 0.55);
+            font-weight: bold;
+            color: var(--tile-color);
+            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            cursor: grab;
+            z-index: 10;
+            position: relative;
+            transition: transform 0.1s, border 0.1s, box-shadow 0.1s;
+        }
+
+        .tile span.points {
+            position: absolute;
+            bottom: 2px;
+            right: 3px;
+            font-size: calc(var(--cell-size) * 0.25);
+            color: #666;
+        }
+
+        .tile.temp {
+            border: 2px solid #4caf50;
+            box-shadow: 0 0 5px #4caf50;
+        }
+
+        .tile.locked {
+            cursor: default;
+            background-color: #ddd;
+            color: #555;
+        }
+
+        .tile.selected {
+            transform: translateY(-8px) scale(1.1);
+            border: 2px solid #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.9);
+            z-index: 20;
+            background-color: #fffbf0;
+        }
+
+        .rack-swapping {
+            background: rgba(233, 196, 106, 0.2) !important;
+            border: 2px dashed #e9c46a !important;
+        }
+
+        /* === Sidebar === */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.07);
+            padding: 15px;
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #rack-container {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            min-height: calc(var(--cell-size) * 1.2 + 20px);
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            transition: background 0.3s;
+        }
+
+        #rack-container .tile {
+            transform: scale(1.1);
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        #rack-container .tile.selected {
+            transform: scale(1.2) translateY(-5px);
+        }
+
+        .score-board {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .player-score {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 10px;
+            font-size: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .player-score.active {
+            background: linear-gradient(90deg, rgba(255, 215, 0, 0.2) 0%, transparent 100%);
+            color: #ffd700;
+            font-weight: bold;
+            border-left: 4px solid #ffd700;
+        }
+
+        .player-score.eliminated {
+            opacity: 0.5;
+            background: rgba(0, 0, 0, 0.3);
+            color: #aaa;
+            text-decoration: line-through;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+
+        button {
+            padding: 12px 5px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            filter: grayscale(100%);
+        }
+
+        .btn-play {
+            background: #2a9d8f;
+            color: white;
+            grid-column: span 3;
+            font-size: 1.1rem;
+            padding: 15px;
+        }
+
+        .btn-swap {
+            background: #e9c46a;
+            color: #333;
+        }
+
+        .btn-swap.active {
+            background: #ffca3a;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+            animation: pulse 2s infinite;
+        }
+
+        .btn-reset {
+            background: #e76f51;
+            color: white;
+        }
+
+        .btn-pass {
+            background: #264653;
+            color: white;
+        }
+
+        .btn-shuffle {
+            background: #457b9d;
+            color: white;
+            grid-column: span 1;
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .btn-help {
+            background: #607d8b;
+            color: white;
+            grid-column: span 1;
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .btn-hint {
+            background: #9c27b0;
+            color: white;
+            grid-column: span 1;
+            font-size: 0.8rem;
+            opacity: 0.9;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-hint .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.8);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.02);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes flashRed {
+            0% {
+                box-shadow: inset 0 0 15px rgba(255, 0, 0, 0.8);
+            }
+
+            50% {
+                box-shadow: inset 0 0 5px rgba(255, 0, 0, 0.4);
+            }
+
+            100% {
+                box-shadow: inset 0 0 15px rgba(255, 0, 0, 0.8);
+            }
+        }
+
+        @keyframes flashGreen {
+            0% {
+                box-shadow: inset 0 0 15px rgba(0, 255, 0, 0.8);
+            }
+
+            50% {
+                box-shadow: inset 0 0 5px rgba(0, 255, 0, 0.4);
+            }
+
+            100% {
+                box-shadow: inset 0 0 15px rgba(0, 255, 0, 0.8);
+            }
+        }
+
+        @keyframes flashBlue {
+            0% {
+                box-shadow: inset 0 0 15px rgba(0, 0, 255, 0.8);
+            }
+
+            50% {
+                box-shadow: inset 0 0 5px rgba(0, 0, 255, 0.4);
+            }
+
+            100% {
+                box-shadow: inset 0 0 15px rgba(0, 0, 255, 0.8);
+            }
+        }
+
+        .hint-red {
+            animation: flashRed 1s infinite;
+            position: relative;
+        }
+
+        .hint-green {
+            animation: flashGreen 1s infinite;
+            position: relative;
+        }
+
+        .hint-blue {
+            animation: flashBlue 1s infinite;
+            position: relative;
+        }
+
+        #message-area {
+            text-align: center;
+            color: #ffd700;
+            font-weight: bold;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: space-around;
+            font-size: 0.75rem;
+            padding: 10px;
+        }
+
+        .legend div {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* === Modals === */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: white;
+            color: #333;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-width: 600px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .tutorial-section {
+            text-align: left;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .tutorial-section h3 {
+            color: #2a9d8f;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+            margin-top: 0;
+        }
+
+        .tutorial-list {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+
+        .tutorial-list li {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .endgame-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .endgame-table th,
+        .endgame-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .endgame-table th {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        /* === Responsive Landscape === */
+        @media (orientation: landscape) {
+            body {
+                height: 100vh;
+                height: 100dvh;
+                overflow: hidden;
+            }
+
+            :root {
+                --available-h: calc(100dvh - 100px);
+                --cell-size: min(calc(var(--available-h) / 15), calc(55vw / 15));
+                --sidebar-padding: 20px;
+            }
+
+            .main-wrapper {
+                height: calc(100dvh - 50px);
+                overflow: hidden;
+                align-items: center;
+                justify-content: flex-start;
+                gap: 2vw;
+                padding: 5px var(--sidebar-padding);
+            }
+
+            .board-area {
+                padding: 4px;
+            }
+
+            .sidebar {
+                flex: 1;
+                height: calc(15 * var(--cell-size) + 12px);
+                min-width: 280px;
+                gap: 2vh;
+            }
+
+            .panel {
+                padding: 1.5vh;
+            }
+
+            .panel,
+            button,
+            .player-score {
+                font-size: clamp(0.8rem, 2.2vh, 1rem);
+            }
+
+            h4 {
+                margin: 0 0 0.5vh 0;
+            }
+
+            #rack-container {
+                min-height: calc(var(--cell-size) * 1.2 + 10px);
+                padding: 5px;
+            }
+
+            button {
+                padding: 1.2vh 5px;
+            }
+
+            .score-board {
+                overflow-y: auto;
+                flex-shrink: 1;
+            }
+        }
+
+        /* === Responsive Portrait === */
+        @media (orientation: portrait) {
+            :root {
+                --cell-size: calc((100vw - 20px) / 15);
+            }
+
+            .main-wrapper {
+                flex-direction: column;
+                justify-content: flex-start;
+                padding: 10px;
+                height: auto;
+                overflow: visible;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                flex: none;
+                gap: 10px;
+            }
+
+            .board-area {
+                margin-bottom: 10px;
+            }
+
+            .score-board {
+                display: none;
+            }
+
+            .mobile-score {
+                display: inline-block !important;
+                color: #ffd700;
+                font-size: 0.9rem;
+            }
+
+            #rack-container .tile {
+                transform: scale(1);
+            }
+
+            #rack-container .tile.selected {
+                transform: scale(1.1) translateY(-5px);
+            }
+        }
+
+        .mobile-score {
+            display: none;
+        }
+
+        .back-link {
+            color: #ccc;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+            background: #2ed573;
+            box-shadow: 0 0 5px #2ed573;
+        }
+
+        .status-dot.offline {
+            background: #ff4757;
+            box-shadow: 0 0 5px #ff4757;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+        <h2>Loading Scrabble Dictionary...</h2>
+        <p>Fetching standard word list</p>
+    </div>
+    <header>
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <a href="../index.html" class="back-link">← Back to Main</a>
+            <h1>Scrabble <span class="mobile-score" id="mobile-score-display"></span></h1>
+        </div>
+        <div style="font-size: 0.9rem; color: #ccc;">
+            Tiles Left: <span id="tiles-left-header" style="font-weight:bold; color:white;">0</span>
+        </div>
+    </header>
+
+    <div class="main-wrapper">
+        <div class="board-area">
+            <div id="game-board"></div>
+        </div>
+
+        <div class="sidebar">
+            <div id="message-area">Welcome to Scrabble!</div>
+
+            <div class="panel score-board">
+                <h4 style="border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:5px;">
+                    📊 Player Scores
+                </h4>
+                <div id="players-list"></div>
+            </div>
+
+            <div class="panel">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                    <div style="font-weight:bold; color:#ddd;">🖐️ Your Rack:</div>
+                    <div style="font-size:0.8em; color:#aaa;" id="rack-hint">(Click to select, click board to place)
+                    </div>
+                </div>
+                <div id="rack-container"></div>
+            </div>
+
+            <div class="actions">
+                <button class="btn-play" id="btn-play" onclick="handlePlayWord()">✅ Play Word</button>
+
+                <button class="btn-swap" id="btn-swap" onclick="handleSwap()">♻️ Swap</button>
+                <button class="btn-reset" id="btn-reset" onclick="game.recallTiles()">↩️ Recall</button>
+                <button class="btn-pass" id="btn-pass" onclick="handlePass()">⏭️ Pass</button>
+                <button class="btn-shuffle" onclick="game.shuffleRack()">🔀 Shuffle</button>
+                <button class="btn-help" onclick="game.showTutorial()">❓ Help</button>
+                <button class="btn-dict" onclick="window.open('scrabble-dictionary.html', '_blank')"
+                    style="background-color: #4a4e69; color: white;">📚 Dictionary</button>
+            </div>
+
+            <div class="panel legend">
+                <div><span style="color:var(--dl-color)">■</span> Double Letter</div>
+                <div><span style="color:var(--tl-color)">■</span> Triple Letter</div>
+                <div><span style="color:var(--dw-color)">■</span> Double Word</div>
+                <div><span style="color:var(--tw-color)">■</span> Triple Word</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Multiplayer Landing Modal -->
+    <div id="landing-modal" class="modal" style="display: flex;">
+        <div class="modal-content" style="max-width: 500px; text-align: center;">
+            <h1 style="color:#4a4e69; margin-top:0;">Scrabble Mode</h1>
+            <p>Choose your game mode to begin.</p>
+            <div style="margin: 15px 0; text-align: left;">
+                <label style="font-weight:bold; color:#333;">Dictionary Setting:</label>
+                <select id="dict-select-local"
+                    style="width:100%; padding:10px; margin-top:5px; border-radius:5px; font-size:1rem;">
+                    <option value="casual">Casual (Full English Dictionary)</option>
+                    <option value="world" selected>World Official (SOWPODS)</option>
+                    <option value="strict">Strict Official (Redbo Fetch)</option>
+                </select>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+                <button onclick="startLocalPlay()"
+                    style="background:#2a9d8f; color:white; padding:15px; font-size:1.1rem; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">🕹️
+                    Local Play (Pass & Play)</button>
+                <button onclick="openMultiplayerLobby()"
+                    style="background:#e9c46a; color:#333; padding:15px; font-size:1.1rem; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">🌐
+                    Online Multiplayer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Multiplayer Lobby Modal -->
+    <div id="lobby-modal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 500px; text-align: center;">
+            <h2 style="color:#4a4e69; margin-top:0;">🌐 Online Lobby</h2>
+
+            <div style="margin-bottom: 15px; text-align: left;">
+                <label style="font-weight:bold; color:#333;">Host Dictionary:</label>
+                <select id="dict-select-multi"
+                    style="width:100%; padding:10px; margin-top:5px; border-radius:5px; font-size:1rem;">
+                    <option value="casual">Casual (Full English Dictionary)</option>
+                    <option value="world" selected>World Official (SOWPODS)</option>
+                    <option value="strict">Strict Official (Redbo Fetch)</option>
+                </select>
+                <small style="color:#666;">(Only applies if you create a room)</small>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display:block; text-align:left; font-weight:bold; margin-bottom:5px;">Your Name:</label>
+                <input type="text" id="player-name-input" placeholder="Enter your name..."
+                    style="width:100%; padding:10px; border-radius:5px; border:1px solid #ccc; font-size:1rem; box-sizing:border-box;">
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button onclick="hostGame()"
+                    style="flex:1; background:#2a9d8f; color:white; padding:12px; font-size:1rem; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">Create
+                    Room</button>
+                <div style="flex:2; display:flex; gap:5px;">
+                    <input type="text" id="room-code-input" placeholder="Room Code"
+                        style="flex:1; padding:10px; border-radius:5px; border:1px solid #ccc; font-size:1rem; text-transform:uppercase;">
+                    <button onclick="joinGame()"
+                        style="background:#e76f51; color:white; padding:12px 15px; font-size:1rem; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">Join</button>
+                </div>
+            </div>
+
+            <div id="lobby-status"
+                style="background:#f4f4f4; padding:15px; border-radius:8px; min-height: 100px; text-align:left; font-family:monospace; font-size:0.9rem; overflow-y:auto; color:#333;">
+                Waiting for action...
+            </div>
+
+            <div id="lobby-host-controls" style="display:none; margin-top:15px;">
+                <button onclick="startGameNetwork()"
+                    style="width:100%; background:#457b9d; color:white; padding:15px; font-size:1.1rem; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">▶️
+                    Start Match</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <h2 id="modal-title" style="margin-top:0">🏆 Game Over</h2>
+            <div id="modal-msg"></div>
+            <button onclick="location.reload()"
+                style="background:#2a9d8f; color:white; padding:15px 30px; font-size:1.1rem; margin-top: 20px; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">Play
+                Again</button>
+        </div>
+    </div>
+
+    <div id="tutorial-modal" class="modal" style="display: none;">
+        <div class="modal-content" style="text-align:left; max-width: 650px;">
+            <span class="close-btn"
+                onclick="document.getElementById('tutorial-modal').style.display='none'">&times;</span>
+            <h2 style="text-align:center; margin-top:0; color:#4a4e69;">📖 Scrabble Guide</h2>
+
+            <div class="tutorial-section">
+                <h3>🎯 Objective</h3>
+                <p>Form valid English words on the board using your tiles to score the most points.</p>
+            </div>
+
+            <div class="tutorial-section">
+                <h3>🕹️ How to Play</h3>
+                <ul class="tutorial-list">
+                    <li><strong>First Move:</strong> The first word must cover the center star (★).</li>
+                    <li><strong>Connection:</strong> Subsequent words must connect to existing tiles horizontally or
+                        vertically.</li>
+                    <li><strong>Validation:</strong> Words are strictly validated against the official Scrabble
+                        dictionary.</li>
+                    <li><strong>Blank Tiles:</strong> Blanks (?) act as any letter but are worth 0 points. You will be
+                        prompted to choose the letter when placing it.</li>
+                </ul>
+            </div>
+
+            <div class="tutorial-section">
+                <h3>🏆 Rules & Features</h3>
+                <ul class="tutorial-list">
+                    <li><strong>Multiplayer:</strong> The game supports up to 4 players.</li>
+                    <li><strong>Hints:</strong> Stuck? Use the 💡 Hint button! It costs 5 points (even if you drop below
+                        zero) and highlights the board and your rack tiles to suggest a move.</li>
+                    <li><strong>Bingo:</strong> Use all 7 tiles in one turn for a +50 point bonus!</li>
+                    <li><strong>Match Ending:</strong> The match ends if all active players pass their turn twice
+                        consecutively, or if a player finishes all their tiles when the bag is empty.</li>
+                </ul>
+            </div>
+
+            <div style="text-align:center; margin-top:20px;">
+                <button onclick="document.getElementById('tutorial-modal').style.display='none'"
+                    style="background:#2a9d8f; color:white; padding:12px 40px; font-size:1.1rem; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">Let's
+                    Play!</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script src="scrabble-engine.js"></script>
+    <script src="scrabble-network.js"></script>
+
+    <script>
+        let game = null;
+        let networkEngine = null;
+
+        function startLocalPlay() {
+            const dictType = document.getElementById('dict-select-local').value;
+            document.getElementById('landing-modal').style.display = 'none';
+            document.getElementById('loading-overlay').style.display = 'flex';
+            game = new Game([{ name: "Player 1" }, { name: "Player 2" }, { name: "Player 3" }, { name: "Player 4" }], null, dictType);
+        }
+
+        function openMultiplayerLobby() {
+            document.getElementById('landing-modal').style.display = 'none';
+            document.getElementById('lobby-modal').style.display = 'flex';
+            // Auto-fill random name for testing
+            document.getElementById('player-name-input').value = 'Player' + Math.floor(Math.random() * 1000);
+        }
+
+        function handlePlayWord() {
+            if (typeof hostConnection !== 'undefined' && hostConnection && !isHost) {
+                if (game.players[game.currentPlayerIndex].name !== myPlayerName) { game.showMessage("It is not your turn!"); return; }
+                const tiles = game.tempPlacedTiles.map(t => ({ r: t.r, c: t.c, char: t.tile.char, originalChar: t.tile.originalChar, id: t.tile.id }));
+                hostConnection.send({ type: 'ACTION_PLAY', tiles: tiles });
+                game.showMessage("Sent to host..."); return;
+            }
+            game.playTurn();
+        }
+
+        function handleSwap() {
+            if (typeof hostConnection !== 'undefined' && hostConnection && !isHost) {
+                if (game.players[game.currentPlayerIndex].name !== myPlayerName) { game.showMessage("It is not your turn!"); return; }
+                if (!game.isSwapping) {
+                    game.toggleSwapMode();
+                } else {
+                    const ids = Array.from(game.selectedTileIds);
+                    hostConnection.send({ type: 'ACTION_SWAP', tileIds: ids });
+                    game.exitSwapMode();
+                    game.showMessage("Swap request sent to host...");
+                }
+                return;
+            }
+            game.toggleSwapMode();
+        }
+
+        function handlePass() {
+            if (typeof hostConnection !== 'undefined' && hostConnection && !isHost) {
+                if (game.players[game.currentPlayerIndex].name !== myPlayerName) { game.showMessage("It is not your turn!"); return; }
+                hostConnection.send({ type: 'ACTION_PASS' });
+                game.showMessage("Pass request sent to host...");
+                return;
+            }
+            game.passTurn();
+        }
+    </script>
+
+</body>
+
+</html>

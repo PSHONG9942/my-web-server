@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="../images/logo.png" type="image/png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拼音探秘 - 猜字游戏</title>
+    <!-- Use Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Noto+Sans+SC:wght@400;700;900&display=swap"
+        rel="stylesheet">
+    <!-- Global Light Cyberpunk Theme -->
+    <link rel="stylesheet" href="../css/cyberpunk.css">
+    <!-- Include pinyin-pro from CDN -->
+    <script src="https://unpkg.com/pinyin-pro@3.19.2/dist/index.js"></script>
+    <style>
+        :root {
+            --primary: #c084fc;
+            --primary-hover: #d8b4fe;
+            --success: #4ade80;
+            --danger: #f87171;
+            --text-main: #333;
+            /* For cyberpunk light theme */
+            --text-muted: #666;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Nunito', 'Inter', 'Noto Sans SC', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            color: #1a237e;
+            /* theme matching */
+        }
+
+        header {
+            width: 100%;
+            padding: 2.5rem 2rem 1.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        p.subtitle {
+            font-size: 1.1rem;
+            color: #555;
+            font-weight: 700;
+        }
+
+        main {
+            width: 100%;
+            /* Moved max-width to .setup-container so only the input screen is restricted */
+            padding: 0 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* Center children */
+        }
+
+        .setup-container {
+            width: 100%;
+            max-width: 100%; max-width: 100%; max-width: 900px;
+            /* Original constrained size for input */
+        }
+
+        /* Glassmorphism Panel */
+        .card {
+            padding: 2.5rem;
+            margin-bottom: 1rem;
+            width: 100%;
+        }
+
+        /* Setup Screen */
+        #setup-screen {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 1rem;
+            color: #1a237e;
+            font-size: 2rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #a855f7, #6366f1) !important;
+            color: white !important;
+            border: none !important;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4) !important;
+        }
+
+        /* Game Screen */
+        #game-screen {
+            display: none;
+            flex-direction: column;
+            gap: 2rem;
+            animation: slideIn 0.5s ease-out;
+            margin-bottom: 2rem;
+            width: 100%;
+            /* Take full available width */
+            max-width: 100%;
+            /* No restriction */
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Game Board */
+        #game-board {
+            display: flex;
+            flex-wrap: wrap;
+            /* Decrease the gap so 30 words pack together tightly if needed */
+            gap: 0.8rem 0.5rem;
+            justify-content: center;
+            min-height: 200px;
+            align-content: flex-start;
+            padding: 1rem 0;
+            width: 100%;
+        }
+
+        .word {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.2rem;
+        }
+
+        .char {
+            /* Responsive font size: starts at 2.2rem, shrinks if row gets too packed. 
+               We use clamp to ensure it doesn't get ridiculously small or large */
+            font-size: clamp(1.2rem, 3.5vw, 2.2rem);
+            font-weight: 700;
+            line-height: 1;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .pinyin {
+            display: flex;
+            gap: 2px;
+            font-size: clamp(0.8rem, 2vw, 1.2rem);
+            font-family: 'Nunito', sans-serif;
+            letter-spacing: 1px;
+            height: clamp(1rem, 2.5vw, 1.5rem);
+        }
+
+        .letter-slot {
+            display: inline-block;
+            width: clamp(10px, 2.2vw, 16px);
+            text-align: center;
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--text-muted);
+            opacity: 0.5;
+            transition: all 0.3s ease;
+        }
+
+        .letter-slot.revealed {
+            border-bottom: none;
+            color: var(--success);
+            font-weight: 900;
+            opacity: 1;
+            text-shadow: 0 0 8px rgba(74, 222, 128, 0.5);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .word-punctuation .char {
+            color: var(--text-muted);
+            opacity: 0.8;
+        }
+
+        /* Keyboard */
+        #keyboard-container {
+            margin-top: 1rem;
+            padding: 1.5rem !important;
+        }
+
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .key {
+            width: 45px;
+            height: 55px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(0, 229, 255, 0.4);
+            color: #1a237e;
+            font-size: 1.2rem;
+            font-weight: 700;
+            font-family: 'Nunito', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 600px) {
+            .key {
+                width: 32px;
+                height: 44px;
+                font-size: 1rem;
+                gap: 0.25rem;
+            }
+
+            .keyboard-row {
+                gap: 0.25rem;
+                margin-bottom: 0.25rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            .nav-actions {
+                position: static !important;
+                margin-bottom: 1rem;
+                transform: none !important;
+            }
+        }
+
+        .key:hover:not(.disabled) {
+            background: rgba(0, 229, 255, 0.1);
+            border-color: #00e5ff;
+            transform: translateY(-2px);
+        }
+
+        .key:active:not(.disabled) {
+            transform: translateY(1px);
+        }
+
+        .key.correct {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: var(--success);
+            color: var(--success);
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+            pointer-events: none;
+        }
+
+        .key.wrong {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: var(--danger);
+            opacity: 0.6;
+            text-decoration: line-through;
+            pointer-events: none;
+        }
+
+        /* Confetti Canvas */
+        #confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            display: none;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .win-message {
+            text-align: center;
+            font-size: 1.5rem;
+            color: var(--success);
+            font-weight: 900;
+            margin-bottom: 1rem;
+            display: none;
+            animation: popIn 0.5s ease-out;
+        }
+
+        .nav-actions {
+            position: absolute;
+            left: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+    </style>
+    <link rel="stylesheet" href="../css/responsive.css">
+</head>
+
+<body>
+
+    <header class="welcome-section">
+        <div class="nav-actions">
+            <a href="../index.html" class="btn btn-small"
+                style="text-decoration: none; padding: 0.6rem 1rem; font-size: 1rem;">🏠 返回主页</a>
+        </div>
+        <h1>拼音探秘</h1>
+        <p class="subtitle">猜拼音字母，解锁完整句子</p>
+    </header>
+
+    <main>
+        <!-- Setup Screen -->
+        <div id="setup-screen" class="card setup-container">
+            <textarea id="text-input" placeholder="输入你想挑战的句子或短语，例如：今天我们来上课。"></textarea>
+            <button class="btn btn-start" id="btn-start" onclick="startGame()">开始挑战</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen">
+            <div class="game-header">
+                <button class="btn btn-small" onclick="goBack()" style="padding: 0.6rem 1rem; font-size: 1rem;">←
+                    返回重置</button>
+                <div id="status" style="font-weight: bold; font-size: 1.1rem; color: #555;">猜字母解开拼音（无需声调）</div>
+            </div>
+
+            <hr style="margin: 1.5rem 0; border: none; border-top: 1px dashed rgba(0, 229, 255, 0.4);">
+
+            <div class="win-message" id="win-message">🎉 恭喜你，完成挑战！ 🎉</div>
+
+            <div id="game-board">
+                <!-- Words injected here -->
+            </div>
+
+            <div id="keyboard-container" class="card">
+                <!-- Keyboard injected here -->
+            </div>
+        </div>
+    </main>
+
+    <canvas id="confetti"></canvas>
+
+    <script>
+        const { pinyin } = window.pinyinPro;
+
+        let gameState = {
+            words: [],
+            guessedLetters: new Set(),
+            requiredLetters: new Set(),
+            isWon: false
+        };
+
+        const keyboardLayout = [
+            ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+            ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
+            ['z', 'x', 'c', 'v', 'b', 'n', 'm']
+        ];
+
+        // UI Elements
+        const setupScreen = document.getElementById('setup-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const textInput = document.getElementById('text-input');
+        const gameBoard = document.getElementById('game-board');
+        const keyboardContainer = document.getElementById('keyboard-container');
+        const winMessage = document.getElementById('win-message');
+        const statusEl = document.getElementById('status');
+
+        function initKeyboard() {
+            let html = '';
+            keyboardLayout.forEach(row => {
+                html += '<div class="keyboard-row">';
+                row.forEach(key => {
+                    html += `<div class="key" id="key-${key}" onclick="handleGuess('${key}')">${key.toUpperCase()}</div>`;
+                });
+                html += '</div>';
+            });
+            keyboardContainer.innerHTML = html;
+        }
+
+        function startGame() {
+            const text = textInput.value.trim().replace(/\r/g, '');
+            if (!text) {
+                alert("请输入句子！");
+                return;
+            }
+
+            // Reset state
+            gameState = {
+                words: [],
+                guessedLetters: new Set(),
+                requiredLetters: new Set(),
+                isWon: false
+            };
+            winMessage.style.display = 'none';
+            statusEl.innerText = '猜字母解开拼音（无需声调）';
+
+            const chars = text.split('');
+            // Get original pinyin (with tone marks) array
+            const tones = pinyin(text, { type: 'array' });
+            // Get base pinyin array
+            const bases = pinyin(text, { type: 'array', toneType: 'none', v: true });
+
+            for (let i = 0; i < chars.length; i++) {
+                const char = chars[i];
+                const pyTone = tones[i];
+                let pyBase = bases[i];
+
+                let isChinese = /^[a-zA-Z]+$/.test(pyBase) && pyBase !== char;
+
+                if (isChinese) {
+                    pyBase = pyBase.toLowerCase().replace(/ü/g, 'v');
+
+                    let letters = [];
+                    for (let j = 0; j < pyBase.length; j++) {
+                        let _base = pyBase[j];
+                        let _disp = pyTone[j] || pyBase[j];
+                        letters.push({
+                            base: _base,
+                            display: _disp
+                        });
+                        gameState.requiredLetters.add(_base);
+                    }
+
+                    gameState.words.push({
+                        char: char,
+                        isChinese: true,
+                        letters: letters
+                    });
+                } else {
+                    gameState.words.push({
+                        char: char,
+                        isChinese: false
+                    });
+                }
+            }
+
+            if (gameState.requiredLetters.size === 0) {
+                alert("未检测到中文字符。请输入包含中文的句子！");
+                return;
+            }
+
+            initKeyboard();
+            renderBoard();
+
+            setupScreen.style.display = 'none';
+            gameScreen.style.display = 'flex';
+        }
+
+        function goBack() {
+            setupScreen.style.display = 'flex';
+            gameScreen.style.display = 'none';
+        }
+
+        function renderBoard() {
+            let html = '';
+            gameState.words.forEach(word => {
+                if (word.char === '\n') {
+                    html += '<div style="flex-basis: 100%; height: 0; margin: 0;"></div>';
+                } else if (!word.isChinese) {
+                    html += `
+                        <div class="word word-punctuation">
+                            <div class="char">${word.char === ' ' ? '&nbsp;' : word.char}</div>
+                            <div class="pinyin"></div>
+                        </div>
+                    `;
+                } else {
+                    let pyHtml = '';
+                    word.letters.forEach(letter => {
+                        if (gameState.guessedLetters.has(letter.base)) {
+                            pyHtml += `<span class="letter-slot revealed">${letter.display}</span>`;
+                        } else {
+                            pyHtml += `<span class="letter-slot">_</span>`;
+                        }
+                    });
+
+                    html += `
+                        <div class="word">
+                            <div class="char">${word.char}</div>
+                            <div class="pinyin">${pyHtml}</div>
+                        </div>
+                    `;
+                }
+            });
+            gameBoard.innerHTML = html;
+        }
+
+        function handleGuess(key) {
+            if (gameState.isWon || gameState.guessedLetters.has(key)) return;
+
+            gameState.guessedLetters.add(key);
+
+            const keyEl = document.getElementById(`key-${key}`);
+
+            if (gameState.requiredLetters.has(key)) {
+                // Correct guess
+                keyEl.classList.add('correct');
+                renderBoard();
+                checkWin();
+            } else {
+                // Wrong guess
+                keyEl.classList.add('wrong');
+            }
+        }
+
+        function checkWin() {
+            let won = true;
+            for (let letter of gameState.requiredLetters) {
+                if (!gameState.guessedLetters.has(letter)) {
+                    won = false;
+                    break;
+                }
+            }
+
+            if (won) {
+                gameState.isWon = true;
+                winMessage.style.display = 'block';
+                statusEl.innerText = '挑战成功！';
+                triggerConfetti();
+            }
+        }
+
+        // Global keyboard listener
+        document.addEventListener('keydown', (e) => {
+            if (gameScreen.style.display === 'flex' && !gameState.isWon) {
+                const key = e.key.toLowerCase();
+                let mappedKey = key;
+                if (key === 'ü') mappedKey = 'v';
+
+                if (/^[a-z]$/.test(mappedKey)) {
+                    handleGuess(mappedKey);
+                }
+            }
+        });
+
+        // --- Simple Confetti Implementation ---
+        const canvas = document.getElementById('confetti');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let animationId;
+
+        function triggerConfetti() {
+            canvas.style.display = 'block';
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            particles = [];
+
+            for (let i = 0; i < 100; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: -10 - Math.random() * 100,
+                    size: Math.random() * 8 + 4,
+                    color: ['#f87171', '#fbbf24', '#34d399', '#60a5fa', '#a78bfa'][Math.floor(Math.random() * 5)],
+                    speedX: Math.random() * 4 - 2,
+                    speedY: Math.random() * 3 + 2,
+                    rotation: Math.random() * 360,
+                    rotationSpeed: Math.random() * 10 - 5
+                });
+            }
+
+            cancelAnimationFrame(animationId);
+            animateConfetti();
+
+            setTimeout(() => {
+                canvas.style.display = 'none';
+                cancelAnimationFrame(animationId);
+            }, 4000);
+        }
+
+        function animateConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.y += p.speedY;
+                p.x += p.speedX;
+                p.rotation += p.rotationSpeed;
+
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.rotation * Math.PI / 180);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                ctx.restore();
+            });
+            animationId = requestAnimationFrame(animateConfetti);
+        }
+    </script>
+</body>
+
+</html>

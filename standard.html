@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <link rel="icon" href="../images/logo.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>习字簿 - 标准版</title>
+    <style>
+        /* 全局重置与字体设置 */
+        body {
+            font-family: 'KaiTi', '楷体', 'STKaiti', sans-serif; /* 统一使用楷体 */
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding-top: 50px;
+        }
+
+        /* 修复链接变色问题的关键样式 */
+        .back-link {
+            text-decoration: none; /* 去掉下划线 */
+            color: #28a745; /* 强制指定绿色 */
+            font-weight: bold;
+            transition: color 0.2s;
+        }
+        
+        /* 访问过也不变色 */
+        .back-link:visited {
+            color: #28a745; 
+        }
+
+        .back-link:hover {
+            color: #1e7e34; /* 悬停时稍微变深一点 */
+            text-decoration: underline; /* 悬停时加下划线提示 */
+        }
+
+        /* 输入区域样式 */
+        #inputContainer {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 10px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        input[type="text"] {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 18px;
+            width: 100%; max-width: 200px;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #4CAF50;
+        }
+
+        button {
+            padding: 10px 25px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* 田字格布局 */
+        #outputContainer {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            padding: 20px;
+        }
+
+        .tianzi-row {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .tianzi-grid-wrapper {
+            width: 150px;
+            height: 150px;
+            border: 2px solid #333;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            position: relative;
+            background-color: white;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        /* 田字格虚线 */
+        .tianzi-grid-wrapper::before {
+            content: '';
+            position: absolute;
+            width: 1px;
+            height: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 1px dashed rgba(200, 200, 200, 0.6);
+        }
+
+        .tianzi-grid-wrapper::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-top: 1px dashed rgba(200, 200, 200, 0.6);
+        }
+
+        .tianzi-content {
+            grid-column: 1 / span 2;
+            grid-row: 1 / span 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 96px;
+            color: #333;
+            z-index: 1; /* 确保文字在虚线之上 */
+            font-family: 'KaiTi', '楷体', serif;
+        }
+
+        /* 小字样式（拼音/笔画） */
+        .tianzi-content.small-text {
+            font-size: 40px;
+            color: #666;
+            font-family: Arial, sans-serif;
+        }
+        
+        .tianzi-content.radials {
+            font-size: 50px;
+            font-family: 'KaiTi', '楷体', serif;
+        }
+
+        /* 打印优化 */
+        @media print {
+            .no-print { display: none; }
+            body { background: white; padding-top: 0; }
+            #inputContainer { display: none; }
+            #outputContainer { gap: 10px; }
+            .tianzi-grid-wrapper { border-color: black; box-shadow: none; }
+        }
+    </style>
+
+    <!-- Global Light Cyberpunk Theme -->
+    <link rel="stylesheet" href="../css/cyberpunk.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+
+    <div class="no-print" style="position: absolute; top: 20px; left: 20px; z-index: 100;">
+        <a href="../index.html" class="back-link">← 返回工具箱主页</a>
+    </div>
+
+    <h1 class="no-print" style="margin-bottom: 20px; color: #333;">习字簿生成器 (标准版)</h1>
+
+    <div id="inputContainer">
+        <input type="text" id="hanziInput" placeholder="输入汉字 (最多4个)" maxlength="4">
+        <button id="generateBtn">生成习字帖</button>
+    </div>
+
+    <div id="outputContainer"></div>
+
+    <footer style="text-align: center; margin-top: 50px; padding: 20px; color: #888; font-size: 14px; line-height: 1.6; width: 100%;">
+        <p style="margin: 5px 0;">若发现问题，电邮至 g-21543731@moe-dl.edu.my 潘老师。</p>
+        <p style="margin: 5px 0;">没有团队，不定期更新网站，恳请各位老师耐心等候。</p>
+        <a href="mailto:g-21543731@moe-dl.edu.my?subject=网站反馈" style="color: #555; text-decoration: underline; font-weight: bold; cursor: pointer;">
+            👉 点我发送反馈
+        </a>
+    </footer>
+
+    <script>
+        // 全局字典数据
+        let xinhuaData = []; 
+
+        // 你的 GitHub 字典地址
+        const githubUrl = 'https://raw.githubusercontent.com/PSHONG9942/SJKC/refs/heads/main/word.json';
+
+        // 加载字典数据
+        async function loadXinhuaData() {
+            try {
+                // 加时间戳防止缓存
+                const url = `${githubUrl}?v=${new Date().getTime()}`;
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`Status: ${response.status}`);
+                
+                xinhuaData = await response.json();
+                console.log('字典加载成功，共', xinhuaData.length, '条数据。');
+            } catch (error) {
+                console.error('字典加载失败:', error);
+                alert('字典加载失败，请检查网络或 GitHub 连接。');
+            }
+        }
+
+        // 页面加载即开始下载字典
+        window.addEventListener('load', loadXinhuaData);
+
+        // 创建单个田字格
+        function createTianziGrid(content, extraClass = '') {
+            const wrapper = document.createElement('div');
+            wrapper.classList.add('tianzi-grid-wrapper');
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.classList.add('tianzi-content');
+            if (extraClass) contentDiv.classList.add(extraClass);
+            
+            contentDiv.textContent = content;
+            wrapper.appendChild(contentDiv);
+            return wrapper;
+        }
+
+        // 查找汉字信息
+        function getHanziInfo(hanzi) {
+            const found = xinhuaData.find(item => item.word === hanzi);
+            if (found) {
+                // 处理拼音，取第一个
+                const pinyin = found.pinyin ? found.pinyin.split(' ')[0] : '无';
+                // 处理部首，提取正则匹配内容
+                let radical = '无';
+                if (found.more) {
+                    const match = found.more.match(/部首\s+(.+?)\s+部首笔画/);
+                    if (match && match[1]) radical = match[1].trim();
+                }
+                
+                return { 
+                    pinyin: pinyin, 
+                    strokes: found.strokes || '无', 
+                    radical: radical 
+                };
+            }
+            return null;
+        }
+
+        // 生成按钮点击逻辑
+        document.getElementById('generateBtn').addEventListener('click', () => {
+            const hanziInput = document.getElementById('hanziInput').value.trim();
+            const outputContainer = document.getElementById('outputContainer');
+            outputContainer.innerHTML = ''; // 清空旧内容
+
+            if (!hanziInput) {
+                alert('请先输入汉字！');
+                return;
+            }
+            if (xinhuaData.length === 0) {
+                alert('正在加载字典，请稍等几秒钟...');
+                return;
+            }
+
+            // 遍历输入的每一个字
+            for (const hanzi of hanziInput) {
+                const info = getHanziInfo(hanzi);
+                
+                // 默认值
+                let pinyin = '?', strokes = '?', radical = '?';
+                if (info) {
+                    pinyin = info.pinyin;
+                    strokes = info.strokes;
+                    radical = info.radical;
+                }
+
+                // 创建一列容器 (Column)
+                const columnDiv = document.createElement('div');
+                columnDiv.classList.add('tianzi-row');
+
+                // 1. 汉字格
+                columnDiv.appendChild(createTianziGrid(hanzi));
+                // 2. 拼音格
+                columnDiv.appendChild(createTianziGrid(pinyin, 'small-text'));
+                // 3. 笔画格
+                columnDiv.appendChild(createTianziGrid(strokes, 'small-text'));
+                // 4. 部首格
+                columnDiv.appendChild(createTianziGrid(radical, 'radicals'));
+
+                // 添加到主容器
+                outputContainer.appendChild(columnDiv);
+            }
+        });
+    </script>
+</body>
+</html>
