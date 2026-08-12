@@ -2,6 +2,10 @@
         const gameState = {
             language: 'en',
             players: 2,
+// Global Game State
+        const gameState = {
+            language: 'en',
+            players: 2,
             gameMode: 'pvp', // 'pvp', 'solo', or 'pve'
             pAName: '',
             pBName: '',
@@ -11,6 +15,10 @@
             numberBag: [], // 0-9 tiles
             symbolBag: [], // +, -, x, ÷ tiles
             hasSwapped: false, // Track if a swap happened this turn
+            timerActive: false,
+            swapPhaseActive: false,
+            timerInterval: null,
+            timerSeconds: 60,
             tutorialCompleted: false, // Tutorial State
             tutorialStep: 0,
             hintsUsedA: 0,
@@ -57,6 +65,12 @@
                     equation: "MATHEMATICAL EQUATION", answer: "ANSWER",
                     strike: "STRIKE (30)", bingo: "BINGO (50)", total: "TOTAL POINTS",
                     grandTotal: "GRAND TOTAL :"
+                },
+                timer: {
+                    start: "Start Timer", skipSwap: "Skip Swap",
+                    modalTitle: "Time's Up!", modalText: "Confirm placed tiles?",
+                    btnConfirm: "Confirm", btnRecall: "Recall",
+                    swapPhase: "Swap Phase: Click exactly 1 tile in your rack to swap it, or click Skip Swap."
                 },
 
                 tutorial: {
@@ -108,6 +122,12 @@
                     strike: "STRIKE (30)", bingo: "BINGO (50)", total: "JUMLAH MATA",
                     grandTotal: "JUMLAH AKHIR :"
                 },
+                timer: {
+                    start: "Mula Pemasa", skipSwap: "Langkau Tukar",
+                    modalTitle: "Masa Tamat!", modalText: "Sahkan jubin diletakkan?",
+                    btnConfirm: "Sahkan", btnRecall: "Panggil Semula",
+                    swapPhase: "Fasa Tukar: Klik tepat 1 jubin di rak anda untuk menukarnya, atau klik Langkau Tukar."
+                },
 
                 tutorial: {
                     title: "Cara Bermain",
@@ -157,6 +177,12 @@
                     equation: "数学算式", answer: "答案",
                     strike: "STRIKE (30分)", bingo: "BINGO (50分)", total: "总分",
                     grandTotal: "最终总计 :"
+                },
+                timer: {
+                    start: "开始计时", skipSwap: "跳过换牌",
+                    modalTitle: "时间到！", modalText: "确认放置在游戏板上的底牌？",
+                    btnConfirm: "确认", btnRecall: "回收手牌",
+                    swapPhase: "换牌阶段：点击手牌区中的 1 张号码牌或符号牌进行替换，或者点击跳过换牌。"
                 },
 
                 tutorial: {
@@ -557,12 +583,15 @@
                     <div class="controls-panel">
                         <div class="controls-row">
                             <button class="btn-action" id="btn-draw-number" onclick="drawTiles('number')" style="border-color: #eab308; color: #fbd36b;">${dataUI.drawNum}</button>
-                            <button class="btn-action" id="btn-swap-number" onclick="swapTiles('number')" style="border-color: #ca8a04; color: #cbd5e1; font-size: 0.85rem; padding: 0.5rem;">${dataUI.swapNum}</button>
-                        </div>
-                        <div class="controls-row">
                             <button class="btn-action" id="btn-draw-symbol" onclick="drawTiles('symbol')" style="border-color: #db2777; color: #fdf2f8;">${dataUI.drawSym}</button>
-                            <button class="btn-action" id="btn-swap-symbol" onclick="swapTiles('symbol')" style="border-color: #be185d; color: #cbd5e1; font-size: 0.85rem; padding: 0.5rem;">${dataUI.swapSym}</button>
                         </div>
+                        
+                        <div class="controls-row" style="margin-top: 0.5rem;">
+                            <div class="timer-display" id="turn-timer">01:00</div>
+                            <button class="btn-action" id="btn-start-timer" onclick="startTimer()" style="background: #eab308; color: #0f172a; font-weight: 800;">${i18n[gameState.language].timer.start}</button>
+                            <button class="btn-action" id="btn-skip-swap" onclick="endTurn(true)" style="display: none; background: #64748b; color: white;">${i18n[gameState.language].timer.skipSwap}</button>
+                        </div>
+
                         <div class="controls-row" style="margin-top: 0.5rem; flex-direction: row; gap: 0.5rem;">
                             <div class="tile-count" id="numbers-left" style="padding: 0.4rem; font-size: 0.85rem; border-bottom: 2px solid #eab308;">${dataUI.numTiles}<br><b id="numbers-left-val" style="font-size: 1.1rem;">70</b></div>
                             <div class="tile-count" id="symbols-left" style="padding: 0.4rem; font-size: 0.85rem; border-bottom: 2px solid #db2777;">${dataUI.symTiles}<br><b id="symbols-left-val" style="font-size: 1.1rem;">20</b></div>
@@ -577,11 +606,8 @@
                         </div>
 
                         <div class="controls-row" style="margin-top:auto;">
-                            <button class="btn-action" id="btn-hint" onclick="showHint()" style="background: #8b5cf6; border-color: #7c3aed; color: white; margin-bottom: 0.5rem;">
+                            <button class="btn-action" id="btn-hint" onclick="showHint()" style="background: #8b5cf6; border-color: #7c3aed; color: white; margin-bottom: 0.5rem; display: none;">
                                 💡 Get Hint
-                            </button>
-                            <button class="btn-action" id="btn-end-turn" onclick="endTurn()" style="background: #10b981; border-color: #059669; color: white;">
-                                ${dataUI.endTurn}
                             </button>
                         </div>
                     </div>
@@ -607,12 +633,15 @@
         function createTileUI(type, value) {
             const tile = document.createElement('div');
             tile.className = `tile ${type === 'number' ? 'tile-number' : 'tile-symbol'}`;
+            // If timer is not active and we aren't in swap phase, new tiles should be hidden
+            if (!gameState.timerActive && !gameState.swapPhaseActive && gameState.gameMode !== 'pve' || (gameState.gameMode === 'pve' && gameState.activePlayer === 'A' && !gameState.timerActive && !gameState.swapPhaseActive)) {
+                tile.classList.add('hidden-tile');
+            }
+
             tile.draggable = true;
             tile.innerText = value;
             tile.dataset.type = type;
             tile.dataset.value = value;
-
-            // Lock CPU tiles from human interaction in PvE
             if (gameState.gameMode === 'pve' && gameState.activePlayer === 'B') {
                 tile.draggable = false;
                 tile.style.pointerEvents = 'none'; // Prevents clicking and dragging
@@ -792,12 +821,327 @@
                     if (draggedTile && target.children.length === 0 && !target.classList.contains('locked')) {
                         // Allow ANY tile to be dropped ANYWHERE
                         target.appendChild(draggedTile);
+            if (gameState.gameMode === 'pve' && gameState.activePlayer === 'B') {
+                tile.draggable = false;
+                tile.style.pointerEvents = 'none'; // Prevents clicking and dragging
+            }
+
+            // 6 and 9 flip mechanics
+            if (value === 6 || value === 9) {
+                tile.title = "Double-click to flip between 6 and 9";
+                if (gameState.gameMode !== 'pve' || gameState.activePlayer !== 'B') {
+                    tile.style.textDecoration = "underline";
+                    tile.ondblclick = () => {
+                        const newVal = tile.dataset.value == 6 ? 9 : 6;
+                        tile.dataset.value = newVal;
+                        tile.innerText = newVal;
+                    };
+                }
+            }
+
+            // Drag Events natively attached to tile
+            tile.addEventListener('dragstart', (e) => {
+                draggedTile = tile;
+                e.dataTransfer.setData('text/plain', '');
+                setTimeout(() => tile.style.opacity = '0.5', 0);
+            });
+
+            tile.addEventListener('dragend', () => {
+                tile.style.opacity = '1';
+                draggedTile = null;
+                document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+            });
+
+            return tile;
+        }
+
+        function startTimer() {
+            if (gameState.timerActive) return;
+
+            gameState.timerActive = true;
+            gameState.timerSeconds = 60;
+            document.getElementById('btn-start-timer').style.display = 'none';
+            document.getElementById('turn-timer').style.display = 'block';
+
+            // Reveal tiles
+            const rackTiles = document.querySelectorAll(`#rack-p${gameState.activePlayer.toLowerCase()} .tile.hidden-tile`);
+            rackTiles.forEach(t => t.classList.remove('hidden-tile'));
+
+            updateTimerDisplay();
+
+            gameState.timerInterval = setInterval(() => {
+                gameState.timerSeconds--;
+                updateTimerDisplay();
+                if (gameState.timerSeconds <= 0) {
+                    clearInterval(gameState.timerInterval);
+                    showTimerModal();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const el = document.getElementById('turn-timer');
+            if (el) {
+                const m = Math.floor(gameState.timerSeconds / 60).toString().padStart(2, '0');
+                const s = (gameState.timerSeconds % 60).toString().padStart(2, '0');
+                el.innerText = `${m}:${s}`;
+                if (gameState.timerSeconds <= 10) {
+                    el.style.color = '#ef4444';
+                    el.classList.add('timer-alert');
+                } else {
+                    el.style.color = '#e2e8f0';
+                    el.classList.remove('timer-alert');
+                }
+            }
+        }
+
+        function showTimerModal() {
+            const modal = document.getElementById('timer-modal');
+            const title = document.getElementById('timer-modal-title');
+            const text = document.getElementById('timer-modal-text');
+            const btnConfirm = document.getElementById('btn-modal-confirm');
+            const btnRecall = document.getElementById('btn-modal-recall');
+            
+            title.innerText = i18n[gameState.language].timer.modalTitle;
+            text.innerText = i18n[gameState.language].timer.modalText;
+            btnConfirm.innerText = i18n[gameState.language].timer.btnConfirm;
+            btnRecall.innerText = i18n[gameState.language].timer.btnRecall;
+            
+            modal.style.display = 'flex';
+        }
+
+        function handleTimerConfirm(isConfirm) {
+            document.getElementById('timer-modal').style.display = 'none';
+
+            if (isConfirm) {
+                // Confirm placement -> evaluates board
+                endTurn(false, true); 
+            } else {
+                // Recall tiles
+                const sideId = gameState.activePlayer === 'A' ? 'side-a' : 'side-b';
+                const sideEl = document.getElementById(sideId);
+                const boardGrid = sideEl.querySelector('.board-grid');
+                const newTiles = boardGrid.querySelectorAll('.tile:not(.locked)');
+                const rackEl = document.getElementById(`rack-p${gameState.activePlayer.toLowerCase()}`);
+                
+                // Return tiles to rack
+                newTiles.forEach(tile => {
+                    // find empty slot
+                    const emptyNum = Array.from(rackEl.querySelectorAll('.number-slot')).find(s => s.children.length === 0);
+                    const emptySym = rackEl.querySelector('.symbol-slot');
+                    
+                    if (tile.dataset.type === 'number' && emptyNum) {
+                        emptyNum.appendChild(tile);
+                    } else if (tile.dataset.type === 'symbol' && emptySym && emptySym.children.length === 0) {
+                        emptySym.appendChild(tile);
+                    } else {
+                        // Just append to rack if full
+                        rackEl.appendChild(tile);
+                    }
+                });
+
+                // Lock board placement
+                sideEl.querySelectorAll('.board-cell').forEach(cell => {
+                    cell.style.pointerEvents = 'none';
+                });
+
+                // Enter Swap Phase
+                gameState.swapPhaseActive = true;
+                alert(i18n[gameState.language].timer.swapPhase);
+                
+                document.getElementById('btn-skip-swap').style.display = 'inline-block';
+                
+                // Allow clicking a tile to swap
+                const rackTiles = rackEl.querySelectorAll('.tile');
+                rackTiles.forEach(tile => {
+                    tile.onclick = () => {
+                        if (gameState.swapPhaseActive) {
+                            swapSingleTile(tile);
+                        }
+                    };
+                });
+            }
+        }
+
+        function swapSingleTile(tile) {
+            const type = tile.dataset.type;
+            const bag = type === 'number' ? gameState.numberBag : gameState.symbolBag;
+            
+            if (bag.length === 0) {
+                const typeName = type === 'number' ? "0-9" : "+ - x ÷";
+                alert(i18n[gameState.language].msg.noTilesSwap.replace('{0}', typeName));
+                return;
+            }
+            
+            const slot = tile.parentElement;
+            const val = tile.dataset.value;
+            bag.push(type === 'number' ? parseInt(val) : val);
+            tile.remove();
+            
+            bag.sort(() => Math.random() - 0.5);
+            
+            const newVal = bag.pop();
+            const newTile = createTileUI(type, newVal);
+            slot.appendChild(newTile);
+            
+            updateTileCounts();
+            
+            alert(i18n[gameState.language].msg.swapped.replace('{0}', 1).replace('{1}', type === 'number' ? "0-9" : "+ - x ÷"));
+            
+            endTurn(true); // End turn as skip swap (0 score)
+        }
+
+        function drawTiles(type) {
+            // Drawing is always allowed if slots are empty.
+            // Swapping is the only action that locks the turn.
+            if (gameState.hasSwapped) {
+                alert(i18n[gameState.language].msg.alreadySwapped);
+                return;
+            }
+
+            const sideId = gameState.activePlayer === 'A' ? 'side-a' : 'side-b';
+            const sideEl = document.getElementById(sideId);
+            if (sideEl) {
+                const activeTilesOnBoard = sideEl.querySelectorAll('.board-grid .tile:not(.locked)');
+                if (activeTilesOnBoard.length > 0) {
+                    alert(gameState.language === 'cn' ? "您在棋盘上还有未锁定的牌，无法抽牌！请先将牌放回牌架，或结束回合。" : 
+                          gameState.language === 'my' ? "Anda mempunyai jubin yang belum dikunci di atas papan. Sila pulangkan ke rak atau tamatkan giliran." :
+                          "You cannot draw or swap tiles while you have pending tiles on the board. Return them to your rack or end your turn.");
+                    return;
+                }
+            }
+
+            const rackId = gameState.activePlayer === 'A' ? 'rack-pa' : 'rack-pb';
+            const rackEl = document.getElementById(rackId);
+            if (!rackEl) return;
+
+            // Define which slots to fill based on type
+            const selector = type === 'number' ? '.number-slot' : '.symbol-slot';
+            const emptySlots = Array.from(rackEl.querySelectorAll(selector)).filter(slot => slot.children.length === 0);
+
+            const bag = type === 'number' ? gameState.numberBag : gameState.symbolBag;
+
+            // Fill empty slots up to what's available
+            let drawnCount = 0;
+            for (let i = 0; i < emptySlots.length; i++) {
+                if (bag.length === 0) break;
+
+                const val = bag.pop();
+                const tile = createTileUI(type, val);
+                emptySlots[i].appendChild(tile);
+                drawnCount++;
+            }
+
+            if (drawnCount > 0) {
+                updateTileCounts();
+            } else if (emptySlots.length > 0) {
+                const typeStr = type === 'number' ? i18n[gameState.language].controls.numTiles.replace(':', '') : i18n[gameState.language].controls.symTiles.replace(':', '');
+                alert(type === 'number' ? i18n[gameState.language].msg.noTilesNum : i18n[gameState.language].msg.noTilesSym);
+            }
+        }
+
+        // New Swap Tiles logic
+        function swapTiles(type) {
+            if (gameState.hasSwapped) {
+                alert(i18n[gameState.language].msg.alreadySwapped);
+                return;
+            }
+
+            const sideId = gameState.activePlayer === 'A' ? 'side-a' : 'side-b';
+            const sideEl = document.getElementById(sideId);
+            if (sideEl) {
+                const activeTilesOnBoard = sideEl.querySelectorAll('.board-grid .tile:not(.locked)');
+                if (activeTilesOnBoard.length > 0) {
+                    alert(gameState.language === 'cn' ? "您在棋盘上还有未锁定的牌，无法换牌！请先将牌放回牌架，或结束回合。" : 
+                          gameState.language === 'my' ? "Anda mempunyai jubin yang belum dikunci di atas papan. Sila pulangkan ke rak atau tamatkan giliran." :
+                          "You cannot draw or swap tiles while you have pending tiles on the board. Return them to your rack or end your turn.");
+                    return;
+                }
+            }
+
+            const rackId = gameState.activePlayer === 'A' ? 'rack-pa' : 'rack-pb';
+            const rackEl = document.getElementById(rackId);
+            const bag = type === 'number' ? gameState.numberBag : gameState.symbolBag;
+
+            // Find ALL tiles of the requested type CURRENTLY IN THE RACK
+            // Match the actual tile type rather than the slot it sits in (to handle misplaced tiles)
+            const selector = type === 'number' ? '.tile-number' : '.tile-symbol';
+            const tilesToSwap = Array.from(rackEl.querySelectorAll(selector));
+
+            if (tilesToSwap.length === 0) {
+                const typeName = type === 'number' ? "0-9" : "+ - x ÷";
+                alert(i18n[gameState.language].msg.noTilesSwap.replace('{0}', typeName));
+                return;
+            }
+
+            // Return values to bag and clear UI, while remembering where they were
+            let slotsToRefill = [];
+            tilesToSwap.forEach(tile => {
+                const val = tile.dataset.value;
+                slotsToRefill.push(tile.parentElement); // Remember the slot it was in
+                // convert string numbers back to int for bag storage
+                bag.push(type === 'number' ? parseInt(val) : val);
+                tile.remove();
+            });
+
+            // Reshuffle the bag since we put tiles back
+            bag.sort(() => Math.random() - 0.5);
+
+            // Redraw exactly the same amount of tiles into the EXACT slots they came from
+            slotsToRefill.forEach(slot => {
+                if (bag.length > 0) {
+                    const newVal = bag.pop();
+                    const newTile = createTileUI(type, newVal);
+                    slot.appendChild(newTile);
+                }
+            });
+            updateTileCounts();
+
+            // Ensure flag is set so they can't swap both
+            gameState.hasSwapped = true;
+
+            // Auto End Turn after swap as per standard rules (or force them to click end turn)
+            const typeName = type === 'number' ? "0-9" : "+ - x ÷";
+            alert(i18n[gameState.language].msg.swapped.replace('{0}', tilesToSwap.length).replace('{1}', typeName));
+            endTurn();
+        }
+
+        function setupDragAndDrop() {
+            const board = document.getElementById('board-render');
+
+            // General delegator for drag over
+            board.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                const target = e.target.closest('.board-cell.cell-yellow, .board-cell.cell-pink, .rack-slot');
+                if (target && target.children.length === 0 && !target.classList.contains('locked')) {
+                    if (draggedTile) {
+                        target.classList.add('drag-over');
+                    }
+                }
+            });
+
+            board.addEventListener('dragleave', (e) => {
+                const target = e.target.closest('.board-cell, .rack-slot');
+                if (target) {
+                    target.classList.remove('drag-over');
+                }
+            });
+
+            // Delegate drop
+            board.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const target = e.target.closest('.board-cell.cell-yellow, .board-cell.cell-pink, .rack-slot');
+                if (target) {
+                    target.classList.remove('drag-over');
+                    if (draggedTile && target.children.length === 0 && !target.classList.contains('locked')) {
+                        // Allow ANY tile to be dropped ANYWHERE
+                        target.appendChild(draggedTile);
                     }
                 }
             });
         }
 
-        function endTurn() {
+        function endTurn(isSkipSwap = false, forceEval = false) {
             const sideId = gameState.activePlayer === 'A' ? 'side-a' : 'side-b';
             const sideEl = document.getElementById(sideId);
             if (!sideEl) return;
@@ -809,7 +1153,7 @@
             // Gather all newly placed tiles on active board ONLY (ignore tiles left in rack)
             let newTilesOnBoard = boardGrid.querySelectorAll('.tile:not(.locked)');
 
-            if (newTilesOnBoard.length === 0 && !gameState.hasSwapped) {
+            if (!isSkipSwap && !forceEval && newTilesOnBoard.length === 0 && !gameState.hasSwapped) {
                 alert(i18n[gameState.language].msg.playTileFirst);
                 return;
             }
@@ -897,9 +1241,24 @@
                 }
             }
 
-            if (!allValid) {
-                alert(errorMsg);
-                return; // Abort end turn! Player must fix the board.
+            if (isSkipSwap) {
+                // Swap phase ended or skipped, score 0
+                allValid = true;
+                processedRows = [];
+                // Fall through to logic to end turn and score 0
+            } else {
+                if (!allValid) {
+                    if (forceEval) {
+                        // User confirmed, but it's invalid or empty -> Score is 0
+                        alert(errorMsg || "Empty board submitted.");
+                        allValid = true;
+                        processedRows = [];
+                    } else {
+                        // If not forced eval, should not happen since we only call endTurn(false, true) on confirm
+                        alert(errorMsg);
+                        return; // Abort end turn! Player must fix the board.
+                    }
+                }
             }
 
             // === All rows valid! Apply scores ===
@@ -1022,8 +1381,36 @@
                 displayEl.style.color = 'var(--secondary)';
             }
 
-            // Reset turn action tracker
+            // Reset turn action tracker and timer states
             gameState.hasSwapped = false;
+            gameState.timerActive = false;
+            gameState.swapPhaseActive = false;
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+                gameState.timerInterval = null;
+            }
+
+            // Hide timer skip button
+            const skipSwapBtn = document.getElementById('btn-skip-swap');
+            if (skipSwapBtn) skipSwapBtn.style.display = 'none';
+
+            // Reset board pointer events
+            sideEl.querySelectorAll('.board-cell').forEach(cell => {
+                cell.style.pointerEvents = '';
+            });
+
+            // Clean up tile onclicks
+            const rackEl2 = document.getElementById(`rack-p${gameState.activePlayer === 'B' ? 'a' : 'b'}`); // the one that just played
+            if (rackEl2) {
+                rackEl2.querySelectorAll('.tile').forEach(t => t.onclick = null);
+            }
+
+            // Show start timer for next player if not CPU
+            if (!(gameState.gameMode === 'pve' && gameState.activePlayer === 'B')) {
+                document.getElementById('btn-start-timer').style.display = 'inline-block';
+                document.getElementById('turn-timer').style.display = 'none';
+                document.getElementById('turn-timer').innerText = '01:00';
+            }
 
             // Handle CPU Turn in PvE
             if (gameState.gameMode === 'pve' && gameState.activePlayer === 'B') {
@@ -1031,7 +1418,6 @@
             }
         }
 
-        // CPU Algorithm for Equation Building
         function findCPUPlay(rackNumbers, rackSymbols) {
             let op = rackSymbols.length > 0 ? rackSymbols[0] : null;
 

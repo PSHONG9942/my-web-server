@@ -543,6 +543,58 @@
             border: 2px dashed white;
         }
 
+        /* Hidden Tile State */
+        .hidden-tile {
+            color: transparent !important;
+            background-color: #94a3b8 !important; /* Grey out */
+            border-color: #64748b !important;
+            box-shadow: 0 4px 0 #475569, 0 5px 5px rgba(0, 0, 0, 0.4) !important;
+            pointer-events: none; /* Disable interaction until timer starts */
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23cbd5e1" width="24px" height="24px"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zm-3 5c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7zm3 10c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 60%;
+        }
+
+        /* Swappable highlight state */
+        .swappable-tile {
+            animation: pulse-border 1.5s infinite;
+            cursor: pointer !important;
+            pointer-events: auto !important;
+        }
+
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(234, 179, 8, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); }
+        }
+
+        /* Timer UI */
+        .timer-display {
+            font-size: 2.5rem;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+            color: white;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 0.5rem 1.5rem;
+            border-radius: 12px;
+            border: 2px solid #475569;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            margin: 0.5rem 0;
+            transition: color 0.3s, border-color 0.3s;
+        }
+
+        .timer-warning {
+            color: #ef4444;
+            border-color: #dc2626;
+            animation: pulse-timer 1s infinite alternate;
+        }
+
+        @keyframes pulse-timer {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+
         /* Navigation Tabs */
         .nav-tabs {
             background: var(--bg-base);
@@ -728,6 +780,65 @@
             color: var(--primary-hover);
             text-decoration: underline;
         }
+
+        /* --- Custom Modal --- */
+        .custom-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.85);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .custom-modal {
+            background: var(--bg-base);
+            border: 2px solid var(--primary);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            animation: popIn 0.3s ease forwards;
+        }
+
+        .custom-modal h3 {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 0.8rem 2rem;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .modal-btn-confirm {
+            background: #10b981;
+            color: white;
+        }
+        .modal-btn-confirm:hover { background: #059669; }
+
+        .modal-btn-recall {
+            background: #ef4444;
+            color: white;
+        }
+        .modal-btn-recall:hover { background: #dc2626; }
 
         /* --- Tutorial Mode --- */
         .tutorial-overlay {
@@ -952,8 +1063,20 @@
         </a>
     </footer>
 
-    <script src="kirable.js"></script>
+    <!-- Custom Confirmation Modal -->
+    <div class="custom-modal-overlay" id="timer-modal">
+        <div class="custom-modal">
+            <h3 id="timer-modal-title">Time's Up!</h3>
+            <p id="timer-modal-text" style="color: var(--text-light); margin-bottom: 2rem; font-size: 1.2rem;">Confirm placed tiles?</p>
+            <div class="modal-btn-group">
+                <button class="modal-btn modal-btn-confirm" id="btn-modal-confirm" onclick="handleTimerConfirm(true)">Confirm</button>
+                <button class="modal-btn modal-btn-recall" id="btn-modal-recall" onclick="handleTimerConfirm(false)">Recall</button>
+            </div>
+        </div>
+    </div>
 
+    <!-- Script dependencies -->
+    <script src="kirable.js"></script>
 </body>
 
 </html>
