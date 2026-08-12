@@ -1016,15 +1016,6 @@
         }
 
         function endTurn(isSkipSwap = false, forceEval = false) {
-        function drawTiles(type) {
-            if (gameState.timerActive) return;
-            // Drawing is always allowed if slots are empty.
-            // Swapping is the only action that locks the turn.
-            if (gameState.hasSwapped) {
-                alert(i18n[gameState.language].msg.alreadySwapped);
-                return;
-            }
-
             const sideId = gameState.activePlayer === 'A' ? 'side-a' : 'side-b';
             const sideEl = document.getElementById(sideId);
             if (!sideEl) return;
@@ -1803,4 +1794,3 @@
                 grandTotEl.value = finalTotal;
             }
         }
-}
