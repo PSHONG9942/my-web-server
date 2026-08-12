@@ -1145,6 +1145,24 @@
             }
 
             // === All rows valid! Apply scores ===
+            
+            // If they skip swap or force eval an invalid board, score 0 for the first available row
+            if (processedRows.length === 0) {
+                let activeIdx = 0;
+                for (let i = 0; i < 10; i++) {
+                    const totInput = document.getElementById(`${pId}-tot-${i}`);
+                    if (totInput && totInput.value === "") {
+                        activeIdx = i;
+                        break;
+                    }
+                }
+                processedRows.push({
+                    index: activeIdx,
+                    eqStr: "-",
+                    ans: "-",
+                    baseScore: 0
+                });
+            }
 
             let hasAppliedBonus = false;
             processedRows.forEach(data => {
