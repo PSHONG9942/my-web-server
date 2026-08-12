@@ -1154,7 +1154,8 @@
                 let bingoDisplay = "";
 
                 // Apply Bonus if applicable (only to the first matched row if they submitted multiple rows in one turn)
-                if (!hasAppliedBonus) {
+                // Bonus only applies if the equation is valid (i.e. eqStr is not "-")
+                if (!hasAppliedBonus && data.eqStr !== "-") {
                     if (tilesPlayedCount === 7) {
                         strikePoints = 30;
                         strikeDisplay = "✓";
