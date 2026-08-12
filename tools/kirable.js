@@ -1492,7 +1492,16 @@
                 if (bestMove) {
                     const sideEl = document.getElementById('side-b');
                     const rows = Array.from(sideEl.querySelectorAll('.board-row'));
-                    let emptyRow = rows.find(row => row.querySelectorAll('.tile').length === 0);
+                    
+                    let activeIdx = 0;
+                    for (let i = 0; i < 10; i++) {
+                        const totInput = document.getElementById(`b-tot-${i}`);
+                        if (totInput && totInput.value === "") {
+                            activeIdx = i;
+                            break;
+                        }
+                    }
+                    let emptyRow = rows[activeIdx];
 
                     if (emptyRow) {
                         const leftCells = emptyRow.querySelectorAll('.cell-group')[0].querySelectorAll('.board-cell');
