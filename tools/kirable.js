@@ -15,6 +15,7 @@
             swapPhaseActive: false,
             timerInterval: null,
             timerSeconds: 60,
+            midGameRecycleDone: false, // Tracks if mid-game tile recycle has occurred
             tutorialCompleted: false, // Tutorial State
             tutorialStep: 0,
             hintsUsedA: 0,
@@ -664,6 +665,31 @@
             return tile;
         }
 
+        function recycleAllTiles() {
+            const allTiles = document.querySelectorAll('.board-grid .tile, .rack-slot .tile');
+            
+            allTiles.forEach(tile => {
+                const type = tile.dataset.type;
+                const val = tile.dataset.value;
+                if (type === 'number') {
+                    gameState.numberBag.push(parseInt(val));
+                } else {
+                    gameState.symbolBag.push(val);
+                }
+                tile.remove();
+            });
+
+            gameState.numberBag.sort(() => Math.random() - 0.5);
+            gameState.symbolBag.sort(() => Math.random() - 0.5);
+
+            updateTileCounts();
+            
+            const msg = gameState.language === 'cn' ? "第五回合已结束！因为牌库数量不足，场上和手牌区的所有牌已被强制回收并重新洗牌。\n请重新抽牌继续第六回合！" :
+                        gameState.language === 'my' ? "Pusingan ke-5 tamat! Semua jubin telah dikitar semula ke dalam beg kerana kekurangan jubin.\nSila cabut jubin baru untuk Pusingan ke-6!" :
+                        "Round 5 is over! All tiles on the board and racks have been recycled into the bags due to low tile count.\nPlease draw new tiles to continue Round 6!";
+            alert("♻️ Tile Recycle!\n\n" + msg);
+        }
+
         function drawTiles(type) {
             // Drawing is always allowed if slots are empty.
             // Swapping is the only action that locks the turn.
@@ -1165,6 +1191,28 @@
                 tile.style.cursor = 'default';
                 tile.setAttribute('draggable', 'false'); // Remove dragging capability
             });
+
+            // Check for mid-game recycle (after scoring and locking)
+            if (!gameState.midGameRecycleDone) {
+                let shouldRecycle = false;
+                if (gameState.gameMode === 'solo') {
+                    if (document.getElementById('a-tot-4') && document.getElementById('a-tot-4').value !== "") {
+                        shouldRecycle = true;
+                    }
+                } else {
+                    if (gameState.activePlayer === 'B' && document.getElementById('b-tot-4') && document.getElementById('b-tot-4').value !== "") {
+                        shouldRecycle = true;
+                    }
+                }
+                
+                if (shouldRecycle) {
+                    gameState.midGameRecycleDone = true;
+                    setTimeout(() => {
+                        recycleAllTiles();
+                    }, 200); // slight delay to allow other alerts to clear
+                }
+            }
+
 
             // Toggle active player visually based on Game Mode
             if (gameState.gameMode === 'solo') {
