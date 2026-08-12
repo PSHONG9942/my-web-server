@@ -722,6 +722,7 @@
 
         /* --- Tile Controls and Game Logic --- */
         let draggedTile = null;
+        let selectedTile = null;
 
         function updateTileCounts() {
             const numEl = document.getElementById('numbers-left-val');
@@ -752,8 +753,29 @@
                 tile.style.textDecoration = "underline";
             }
 
+            // Click to select tile (for click-to-move)
+            tile.addEventListener('click', (e) => {
+                if (!tile.draggable || tile.style.pointerEvents === 'none' || tile.classList.contains('locked') || tile.classList.contains('hidden-tile')) return;
+                if (gameState.swapPhaseActive) return; // Do not select during swap phase
+
+                e.stopPropagation(); // Prevent board click
+
+                if (selectedTile === tile) {
+                    tile.classList.remove('selected-tile');
+                    selectedTile = null;
+                } else {
+                    if (selectedTile) selectedTile.classList.remove('selected-tile');
+                    selectedTile = tile;
+                    tile.classList.add('selected-tile');
+                }
+            });
+
             // Drag Events natively attached to tile
             tile.addEventListener('dragstart', (e) => {
+                if (selectedTile) {
+                    selectedTile.classList.remove('selected-tile');
+                    selectedTile = null;
+                }
                 draggedTile = tile;
                 e.dataTransfer.setData('text/plain', '');
                 setTimeout(() => tile.style.opacity = '0.5', 0);
@@ -1049,6 +1071,18 @@
         function setupDragAndDrop() {
             const board = document.getElementById('board-render');
 
+            // Click to place
+            board.addEventListener('click', (e) => {
+                if (!selectedTile) return;
+                
+                const target = e.target.closest('.board-cell.cell-yellow, .board-cell.cell-pink, .rack-slot');
+                if (target && target.children.length === 0 && !target.classList.contains('locked')) {
+                    target.appendChild(selectedTile);
+                    selectedTile.classList.remove('selected-tile');
+                    selectedTile = null;
+                }
+            });
+
             // General delegator for drag over
             board.addEventListener('dragover', (e) => {
                 e.preventDefault();
@@ -1082,6 +1116,11 @@
         }
 
         function endTurn(isSkipSwap = false, forceEval = false) {
+            if (selectedTile) {
+                selectedTile.classList.remove('selected-tile');
+                selectedTile = null;
+            }
+
             const sideId = gameState.activePlayer === 'A' ? 'side-a' : 'side-b';
             const sideEl = document.getElementById(sideId);
             if (!sideEl) return;
