@@ -291,11 +291,11 @@
         }
 
         function startGame() {
-            gameState.pAName = document.getElementById('input-p1').value || i18n[gameState.language].p1Name;
+            gameState.pAName = document.getElementById('input-p1').value.trim() || "";
             if (gameState.players === 2) {
-                gameState.pBName = document.getElementById('input-p2').value || i18n[gameState.language].p2Name;
+                gameState.pBName = document.getElementById('input-p2').value.trim() || "";
             } else {
-                gameState.pBName = gameState.gameMode === 'solo' ? "None (Solo Mode)" : "CPU";
+                gameState.pBName = gameState.gameMode === 'solo' ? "" : "CPU";
             }
 
             // Switch body to light for print-like look initially (score sheet)
@@ -381,12 +381,7 @@
                 }
             });
 
-            // carry over from previous round if empty
-            if (!data['input-school-a'] && r > 1) {
-                document.getElementById('input-school-a').value = roundData[1].inputs['input-school-a'] || '';
-                document.getElementById('input-school-b').value = roundData[1].inputs['input-school-b'] || '';
-                document.getElementById('input-table').value = roundData[1].inputs['input-table'] || '';
-            }
+
         }
 
         function selectRound(r) {
@@ -416,29 +411,14 @@
             // The score table remains symmetrically 2-sided (A and B) regardless of 1P/2P, based on user instruction.
 
             let html = `
-                <div class="score-header">
-                    <div style="flex: 1; min-width: 100%; max-width: 300px; display: flex; flex-direction: column; justify-content: space-between;">
-                        <div>
-                            <div class="score-brand"><h2>KIRABLE</h2></div>
-                            <div class="score-info-group">
-                                <b>${data.round} :</b>
-                                <span class="round-selector" id="round-sel-1" onclick="selectRound(1)">1</span>
-                                <span class="round-selector locked" id="round-sel-2" onclick="selectRound(2)">2</span>
-                                <span class="round-selector locked" id="round-sel-3" onclick="selectRound(3)">3</span>
-                            </div>
-                            <div class="score-info-group">
-                                <b>${data.table} :</b> <input type="text" id="input-table" class="score-input-line" style="width: 100%; max-width: 150px;">
-                            </div>
-                        </div>
-                        <div class="score-info-group" style="margin-top: 1rem;">
-                            <b>${data.schoolA} :</b> <input type="text" id="input-school-a" class="score-input-line" style="width: 100%; max-width: 250px;">
-                        </div>
-                    </div>
-
-                    <div style="flex: 1; min-width: 100%; max-width: 300px; display: flex; flex-direction: column; justify-content: space-between; padding-top: 2rem;">
-                        <div class="score-brand"><h2>LEMBARAN MARKAH</h2></div>
-                        <div class="score-info-group" style="margin-top: 1rem;">
-                            <b>${data.schoolB} :</b> <input type="text" id="input-school-b" class="score-input-line" style="width: 100%; max-width: 250px;">
+                <div class="score-header" style="justify-content: center;">
+                    <div style="flex: 1; min-width: 100%; max-width: 600px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2rem;">
+                        <div class="score-brand"><h2>KIRABLE &nbsp;&nbsp;&nbsp; LEMBARAN MARKAH</h2></div>
+                        <div class="score-info-group">
+                            <b>${data.round} :</b>
+                            <span class="round-selector" id="round-sel-1" onclick="selectRound(1)">1</span>
+                            <span class="round-selector locked" id="round-sel-2" onclick="selectRound(2)">2</span>
+                            <span class="round-selector locked" id="round-sel-3" onclick="selectRound(3)">3</span>
                         </div>
                     </div>
                 </div>
@@ -446,7 +426,7 @@
                 <div class="score-tables-container">
                     <!-- Table A Left -->
                     <div class="score-table-wrapper">
-                        <h3 style="margin-bottom: 15px; color: #475569; text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 5px; display: inline-block; width: 100%;">${i18n[gameState.language].p1Name}: ${gameState.pAName}</h3>
+                        <h3 style="margin-bottom: 15px; color: #475569; text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 5px; display: inline-block; width: 100%; height: 35px;">${gameState.pAName || ''}</h3>
                         <table class="paper-table">
                             <thead>
                                 <tr>
@@ -481,7 +461,7 @@
 
                     <!-- Table B Right -->
                     <div class="score-table-wrapper">
-                        <h3 style="margin-bottom: 15px; color: #475569; text-align: center; border-bottom: 2px solid var(--secondary); padding-bottom: 5px; display: inline-block; width: 100%;">${i18n[gameState.language].p2Name}: ${gameState.pBName}</h3>
+                        <h3 style="margin-bottom: 15px; color: #475569; text-align: center; border-bottom: 2px solid var(--secondary); padding-bottom: 5px; display: inline-block; width: 100%; height: 35px;">${gameState.pBName || ''}</h3>
                         <table class="paper-table">
                             <thead>
                                 <tr>
@@ -514,9 +494,106 @@
                         </table>
                     </div>
                 </div>
+                
+                <div style="text-align: center; margin-top: 2rem; display: flex; justify-content: center;" class="no-print">
+                    <button class="btn-action" onclick="printScoreSheets()" style="background: #3b82f6; border-color: #2563eb; color: white; width: auto; padding: 0.5rem 2rem;">
+                        🖨️ ${gameState.language === 'cn' ? "打印计分表" : gameState.language === 'my' ? "Cetak Lembaran Markah" : "Print Score Sheets"}
+                    </button>
+                </div>
             `;
 
             document.getElementById('scoresheet-render').innerHTML = html;
+        }
+
+        function printScoreSheets() {
+            saveRoundData(); // Ensure current round inputs are saved
+            
+            let printContainer = document.getElementById('print-container');
+            if (!printContainer) {
+                printContainer = document.createElement('div');
+                printContainer.id = 'print-container';
+                document.body.appendChild(printContainer);
+            }
+            
+            const data = i18n[gameState.language].score;
+            let html = '';
+            
+            for (let r = 1; r <= 3; r++) {
+                let rData = roundData[r].inputs || {};
+                const val = (key) => rData[key] || '';
+                
+                html += `
+                <div class="print-page">
+                    <div class="score-header" style="justify-content: center;">
+                        <div style="flex: 1; min-width: 100%; max-width: 600px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2rem;">
+                            <div class="score-brand"><h2>KIRABLE &nbsp;&nbsp;&nbsp; LEMBARAN MARKAH</h2></div>
+                            <div class="score-info-group">
+                                <b>${data.round} : ${r}</b>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="score-tables-container" style="display: flex; gap: 2rem; padding: 0 2rem;">
+                        <div class="score-table-wrapper" style="flex: 1;">
+                            <h3 style="margin-bottom: 15px; color: #475569; text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 5px; width: 100%; height: 35px;">${gameState.pAName || ''}</h3>
+                            <table class="paper-table" style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th width="40"></th><th>${data.equation}</th><th width="80">${data.answer}</th><th width="70">${data.strike}</th><th width="70">${data.bingo}</th><th width="90">${data.total}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${Array.from({ length: 10 }, (_, i) => `
+                                    <tr>
+                                        <td class="row-label">A${i + 1}</td>
+                                        <td style="text-align: center;">${val(`a-eq-${i}`)}</td>
+                                        <td style="text-align: center;">${val(`a-ans-${i}`)}</td>
+                                        <td style="text-align: center; color:var(--primary)">${val(`a-str-${i}`)}</td>
+                                        <td style="text-align: center; color:var(--primary)">${val(`a-bin-${i}`)}</td>
+                                        <td style="text-align: center;">${val(`a-tot-${i}`)}</td>
+                                    </tr>`).join('')}
+                                    <tr>
+                                        <td colspan="5" style="text-align: right; padding-right: 1rem; font-weight: bold;">${data.grandTotal}</td>
+                                        <td style="text-align: center; font-weight: bold; font-size: 1.1rem;">${val('a-grand-tot')}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="score-table-wrapper" style="flex: 1;">
+                            <h3 style="margin-bottom: 15px; color: #475569; text-align: center; border-bottom: 2px solid var(--secondary); padding-bottom: 5px; width: 100%; height: 35px;">${gameState.pBName || ''}</h3>
+                            <table class="paper-table" style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th width="40"></th><th>${data.equation}</th><th width="80">${data.answer}</th><th width="70">${data.strike}</th><th width="70">${data.bingo}</th><th width="90">${data.total}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${Array.from({ length: 10 }, (_, i) => `
+                                    <tr>
+                                        <td class="row-label">B${i + 1}</td>
+                                        <td style="text-align: center;">${val(`b-eq-${i}`)}</td>
+                                        <td style="text-align: center;">${val(`b-ans-${i}`)}</td>
+                                        <td style="text-align: center; color:var(--primary)">${val(`b-str-${i}`)}</td>
+                                        <td style="text-align: center; color:var(--primary)">${val(`b-bin-${i}`)}</td>
+                                        <td style="text-align: center;">${val(`b-tot-${i}`)}</td>
+                                    </tr>`).join('')}
+                                    <tr>
+                                        <td colspan="5" style="text-align: right; padding-right: 1rem; font-weight: bold;">${data.grandTotal}</td>
+                                        <td style="text-align: center; font-weight: bold; font-size: 1.1rem;">${val('b-grand-tot')}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>`;
+            }
+            
+            printContainer.innerHTML = html;
+            window.print();
+            
+            // Clean up to keep DOM light
+            setTimeout(() => {
+                printContainer.innerHTML = '';
+            }, 1000); // Small delay to ensure browser captures it before removing
         }
 
         function renderGameBoard() {

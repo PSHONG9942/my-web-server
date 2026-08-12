@@ -974,6 +974,37 @@
                 box-shadow: 0 0 0 0 rgba(236, 72, 153, 0);
             }
         }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            body {
+                background: white;
+            }
+            #print-container, #print-container * {
+                visibility: visible;
+            }
+            #print-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            .print-page {
+                page-break-after: always;
+                padding: 20px;
+            }
+            .print-page:last-child {
+                page-break-after: auto;
+            }
+            /* Hide inputs and show their values instead for a cleaner print */
+            #print-container input {
+                border: none !important;
+                background: transparent !important;
+                outline: none !important;
+                box-shadow: none !important;
+            }
+        }
     </style>
     <link rel="stylesheet" href="../css/responsive.css">
 </head>
