@@ -196,22 +196,20 @@
         // 全局字典数据
         let xinhuaData = []; 
 
-        // 你的 GitHub 字典地址
-        const githubUrl = 'https://raw.githubusercontent.com/PSHONG9942/SJKC/refs/heads/main/word.json';
+        // 本地字典文件路径
+        const dictUrl = 'word.json';
 
         // 加载字典数据
         async function loadXinhuaData() {
             try {
-                // 加时间戳防止缓存
-                const url = `${githubUrl}?v=${new Date().getTime()}`;
-                const response = await fetch(url);
+                const response = await fetch(dictUrl);
                 if (!response.ok) throw new Error(`Status: ${response.status}`);
                 
                 xinhuaData = await response.json();
                 console.log('字典加载成功，共', xinhuaData.length, '条数据。');
             } catch (error) {
                 console.error('字典加载失败:', error);
-                alert('字典加载失败，请检查网络或 GitHub 连接。');
+                alert('字典加载失败，请检查 word.json 文件是否存在。');
             }
         }
 

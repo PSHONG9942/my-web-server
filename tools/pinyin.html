@@ -482,7 +482,7 @@
 
         // 获取拼音数据
         async function fetchData() {
-            const url = 'https://raw.githubusercontent.com/PSHONG9942/SJKC/main/word.json';
+            const url = 'word.json';
             try {
                 const response = await fetch(url);
                 allWordsRaw = await response.json();
