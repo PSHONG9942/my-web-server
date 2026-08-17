@@ -85,6 +85,38 @@
                 </ul>
             </div>
 
+            <div class="update-card">
+                <h3>习字簿生成器加载速度优化</h3>
+                <span class="date">2026年8月14日</span>
+                <ul>
+                    <li><strong>本地化词库文件</strong>：针对习字簿生成器（标准版、部首版、一年级版），将原本依赖线上 GitHub 的字库文件调用改为读取本地的 <code>word.json</code> 文件。</li>
+                    <li><strong>体验提升</strong>：大幅缩短了加载等待时间，用户打开网页后即可瞬间完成字库加载，做到即开即用。</li>
+                </ul>
+            </div>
+
+            <div class="update-card">
+                <h3>Kirable 移动端自动适配</h3>
+                <span class="date">2026年8月13日</span>
+                <ul>
+                    <li><strong>手机竖屏适配优化</strong>：对 Kirable 游戏界面进行了响应式排版调整，让原本偏向横屏设计的界面也能在竖屏 (Portrait) 的手机浏览器中完美显示，大幅提升了移动端的游玩体验。</li>
+                </ul>
+            </div>
+
+            <div class="update-card">
+                <h3>Kirable 游戏逻辑与体验优化</h3>
+                <span class="date">2026年8月12日</span>
+                <ul>
+                    <li><strong>数字 6 与 9 算法修正</strong>：重构了回合结束后的“最佳解答”分析算法。确保系统严格区分数字 6 和 9，完美匹配游戏“数字牌不可翻转”的规则。</li>
+                    <li><strong>计时器漏洞修复</strong>：修复了玩家可以通过点击系统弹窗按钮（如抽牌、换牌）来暂停 1 分钟倒计时的时间冻结漏洞。</li>
+                    <li><strong>活动行高亮与防误触锁定</strong>：
+                        <ul>
+                            <li>为当前回合需要操作的行（如第一回合的 A1 行）添加了发光高亮提示。</li>
+                            <li>未激活的行会自动变暗，并添加了物理锁定（禁止拖放），彻底杜绝玩家将牌误拖放到错误行的可能。</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
         </div>
 
         <footer style="text-align: center; margin-top: 50px; padding: 20px; color: #888; font-size: 14px; line-height: 1.6; width: 100%;">
