@@ -34,7 +34,23 @@ with st.sidebar:
     
     st.divider()
     st.header("📂 上传文件")
-    st.warning("⚠️ **云端系统限制**\n\n为确保全国教师的使用体验，系统已限制最大上传文件为 **500MB**。\n\n💡 **建议**：如果是纯音频，可直接上传；如果有视频画面，请尽量使用低画质（如 480p）的 `.mp4` 文件以控制在 500MB 内，这样 AI 就能同时提取幻灯片画面和语音内容！")
+    st.warning("⚠️ **云端系统限制**\n\n为确保全国教师的使用体验，系统已限制最大上传文件为 **500MB**。")
+    
+    with st.expander("🎥 视频文件超过 500MB 怎么办？(附教程)", expanded=False):
+        st.markdown("""
+        **强烈建议：使用免费且无需安装的浏览器压缩工具！**
+        
+        👉 **点击进入：[Compress.lol 极速视频压缩](https://compress.lol/)**
+        
+        **操作步骤：**
+        1. 点击上方链接打开压缩网站。
+        2. 把你录制的大视频拖进去。
+        3. 等待浏览器在本地将其压缩到 500MB 以内。
+        4. 下载压缩后的视频，重新上传到本系统即可！
+        """)
+        # 自动播放的动图演示（使用 WebP 格式体积更小）
+        st.image("tutorial.webp", caption="操作演示")
+
     uploaded_file = st.file_uploader("上传录音/录屏 (mp4, mp3, m4a)", type=["mp4", "mp3", "m4a"])
     
     # 将上传的文件保存到本地临时路径供 cv2 和 whisper 读取
