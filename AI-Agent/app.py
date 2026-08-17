@@ -12,8 +12,8 @@ import streamlit as st
 from openai import OpenAI
 
 # ================= 设置页面信息 =================
-st.set_page_config(page_title="培青华小 AI 助理", page_icon="🤖", layout="wide")
-st.title("🤖 培青华小专属 Office & 多模态 AI Agent")
+st.set_page_config(page_title="马来西亚教师专属 AI 助理", page_icon="🤖", layout="wide")
+st.title("🤖 教师专属 Office & 多模态 AI Agent")
 st.markdown("通过上传会议录屏或音频，AI 能够自动提取语音并分析画面内容，最终生成标准格式的 Minit Curai。")
 
 # ================= 侧边栏配置 =================
@@ -47,6 +47,18 @@ with st.sidebar:
         st.success(f"文件已就绪: {uploaded_file.name}")
         # 提供给 Agent 一个系统提示，告诉它当前文件的路径
         st.session_state["current_file_path"] = current_file_path
+        
+    # 显示生成的供下载的文件
+    if "generated_files" in st.session_state and st.session_state.generated_files:
+        st.divider()
+        st.header("📥 下载生成的公文")
+        for fname, fbytes in st.session_state.generated_files.items():
+            st.download_button(
+                label=f"下载 {fname}", 
+                data=fbytes, 
+                file_name=fname, 
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            )
 
 # ================= 初始化 OpenAI 客户端 =================
 client = OpenAI(
@@ -141,10 +153,12 @@ def transcribe_audio(file_path):
     except Exception as e:
         return f"语音转录失败，错误原因: {str(e)}"
 
-def generate_peiching_minit_curai(
+def generate_minit_curai(
     file_path, tajuk_program, tarikh, masa, tempat, penganjur, penceramah,
-    salinan_kepada="SEMUA GURU", pengisian_items=[], jawatan_guru="Guru Penolong",
-    guru_besar_nama="CHEN LEE LEE"
+    nama_sekolah="NAMA SEKOLAH", alamat_sekolah="ALAMAT SEKOLAH",
+    nama_penyedia="NAMA GURU", jawatan_penyedia="Guru Penolong",
+    nama_pengesah="NAMA GURU BESAR", jawatan_pengesah="Guru Besar",
+    salinan_kepada="SEMUA GURU", pengisian_items=[]
 ):
     doc = docx.Document()
     
@@ -155,7 +169,7 @@ def generate_peiching_minit_curai(
         section.right_margin = Inches(1.0)
         
     header_p = doc.add_paragraph()
-    header_run = header_p.add_run("SJK(C) PEI CHING,\n32700 BERUAS,\nPERAK\n")
+    header_run = header_p.add_run(f"{str(nama_sekolah).upper()},\n{str(alamat_sekolah).upper()}\n")
     header_run.bold = True
     header_run.font.size = Pt(11)
     
@@ -168,7 +182,7 @@ def generate_peiching_minit_curai(
     
     meta_info = [
         ("Kepada", "GURU BESAR"),
-        ("Daripada", "PANG SHENG HONG"),
+        ("Daripada", str(nama_penyedia).upper()),
         ("Salinan kepada", salinan_kepada),
         ("Tajuk Program", str(tajuk_program).upper()),
         ("Tarikh", str(tarikh).upper()),
@@ -223,8 +237,8 @@ def generate_peiching_minit_curai(
     p_left = cell_left.paragraphs[0]
     p_left.paragraph_format.line_spacing = 1.15
     p_left.add_run("Disediakan oleh,\n\n..................................................\n")
-    p_left.add_run("(PANG SHENG HONG)\n").bold = True
-    p_left.add_run(f"{jawatan_guru}\nSJKC Pei Ching\n")
+    p_left.add_run(f"({str(nama_penyedia).upper()})\n").bold = True
+    p_left.add_run(f"{jawatan_penyedia}\n{nama_sekolah}\n")
     p_left.add_run(f"Tarikh : {tarikh}")
     
     cell_right = table.cell(0, 1)
@@ -232,15 +246,15 @@ def generate_peiching_minit_curai(
     p_right = cell_right.paragraphs[0]
     p_right.paragraph_format.line_spacing = 1.15
     p_right.add_run("Disahkan oleh,\n\n..................................................\n")
-    if guru_besar_nama:
-        p_right.add_run(f"({guru_besar_nama.upper()})\n").bold = True
+    if nama_pengesah:
+        p_right.add_run(f"({str(nama_pengesah).upper()})\n").bold = True
     else:
         p_right.add_run("(                                             )\n").bold = True
-    p_right.add_run("Guru Besar\nSJKC Pei Ching\n")
+    p_right.add_run(f"{jawatan_pengesah}\n{nama_sekolah}\n")
     p_right.add_run("Tarikh : ")
     
     doc.save(file_path)
-    return f"成功按照培青华小标准格式生成公文：{file_path}"
+    return f"成功生成公文：{file_path}"
 
 # ================= 工具 Schema 定义 =================
 tools = [
@@ -275,8 +289,8 @@ tools = [
     {
         "type": "function",
         "function": {
-            "name": "generate_peiching_minit_curai",
-            "description": "严格按照 SJK(C) PEI CHING 培青华小公文标准生成规范的 Minit Curai Word 文档",
+            "name": "generate_minit_curai",
+            "description": "严格按照标准格式生成规范的 Minit Curai Word 文档",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -287,6 +301,12 @@ tools = [
                     "tempat": {"type": "string", "description": "地点或平台，例如 'SECARA ATAS TALIAN (WEBEX)'"},
                     "penganjur": {"type": "string", "description": "主办单位"},
                     "penceramah": {"type": "string", "description": "主讲人姓名"},
+                    "nama_sekolah": {"type": "string", "description": "学校名称"},
+                    "alamat_sekolah": {"type": "string", "description": "学校地址"},
+                    "nama_penyedia": {"type": "string", "description": "准备人姓名 (Disediakan oleh)"},
+                    "jawatan_penyedia": {"type": "string", "description": "准备人职衔，默认 'Guru Penolong'"},
+                    "nama_pengesah": {"type": "string", "description": "审核人姓名 (Disahkan oleh)"},
+                    "jawatan_pengesah": {"type": "string", "description": "审核人职衔，默认 'Guru Besar'"},
                     "salinan_kepada": {"type": "string", "description": "抄送对象，默认为 'SEMUA GURU'"},
                     "pengisian_items": {
                         "type": "array",
@@ -299,10 +319,9 @@ tools = [
                             "required": ["sub_title", "details"]
                         },
                         "description": "按 i, ii, iii 组织的会议内容与决议结构"
-                    },
-                    "jawatan_guru": {"type": "string", "description": "职衔，默认为 'Guru Penolong'"}
+                    }
                 },
-                "required": ["file_path", "tajuk_program", "tarikh", "masa", "tempat", "penganjur", "penceramah", "pengisian_items"]
+                "required": ["file_path", "tajuk_program", "tarikh", "masa", "tempat", "penganjur", "penceramah", "pengisian_items", "nama_sekolah", "nama_penyedia", "nama_pengesah"]
             }
         }
     }
@@ -310,13 +329,12 @@ tools = [
 
 # ================= 交互核心 =================
 system_prompt = """
-你是由潘盛鸿 (Pang Sheng Hong) 老师打造的专属教学与公文助理。
-工作单位：SJK(C) PEI CHING, 32700 BERUAS, PERAK (霹雳木威培青华小)。
+你是马来西亚全国教师专属的教学与公文助理。
 
 公文处理铁律：
 1. 当用户提供录屏（.mp4）时，你可以调用 transcribe_audio 获取语音，并可调用 extract_slides_text 捕获 PPT 画面文字，结合两者生成最详实的会议内容。
-2. 生成 Minit Curai 时，必须调用 generate_peiching_minit_curai 工具，确保输出带有标准校头、9项元数据、i/ii 层级正文以及双栏签署表。
-3. 准备人固定为 Pang Sheng Hong，审核人默认为 CHEN LEE LEE 校长。
+2. 生成 Minit Curai 时，必须调用 generate_minit_curai 工具，确保输出带有标准校头、9项元数据、i/ii 层级正文以及双栏签署表。
+3. 请主动向用户询问他们的学校名称、学校地址、姓名（作为准备人）、职位，以及校长的姓名（作为审核人），以便在生成的公文中正确填写这些信息。如果用户没有提供，你可以先用占位符（例如：NAMA SEKOLAH, NAMA GURU）生成。
 """
 
 if "messages" not in st.session_state:
@@ -378,28 +396,43 @@ if prompt := st.chat_input("输入你的指令，例如：'帮我整理刚才上
                                 result = transcribe_audio(args.get("file_path"))
                             elif func_name == "extract_slides_text":
                                 result = extract_slides_text(args.get("video_path"))
-                            elif func_name == "generate_peiching_minit_curai":
-                                result = generate_peiching_minit_curai(
-                                    file_path=args.get("file_path"),
+                            elif func_name == "generate_minit_curai":
+                                # 强制将文件保存在临时文件夹中，提取文件名
+                                filename = os.path.basename(args.get("file_path", "Minit_Curai.docx"))
+                                if not filename.endswith(".docx"):
+                                    filename += ".docx"
+                                save_path = os.path.join(tempfile.gettempdir(), filename)
+                                
+                                result = generate_minit_curai(
+                                    file_path=save_path,
                                     tajuk_program=args.get("tajuk_program"),
                                     tarikh=args.get("tarikh"),
                                     masa=args.get("masa"),
                                     tempat=args.get("tempat"),
                                     penganjur=args.get("penganjur", args.get("penceramah")),
                                     penceramah=args.get("penceramah"),
+                                    nama_sekolah=args.get("nama_sekolah", "NAMA SEKOLAH"),
+                                    alamat_sekolah=args.get("alamat_sekolah", "ALAMAT SEKOLAH"),
+                                    nama_penyedia=args.get("nama_penyedia", "NAMA GURU"),
+                                    jawatan_penyedia=args.get("jawatan_penyedia", "Guru Penolong"),
+                                    nama_pengesah=args.get("nama_pengesah", "NAMA GURU BESAR"),
+                                    jawatan_pengesah=args.get("jawatan_pengesah", "Guru Besar"),
                                     salinan_kepada=args.get("salinan_kepada", "SEMUA GURU"),
-                                    pengisian_items=args.get("pengisian_items", []),
-                                    jawatan_guru=args.get("jawatan_guru", "Guru Penolong")
+                                    pengisian_items=args.get("pengisian_items", [])
                                 )
+                                
+                                # 将生成的文件读取到 session_state 中，实现持久化下载
+                                if os.path.exists(save_path):
+                                    with open(save_path, "rb") as f:
+                                        file_bytes = f.read()
+                                    if "generated_files" not in st.session_state:
+                                        st.session_state.generated_files = {}
+                                    st.session_state.generated_files[filename] = file_bytes
+                                    st.success(f"🎉 文件已生成并保存在临时目录，请在左侧侧边栏点击下载！")
                             else:
                                 result = "未知工具"
                                 
                             st.write("执行结果:", result)
-                            
-                            # 增加 tool 下载链接（如果是生成的文件）
-                            if func_name == "generate_peiching_minit_curai" and os.path.exists(args.get("file_path")):
-                                with open(args.get("file_path"), "rb") as f:
-                                    st.download_button("下载生成的公文 (Word)", f, file_name=args.get("file_path"))
                         
                         st.session_state.messages.append({
                             "role": "tool",
