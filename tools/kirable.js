@@ -17,7 +17,9 @@
             timerSeconds: 60,
             midGameRecycleDone: false, // Tracks if mid-game tile recycle has occurred
             tutorialCompleted: false, // Tutorial State
-            tutorialStep: 0
+            tutorialStep: 0,
+            difficulty: 'competition', // 'competition' or 'practice'
+            practiceSymbols: ['+', '-', 'x', '÷']
         };
 
         // Standard Kirable distribution
@@ -29,11 +31,21 @@
             }
             gameState.numberBag = nums.sort(() => Math.random() - 0.5);
 
-            // 20 Symbols (+, -, x, ÷, 5 each)
             let syms = [];
-            ['+', '-', 'x', '÷'].forEach(sym => {
-                for (let i = 0; i < 5; i++) syms.push(sym);
-            });
+            if (gameState.difficulty === 'practice') {
+                const chosen = gameState.practiceSymbols;
+                const baseCount = Math.floor(20 / chosen.length);
+                let remainder = 20 % chosen.length;
+                chosen.forEach((sym, index) => {
+                    let count = baseCount + (index < remainder ? 1 : 0);
+                    for (let i = 0; i < count; i++) syms.push(sym);
+                });
+            } else {
+                // 20 Symbols (+, -, x, ÷, 5 each)
+                ['+', '-', 'x', '÷'].forEach(sym => {
+                    for (let i = 0; i < 5; i++) syms.push(sym);
+                });
+            }
             gameState.symbolBag = syms.sort(() => Math.random() - 0.5);
         }
 
@@ -44,6 +56,7 @@
                 selectPlayers: "Select Players",
                 btn1P: "1 Player (A)", btn2P: "2 Players (A & B)",
                 selectMode: "Select Mode", btnSolo: "Solo (Freeplay)", btnPvE: "Vs CPU",
+                selectDifficulty: "Select Difficulty", btnComp: "Competition Mode", btnPrac: "Practice Mode",
                 enterNames: "Enter Names",
                 p1Name: "Player A Name", p2Name: "Player B Name",
                 start: "Start Game",
@@ -100,6 +113,7 @@
                 selectPlayers: "Pilih Pemain",
                 btn1P: "1 Pemain (A)", btn2P: "2 Pemain (A & B)",
                 selectMode: "Pilih Mod", btnSolo: "Solo (Bebas)", btnPvE: "Lawan CPU",
+                selectDifficulty: "Pilih Tahap Kesukaran", btnComp: "Mod Pertandingan", btnPrac: "Mod Latihan",
                 enterNames: "Masukkan Nama",
                 p1Name: "Nama Pemain A", p2Name: "Nama Pemain B",
                 start: "Mula Permainan",
@@ -156,6 +170,7 @@
                 selectPlayers: "选择玩家人数",
                 btn1P: "单人游戏 (玩家 A)", btn2P: "双人游戏 (玩家 A & B)",
                 selectMode: "选择模式", btnSolo: "单人游玩 (跳过B)", btnPvE: "对战电脑 (CPU)",
+                selectDifficulty: "选择难度", btnComp: "比赛版", btnPrac: "练习版",
                 enterNames: "输入玩家姓名",
                 p1Name: "玩家 A 姓名", p2Name: "玩家 B 姓名",
                 start: "开始游戏",
@@ -222,6 +237,10 @@
             document.getElementById('btn-solo').textContent = text.btnSolo;
             document.getElementById('btn-pve').textContent = text.btnPvE;
 
+            document.getElementById('text-select-difficulty').textContent = text.selectDifficulty;
+            document.getElementById('btn-comp').textContent = text.btnComp;
+            document.getElementById('btn-prac').textContent = text.btnPrac;
+
             document.getElementById('text-enter-names').textContent = text.enterNames;
             document.getElementById('input-p1').placeholder = text.p1Name;
             document.getElementById('input-p2').placeholder = text.p2Name;
@@ -252,6 +271,14 @@
                 document.getElementById('menu-players').classList.add('active');
             } else if (step === 'mode') {
                 document.getElementById('menu-mode').classList.add('active');
+            } else if (step === 'difficulty-back') {
+                if (gameState.players === 1) {
+                    document.getElementById('menu-mode').classList.add('active');
+                } else {
+                    document.getElementById('menu-players').classList.add('active');
+                }
+            } else if (step === 'difficulty') {
+                document.getElementById('menu-difficulty').classList.add('active');
             } else if (step === 'names') {
                 // Leaving game to return to names setup
                 document.getElementById('game-app').style.display = 'none';
@@ -274,19 +301,35 @@
                 // If 1 player, choose Solo or PvE
                 document.getElementById('menu-mode').classList.add('active');
             } else {
-                // If 2 players, logic is standard PvP
+                // If 2 players, logic is standard PvP, go to Difficulty
                 gameState.gameMode = 'pvp';
-                // Adjust Back button on Enter Names screen to go back to Players
-                document.querySelector('#menu-names .btn-back').setAttribute('onclick', "goBack('players')");
-                document.getElementById('menu-names').classList.add('active');
+                document.getElementById('menu-difficulty').classList.add('active');
             }
         }
 
         function setMode(mode) {
             gameState.gameMode = mode;
-            // Adjust Back button on Enter Names screen to go back to Mode
-            document.querySelector('#menu-names .btn-back').setAttribute('onclick', "goBack('mode')");
             document.getElementById('menu-mode').classList.remove('active');
+            document.getElementById('menu-difficulty').classList.add('active');
+        }
+
+        function setDifficulty(diff) {
+            gameState.difficulty = diff;
+            if (diff === 'practice') {
+                const checkboxes = document.querySelectorAll('.prac-sym-cb');
+                const selected = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+                if (selected.length === 0) {
+                    alert(gameState.language === 'cn' ? "请至少选择一种符号牌！" : 
+                          gameState.language === 'my' ? "Sila pilih sekurang-kurangnya satu simbol!" : 
+                          "Please select at least one symbol!");
+                    return;
+                }
+                gameState.practiceSymbols = selected;
+            }
+
+            // Adjust Back button on Enter Names screen to go back to Difficulty
+            document.querySelector('#menu-names .btn-back').setAttribute('onclick', "goBack('difficulty')");
+            document.getElementById('menu-difficulty').classList.remove('active');
             document.getElementById('menu-names').classList.add('active');
         }
 
@@ -653,9 +696,10 @@
                         </div>
                         
                         <div class="controls-row" style="margin-top: 0.5rem;">
-                            <div class="timer-display" id="turn-timer">01:00</div>
-                            <button class="btn-action" id="btn-start-timer" onclick="startTimer()" style="background: #eab308; color: #0f172a; font-weight: 800;">${i18n[gameState.language].timer.start}</button>
+                            <div class="timer-display" id="turn-timer" style="${gameState.difficulty === 'practice' ? 'display: none;' : ''}">01:00</div>
+                            <button class="btn-action" id="btn-start-timer" onclick="startTimer()" style="background: #eab308; color: #0f172a; font-weight: 800; ${gameState.difficulty === 'practice' ? 'display: none;' : ''}">${i18n[gameState.language].timer.start}</button>
                             <button class="btn-action" id="btn-skip-swap" onclick="endTurn(true)" style="display: none; background: #64748b; color: white;">${i18n[gameState.language].timer.skipSwap}</button>
+                            <button class="btn-action" id="btn-end-turn" onclick="endTurn()" style="background: #10b981; color: white; font-weight: 800; ${gameState.difficulty === 'practice' ? 'display: inline-block;' : 'display: none;'}">${i18n[gameState.language].controls.endTurn}</button>
                         </div>
 
                         <div class="controls-row" style="margin-top: 0.5rem; flex-direction: row; gap: 0.5rem;">
@@ -734,8 +778,8 @@
         function createTileUI(type, value) {
             const tile = document.createElement('div');
             tile.className = `tile ${type === 'number' ? 'tile-number' : 'tile-symbol'}`;
-            // If timer is not active and we aren't in swap phase, new tiles should be hidden
-            if (!gameState.timerActive && !gameState.swapPhaseActive && gameState.gameMode !== 'pve' || (gameState.gameMode === 'pve' && gameState.activePlayer === 'A' && !gameState.timerActive && !gameState.swapPhaseActive)) {
+            // If timer is not active and we aren't in swap phase, new tiles should be hidden (unless practice mode)
+            if (gameState.difficulty !== 'practice' && (!gameState.timerActive && !gameState.swapPhaseActive && gameState.gameMode !== 'pve' || (gameState.gameMode === 'pve' && gameState.activePlayer === 'A' && !gameState.timerActive && !gameState.swapPhaseActive))) {
                 tile.classList.add('hidden-tile');
             }
 
@@ -1427,9 +1471,18 @@
 
             // Show start timer for next player if not CPU
             if (!(gameState.gameMode === 'pve' && gameState.activePlayer === 'B')) {
-                document.getElementById('btn-start-timer').style.display = 'inline-block';
-                document.getElementById('turn-timer').style.display = 'none';
-                document.getElementById('turn-timer').innerText = '01:00';
+                if (gameState.difficulty === 'practice') {
+                    const endTurnBtn = document.getElementById('btn-end-turn');
+                    if (endTurnBtn) endTurnBtn.style.display = 'inline-block';
+                } else {
+                    const startTimerBtn = document.getElementById('btn-start-timer');
+                    const turnTimer = document.getElementById('turn-timer');
+                    if (startTimerBtn) startTimerBtn.style.display = 'inline-block';
+                    if (turnTimer) {
+                        turnTimer.style.display = 'none';
+                        turnTimer.innerText = '01:00';
+                    }
+                }
             }
 
             // Check for Round End
@@ -1458,9 +1511,11 @@
                         gameState.activePlayer = 'A';
                         
                         if (gameState.gameMode !== 'pve') {
-                            document.getElementById('btn-start-timer').style.display = 'inline-block';
-                            document.getElementById('turn-timer').style.display = 'none';
-                            document.getElementById('turn-timer').innerText = '01:00';
+                            if (gameState.difficulty !== 'practice') {
+                                document.getElementById('btn-start-timer').style.display = 'inline-block';
+                                document.getElementById('turn-timer').style.display = 'none';
+                                document.getElementById('turn-timer').innerText = '01:00';
+                            }
                         }
                         
                         const displayEl = document.getElementById('active-player-display');

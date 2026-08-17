@@ -1147,6 +1147,24 @@
             </div>
         </div>
 
+        <!-- STEP 2.7: Difficulty Selection -->
+        <div class="menu-section" id="menu-difficulty">
+            <button class="btn-back" onclick="goBack('difficulty-back')">← Back</button>
+            <h2 class="menu-title" id="text-select-difficulty">Select Difficulty</h2>
+            <div class="btn-group">
+                <button class="menu-btn" id="btn-comp" onclick="setDifficulty('competition')">Competition Mode</button>
+                <div style="width: 100%; max-width: 300px; display: flex; flex-direction: column; gap: 0.5rem; background: rgba(0, 0, 0, 0.2); padding: 1rem; border-radius: 12px; border: 2px solid var(--glass-border);">
+                    <button class="menu-btn" id="btn-prac" onclick="setDifficulty('practice')" style="width: 100%; max-width: none; border: 2px dashed #ec4899; box-shadow: 0 0 10px rgba(236,72,153,0.3);">Practice Mode</button>
+                    <div style="display: flex; justify-content: space-around; font-size: 1.2rem; margin-top: 0.5rem; padding: 0.5rem; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                        <label style="cursor: pointer;"><input type="checkbox" class="prac-sym-cb" value="+" checked style="transform: scale(1.5); margin-right: 5px;"> +</label>
+                        <label style="cursor: pointer;"><input type="checkbox" class="prac-sym-cb" value="-" checked style="transform: scale(1.5); margin-right: 5px;"> -</label>
+                        <label style="cursor: pointer;"><input type="checkbox" class="prac-sym-cb" value="x" checked style="transform: scale(1.5); margin-right: 5px;"> x</label>
+                        <label style="cursor: pointer;"><input type="checkbox" class="prac-sym-cb" value="÷" checked style="transform: scale(1.5); margin-right: 5px;"> ÷</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- STEP 3: Enter Names -->
         <div class="menu-section" id="menu-names">
             <button class="btn-back" onclick="goBack('players')">← Back</button>
