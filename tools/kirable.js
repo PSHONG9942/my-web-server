@@ -705,7 +705,7 @@
                             <div class="timer-display" id="turn-timer" style="${gameState.difficulty === 'practice' ? 'display: none;' : ''}">01:00</div>
                             <button class="btn-action" id="btn-start-timer" onclick="startTimer()" style="background: #eab308; color: #0f172a; font-weight: 800; ${gameState.difficulty === 'practice' ? 'display: none;' : ''}">${i18n[gameState.language].timer.start}</button>
                             <button class="btn-action" id="btn-skip-swap" onclick="endTurn(true)" style="display: none; background: #64748b; color: white;">${i18n[gameState.language].timer.skipSwap}</button>
-                            <button class="btn-action" id="btn-end-turn" onclick="endTurn()" style="background: #10b981; color: white; font-weight: 800; ${gameState.difficulty === 'practice' ? 'display: inline-block;' : 'display: none;'}">${i18n[gameState.language].controls.endTurn}</button>
+                            <button class="btn-action" id="btn-end-turn" onclick="gameState.difficulty === 'practice' ? showTimerModal() : endTurn()" style="background: #10b981; color: white; font-weight: 800; ${gameState.difficulty === 'practice' ? 'display: inline-block;' : 'display: none;'}">${i18n[gameState.language].controls.endTurn}</button>
                         </div>
 
                         <div class="controls-row" style="margin-top: 0.5rem; flex-direction: row; gap: 0.5rem;">
@@ -1089,11 +1089,9 @@
             }
             
             const endTurnBtn = document.getElementById('btn-end-turn');
-            const practiceSwapBtn = document.getElementById('btn-practice-swap');
             const startTimerBtn = document.getElementById('btn-start-timer');
             
             if (endTurnBtn) endTurnBtn.style.display = 'none';
-            if (practiceSwapBtn) practiceSwapBtn.style.display = 'none';
             if (startTimerBtn) startTimerBtn.style.display = 'none';
             
             // Allow clicking a tile to swap
@@ -1294,18 +1292,8 @@
                 // Fall through to logic to end turn and score 0
             } else {
                 if (!allValid) {
-                    if (gameState.difficulty === 'practice') {
-                        // Practice mode: score 0, check 3 strikes
-                        allValid = true;
-                        processedRows = [];
-                        
-                        let errors = (gameState.activePlayer === 'A') ? ++gameState.errorsA : ++gameState.errorsB;
-                        if (errors >= 3) {
-                            triggerForcedSwap(true);
-                            return; 
-                        }
-                    } else if (forceEval) {
-                        // Competition Mode forced eval Error
+                    if (forceEval) {
+                        // Forced eval Error (Timer expired or Practice Mode Confirm)
                         alert(errorMsg || "Empty board submitted.");
                         allValid = true;
                         processedRows = [];
