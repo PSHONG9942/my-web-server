@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>更新日志 - 华小老师专区</title>
+    <link rel="icon" href="images/logo.png" type="image/png">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/cyberpunk.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        .update-card {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            color: #f8fafc;
+            text-align: left;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        .update-card h3 {
+            color: #38bdf8;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .update-card .date {
+            font-size: 0.85em;
+            color: #94a3b8;
+            margin-bottom: 15px;
+            display: block;
+        }
+        .update-card ul {
+            padding-left: 20px;
+            line-height: 1.6;
+        }
+        .update-card li {
+            margin-bottom: 8px;
+        }
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            color: #a1c4fd;
+            text-decoration: none;
+            font-weight: bold;
+            border: 1px solid #a1c4fd;
+            padding: 8px 20px;
+            border-radius: 20px;
+            transition: all 0.3s;
+        }
+        .back-btn:hover {
+            background: rgba(161, 196, 253, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard">
+        <header class="welcome-section">
+            <img src="images/logo.png" class="mini-logo" alt="Logo" style="cursor: default;">
+            <h1>更新日志</h1>
+            <p>记录华小老师专区的所有修改与更新</p>
+            <a href="index.html" class="back-btn">⬅️ 返回首页</a>
+        </header>
+
+        <div class="grid" style="display: block; max-width: 800px; margin: 0 auto;">
+            
+            <div class="update-card">
+                <h3>Kirable 难度选择功能开发</h3>
+                <span class="date">2026年8月17日</span>
+                <ul>
+                    <li><strong>新增模式选择</strong>：玩家现在可以在游戏开始前选择“比赛版”（Competition Mode）或“练习版”（Practice Mode）。</li>
+                    <li><strong>练习版（Practice Mode）</strong>：
+                        <ul>
+                            <li>移除了1分钟倒计时，改为由玩家手动点击“结束回合”按钮。</li>
+                            <li>新增了符号选择功能。玩家可以自由勾选 <code>+</code>, <code>-</code>, <code>x</code>, <code>÷</code> 进行针对性练习。</li>
+                            <li>系统会自动生成20个仅包含所选符号的符号牌。</li>
+                            <li>在人机对战 (PvE) 中，CPU也会遵循玩家的符号选择。</li>
+                        </ul>
+                    </li>
+                    <li><strong>比赛版（Competition Mode）</strong>：保留原有的1分钟限时挑战规则，所有符号随机分配。</li>
+                    <li><strong>多语言支持</strong>：难度选择菜单已添加中文、英文、马来文三语支持。</li>
+                </ul>
+            </div>
+
+        </div>
+
+        <footer style="text-align: center; margin-top: 50px; padding: 20px; color: #888; font-size: 14px; line-height: 1.6; width: 100%;">
+            <p style="margin: 5px 0;">若发现问题，电邮至 g-21543731@moe-dl.edu.my 潘老师。</p>
+            <p style="margin: 5px 0;">没有团队，不定期更新网站，恳请各位老师耐心等候。</p>
+            <a href="mailto:g-21543731@moe-dl.edu.my?subject=网站反馈" style="color: #555; text-decoration: underline; font-weight: bold; cursor: pointer;">
+                👉 点我发送反馈
+            </a>
+        </footer>
+    </div>
+</body>
+
+</html>
