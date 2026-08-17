@@ -271,7 +271,7 @@ def generate_minit_curai(
     p_right.add_run("Tarikh : ")
     
     doc.save(file_path)
-    return f"成功生成公文：{file_path}"
+    return "成功生成公文！【重要指示】请在回复中明确告诉用户：公文已成功生成，请点击网页左侧边栏底部的『📥 下载生成的公文』按钮进行下载。绝对不要在回复中提供虚假的文件下载链接！"
 
 # ================= 工具 Schema 定义 =================
 tools = [
