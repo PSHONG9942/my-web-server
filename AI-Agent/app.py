@@ -34,6 +34,7 @@ with st.sidebar:
     
     st.divider()
     st.header("📂 上传文件")
+    st.warning("⚠️ **云端系统限制**\n\n为确保全国教师的使用体验，系统已限制最大上传文件为 **500MB**。\n\n💡 **建议**：如果是纯音频，可直接上传；如果有视频画面，请尽量使用低画质（如 480p）的 `.mp4` 文件以控制在 500MB 内，这样 AI 就能同时提取幻灯片画面和语音内容！")
     uploaded_file = st.file_uploader("上传录音/录屏 (mp4, mp3, m4a)", type=["mp4", "mp3", "m4a"])
     
     # 将上传的文件保存到本地临时路径供 cv2 和 whisper 读取
