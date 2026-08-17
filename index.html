@@ -94,17 +94,49 @@
                 background-position: 0% 50%;
             }
         }
+
+        .corner-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.8);
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: bold;
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .corner-btn:hover {
+            background: #2563eb;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+        }
+        @media (max-width: 768px) {
+            .corner-btn {
+                top: 15px;
+                right: 15px;
+                padding: 6px 12px;
+                font-size: 0.9rem;
+            }
+        }
     </style>
 </head>
 
 <body>
+    <a href="updates.html" class="corner-btn">📅 更新日志</a>
     <div class="dashboard">
         <header class="welcome-section">
             <img src="images/logo.png" class="mini-logo" alt="Logo" onclick="triggerArchive()" style="cursor: default;">
             <h1>华小老师专区</h1>
             <p>收录部分华小老师<b><a href="3d-hub/index.html"
                         style="text-decoration: none; color: inherit; cursor: inherit;">可能</a></b>需要的数字教具（持续更新中...）</p>
-            <a href="updates.html" style="display: inline-block; margin-top: 10px; color: #a1c4fd; text-decoration: none; font-weight: bold; border: 1px solid #a1c4fd; padding: 5px 15px; border-radius: 20px; transition: all 0.3s; background: rgba(255, 255, 255, 0.1);">📅 更新日志</a>
         </header>
 
         <div class="grid">
