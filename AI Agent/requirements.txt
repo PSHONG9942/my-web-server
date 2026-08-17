@@ -1,6 +1,0 @@
-streamlit
-openai
-faster-whisper
-opencv-python-headless
-python-docx
-Pillow
