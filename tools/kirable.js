@@ -19,7 +19,9 @@
             tutorialCompleted: false, // Tutorial State
             tutorialStep: 0,
             difficulty: 'competition', // 'competition' or 'practice'
-            practiceSymbols: ['+', '-', 'x', '÷']
+            practiceSymbols: ['+', '-', 'x', '÷'],
+            errorsA: 0,
+            errorsB: 0
         };
 
         // Standard Kirable distribution
@@ -65,7 +67,7 @@
                 controls: {
                     drawNum: "Draw Number", drawSym: "Draw Symbol", endTurn: "End Turn",
                     numTiles: "Number Tiles:", symTiles: "Symbol Tiles:",
-                    swapNum: "Swap Numbers", swapSym: "Swap Symbol"
+                    swapNum: "Swap Numbers", swapSym: "Swap Symbol", practiceSwap: "Swap Tile"
                 },
 
                 score: {
@@ -122,7 +124,7 @@
                 controls: {
                     drawNum: "Cabut Nombor", drawSym: "Cabut Simbol", endTurn: "Tamat Giliran",
                     numTiles: "Jubin Nombor:", symTiles: "Jubin Simbol:",
-                    swapNum: "Tukar Nombor", swapSym: "Tukar Simbol"
+                    swapNum: "Tukar Nombor", swapSym: "Tukar Simbol", practiceSwap: "Tukar Jubin"
                 },
 
                 score: {
@@ -179,7 +181,7 @@
                 controls: {
                     drawNum: "抽数字", drawSym: "抽符号", endTurn: "结束回合",
                     numTiles: "数字牌剩余:", symTiles: "符号牌剩余:",
-                    swapNum: "换数字牌", swapSym: "换符号牌"
+                    swapNum: "换数字牌", swapSym: "换符号牌", practiceSwap: "换牌"
                 },
 
                 score: {
@@ -432,6 +434,10 @@
 
             saveRoundData();
             gameState.viewingRound = r;
+            
+            // Reset error counters for the new round
+            gameState.errorsA = 0;
+            gameState.errorsB = 0;
 
             // UI visual update for standard circles
             for (let i = 1; i <= 3; i++) {
@@ -1038,50 +1044,67 @@
                 // Confirm placement -> evaluates board
                 endTurn(false, true); 
             } else {
-                // Recall tiles
-                const sideId = gameState.activePlayer === 'A' ? 'side-a' : 'side-b';
-                const sideEl = document.getElementById(sideId);
-                const boardGrid = sideEl.querySelector('.board-grid');
-                const newTiles = boardGrid.querySelectorAll('.tile:not(.locked)');
-                const rackEl = document.getElementById(`rack-p${gameState.activePlayer.toLowerCase()}`);
-                
-                // Return tiles to rack
-                newTiles.forEach(tile => {
-                    // find empty slot
-                    const emptyNum = Array.from(rackEl.querySelectorAll('.number-slot')).find(s => s.children.length === 0);
-                    const emptySym = rackEl.querySelector('.symbol-slot');
-                    
-                    if (tile.dataset.type === 'number' && emptyNum) {
-                        emptyNum.appendChild(tile);
-                    } else if (tile.dataset.type === 'symbol' && emptySym && emptySym.children.length === 0) {
-                        emptySym.appendChild(tile);
-                    } else {
-                        // Just append to rack if full
-                        rackEl.appendChild(tile);
-                    }
-                });
-
-                // Lock board placement
-                sideEl.querySelectorAll('.board-cell').forEach(cell => {
-                    cell.style.pointerEvents = 'none';
-                });
-
-                // Enter Swap Phase
-                gameState.swapPhaseActive = true;
-                alert(i18n[gameState.language].timer.swapPhase);
-                
-                document.getElementById('btn-skip-swap').style.display = 'inline-block';
-                
-                // Allow clicking a tile to swap
-                const rackTiles = rackEl.querySelectorAll('.tile');
-                rackTiles.forEach(tile => {
-                    tile.onclick = () => {
-                        if (gameState.swapPhaseActive) {
-                            swapSingleTile(tile);
-                        }
-                    };
-                });
+                // Recall tiles and enter swap phase
+                triggerForcedSwap(false);
             }
+        }
+
+        function triggerForcedSwap(isPenalty = false) {
+            const sideId = gameState.activePlayer === 'A' ? 'side-a' : 'side-b';
+            const sideEl = document.getElementById(sideId);
+            const boardGrid = sideEl.querySelector('.board-grid');
+            const newTiles = boardGrid.querySelectorAll('.tile:not(.locked)');
+            const rackEl = document.getElementById(`rack-p${gameState.activePlayer.toLowerCase()}`);
+            
+            // Return tiles to rack
+            newTiles.forEach(tile => {
+                const emptyNum = Array.from(rackEl.querySelectorAll('.number-slot')).find(s => s.children.length === 0);
+                const emptySym = rackEl.querySelector('.symbol-slot');
+                
+                if (tile.dataset.type === 'number' && emptyNum) {
+                    emptyNum.appendChild(tile);
+                } else if (tile.dataset.type === 'symbol' && emptySym && emptySym.children.length === 0) {
+                    emptySym.appendChild(tile);
+                } else {
+                    rackEl.appendChild(tile);
+                }
+            });
+
+            // Lock board placement
+            sideEl.querySelectorAll('.board-cell').forEach(cell => {
+                cell.style.pointerEvents = 'none';
+            });
+
+            // Enter Swap Phase
+            gameState.swapPhaseActive = true;
+            
+            if (isPenalty) {
+                alert(gameState.language === 'cn' ? "警告！第3次错误等式，已强制没收本回合得分（0分）。请选择一张手牌进行更换！" : 
+                      gameState.language === 'my' ? "Amaran! Kesalahan kali ke-3. Mata dibatalkan (0 markah). Sila tukar sekeping jubin!" : 
+                      "Warning! 3rd invalid equation. Turn forfeited (0 points). You must swap a tile!");
+                document.getElementById('btn-skip-swap').style.display = 'none';
+            } else {
+                alert(i18n[gameState.language].timer.swapPhase);
+                document.getElementById('btn-skip-swap').style.display = 'inline-block';
+            }
+            
+            const endTurnBtn = document.getElementById('btn-end-turn');
+            const practiceSwapBtn = document.getElementById('btn-practice-swap');
+            const startTimerBtn = document.getElementById('btn-start-timer');
+            
+            if (endTurnBtn) endTurnBtn.style.display = 'none';
+            if (practiceSwapBtn) practiceSwapBtn.style.display = 'none';
+            if (startTimerBtn) startTimerBtn.style.display = 'none';
+            
+            // Allow clicking a tile to swap
+            const rackTiles = rackEl.querySelectorAll('.tile');
+            rackTiles.forEach(tile => {
+                tile.onclick = () => {
+                    if (gameState.swapPhaseActive) {
+                        swapSingleTile(tile);
+                    }
+                };
+            });
         }
 
         function swapSingleTile(tile) {
@@ -1271,11 +1294,27 @@
                 // Fall through to logic to end turn and score 0
             } else {
                 if (!allValid) {
-                    if (forceEval) {
-                        // User confirmed, but it's invalid or empty -> Score is 0
+                    if (gameState.difficulty === 'practice') {
+                        // Practice mode: score 0, check 3 strikes
+                        allValid = true;
+                        processedRows = [];
+                        
+                        let errors = (gameState.activePlayer === 'A') ? ++gameState.errorsA : ++gameState.errorsB;
+                        if (errors >= 3) {
+                            triggerForcedSwap(true);
+                            return; 
+                        }
+                    } else if (forceEval) {
+                        // Competition Mode forced eval Error
                         alert(errorMsg || "Empty board submitted.");
                         allValid = true;
                         processedRows = [];
+                        
+                        let errors = (gameState.activePlayer === 'A') ? ++gameState.errorsA : ++gameState.errorsB;
+                        if (errors >= 3) {
+                            triggerForcedSwap(true);
+                            return; 
+                        }
                     } else {
                         // If not forced eval, should not happen since we only call endTurn(false, true) on confirm
                         alert(errorMsg);
