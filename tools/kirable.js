@@ -172,7 +172,7 @@
                 selectPlayers: "选择玩家人数",
                 btn1P: "单人游戏 (玩家 A)", btn2P: "双人游戏 (玩家 A & B)",
                 selectMode: "选择模式", btnSolo: "单人游玩 (跳过B)", btnPvE: "对战电脑 (CPU)",
-                selectDifficulty: "选择难度", btnComp: "比赛版", btnPrac: "练习版",
+                selectDifficulty: "选择难度", btnComp: "比赛模式", btnPrac: "练习模式",
                 enterNames: "输入玩家姓名",
                 p1Name: "玩家 A 姓名", p2Name: "玩家 B 姓名",
                 start: "开始游戏",
