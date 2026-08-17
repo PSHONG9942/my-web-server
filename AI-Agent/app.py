@@ -19,10 +19,18 @@ st.markdown("通过上传会议录屏或音频，AI 能够自动提取语音并�
 # ================= 侧边栏配置 =================
 with st.sidebar:
     st.header("⚙️ 配置参数")
-    api_key = st.text_input("API Key", value="ollama", type="password")
-    # 如果部署到云端，这里可以修改为真实的云端 API 地址
-    base_url = st.text_input("Base URL", value="http://localhost:11434/v1")
-    model_name = st.text_input("模型名称", value="gemma4:31b-cloud")
+    # 尝试从 Streamlit Secrets 中读取 API Key
+    default_api_key = st.secrets.get("GOOGLE_API_KEY", "") if hasattr(st, "secrets") and "GOOGLE_API_KEY" in st.secrets else ""
+    
+    if not default_api_key:
+        api_key = st.text_input("API Key (必填)", value="", type="password", placeholder="请填入你的 Google AI Studio API Key")
+    else:
+        api_key = default_api_key
+        st.success("✅ 已自动加载系统内置的 API Key")
+        
+    # 2026年最新 Google API 兼容 OpenAI 格式的地址
+    base_url = st.text_input("Base URL", value="https://generativelanguage.googleapis.com/v1beta/openai/")
+    model_name = st.text_input("模型名称", value="gemma-4-31b-it")
     
     st.divider()
     st.header("📂 上传文件")
