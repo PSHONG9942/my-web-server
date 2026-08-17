@@ -68,11 +68,21 @@
         <div class="grid" style="display: block; max-width: 800px; margin: 0 auto;">
             
             <div class="update-card">
+                <h3>Kirable 练习模式升级与惩罚机制</h3>
+                <span class="date">2026年8月17日</span>
+                <ul>
+                    <li><strong>练习模式 (Practice Mode)</strong>：取消了独立的换牌按钮。玩家在拼算后，点击“结束回合”会弹出“确认”或“收回手牌”的选项，流程与比赛模式完全一致。选择“收回手牌”将触发强制更换 1 张牌的阶段。</li>
+                    <li><strong>无效等式零分处理</strong>：如果在练习模式中提交了无效的算式，系统会给出具体的错误提示（不再阻断游戏流程），并记录该回合得分为 0 分（同时无法获取 Strike 或 Bingo 奖励分）。</li>
+                    <li><strong>全新的“三次错误”惩罚机制 (3-Strikes Penalty)</strong>：无论是比赛模式还是练习模式，如果在同一轮 (Round) 内某玩家累计出现 3 次提交无效等式的情况，系统将在第三次记 0 分后，弹出严重警告，并强制要求玩家交出一回合的机会来更换一张手牌！此错误次数会在新的一轮开始时清零。</li>
+                </ul>
+            </div>
+
+            <div class="update-card">
                 <h3>Kirable 难度选择功能开发</h3>
                 <span class="date">2026年8月17日</span>
                 <ul>
-                    <li><strong>新增模式选择</strong>：玩家现在可以在游戏开始前选择“比赛版”（Competition Mode）或“练习版”（Practice Mode）。</li>
-                    <li><strong>练习版（Practice Mode）</strong>：
+                    <li><strong>新增模式选择</strong>：玩家现在可以在游戏开始前选择“比赛模式”（Competition Mode）或“练习模式”（Practice Mode）。</li>
+                    <li><strong>练习模式（Practice Mode）</strong>：
                         <ul>
                             <li>移除了1分钟倒计时，改为由玩家手动点击“结束回合”按钮。</li>
                             <li>新增了符号选择功能。玩家可以自由勾选 <code>+</code>, <code>-</code>, <code>x</code>, <code>÷</code> 进行针对性练习。</li>
@@ -80,7 +90,7 @@
                             <li>在人机对战 (PvE) 中，CPU也会遵循玩家的符号选择。</li>
                         </ul>
                     </li>
-                    <li><strong>比赛版（Competition Mode）</strong>：保留原有的1分钟限时挑战规则，所有符号随机分配。</li>
+                    <li><strong>比赛模式（Competition Mode）</strong>：保留原有的1分钟限时挑战规则，所有符号随机分配。</li>
                     <li><strong>多语言支持</strong>：难度选择菜单已添加中文、英文、马来文三语支持。</li>
                 </ul>
             </div>
