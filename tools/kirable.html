@@ -789,18 +789,22 @@
 
         .back-link {
             text-decoration: none;
-            color: var(--primary-color);
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
             font-weight: bold;
             font-size: 1rem;
-            transition: color 0.2s;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
             gap: 5px;
+            border: 1px solid var(--glass-border);
         }
 
         .back-link:hover {
-            color: var(--primary-hover);
-            text-decoration: underline;
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--primary);
         }
 
         /* --- Custom Modal --- */
