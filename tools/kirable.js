@@ -54,6 +54,7 @@
         // Simplified i18n Dictionary for Menu & Score Sheet
         const i18n = {
             en: {
+                returnIndex: "← Back to Home",
                 subtitle: "Maths for Life",
                 selectPlayers: "Select Players",
                 btn1P: "1 Player (A)", btn2P: "2 Players (A & B)",
@@ -111,6 +112,7 @@
                 }
             },
             my: {
+                returnIndex: "← Kembali",
                 subtitle: "Matematik untuk Kehidupan",
                 selectPlayers: "Pilih Pemain",
                 btn1P: "1 Pemain (A)", btn2P: "2 Pemain (A & B)",
@@ -168,6 +170,7 @@
                 }
             },
             cn: {
+                returnIndex: "← 返回主页",
                 subtitle: "生活数学",
                 selectPlayers: "选择玩家人数",
                 btn1P: "单人游戏 (玩家 A)", btn2P: "双人游戏 (玩家 A & B)",
