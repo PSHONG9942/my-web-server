@@ -49,7 +49,7 @@ with st.sidebar:
         4. 下载压缩后的视频，重新上传到本系统即可！
         """)
         # 自动播放的动图演示（使用 WebP 格式体积更小）
-        st.image("tutorial.webp", caption="操作演示")
+        st.image(os.path.join(os.path.dirname(__file__), "tutorial.webp"), caption="操作演示")
 
     uploaded_file = st.file_uploader("上传录音/录屏 (mp4, mp3, m4a)", type=["mp4", "mp3", "m4a"])
     
