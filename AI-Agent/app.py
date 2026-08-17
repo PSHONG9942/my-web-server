@@ -49,7 +49,7 @@ with st.sidebar:
         4. 下载压缩后的视频，重新上传到本系统即可！
         """)
         # 自动播放的动图演示（使用 WebP 格式体积更小）
-        st.image(os.path.join(os.path.dirname(__file__), "tutorial.webp"), caption="操作演示")
+        st.video(os.path.join(os.path.dirname(__file__), "Recording 2026-08-17 220610.mp4"), autoplay=True, loop=True, muted=True)
 
     uploaded_file = st.file_uploader("上传录音/录屏 (mp4, mp3, m4a)", type=["mp4", "mp3", "m4a"])
     
@@ -271,6 +271,12 @@ def generate_minit_curai(
     p_right.add_run("Tarikh : ")
     
     doc.save(file_path)
+    
+    if "generated_files" not in st.session_state:
+        st.session_state.generated_files = {}
+    with open(file_path, "rb") as f:
+        st.session_state.generated_files[os.path.basename(file_path)] = f.read()
+        
     return "成功生成公文！【重要指示】请在回复中明确告诉用户：公文已成功生成，请点击网页左侧边栏底部的『📥 下载生成的公文』按钮进行下载。绝对不要在回复中提供虚假的文件下载链接！"
 
 # ================= 工具 Schema 定义 =================
