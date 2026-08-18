@@ -89,78 +89,65 @@
                 <h3>首页卡片 UI 与视觉优先级调整</h3>
                 <span class="date">2026年8月18日</span>
                 <ul>
-                    <li><strong>视觉优化</strong>：去除了“大马教师专属 AI 助理”卡片的炫彩特效，将其改回常规工具卡片样式，把最吸睛的专属视觉效果留给“AI 创造营 & 画廊”，确保大家一眼就能被充满趣味性的 AI 创作部分吸引。</li>
-                    <li><strong>版位与图标更新</strong>：调整了卡片排序，将“大马教师专属 AI 助理”移至“AI 创造营 & 画廊”之后，并更换了新的 Emoji 图标。</li>
+                    <li>优化视觉焦点，突出“AI 创造营 & 画廊”。</li>
+                    <li>调整卡片排序，更新图标。</li>
                 </ul>
             </div>
 
             <div class="update-card">
-                <h3>大马教师专属 AI 助理 (Minit Curai 生成器) 正式上线</h3>
+                <h3>大马教师专属 AI 助理上线</h3>
                 <span class="date">2026年8月18日</span>
                 <ul>
-                    <li><strong>视听多模态听译</strong>：搭载最新的 AI 识别模型，能够自动读取并分析上传的会议视频，提取主讲人的每一句话以及 PPT 上的关键信息。</li>
-                    <li><strong>公文自动排版</strong>：不再需要听打和排版，系统会在理解会议内容后，一键生成符合马来西亚学校标准格式的 <code>Minit Curai.docx</code> 公文文档。</li>
-                    <li><strong>原声逐字稿下载</strong>：除了生成公文，系统也提供原始的会议语音转录 <code>.txt</code> 文本下载，方便老师进行二次整理和存档。</li>
-                    <li><strong>高并发性能优化</strong>：彻底解决多位老师同时上传文件导致的数据覆盖问题，现在全国各地的老师可以安心地同时使用该系统！</li>
-                </ul>
-            </div>
-            <div class="update-card">
-                <h3>Kirable 练习模式升级与惩罚机制</h3>
-                <span class="date">2026年8月17日</span>
-                <ul>
-                    <li><strong>练习模式 (Practice Mode)</strong>：取消了独立的换牌按钮。玩家在拼算后，点击“结束回合”会弹出“确认”或“收回手牌”的选项，流程与比赛模式完全一致。选择“收回手牌”将触发强制更换 1 张牌的阶段。</li>
-                    <li><strong>无效等式零分处理</strong>：如果在练习模式中提交了无效的算式，系统会给出具体的错误提示（不再阻断游戏流程），并记录该回合得分为 0 分（同时无法获取 Strike 或 Bingo 奖励分）。</li>
-                    <li><strong>全新的“三次错误”惩罚机制 (3-Strikes Penalty)</strong>：无论是比赛模式还是练习模式，如果在同一轮 (Round) 内某玩家累计出现 3 次提交无效等式的情况，系统将在第三次记 0 分后，弹出严重警告，并强制要求玩家交出一回合的机会来更换一张手牌！此错误次数会在新的一轮开始时清零。</li>
+                    <li>支持会议视频多模态听译，提取关键信息。</li>
+                    <li>自动生成马来西亚学校标准格式的公文文档。</li>
+                    <li>提供原声逐字稿下载。</li>
+                    <li>优化高并发性能，支持多人同时使用。</li>
                 </ul>
             </div>
 
             <div class="update-card">
-                <h3>Kirable 难度选择功能开发</h3>
+                <h3>Kirable：练习模式升级与惩罚机制</h3>
                 <span class="date">2026年8月17日</span>
                 <ul>
-                    <li><strong>新增模式选择</strong>：玩家现在可以在游戏开始前选择“比赛模式”（Competition Mode）或“练习模式”（Practice Mode）。</li>
-                    <li><strong>练习模式（Practice Mode）</strong>：
-                        <ul>
-                            <li>移除了1分钟倒计时，改为由玩家手动点击“结束回合”按钮。</li>
-                            <li>新增了符号选择功能。玩家可以自由勾选 <code>+</code>, <code>-</code>, <code>x</code>, <code>÷</code> 进行针对性练习。</li>
-                            <li>系统会自动生成20个仅包含所选符号的符号牌。</li>
-                            <li>在人机对战 (PvE) 中，CPU也会遵循玩家的符号选择。</li>
-                        </ul>
-                    </li>
-                    <li><strong>比赛模式（Competition Mode）</strong>：保留原有的1分钟限时挑战规则，所有符号随机分配。</li>
-                    <li><strong>多语言支持</strong>：难度选择菜单已添加中文、英文、马来文三语支持。</li>
+                    <li>练习模式收回手牌时强制更换1张牌。</li>
+                    <li>练习模式提交无效等式记0分。</li>
+                    <li>引入三次错误惩罚机制，单回合错误3次强制更换手牌。</li>
                 </ul>
             </div>
 
             <div class="update-card">
-                <h3>习字簿生成器加载速度优化</h3>
+                <h3>Kirable：难度选择功能开发</h3>
+                <span class="date">2026年8月17日</span>
+                <ul>
+                    <li>新增“比赛模式”和“练习模式”。</li>
+                    <li>练习模式移除倒计时，可自由选择运算符号。</li>
+                    <li>增加中、英、马三语支持。</li>
+                </ul>
+            </div>
+
+            <div class="update-card">
+                <h3>习字簿生成器：加载速度优化</h3>
                 <span class="date">2026年8月14日</span>
                 <ul>
-                    <li><strong>本地化词库文件</strong>：针对习字簿生成器（标准版、部首版、一年级版），将原本依赖线上 GitHub 的字库文件调用改为读取本地的 <code>word.json</code> 文件。</li>
-                    <li><strong>体验提升</strong>：大幅缩短了加载等待时间，用户打开网页后即可瞬间完成字库加载，做到即开即用。</li>
+                    <li>字库文件改为本地读取。</li>
+                    <li>大幅提升加载速度，实现即开即用。</li>
                 </ul>
             </div>
 
             <div class="update-card">
-                <h3>Kirable 移动端自动适配</h3>
+                <h3>Kirable：移动端自动适配</h3>
                 <span class="date">2026年8月13日</span>
                 <ul>
-                    <li><strong>手机竖屏适配优化</strong>：对 Kirable 游戏界面进行了响应式排版调整，让原本偏向横屏设计的界面也能在竖屏 (Portrait) 的手机浏览器中完美显示，大幅提升了移动端的游玩体验。</li>
+                    <li>优化竖屏排版，完美适配移动端游玩。</li>
                 </ul>
             </div>
 
             <div class="update-card">
-                <h3>Kirable 游戏逻辑与体验优化</h3>
+                <h3>Kirable：游戏逻辑与体验优化</h3>
                 <span class="date">2026年8月12日</span>
                 <ul>
-                    <li><strong>数字 6 与 9 算法修正</strong>：重构了回合结束后的“最佳解答”分析算法。确保系统严格区分数字 6 和 9，完美匹配游戏“数字牌不可翻转”的规则。</li>
-                    <li><strong>计时器漏洞修复</strong>：修复了玩家可以通过点击系统弹窗按钮（如抽牌、换牌）来暂停 1 分钟倒计时的时间冻结漏洞。</li>
-                    <li><strong>活动行高亮与防误触锁定</strong>：
-                        <ul>
-                            <li>为当前回合需要操作的行（如第一回合的 A1 行）添加了发光高亮提示。</li>
-                            <li>未激活的行会自动变暗，并添加了物理锁定（禁止拖放），彻底杜绝玩家将牌误拖放到错误行的可能。</li>
-                        </ul>
-                    </li>
+                    <li>修正最佳解答算法，严格区分数字 6 和 9。</li>
+                    <li>修复计时器漏洞，增加操作行高亮及防误触锁定。</li>
                 </ul>
             </div>
 
@@ -168,17 +155,17 @@
                 <h3>趣味汉字笔顺工具上线</h3>
                 <span class="date">2026年8月12日</span>
                 <ul>
-                    <li><strong>全新发布</strong>：汉字笔顺书写动画生成器（<code>chinese-stroke-generator</code>）正式上线！</li>
-                    <li><strong>核心功能</strong>：支持输入汉字，自动生成并导出带颜色区分的笔顺书写动画，让汉字书写教学更加生动直观。</li>
+                    <li>汉字笔顺书写动画生成器正式发布。</li>
+                    <li>支持自动生成带颜色区分的笔顺书写动画。</li>
                 </ul>
             </div>
 
             <div class="update-card">
-                <h3>3D 家族关系网完全体进化</h3>
+                <h3>3D 家族关系网：完全体进化</h3>
                 <span class="date">2026年8月4日</span>
                 <ul>
-                    <li><strong>自然语言推导</strong>：升级了超级计算引擎，能够精准解析极度复杂的亲戚关系。</li>
-                    <li><strong>星际雷达与时光机</strong>：配备了全新的“时光机”本地数据存档功能，以及酷炫的 3D 全息星际雷达探测定位系统。</li>
+                    <li>升级计算引擎，支持复杂亲戚关系的自然语言推导。</li>
+                    <li>新增本地数据存档与 3D 关系雷达定位功能。</li>
                 </ul>
             </div>
 
@@ -186,8 +173,8 @@
                 <h3>AI 创造营 & 创意画廊登场</h3>
                 <span class="date">2026年7月23日</span>
                 <ul>
-                    <li><strong>AI 创造营</strong>：只需一句话，即可让 AI 老师为你量身定制专属的网页工具和互动小游戏。</li>
-                    <li><strong>创意画廊</strong>：新增画廊专区，随时浏览、体验并分享全网师生创作的奇妙创意教具。</li>
+                    <li>AI 创造营：一句话定制专属网页工具和互动小游戏。</li>
+                    <li>创意画廊：浏览、体验并分享全网创意教具。</li>
                 </ul>
             </div>
 
@@ -195,17 +182,17 @@
                 <h3>语文型贪食蛇游戏上线</h3>
                 <span class="date">2026年7月23日</span>
                 <ul>
-                    <li><strong>全新发布</strong>：语文型贪食蛇（<code>radical-snake</code>）趣味识字小游戏正式上线！</li>
-                    <li><strong>核心玩法</strong>：结合经典贪食蛇玩法，玩家需要控制小蛇去寻找带有正确偏旁部首的汉字，在充满挑战的躲避与寻找中学习生字。</li>
+                    <li>语文型贪食蛇趣味识字小游戏正式发布。</li>
+                    <li>结合贪食蛇玩法，寻找正确偏旁部首学习生字。</li>
                 </ul>
             </div>
 
             <div class="update-card">
-                <h3>全站响应式 (Responsive) 深度改造</h3>
+                <h3>全站响应式深度改造</h3>
                 <span class="date">2026年6月28日</span>
                 <ul>
-                    <li><strong>全面适配</strong>：对服务器上的所有 <code>.html</code> 页面（涵盖主页、科学区和工具区共计 28 个项目）进行了深度的移动端、平板端适配改造。</li>
-                    <li><strong>体验升级</strong>：告别在手机上需要放大的烦恼，让所有教具和游戏在不同尺寸的设备上都能获得最佳的视觉和交互体验。</li>
+                    <li>28个项目页面完成移动端、平板端深度适配。</li>
+                    <li>提升跨设备视觉和交互体验。</li>
                 </ul>
             </div>
 
@@ -213,8 +200,8 @@
                 <h3>🚀 华小老师专区全新起航</h3>
                 <span class="date">2026年1月18日</span>
                 <ul>
-                    <li><strong>全新平台部署</strong>：第一次将 <code>my-web-server</code> 项目正式部署到 Cloudflare 上，实现了网站的独立高效运行。</li>
-                    <li><strong>历史沿革</strong>：在此独立部署之前，所有教具均通过 Google Sites 和 GitHub 页面进行零散展示。本次全新部署标志着华小老师专区迈向了更高性能、集中管理的新阶段！</li>
+                    <li>项目正式部署至 Cloudflare，实现独立高效运行。</li>
+                    <li>统一集中管理所有教具，迈向高性能新阶段。</li>
                 </ul>
             </div>
 
