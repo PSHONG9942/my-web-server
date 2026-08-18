@@ -8,127 +8,13 @@
     <meta name="description" content="专为马来西亚华小老师设计的免费数字教具网站。提供习字簿生成器、课堂点名系统、AI语法纠错、G-MATH数学游戏等实用工具。">
     <link rel="icon" href="images/logo.png" type="image/png">
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        /* 针对科学卡片的小调整，让6个按钮排版更整齐 */
-        .science-links {
-            display: grid !important;
-            /* 强制使用网格布局 */
-            grid-template-columns: repeat(3, 1fr);
-            /* 一行3个 */
-            gap: 10px;
-            width: 100%;
-        }
 
-        .science-links a {
-            text-align: center;
-            padding: 8px 0;
-            /* 上下内边距 */
-            font-size: 14px;
-        }
-    </style>
 
     <!-- Global Light Cyberpunk Theme -->
     <link rel="stylesheet" href="css/cyberpunk.css">
     <link rel="stylesheet" href="css/responsive.css">
 
-    <!-- 必须放在外部 CSS 之后，防止被 cyberpunk.css 的设定覆盖 -->
-    <style>
-        .dashboard .feature-card.gemini-card {
-            background-color: transparent !important;
-            background-image: none !important;
-            position: relative;
-            border: none !important;
-            box-shadow: 0 10px 25px rgba(161, 196, 253, 0.4) !important;
-            z-index: 1;
-            overflow: hidden;
-            /* 保证内部的背景不超出圆角 */
-        }
 
-        .gemini-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: linear-gradient(-45deg, #ff9a9e, #fecfef, #a1c4fd, #a6e2fe, #53c6ff, #6dd6e4, #ff9a00) !important;
-            background-size: 300% 300% !important;
-            animation: geminiBgGradient 12s ease infinite !important;
-            z-index: -1;
-            border-radius: inherit;
-            pointer-events: none;
-        }
-
-        .dashboard .feature-card.gemini-card p,
-
-        .dashboard .feature-card.gemini-card h3 {
-            color: #ffffff !important;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
-            -webkit-text-fill-color: #ffffff !important;
-            background: none !important;
-        }
-
-        .dashboard .feature-card.gemini-card .card-links a {
-            background: rgba(255, 255, 255, 0.2) !important;
-            color: #000 !important;
-            border: 1px solid rgba(255, 255, 255, 0.4) !important;
-            backdrop-filter: blur(8px);
-            font-weight: bold !important;
-        }
-
-        .dashboard .feature-card.gemini-card .card-links a:hover {
-            background: rgba(255, 255, 255, 0.3) !important;
-            transform: scale(1.05) translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        @keyframes geminiBgGradient {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-
-        .corner-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.8);
-            color: #2563eb;
-            text-decoration: none;
-            font-weight: bold;
-            border: 1px solid rgba(37, 99, 235, 0.3);
-            padding: 8px 16px;
-            border-radius: 20px;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .corner-btn:hover {
-            background: #2563eb;
-            color: #ffffff;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
-        }
-
-        @media (max-width: 768px) {
-            .corner-btn {
-                top: 15px;
-                right: 15px;
-                padding: 6px 12px;
-                font-size: 0.9rem;
-            }
-        }
-    </style>
 </head>
 
 <body>
