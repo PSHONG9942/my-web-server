@@ -396,19 +396,23 @@ if prompt := st.chat_input("输入你的指令，例如：'帮我整理刚才上
         
         with st.spinner("思考中..."):
             try:
-                # 第一轮对话请求
-                response = client.chat.completions.create(
-                    model=model_name,
-                    messages=st.session_state.messages,
-                    tools=tools
-                )
-                
-                response_message = response.choices[0].message
-                # 需要把对象转成字典存储在 session_state 以免出现序列化问题，或者直接存对象
-                st.session_state.messages.append(response_message.model_dump(exclude_none=True))
-
-                # 如果模型决定调用工具
-                if response_message.tool_calls:
+                # 允许模型进行连续的思考和多轮工具调用（最多 5 轮）
+                for _ in range(5):
+                    response = client.chat.completions.create(
+                        model=model_name,
+                        messages=st.session_state.messages,
+                        tools=tools
+                    )
+                    
+                    response_message = response.choices[0].message
+                    st.session_state.messages.append(response_message.model_dump(exclude_none=True))
+                    
+                    # 如果没有调用工具，直接显示模型的最终回答并跳出循环
+                    if not response_message.tool_calls:
+                        message_placeholder.markdown(response_message.content)
+                        break
+                        
+                    # 执行模型请求的所有工具
                     for tool_call in response_message.tool_calls:
                         func_name = tool_call.function.name
                         args = json.loads(tool_call.function.arguments)
@@ -465,19 +469,8 @@ if prompt := st.chat_input("输入你的指令，例如：'帮我整理刚才上
                             "content": str(result)
                         })
                         
-                    # 把工具结果再发回给大模型，让它总结
-                    with st.spinner("根据工具结果生成总结..."):
-                        second_response = client.chat.completions.create(
-                            model=model_name,
-                            messages=st.session_state.messages
-                        )
-                        final_msg = second_response.choices[0].message
-                        st.session_state.messages.append(final_msg.model_dump(exclude_none=True))
-                        message_placeholder.markdown(final_msg.content)
-                
-                else:
-                    # 如果没有调用工具，直接显示模型的回答
-                    message_placeholder.markdown(response_message.content)
+                # 当整个工具链执行完毕并有了最终回复后，强制刷新页面以立刻渲染侧边栏的下载按钮
+                st.rerun()
                     
             except Exception as e:
                 st.error(f"请求出错: {str(e)}")
