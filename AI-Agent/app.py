@@ -3,6 +3,7 @@ import os
 import base64
 import cv2
 import tempfile
+import uuid
 import docx
 from docx.shared import Pt, Inches
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -18,6 +19,7 @@ st.markdown("通过上传会议录屏或音频，AI 能够自动提取语音并�
 
 # ================= 侧边栏配置 =================
 with st.sidebar:
+    st.markdown("[🏠 返回华小老师专区主页](https://sjkcabm.pages.dev)", help="点击回到网站首页")
     st.header("⚙️ 配置参数")
     # 尝试从 Streamlit Secrets 中读取 API Key
     default_api_key = st.secrets.get("GOOGLE_API_KEY", "") if hasattr(st, "secrets") and "GOOGLE_API_KEY" in st.secrets else ""
@@ -55,12 +57,17 @@ with st.sidebar:
     
     # 将上传的文件保存到本地临时路径供 cv2 和 whisper 读取
     current_file_path = None
+    if "user_session_id" not in st.session_state:
+        st.session_state.user_session_id = str(uuid.uuid4())[:8]
+        
     if uploaded_file is not None:
-        # 使用 tempfile 保存
+        # 使用 session_id 保存，避免不同用户的文件覆盖，且避免同一用户重复写入硬盘
         temp_dir = tempfile.gettempdir()
-        current_file_path = os.path.join(temp_dir, uploaded_file.name)
-        with open(current_file_path, "wb") as f:
-            f.write(uploaded_file.getbuffer())
+        current_file_path = os.path.join(temp_dir, f"{st.session_state.user_session_id}_{uploaded_file.name}")
+        
+        if not os.path.exists(current_file_path):
+            with open(current_file_path, "wb") as f:
+                f.write(uploaded_file.getbuffer())
         st.success(f"文件已就绪: {uploaded_file.name}")
         # 提供给 Agent 一个系统提示，告诉它当前文件的路径
         st.session_state["current_file_path"] = current_file_path
@@ -165,6 +172,15 @@ def transcribe_audio(file_path):
         txt_path = os.path.splitext(file_path)[0] + "_逐字稿.txt"
         with open(txt_path, "w", encoding="utf-8") as f:
             f.write(full_transcript)
+            
+        # 将逐字稿一并推送到前端的下载列表中
+        if "generated_files" not in st.session_state:
+            st.session_state.generated_files = {}
+        st.session_state.generated_files["会议逐字稿.txt"] = full_transcript.encode("utf-8")
+        
+        # 释放硬盘资源
+        if os.path.exists(txt_path):
+            os.remove(txt_path)
             
         return f"语音转录成功！以下为转录文本内容：\n{full_transcript}"
     except Exception as e:
@@ -429,7 +445,10 @@ if prompt := st.chat_input("输入你的指令，例如：'帮我整理刚才上
                                 filename = os.path.basename(args.get("file_path", "Minit_Curai.docx"))
                                 if not filename.endswith(".docx"):
                                     filename += ".docx"
-                                save_path = os.path.join(tempfile.gettempdir(), filename)
+                                
+                                # 使用 uuid 结合原文件名，防止全国教师并发生成时出现覆盖串车
+                                safe_filename = f"{str(uuid.uuid4())[:8]}_{filename}"
+                                save_path = os.path.join(tempfile.gettempdir(), safe_filename)
                                 
                                 result = generate_minit_curai(
                                     file_path=save_path,
@@ -455,8 +474,13 @@ if prompt := st.chat_input("输入你的指令，例如：'帮我整理刚才上
                                         file_bytes = f.read()
                                     if "generated_files" not in st.session_state:
                                         st.session_state.generated_files = {}
+                                    # 对外呈现的下载文件名依然保持干净
                                     st.session_state.generated_files[filename] = file_bytes
-                                    st.success(f"🎉 文件已生成并保存在临时目录，请在左侧侧边栏点击下载！")
+                                    
+                                    # 已经读入内存，立即删除硬盘上的文件防止资源泄漏
+                                    os.remove(save_path)
+                                    
+                                    st.success(f"🎉 文件已生成，请在左侧侧边栏点击下载！")
                             else:
                                 result = "未知工具"
                                 
