@@ -53,7 +53,7 @@ with st.sidebar:
         # 自动播放的动图演示（使用 WebP 格式体积更小）
         st.video(os.path.join(os.path.dirname(__file__), "Recording 2026-08-17 220610.mp4"), autoplay=True, loop=True, muted=True)
 
-    uploaded_file = st.file_uploader("上传录音/录屏 (mp4, mp3, m4a)", type=["mp4", "mp3", "m4a"])
+    uploaded_file = st.file_uploader("上传录音/录屏/文档 (mp4, mp3, m4a, pdf, pptx)", type=["mp4", "mp3", "m4a", "pdf", "pptx"])
     
     # 将上传的文件保存到本地临时路径供 cv2 和 whisper 读取
     current_file_path = None
@@ -185,6 +185,40 @@ def transcribe_audio(file_path):
         return f"语音转录成功！以下为转录文本内容：\n{full_transcript}"
     except Exception as e:
         return f"语音转录失败，错误原因: {str(e)}"
+
+def extract_pdf_text(file_path):
+    if not os.path.exists(file_path):
+        return f"错误：找不到文件 {file_path}"
+    
+    st.toast("📄 正在提取 PDF 文本...", icon="⏳")
+    try:
+        import PyPDF2
+        text = ""
+        with open(file_path, "rb") as f:
+            reader = PyPDF2.PdfReader(f)
+            for page in reader.pages:
+                text += page.extract_text() + "\n"
+        return f"PDF 文本提取成功！内容如下：\n{text}"
+    except Exception as e:
+        return f"PDF 文本提取失败，错误原因: {str(e)}"
+
+def extract_ppt_text(file_path):
+    if not os.path.exists(file_path):
+        return f"错误：找不到文件 {file_path}"
+    
+    st.toast("📊 正在提取 PPT 文本...", icon="⏳")
+    try:
+        from pptx import Presentation
+        prs = Presentation(file_path)
+        text = ""
+        for i, slide in enumerate(prs.slides):
+            text += f"--- 第 {i+1} 页 ---\n"
+            for shape in slide.shapes:
+                if hasattr(shape, "text"):
+                    text += shape.text + "\n"
+        return f"PPT 文本提取成功！内容如下：\n{text}"
+    except Exception as e:
+        return f"PPT 文本提取失败，错误原因: {str(e)}"
 
 def generate_minit_curai(
     file_path, tajuk_program, tarikh, masa, tempat, penganjur, penceramah,
@@ -328,6 +362,34 @@ tools = [
     {
         "type": "function",
         "function": {
+            "name": "extract_pdf_text",
+            "description": "读取 PDF 文档内容，提取纯文本",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "file_path": {"type": "string", "description": "PDF 文件路径"}
+                },
+                "required": ["file_path"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "extract_ppt_text",
+            "description": "读取 PPTX 演示文稿内容，提取各页的纯文本",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "file_path": {"type": "string", "description": "PPTX 文件路径"}
+                },
+                "required": ["file_path"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "generate_minit_curai",
             "description": "严格按照标准格式生成规范的 Minit Curai Word 文档",
             "parameters": {
@@ -374,7 +436,8 @@ system_prompt = """
 1. 一旦你收集完信息并准备好生成 Minit Curai 时，你 **绝对不能** 在聊天回复中以纯文本或 Markdown 格式输出公文内容！你 **必须且只能** 立即调用 `generate_minit_curai` 工具来生成文件。
 2. 如果用户没有提供个人信息（如学校名称、姓名、校长姓名等），**不要等待或只给纯文本草稿**，必须立刻调用 `generate_minit_curai` 工具，使用占位符（如 NAMA SEKOLAH, NAMA GURU）生成文件，然后再在回复中请用户提供信息以更新文件。
 3. 当用户提供补充信息或要求修改时，你必须再次调用 `generate_minit_curai` 工具来覆盖旧文件。
-4. 当用户上传文件时，优先调用 `transcribe_audio` 和 `extract_slides_text` 获取详实内容。
+4. 当用户上传文件时，请根据文件类型优先调用 `transcribe_audio`、`extract_slides_text`、`extract_pdf_text` 或 `extract_ppt_text` 获取详实内容。
+5. 你完全支持中文（华文），当用户询问或要求使用华文生成会议记录（Minit Curai）时，请使用华文来生成内容，并且与用户使用华文进行对话。
 """
 
 if "messages" not in st.session_state:
@@ -440,6 +503,10 @@ if prompt := st.chat_input("输入你的指令，例如：'帮我整理刚才上
                                 result = transcribe_audio(args.get("file_path"))
                             elif func_name == "extract_slides_text":
                                 result = extract_slides_text(args.get("video_path"))
+                            elif func_name == "extract_pdf_text":
+                                result = extract_pdf_text(args.get("file_path"))
+                            elif func_name == "extract_ppt_text":
+                                result = extract_ppt_text(args.get("file_path"))
                             elif func_name == "generate_minit_curai":
                                 # 强制将文件保存在临时文件夹中，提取文件名
                                 filename = os.path.basename(args.get("file_path", "Minit_Curai.docx"))
