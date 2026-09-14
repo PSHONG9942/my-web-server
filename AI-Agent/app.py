@@ -240,7 +240,13 @@ def extract_pdf_text(file_path):
         with open(file_path, "rb") as f:
             reader = PyPDF2.PdfReader(f)
             for page in reader.pages:
-                text += page.extract_text() + "\n"
+                extracted = page.extract_text()
+                if extracted:
+                    text += extracted + "\n"
+        
+        if not text.strip():
+            return "PDF 提取完成，但未发现任何文本。这可能是一个扫描版或纯图片的 PDF，当前系统无法读取其中的文字。"
+            
         return f"PDF 文本提取成功！内容如下：\n{text}"
     except Exception as e:
         return f"PDF 文本提取失败，错误原因: {str(e)}"
