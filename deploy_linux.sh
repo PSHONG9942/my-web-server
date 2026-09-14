@@ -33,7 +33,7 @@ After=network.target
 [Service]
 User=$USER
 WorkingDirectory=$CURRENT_DIR/AI-Agent
-ExecStart=$CURRENT_DIR/venv/bin/streamlit run app.py --server.port 8501
+ExecStart=$CURRENT_DIR/venv/bin/streamlit run app.py --server.port 8502
 Restart=always
 
 [Install]
@@ -46,6 +46,6 @@ sudo systemctl restart ai-agent
 
 echo "=================================================="
 echo "✅ 部署完成！"
-echo "🌐 本地应用已在后台运行，端口为 8501"
+echo "🌐 本地应用已在后台运行，端口为 8502"
 echo "可以通过 'sudo systemctl status ai-agent' 查看运行状态"
 echo "=================================================="
