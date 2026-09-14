@@ -53,24 +53,27 @@ with st.sidebar:
         # 自动播放的动图演示（使用 WebP 格式体积更小）
         st.video(os.path.join(os.path.dirname(__file__), "Recording 2026-08-17 220610.mp4"), autoplay=True, loop=True, muted=True)
 
-    uploaded_file = st.file_uploader("上传录音/录屏/文档 (mp4, mp3, m4a, pdf, pptx)", type=["mp4", "mp3", "m4a", "pdf", "pptx"])
+    uploaded_files = st.file_uploader("上传录音/录屏/文档 (mp4, mp3, m4a, pdf, pptx)", type=["mp4", "mp3", "m4a", "pdf", "pptx"], accept_multiple_files=True)
     
     # 将上传的文件保存到本地临时路径供 cv2 和 whisper 读取
-    current_file_path = None
     if "user_session_id" not in st.session_state:
         st.session_state.user_session_id = str(uuid.uuid4())[:8]
         
-    if uploaded_file is not None:
-        # 使用 session_id 保存，避免不同用户的文件覆盖，且避免同一用户重复写入硬盘
+    if uploaded_files:
         temp_dir = tempfile.gettempdir()
-        current_file_path = os.path.join(temp_dir, f"{st.session_state.user_session_id}_{uploaded_file.name}")
-        
-        if not os.path.exists(current_file_path):
-            with open(current_file_path, "wb") as f:
-                f.write(uploaded_file.getbuffer())
-        st.success(f"文件已就绪: {uploaded_file.name}")
+        paths = []
+        for uploaded_file in uploaded_files:
+            # 使用 session_id 保存，避免不同用户的文件覆盖，且避免同一用户重复写入硬盘
+            current_file_path = os.path.join(temp_dir, f"{st.session_state.user_session_id}_{uploaded_file.name}")
+            
+            if not os.path.exists(current_file_path):
+                with open(current_file_path, "wb") as f:
+                    f.write(uploaded_file.getbuffer())
+            paths.append(current_file_path)
+            st.success(f"文件已就绪: {uploaded_file.name}")
+            
         # 提供给 Agent 一个系统提示，告诉它当前文件的路径
-        st.session_state["current_file_path"] = current_file_path
+        st.session_state["current_file_paths"] = paths
         
     # 显示生成的供下载的文件
     if "generated_files" in st.session_state and st.session_state.generated_files:
@@ -460,8 +463,9 @@ for msg in st.session_state.messages:
 if prompt := st.chat_input("输入你的指令，例如：'帮我整理刚才上传的会议视频并生成公文'"):
     
     # 如果用户上传了文件，我们悄悄在用户的提示词里附上文件路径
-    if st.session_state.get("current_file_path"):
-        context_prompt = f"{prompt}\n[系统提示：用户已上传文件，路径为: {st.session_state['current_file_path']}]"
+    if st.session_state.get("current_file_paths"):
+        paths_str = "\n".join(st.session_state["current_file_paths"])
+        context_prompt = f"{prompt}\n[系统提示：用户已上传文件，路径为:\n{paths_str}]"
     else:
         context_prompt = prompt
 
