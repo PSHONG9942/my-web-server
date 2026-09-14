@@ -40,15 +40,18 @@ with st.sidebar:
     
     with st.expander("🎥 视频文件超过 500MB 怎么办？(附教程)", expanded=False):
         st.markdown("""
-        **强烈建议：使用免费且无需安装的浏览器压缩工具！**
+        **强烈建议：使用免费且无需安装的浏览器切割/压缩工具！**
         
-        👉 **点击进入：[Compress.lol 极速视频压缩](https://compress.lol/)**
+        对于超出大小或时长过长（如超过 1 小时）的音视频，请先进行**切割**或压缩，否则极易导致云端服务器内存不足崩溃。
+        
+        👉 **推荐切割工具：[123apps Audio Cutter](https://audiocutter.123apps.com/)** (适合音频切割)
+        👉 **推荐压缩工具：[FreeConvert](https://www.freeconvert.com/video-compressor)** (适合视频压缩)
         
         **操作步骤：**
-        1. 点击上方链接打开压缩网站。
-        2. 把你录制的大视频拖进去。
-        3. 等待浏览器在本地将其压缩到 500MB 以内。
-        4. 下载压缩后的视频，重新上传到本系统即可！
+        1. 打开上方推荐的网站。
+        2. 将你的超长录音或大视频拖进去。
+        3. 建议将长达几小时的录音**切割成每段 30 分钟以内**。
+        4. 下载切割后的文件，分批上传到本系统进行处理！
         """)
         # 自动播放的动图演示（使用 WebP 格式体积更小）
         st.video(os.path.join(os.path.dirname(__file__), "Recording 2026-08-17 220610.mp4"), autoplay=True, loop=True, muted=True)
