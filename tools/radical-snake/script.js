@@ -234,6 +234,18 @@ function getRandomEmptyPosition() {
         };
         isOccupied = snake.some(segment => segment.x === pos.x && segment.y === pos.y) || 
                      entities.some(e => e.x === pos.x && e.y === pos.y);
+                     
+        if (!isOccupied && gameMode === 'casual' && snake.length > 0) {
+            // 在休闲模式下，避免新字块生成在蛇头当前的行或列上
+            // 这样玩家吃完字块后，当前轨迹前方绝对是安全的，即使来不及转向也不会撞到新字块
+            if (dx !== 0 && pos.y === snake[0].y) {
+                isOccupied = true;
+            }
+            if (dy !== 0 && pos.x === snake[0].x) {
+                isOccupied = true;
+            }
+        }
+                     
         safeguard++;
     }
     return pos || {x: 0, y: 0};
