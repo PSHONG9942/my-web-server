@@ -9,8 +9,9 @@
 </head>
 <body>
     <a href="../../index.html" class="back-link">⬅ 返回主页</a>
-    <div id="game-container">
-        <!-- Dashboard UI -->
+    <div id="main-wrapper">
+        <div id="game-container">
+            <!-- Dashboard UI -->
         <div id="dashboard">
             <div class="stat-box">
                 <span class="label">目标偏旁</span>
@@ -59,20 +60,21 @@
 
         <!-- Game Canvas -->
         <canvas id="gameCanvas" width="800" height="600"></canvas>
-    </div>
+        </div>
 
-    <!-- Mobile Controls -->
-    <div id="mobile-controls">
-        <div class="d-pad-row">
-            <button class="d-pad-btn" id="btn-up">▲</button>
-        </div>
-        <div class="d-pad-row">
-            <button class="d-pad-btn" id="btn-left">◀</button>
-            <div style="width: 60px;"></div>
-            <button class="d-pad-btn" id="btn-right">▶</button>
-        </div>
-        <div class="d-pad-row">
-            <button class="d-pad-btn" id="btn-down">▼</button>
+        <!-- Mobile Controls -->
+        <div id="mobile-controls">
+            <div class="d-pad-row">
+                <button class="d-pad-btn" id="btn-up">▲</button>
+            </div>
+            <div class="d-pad-row">
+                <button class="d-pad-btn" id="btn-left">◀</button>
+                <div style="width: 60px;"></div>
+                <button class="d-pad-btn" id="btn-right">▶</button>
+            </div>
+            <div class="d-pad-row">
+                <button class="d-pad-btn" id="btn-down">▼</button>
+            </div>
         </div>
     </div>
 
