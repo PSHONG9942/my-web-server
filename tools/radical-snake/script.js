@@ -61,19 +61,36 @@ let particles = [];
 let gameRunning = false;
 
 // Input handling
-document.addEventListener('keydown', (e) => {
+function handleDirectionInput(dir) {
     if (!gameRunning) return;
-    
-    if ((e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') && dy === 0) {
+    if (dir === 'up' && dy === 0) {
         nextDx = 0; nextDy = -1;
-    } else if ((e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') && dy === 0) {
+    } else if (dir === 'down' && dy === 0) {
         nextDx = 0; nextDy = 1;
-    } else if ((e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') && dx === 0) {
+    } else if (dir === 'left' && dx === 0) {
         nextDx = -1; nextDy = 0;
-    } else if ((e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') && dx === 0) {
+    } else if (dir === 'right' && dx === 0) {
         nextDx = 1; nextDy = 0;
     }
+}
+
+document.addEventListener('keydown', (e) => {
+    if ((e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W')) handleDirectionInput('up');
+    else if ((e.key === 'ArrowDown' || e.key === 's' || e.key === 'S')) handleDirectionInput('down');
+    else if ((e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A')) handleDirectionInput('left');
+    else if ((e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D')) handleDirectionInput('right');
 });
+
+// Mobile controls
+const btnUp = document.getElementById('btn-up');
+const btnDown = document.getElementById('btn-down');
+const btnLeft = document.getElementById('btn-left');
+const btnRight = document.getElementById('btn-right');
+
+if (btnUp) btnUp.addEventListener('pointerdown', (e) => { e.preventDefault(); handleDirectionInput('up'); });
+if (btnDown) btnDown.addEventListener('pointerdown', (e) => { e.preventDefault(); handleDirectionInput('down'); });
+if (btnLeft) btnLeft.addEventListener('pointerdown', (e) => { e.preventDefault(); handleDirectionInput('left'); });
+if (btnRight) btnRight.addEventListener('pointerdown', (e) => { e.preventDefault(); handleDirectionInput('right'); });
 
 startBtn.addEventListener('click', startGame);
 restartBtn.addEventListener('click', startGame);
