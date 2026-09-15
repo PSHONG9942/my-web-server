@@ -75,11 +75,17 @@ function handleDirectionInput(dir) {
 }
 
 document.addEventListener('keydown', (e) => {
+    // 阻止方向键导致页面滚动
+    const arrowKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+    if (arrowKeys.includes(e.key)) {
+        e.preventDefault();
+    }
+    
     if ((e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W')) handleDirectionInput('up');
     else if ((e.key === 'ArrowDown' || e.key === 's' || e.key === 'S')) handleDirectionInput('down');
     else if ((e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A')) handleDirectionInput('left');
     else if ((e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D')) handleDirectionInput('right');
-});
+}, { passive: false });
 
 // Mobile controls
 const btnUp = document.getElementById('btn-up');
