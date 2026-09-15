@@ -7,13 +7,13 @@ const livesDisplayEl = document.getElementById('lives-display');
 const progressDisplayEl = document.getElementById('progress-display');
 const lengthDisplayEl = document.getElementById('length-display');
 const scoreDisplayEl = document.getElementById('score-display');
-const startOverlay = document.getElementById('start-overlay');
-const gameOverOverlay = document.getElementById('game-over-overlay');
-const startBtn = document.getElementById('start-btn');
+const startCasualBtn = document.getElementById('start-casual-btn');
+const startHellBtn = document.getElementById('start-hell-btn');
 const restartBtn = document.getElementById('restart-btn');
 const finalScoreEl = document.getElementById('final-score');
 const gameOverReasonEl = document.getElementById('game-over-reason');
 const successOverlay = document.getElementById('success-overlay');
+const menuBtn = document.getElementById('menu-btn');
 
 // Game Settings
 const gridSize = 40;
@@ -59,6 +59,7 @@ let eatenCount = 0;
 let entities = []; 
 let particles = [];
 let gameRunning = false;
+let gameMode = 'casual'; // 'casual' or 'hell'
 
 // Input handling
 function handleDirectionInput(dir) {
@@ -98,8 +99,16 @@ if (btnDown) btnDown.addEventListener('pointerdown', (e) => { e.preventDefault()
 if (btnLeft) btnLeft.addEventListener('pointerdown', (e) => { e.preventDefault(); handleDirectionInput('left'); });
 if (btnRight) btnRight.addEventListener('pointerdown', (e) => { e.preventDefault(); handleDirectionInput('right'); });
 
-startBtn.addEventListener('click', startGame);
-restartBtn.addEventListener('click', startGame);
+startCasualBtn?.addEventListener('click', () => startGame('casual'));
+startHellBtn?.addEventListener('click', () => startGame('hell'));
+restartBtn?.addEventListener('click', () => startGame(gameMode));
+menuBtn?.addEventListener('click', showMenu);
+
+function showMenu() {
+    startOverlay.classList.remove('hidden');
+    gameOverOverlay.classList.add('hidden');
+    document.body.classList.remove('hell-mode');
+}
 
 function initGame() {
     snake = [
@@ -121,7 +130,13 @@ function initGame() {
     updateUI();
 }
 
-function startGame() {
+function startGame(mode) {
+    gameMode = mode;
+    if (gameMode === 'hell') {
+        document.body.classList.add('hell-mode');
+    } else {
+        document.body.classList.remove('hell-mode');
+    }
     startOverlay.classList.add('hidden');
     gameOverOverlay.classList.add('hidden');
     initGame();
@@ -295,8 +310,16 @@ function update() {
     
     // Check wall collision
     if (head.x < 0 || head.x >= tileCountX || head.y < 0 || head.y >= tileCountY) {
-        stopGame("撞墙了！");
-        return;
+        if (gameMode === 'hell') {
+            stopGame("撞墙了！");
+            return;
+        } else {
+            // Casual mode: Wrap around
+            if (head.x < 0) head.x = tileCountX - 1;
+            else if (head.x >= tileCountX) head.x = 0;
+            if (head.y < 0) head.y = tileCountY - 1;
+            else if (head.y >= tileCountY) head.y = 0;
+        }
     }
     
     // Check self collision
@@ -327,7 +350,11 @@ function update() {
                 if (eatenCount >= TARGET_COUNT) {
                     level++;
                     score += 500; // Bonus for level up
-                    baseSpeed = Math.max(100, baseSpeed - 20); // Faster!
+                    
+                    let speedDecrease = gameMode === 'hell' ? 40 : 20;
+                    let minSpeed = gameMode === 'hell' ? 60 : 100;
+                    baseSpeed = Math.max(minSpeed, baseSpeed - speedDecrease); // Faster!
+                    
                     showToast(`完美！难度升级！速度变快了！`, true);
                     pickNewTarget();
                 } else {
@@ -364,12 +391,12 @@ function update() {
 }
 
 function draw() {
-    // Clear canvas - warm white background
-    ctx.fillStyle = '#fffde7';
+    // Clear canvas
+    ctx.fillStyle = gameMode === 'hell' ? '#111' : '#fffde7';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Draw subtle grid (friendly look)
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.03)';
+    // Draw grid
+    ctx.strokeStyle = gameMode === 'hell' ? 'rgba(211, 47, 47, 0.15)' : 'rgba(0, 0, 0, 0.03)';
     ctx.lineWidth = 1;
     for (let i = 0; i < tileCountX; i++) {
         ctx.beginPath();
@@ -390,9 +417,9 @@ function draw() {
     ctx.textBaseline = 'middle';
     
     entities.forEach(entity => {
-        // Draw wood/biscuit block
-        ctx.fillStyle = '#ffcc80'; // soft orange
-        ctx.strokeStyle = '#f57c00';
+        // Draw block
+        ctx.fillStyle = gameMode === 'hell' ? '#222' : '#ffcc80'; 
+        ctx.strokeStyle = gameMode === 'hell' ? '#ffeb3b' : '#f57c00';
         ctx.lineWidth = 3;
         
         let blockMargin = 4;
@@ -406,13 +433,13 @@ function draw() {
         ctx.stroke();
         
         // Shadow for depth
-        ctx.fillStyle = 'rgba(0,0,0,0.1)';
+        ctx.fillStyle = gameMode === 'hell' ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.1)';
         ctx.beginPath();
         ctx.roundRect(bx, by + blockSize - 6, blockSize, 6, {bl: 8, br: 8, tl: 0, tr: 0});
         ctx.fill();
         
         // Text
-        ctx.fillStyle = '#3e2723';
+        ctx.fillStyle = gameMode === 'hell' ? '#ffeb3b' : '#3e2723';
         ctx.fillText(entity.text, entity.x * gridSize + gridSize/2, entity.y * gridSize + gridSize/2 + 2);
     });
     
@@ -420,9 +447,14 @@ function draw() {
     snake.forEach((segment, index) => {
         let isHead = index === 0;
         
-        // Cute green snake
-        ctx.fillStyle = isHead ? '#4caf50' : '#8bc34a';
-        ctx.strokeStyle = '#388e3c';
+        // Snake colors
+        if (gameMode === 'hell') {
+            ctx.fillStyle = isHead ? '#d32f2f' : '#f44336';
+            ctx.strokeStyle = '#b71c1c';
+        } else {
+            ctx.fillStyle = isHead ? '#4caf50' : '#8bc34a';
+            ctx.strokeStyle = '#388e3c';
+        }
         ctx.lineWidth = 2;
         
         let margin = isHead ? 2 : 4;

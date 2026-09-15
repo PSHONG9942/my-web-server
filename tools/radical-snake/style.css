@@ -184,7 +184,6 @@ button {
     transition: transform 0.1s, box-shadow 0.1s;
     font-family: 'Noto Sans SC', sans-serif;
     box-shadow: 0 6px 0 #ff8f00;
-    margin-top: 20px;
 }
 
 button:hover {
@@ -277,4 +276,79 @@ button:active {
         min-width: 0;
         max-width: min(800px, calc(100vh * 1.1));
     }
+}
+
+/* UI Buttons & Hell Mode Theme */
+.start-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.casual-btn {
+    background: #4caf50;
+    box-shadow: 0 6px 0 #388e3c;
+}
+.casual-btn:hover { box-shadow: 0 4px 0 #388e3c; }
+.casual-btn:active { box-shadow: 0 0 0 #388e3c; }
+
+.hell-btn {
+    background: #d32f2f;
+    box-shadow: 0 6px 0 #b71c1c;
+}
+.hell-btn:hover { box-shadow: 0 4px 0 #b71c1c; }
+.hell-btn:active { box-shadow: 0 0 0 #b71c1c; }
+
+body.hell-mode {
+    background-color: #111;
+    color: #e0e0e0;
+}
+body.hell-mode .back-link {
+    background: #333;
+    color: #ffeb3b;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+body.hell-mode #game-container {
+    border-color: #d32f2f;
+    background: #111;
+    box-shadow: 0 10px 30px rgba(211, 47, 47, 0.2);
+}
+body.hell-mode #dashboard {
+    background: #222;
+    border-bottom-color: #d32f2f;
+}
+body.hell-mode .stat-box .label {
+    color: #9e9e9e;
+}
+body.hell-mode .stat-box .value {
+    color: #ffca28; /* yellow */
+}
+body.hell-mode .stat-box .value.highlight {
+    color: #d32f2f; /* red */
+}
+body.hell-mode footer {
+    color: #777;
+}
+body.hell-mode footer a {
+    color: #ffeb3b !important;
+}
+body.hell-mode .overlay {
+    background: rgba(0, 0, 0, 0.9);
+}
+body.hell-mode .overlay h1 {
+    color: #d32f2f;
+    text-shadow: 2px 2px 0px #b71c1c;
+}
+body.hell-mode .overlay p {
+    color: #ccc;
+}
+body.hell-mode .d-pad-btn {
+    background: #222;
+    color: #ffeb3b; /* yellow */
+    box-shadow: 0 6px 0 #000;
+    border: 1px solid #444;
+}
+body.hell-mode .d-pad-btn:active {
+    box-shadow: 0 0 0 #000;
 }

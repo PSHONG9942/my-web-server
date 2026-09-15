@@ -44,14 +44,20 @@
             当目标偏旁是“口字旁”时，吃下“吧”、“吃”等汉字。<br>
             吃齐一定数量后难度升级！吃错汉字会扣除寿命！</p>
             <p class="controls">控制：W A S D 或 方向键</p>
-            <button id="start-btn">开始游戏</button>
+            <div class="start-buttons">
+                <button id="start-casual-btn" class="casual-btn">休闲模式 (撞墙不死)</button>
+                <button id="start-hell-btn" class="hell-btn">地狱模式 (撞墙即死，难度飙升)</button>
+            </div>
         </div>
 
         <div id="game-over-overlay" class="overlay hidden">
             <h1 class="red-glow">游戏结束</h1>
             <p>你最终组成了 <span id="final-score" class="highlight">0</span> 个汉字！</p>
             <p id="game-over-reason">寿命耗尽</p>
-            <button id="restart-btn">重新开始</button>
+            <div class="start-buttons">
+                <button id="restart-btn" class="hell-btn">重新开始</button>
+                <button id="menu-btn" class="casual-btn" style="font-size: 20px;">返回菜单</button>
+            </div>
         </div>
         
         <div id="success-overlay" class="overlay-toast hidden">
