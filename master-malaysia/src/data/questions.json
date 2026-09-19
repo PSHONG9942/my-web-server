@@ -69,12 +69,12 @@
     {
       "id": "land-7",
       "question": "Where is the largest mangrove forest reserve in Malaysia located?",
-      "answer": "MATANG (in PERAK)",
+      "answer": "MATANG PERAK",
       "options": [
-        "MATANG (in PERAK)",
-        "Kuching Wetlands",
-        "Tanjung Piai",
-        "Kuala Gula"
+        "MATANG PERAK",
+        "KUCHING",
+        "TANJUNG PIAI",
+        "KUALA GULA"
       ]
     },
     {
@@ -102,12 +102,12 @@
     {
       "id": "land-10",
       "question": "Name the highest mountain in Sarawak.",
-      "answer": "MOUNT MURUD (2,423 metres)",
+      "answer": "MOUNT MURUD",
       "options": [
-        "Mount Kinabalu",
-        "MOUNT MURUD (2,423 metres)",
-        "Mount Apo",
-        "Mount Santubong"
+        "MOUNT KINABALU",
+        "MOUNT MURUD",
+        "MOUNT APO",
+        "MOUNT SANTUBONG"
       ]
     },
     {
@@ -124,12 +124,12 @@
     {
       "id": "land-12",
       "question": "Name the northernmost town on the east coast of Peninsular Malaysia.",
-      "answer": "PENGKALAN KUBUR (Kelantan)",
+      "answer": "PENGKALAN KUBUR",
       "options": [
-        "Pasir Mas",
-        "PENGKALAN KUBUR (Kelantan)",
-        "Kota Bharu",
-        "Tumpat"
+        "PASIR MAS",
+        "PENGKALAN KUBUR",
+        "KOTA BHARU",
+        "TUMPAT"
       ]
     },
     {
@@ -619,12 +619,12 @@
     {
       "id": "land-57",
       "question": "Where did the Japanese troops first land in Malaya during the Second World War?",
-      "answer": "PANTAI SABAK (Kelantan)",
+      "answer": "PANTAI SABAK",
       "options": [
-        "Kota Bharu",
-        "Singgora",
-        "Pantai Cahaya Bulan",
-        "PANTAI SABAK (Kelantan)"
+        "KOTA BHARU",
+        "SINGGORA",
+        "PANTAI CAHAYA BULAN",
+        "PANTAI SABAK"
       ]
     },
     {
@@ -632,10 +632,10 @@
       "question": "What rare mineral is mined in Ajil, Terengganu?",
       "answer": "ILMENITE (iron titanium oxide)",
       "options": [
-        "BAUXITE",
-        "CASSITERITE",
+        "BAUXITE (aluminium hydroxide minerals)",
+        "CASSITERITE (tin oxide)",
         "ILMENITE (iron titanium oxide)",
-        "HEMATITE"
+        "HEMATITE (iron oxide)"
       ]
     },
     {
@@ -644,9 +644,9 @@
       "answer": "MENDERANG (in Sungkai)",
       "options": [
         "MENDERANG (in Sungkai)",
-        "Taiping",
-        "Ipoh",
-        "Teluk Intan"
+        "TAIPING",
+        "IPOH",
+        "TELUK INTAN"
       ]
     },
     {
@@ -654,10 +654,10 @@
       "question": "Where was the only underground tin mine in the country located?",
       "answer": "SUNGEI LEMBING (Pahang)",
       "options": [
-        "Bau",
+        "BAU (Sarawak)",
         "SUNGEI LEMBING (Pahang)",
-        "Kuala Lumpur",
-        "Kinta Valley"
+        "KUALA LUMPUR",
+        "KINTA VALLEY"
       ]
     },
     {
@@ -721,9 +721,9 @@
       "answer": "BANDAR BAHRU (in Lower Perak)",
       "options": [
         "BANDAR BAHRU (in Lower Perak)",
-        "Ipoh",
-        "Taiping",
-        "Kuala Kangsar"
+        "IPOH",
+        "TAIPING",
+        "KUALA KANGSAR"
       ]
     },
     {
@@ -787,9 +787,9 @@
       "answer": "TANJONG PIAI (in Johor)",
       "options": [
         "TANJONG PIAI (in Johor)",
-        "Tanjung Kupang",
-        "Tanjung Puteri",
-        "Tanjung Pemanis"
+        "TANJONG KUPANG (in Johor)",
+        "TANJUNG PUTERI (in Johor)",
+        "TANJUNG PEMANIS (in Johor)"
       ]
     },
     {
@@ -841,10 +841,10 @@
       "question": "Name the famous spot where leatherback turtles come ashore to lay their eggs every year.",
       "answer": "RANTAU ABANG (Terengganu)",
       "options": [
-        "Pulau Perhentian",
-        "Pulau Redang",
+        "PULAU PERHENTIAN (Terengganu)",
+        "PULAU REDANG (Terengganu)",
         "RANTAU ABANG (Terengganu)",
-        "Cherating"
+        "CHERATING (Pahang)"
       ]
     },
     {
@@ -960,12 +960,12 @@
     {
       "id": "land-88",
       "question": "Name the highest waterfall in Malaysia.",
-      "answer": "CEMERONG WATERFALL (Terengganu)",
+      "answer": "JELAWANG WATERFALL (Kelantan)",
       "options": [
-        "Jelawang Waterfall",
-        "Chiling Waterfall",
+        "JELAWANG WATERFALL (Kelantan)",
+        "CHILING WATERFALL (Selangor)",
         "CEMERONG WATERFALL (Terengganu)",
-        "Rainbow Waterfall"
+        "RAINBOW WATERFALL (Pahang)"
       ]
     },
     {
@@ -973,10 +973,10 @@
       "question": "Name the largest orchid farm in Malaysia which is also reputed to be the second largest in the world.",
       "answer": "ORCHID VALLEY (Kangkar Pulai, Johor)",
       "options": [
-        "Highland Orchids",
-        "Orchid Garden",
+        "HIGHLAND ORCHIDS (Selangor)",
+        "ORCHID GARDEN (Penang)",
         "ORCHID VALLEY (Kangkar Pulai, Johor)",
-        "Flora Park"
+        "FLORA PARK (Cameron Highlands)"
       ]
     },
     {

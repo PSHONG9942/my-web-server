@@ -758,3 +758,56 @@
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
 }
+
+/* Online PvP Lobby Styles */
+.online-lobby-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100vw;
+  box-sizing: border-box;
+  padding: 20px;
+}
+
+.lobby-panel {
+  max-width: 580px;
+  width: 95%;
+  animation: fadeInScale 0.3s ease-out;
+}
+
+.room-code-badge {
+  position: relative;
+  overflow: hidden;
+}
+
+.room-code-badge::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.lobby-tabs button {
+  transition: all 0.2s ease;
+}
+
+.lobby-tabs button:hover {
+  transform: translateY(-2px);
+}
+
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.96) translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+

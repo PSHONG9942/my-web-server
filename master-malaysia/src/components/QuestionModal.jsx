@@ -1,24 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 
-export default function QuestionModal({ currentQuestion, gameState, onAnswer, onRiskChoice, lastAnswerResult, scoreBreakdown, currentPlayer }) {
+export default function QuestionModal({ currentQuestion, gameState, onAnswer, onRiskChoice, lastAnswerResult, scoreBreakdown, currentPlayer, isOnline = false, localPlayerId = 1 }) {
   const { t } = useLanguage();
   const [timeLeft, setTimeLeft] = useState(15);
   const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
+  const isMyTurn = !isOnline || (currentPlayer && currentPlayer.id === localPlayerId);
 
   useEffect(() => {
     let timer;
     if (gameState === 'ANSWERING' && !isAnswerRevealed && timeLeft > 0) {
       timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
     } else if (gameState === 'ANSWERING' && timeLeft === 0 && !isAnswerRevealed) {
-      if (currentQuestion?.options?.length === 4) {
-        onAnswer(false); // Time out counts as wrong answer for MCQ
-      } else {
-        setIsAnswerRevealed(true);
+      // In online mode, only the active player submits timeout
+      if (isMyTurn) {
+        if (currentQuestion?.options?.length === 4) {
+          onAnswer(false); // Time out counts as wrong answer for MCQ
+        } else {
+          setIsAnswerRevealed(true);
+        }
       }
     }
     return () => clearTimeout(timer);
-  }, [timeLeft, gameState, isAnswerRevealed, currentQuestion, onAnswer]);
+  }, [timeLeft, gameState, isAnswerRevealed, currentQuestion, onAnswer, isMyTurn]);
 
   useEffect(() => {
     if (gameState === 'DRAW_CARD') {
@@ -142,10 +146,16 @@ export default function QuestionModal({ currentQuestion, gameState, onAnswer, on
               <br/><br/>
               <strong>{t('modal.warning')}</strong>
             </p>
-            <div className="btn-group">
-              <button className="btn-true" style={{ background: 'var(--risk-purple)' }} onClick={() => onRiskChoice(true)}>{t('modal.takeRisk')}</button>
-              <button className="btn-false" style={{ background: '#94a3b8' }} onClick={() => onRiskChoice(false)}>{t('modal.playSafe')}</button>
-            </div>
+            {isMyTurn ? (
+              <div className="btn-group">
+                <button className="btn-true" style={{ background: 'var(--risk-purple)' }} onClick={() => onRiskChoice(true)}>{t('modal.takeRisk')}</button>
+                <button className="btn-false" style={{ background: '#94a3b8' }} onClick={() => onRiskChoice(false)}>{t('modal.playSafe')}</button>
+              </div>
+            ) : (
+              <div style={{ fontStyle: 'italic', color: '#64748b', fontSize: '1.2rem', padding: '15px' }}>
+                ⏳ {t('pvp.waitingForAnswer', { name: currentPlayer?.name })}
+              </div>
+            )}
           </div>
         )}
 
@@ -155,9 +165,31 @@ export default function QuestionModal({ currentQuestion, gameState, onAnswer, on
             <div className="card-question">{currentQuestion.question}</div>
             
             <div className="timer">00:{timeLeft.toString().padStart(2, '0')}</div>
+
+            {isOnline && !isMyTurn && (
+              <div style={{
+                textAlign: 'center',
+                padding: '8px 16px',
+                background: 'rgba(59, 130, 246, 0.1)',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                borderRadius: '8px',
+                color: '#1d4ed8',
+                fontWeight: 'bold',
+                margin: '15px 0'
+              }}>
+                👀 {t('pvp.opponentAnswering', { name: currentPlayer?.name })}
+              </div>
+            )}
             
             {currentQuestion.options && currentQuestion.options.length === 4 ? (
-              <div className="options-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '20px' }}>
+              <div className="options-grid" style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '15px',
+                marginTop: '15px',
+                pointerEvents: (!isMyTurn) ? 'none' : 'auto',
+                opacity: (!isMyTurn) ? 0.75 : 1
+              }}>
                 {currentQuestion.options.map((option, idx) => (
                   <button 
                     key={idx} 
@@ -169,14 +201,14 @@ export default function QuestionModal({ currentQuestion, gameState, onAnswer, on
                       border: '2px solid rgba(255, 255, 255, 0.8)', 
                       borderRadius: '12px', 
                       fontSize: '1.2rem', 
-                      cursor: 'pointer',
+                      cursor: isMyTurn ? 'pointer' : 'default',
                       boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
                       transition: 'all 0.2s',
                       color: '#1e293b',
                       fontWeight: 'bold'
                     }}
-                    onMouseOver={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.background = 'rgba(255, 255, 255, 0.8)'; }}
-                    onMouseOut={(e) => { e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.8)'; e.currentTarget.style.transform = 'none'; e.currentTarget.style.background = 'rgba(255, 255, 255, 0.5)'; }}
+                    onMouseOver={(e) => { if (isMyTurn) { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.background = 'rgba(255, 255, 255, 0.8)'; } }}
+                    onMouseOut={(e) => { if (isMyTurn) { e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.8)'; e.currentTarget.style.transform = 'none'; e.currentTarget.style.background = 'rgba(255, 255, 255, 0.5)'; } }}
                     onClick={() => onAnswer(option === currentQuestion.answer)}
                   >
                     {option}
