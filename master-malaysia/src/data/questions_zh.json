@@ -1,0 +1,2318 @@
+{
+  "land": [
+    {
+      "id": "land-1",
+      "question": "马来西亚哪个城镇的年降雨量最高？",
+      "answer": "太平",
+      "options": [
+        "太平",
+        "亚罗士打",
+        "乔治市",
+        "关丹"
+      ]
+    },
+    {
+      "id": "land-2",
+      "question": "Tahan 山（Gunung Tahan）位于哪个州？",
+      "answer": "彭亨",
+      "options": [
+        "霹雳",
+        "吉兰丹",
+        "登嘉楼",
+        "彭亨"
+      ]
+    },
+    {
+      "id": "land-3",
+      "question": "1942年初，英军和日军在霹雳州南部进行了一场激烈的战斗。这场战斗发生在哪里？",
+      "answer": "斯林河",
+      "options": [
+        "斯林河",
+        "紧打河",
+        "金宝河",
+        "霹雳河"
+      ]
+    },
+    {
+      "id": "land-4",
+      "question": "八打灵再也最初被规划为什么？",
+      "answer": "工业区",
+      "options": [
+        "住宅郊区",
+        "农业庄园",
+        "工业区",
+        "军事前哨"
+      ]
+    },
+    {
+      "id": "land-5",
+      "question": "麻坡（Muar）的旧称是什么？",
+      "answer": "马哈拉尼市",
+      "options": [
+        "马哈拉尼市",
+        "希里市",
+        "斯里门南蒂市",
+        "皇家市"
+      ]
+    },
+    {
+      "id": "land-6",
+      "question": "请写出马来西亚最大的天然淡水湖名称。",
+      "answer": "贝拉湖",
+      "options": [
+        "金依湖",
+        "奇尼湖",
+        "登猛湖",
+        "贝拉湖"
+      ]
+    },
+    {
+      "id": "land-7",
+      "question": "马来西亚最大的红树林保护区位于哪里？",
+      "answer": "马当（霹雳州）",
+      "options": [
+        "马当（霹雳州）",
+        "古晋湿地",
+        "丹绒皮艾",
+        "瓜拉古拉"
+      ]
+    },
+    {
+      "id": "land-8",
+      "question": "Mambang Di Awan 村（意为“云中仙女”）位于哪里？",
+      "answer": "霹雳州金宝",
+      "options": [
+        "打巴",
+        "霹雳州金宝",
+        "化积",
+        "怡保"
+      ]
+    },
+    {
+      "id": "land-9",
+      "question": "1874年的《邦咯条约》是在哪里签署的？",
+      "answer": "邦咯岛",
+      "options": [
+        "兰卡威岛",
+        "刁曼岛",
+        "邦咯岛",
+        "槟岛"
+      ]
+    },
+    {
+      "id": "land-10",
+      "question": "请写出砂拉越最高的山峰。",
+      "answer": "穆鲁德山 (2,423米)",
+      "options": [
+        "基纳巴鲁山",
+        "穆鲁德山 (2,423米)",
+        "阿波山",
+        "圣图邦山"
+      ]
+    },
+    {
+      "id": "land-11",
+      "question": "请写出雪兰莪州的前皇家首府。",
+      "answer": "瓜拉雪兰莪",
+      "options": [
+        "巴生",
+        "沙巴加比南",
+        "瓜拉雪兰莪",
+        "莎阿南"
+      ]
+    },
+    {
+      "id": "land-12",
+      "question": "请写出马来半岛东海岸最北端的城镇。",
+      "answer": "彭卡兰古布 (吉兰丹)",
+      "options": [
+        "巴西马",
+        "彭卡兰古布 (吉兰丹)",
+        "哥打巴鲁",
+        "登巴"
+      ]
+    },
+    {
+      "id": "land-13",
+      "question": "安顺（Teluk Intan）的旧称是什么？",
+      "answer": "安森湾",
+      "options": [
+        "杰赛顿",
+        "斯威滕汉港",
+        "安森湾",
+        "维多利亚"
+      ]
+    },
+    {
+      "id": "land-14",
+      "question": "第二次世界大战前彭亨州的首府是哪里？",
+      "answer": "瓜拉立比斯",
+      "options": [
+        "瓜拉立比斯",
+        "关丹",
+        "文冬",
+        "淡马鲁"
+      ]
+    },
+    {
+      "id": "land-15",
+      "question": "红加内岛（Pulau Redang）位于哪个州的海岸线外？",
+      "answer": "登嘉楼",
+      "options": [
+        "吉兰丹",
+        "柔佛",
+        "彭亨",
+        "登嘉楼"
+      ]
+    },
+    {
+      "id": "land-16",
+      "question": "马来西亚在婆罗洲最北端的州属是哪个？",
+      "answer": "沙巴",
+      "options": [
+        "沙巴",
+        "砂拉越",
+        "文莱",
+        "加里曼丹"
+      ]
+    },
+    {
+      "id": "land-17",
+      "question": "请写出马来西亚最大的港口。",
+      "answer": "巴生港",
+      "options": [
+        "丹绒帕拉帕斯港",
+        "巴生港",
+        "关丹港",
+        "槟城港"
+      ]
+    },
+    {
+      "id": "land-18",
+      "question": "亚庇（Kota Kinabalu）的旧称是什么？",
+      "answer": "杰赛顿",
+      "options": [
+        "斯威滕汉港",
+        "杰赛顿",
+        "乔治市",
+        "维多利亚"
+      ]
+    },
+    {
+      "id": "land-19",
+      "question": "马来西亚大约有多少种开花植物？",
+      "answer": "12,000",
+      "options": [
+        "20,000",
+        "8,000",
+        "15,000",
+        "12,000"
+      ]
+    },
+    {
+      "id": "land-20",
+      "question": "1963年9月16日马来西亚成立时，除马来亚、砂拉越和沙巴外，还有哪个领土是其一部分？",
+      "answer": "新加坡",
+      "options": [
+        "新加坡",
+        "文莱",
+        "印度尼西亚",
+        "东帝汶"
+      ]
+    },
+    {
+      "id": "land-21",
+      "question": "世界上最大的地下洞室名称是什么？",
+      "answer": "砂拉越洞室",
+      "options": [
+        "砂拉越洞室",
+        "姆鲁洞",
+        "清水洞",
+        "鹿洞"
+      ]
+    },
+    {
+      "id": "land-22",
+      "question": "马来西亚哪个州是胡椒的主要产地？",
+      "answer": "砂拉越",
+      "options": [
+        "砂拉越",
+        "彭亨",
+        "柔佛",
+        "沙巴"
+      ]
+    },
+    {
+      "id": "land-23",
+      "question": "请列出以前的非联邦马来州。",
+      "answer": "柔佛, 吉打, 吉兰丹, 玻璃市和登嘉楼",
+      "options": [
+        "吉兰丹, 登嘉楼, 沙巴和砂拉越",
+        "柔佛, 吉打, 吉兰丹, 玻璃市和登嘉楼",
+        "柔佛, 吉打, 霹雳和雪兰莪",
+        "霹雳, 雪兰莪, 森美兰和彭亨"
+      ]
+    },
+    {
+      "id": "land-24",
+      "question": "西马哪个州的名字不是以河流命名的？",
+      "answer": "森美兰",
+      "options": [
+        "森美兰",
+        "彭亨",
+        "霹雳",
+        "雪兰莪"
+      ]
+    },
+    {
+      "id": "land-25",
+      "question": "砂拉越最古老的国家公园是什么？",
+      "answer": "巴古国家公园",
+      "options": [
+        "巴古国家公园",
+        "巴林吉安国家公园",
+        "尼亚国家公园",
+        "姆鲁山国家公园"
+      ]
+    },
+    {
+      "id": "land-26",
+      "question": "Mentakab 的原名是什么？",
+      "answer": "PASIR RAWA",
+      "options": [
+        "PASIR PUTIH",
+        "PASIR RAWA",
+        "BUKIT MENTAKAB",
+        "SUNGAI RAWA"
+      ]
+    },
+    {
+      "id": "land-27",
+      "question": "Pedu 湖位于哪个州？",
+      "answer": "吉打",
+      "options": [
+        "霹雳",
+        "吉打",
+        "吉兰丹",
+        "玻璃市"
+      ]
+    },
+    {
+      "id": "land-28",
+      "question": "马来西亚最古老的山顶度假胜地是什么？",
+      "answer": "拉律山 (1884)",
+      "options": [
+        "法拉森山 (1900)",
+        "拉律山 (1884)",
+        "云顶高原 (1965)",
+        "金马伦高原 (1889)"
+      ]
+    },
+    {
+      "id": "land-29",
+      "question": "刁曼岛上被认为是著名地标的双峰是什么？",
+      "answer": "NENEK SEMUKUT 山",
+      "options": [
+        "JARI 山",
+        "GEMOK 山",
+        "NENEK SEMUKUT 山",
+        "TIOMAN 山"
+      ]
+    },
+    {
+      "id": "land-30",
+      "question": "马来西亚的 tropical rainforests（1.3亿年历史）分布在何处？",
+      "answer": "Titiwangsa 山脉",
+      "options": [
+        "Crocker 山脉",
+        "Titiwangsa 山脉",
+        "Kinabalu 山脉",
+        "Bintang 山脉"
+      ]
+    },
+    {
+      "id": "land-31",
+      "question": "1786年被法兰西斯·莱特（Francis Light）吞并后，槟岛被称为什么？",
+      "answer": "威尔士亲王岛",
+      "options": [
+        "乔治岛",
+        "威尔士亲王省",
+        "东印度岛",
+        "威尔士亲王岛"
+      ]
+    },
+    {
+      "id": "land-32",
+      "question": "1896年的马来联邦包括霹雳州、雪兰莪州、森美兰州以及哪个州？",
+      "answer": "彭亨州",
+      "options": [
+        "吉打州",
+        "登嘉楼州",
+        "彭亨州",
+        "柔佛州"
+      ]
+    },
+    {
+      "id": "land-33",
+      "question": "霹雳州的哪个地区在1826年至1934年期间是英国殖民地？",
+      "answer": "丁丁地区",
+      "options": [
+        "拉律区",
+        "紧急谷",
+        "满绒区",
+        "丁丁地区"
+      ]
+    },
+    {
+      "id": "land-34",
+      "question": "林巴岸（Limbang）是与文莱接壤的边境城镇，它位于沙巴还是砂拉越？",
+      "answer": "砂拉越",
+      "options": [
+        "砂拉越",
+        "纳鲁湾",
+        "沙巴",
+        "文莱"
+      ]
+    },
+    {
+      "id": "land-35",
+      "question": "哪条河流在端顿（Teluk Intan）镇附近流入霹雳河？",
+      "answer": "比多河",
+      "options": [
+        "勿拿河",
+        "比多河",
+        "紧急河",
+        "斯林河"
+      ]
+    },
+    {
+      "id": "land-36",
+      "question": "请写出玻璃州（Perlis）的皇家首府。",
+      "answer": "亚劳",
+      "options": [
+        "巴东必达",
+        "玻璃河口",
+        "加央",
+        "亚劳"
+      ]
+    },
+    {
+      "id": "land-37",
+      "question": "黑洞（Gua Kelam）位于哪里？",
+      "answer": "玻璃州",
+      "options": [
+        "玻璃州",
+        "霹雳州",
+        "吉兰丹州",
+        "吉打州"
+      ]
+    },
+    {
+      "id": "land-38",
+      "question": "马来西亚最大的甘蔗种植园位于哪里？",
+      "answer": "丘平（玻璃州）",
+      "options": [
+        "丘平（玻璃州）",
+        "亚劳（玻璃州）",
+        "巴东必达（玻璃州）",
+        "加央（玻璃州）"
+      ]
+    },
+    {
+      "id": "land-39",
+      "question": "马来半岛上的哪个王国是由来自苏拉威西的人建立的？",
+      "answer": "雪兰莪州",
+      "options": [
+        "雪兰莪州",
+        "彭亨州",
+        "柔佛州",
+        "吉打州"
+      ]
+    },
+    {
+      "id": "land-40",
+      "question": "请写出森美兰州的皇家首府。",
+      "answer": "斯里门安蒂",
+      "options": [
+        "斯里门安蒂",
+        "芙蓉",
+        "波德申",
+        "汝来"
+      ]
+    },
+    {
+      "id": "land-41",
+      "question": "哪个城镇是马来西亚半岛东线和西线铁路的交汇点？",
+      "answer": "根马斯 (GEMAS)",
+      "options": [
+        "丹绒马林 (TANJUNG MALIM)",
+        "根马斯 (GEMAS)",
+        "芙蓉 (SEREMBAN)",
+        "打巴 (TAPAH)"
+      ]
+    },
+    {
+      "id": "land-42",
+      "question": "在马来西亚历史上，哪个城镇记录到的气候最炎热？",
+      "answer": "杰鲁 (JELEBU)",
+      "options": [
+        "瓜拉比劳 (KUALA PILAH)",
+        "劳勿 (RAUB)",
+        "杰鲁 (JELEBU)",
+        "峇玲 (BALING)"
+      ]
+    },
+    {
+      "id": "land-43",
+      "question": "请写出柔佛州最高峰的名字。",
+      "answer": "勒当山 (GUNUNG LEDANG)",
+      "options": [
+        "普莱山 (GUNUNG PULAI)",
+        "勒当山 (GUNUNG LEDANG)",
+        "兰巴山 (GUNUNG LAMBAK)",
+        "打汉山 (GUNUNG TAHAN)"
+      ]
+    },
+    {
+      "id": "land-44",
+      "question": "Tanjong Rambutan 位于哪里？",
+      "answer": "霹雳州 (PERAK)",
+      "options": [
+        "霹雳州 (PERAK)",
+        "彭亨州 (PAHANG)",
+        "森美兰州 (NEGERI SEMBILAN)",
+        "雪兰莪州 (SELANGOR)"
+      ]
+    },
+    {
+      "id": "land-45",
+      "question": "在1941年至1945年被日军占领期间，纳闽 (Labuan) 被称为什么？",
+      "answer": "舞田岛 (MAIDA ISLAND)",
+      "options": [
+        "樱花岛 (SAKURA ISLAND)",
+        "岛岛 (SHIMA ISLAND)",
+        "九州岛 (KYOSHU ISLAND)",
+        "舞田岛 (MAIDA ISLAND)"
+      ]
+    },
+    {
+      "id": "land-46",
+      "question": "犀鸟与哪个州有关联？",
+      "answer": "砂拉越 (SARAWAK)",
+      "options": [
+        "沙巴 (SABAH)",
+        "砂拉越 (SARAWAK)",
+        "彭亨 (PAHANG)",
+        "登嘉楼 (TERENGGANU)"
+      ]
+    },
+    {
+      "id": "land-47",
+      "question": "马来西亚的总陆地面积是多少？",
+      "answer": "330,000 SQ. KM",
+      "options": [
+        "330,000 SQ. KM",
+        "350,000 SQ. KM",
+        "280,000 SQ. KM",
+        "410,000 SQ. KM"
+      ]
+    },
+    {
+      "id": "land-48",
+      "question": "哪个州拥有三个著名的山地度假胜地？",
+      "answer": "彭亨州 (PAHANG)",
+      "options": [
+        "吉打州 (KEDAH)",
+        "彭亨州 (PAHANG)",
+        "霹雳州 (PERAK)",
+        "雪兰莪州 (SELANGOR)"
+      ]
+    },
+    {
+      "id": "land-49",
+      "question": "请写出马来西亚最著名的三个山地度假胜地。",
+      "answer": "FRASER'S HILL, CAMERON HIGHLANDS, and GENTING HIGHLANDS",
+      "options": [
+        "FRASER'S HILL, BUKIT LARUT, and CAMERON HIGHLANDS",
+        "GENTING HIGHLANDS, BUKIT FRASER, and HIGHLAND TOWERS",
+        "FRASER'S HILL, CAMERON HIGHLANDS, and GENTING HIGHLANDS",
+        "BUKIT TINGGI, CAMERON HIGHLANDS, and GENTING HIGHLANDS"
+      ]
+    },
+    {
+      "id": "land-50",
+      "question": "尼亚洞 (Niah Caves) 位于哪个州？",
+      "answer": "砂拉越 (SARAWAK)",
+      "options": [
+        "砂拉越 (SARAWAK)",
+        "沙巴 (SABAH)",
+        "彭亨 (PAHANG)",
+        "霹雳 (PERAK)"
+      ]
+    },
+    {
+      "id": "land-51",
+      "question": "请写出马来半岛第二高的山峰。",
+      "answer": "科布山",
+      "options": [
+        "塔汉山",
+        "科布山",
+        "京那巴鲁山",
+        "伊拉坎山"
+      ]
+    },
+    {
+      "id": "land-52",
+      "question": "请写出吉打州最高的山峰。",
+      "answer": "惹莱山",
+      "options": [
+        "惹莱山",
+        "宾当山",
+        "利当山",
+        "霹雳山"
+      ]
+    },
+    {
+      "id": "land-53",
+      "question": "暹罗首次入侵吉打是在什么时候？",
+      "answer": "1821",
+      "options": [
+        "1821",
+        "1819",
+        "1786",
+        "1841"
+      ]
+    },
+    {
+      "id": "land-54",
+      "question": "请写出马来半岛最长的河流。",
+      "answer": "彭亨河 (435 公里)",
+      "options": [
+        "拉让江",
+        "彭亨河 (435 公里)",
+        "霹雳河",
+        "京那巴当河"
+      ]
+    },
+    {
+      "id": "land-55",
+      "question": "Kuala Sepetang 以前被称为什么？",
+      "answer": "威化港",
+      "options": [
+        "维多利亚港",
+        "威化港",
+        "斯威特汉姆港",
+        "波德申"
+      ]
+    },
+    {
+      "id": "land-56",
+      "question": "1786年至1824年间，哪些州属被设立为海峡殖民地？",
+      "answer": "槟城、马六甲和新加坡",
+      "options": [
+        "槟城、马六甲和纳闽",
+        "槟城、马六甲和新加坡",
+        "槟城、霹雳和新加坡",
+        "马六甲、新加坡和柔佛"
+      ]
+    },
+    {
+      "id": "land-57",
+      "question": "第二次世界大战期间，日军首次在马来亚哪里登陆？",
+      "answer": "萨巴海滩 (吉兰丹)",
+      "options": [
+        "哥打巴鲁",
+        "宋考",
+        "月光海滩",
+        "萨巴海滩 (吉兰丹)"
+      ]
+    },
+    {
+      "id": "land-58",
+      "question": "在登嘉楼的 Ajil 开采的是哪种稀有矿物？",
+      "answer": "钛铁矿 (钛铁氧化物)",
+      "options": [
+        "铝土矿",
+        "锡石",
+        "钛铁矿 (钛铁氧化物)",
+        "赤铁矿"
+      ]
+    },
+    {
+      "id": "land-59",
+      "question": "霹雳州的鹿养殖场位于哪里？",
+      "answer": "门德朗 (位于松盖)",
+      "options": [
+        "门德朗 (位于松盖)",
+        "太平",
+        "怡保",
+        "安顺"
+      ]
+    },
+    {
+      "id": "land-60",
+      "question": "全国唯一的一座地下锡矿位于哪里？",
+      "answer": "Sungai Lembing (彭亨)",
+      "options": [
+        "包",
+        "Sungai Lembing (彭亨)",
+        "吉隆坡",
+        "近打谷"
+      ]
+    },
+    {
+      "id": "land-61",
+      "question": "巴生港的旧称是什么？",
+      "answer": "斯威登汉港",
+      "options": [
+        "弗雷泽港",
+        "斯威登汉港",
+        "韦尔德港",
+        "波德申"
+      ]
+    },
+    {
+      "id": "land-62",
+      "question": "汝忽 (Johol) 位于哪里？",
+      "answer": "森美兰",
+      "options": [
+        "森美兰",
+        "柔佛",
+        "彭亨",
+        "马六甲"
+      ]
+    },
+    {
+      "id": "land-63",
+      "question": "希江江 (Sijangkang) 小镇位于哪个州？",
+      "answer": "雪兰莪",
+      "options": [
+        "霹雳州",
+        "彭亨州",
+        "森美兰州",
+        "雪兰莪"
+      ]
+    },
+    {
+      "id": "land-64",
+      "question": "槿花（大红花）的学名是什么？",
+      "answer": "ROSA SINENSIS",
+      "options": [
+        "ROSA INDICA",
+        "ROSA SINENSIS",
+        "ROSA GALLICA",
+        "HIBISCUS SYRIACUS"
+      ]
+    },
+    {
+      "id": "land-65",
+      "question": "吉隆坡始于两条河流的汇合处。请问是哪两条河？",
+      "answer": "克朗河和隆波河（现称贡峇河）",
+      "options": [
+        "彭亨河和登嘉楼河",
+        "克朗河和兰让河",
+        "克朗河和隆波河（现称贡峇河）",
+        "贡峇河和蒂迪旺沙河"
+      ]
+    },
+    {
+      "id": "land-66",
+      "question": "1874年英国在霹雳州建立行政管理机构时，其行政首府设在何处？",
+      "answer": "班达巴鲁（位于下霹雳）",
+      "options": [
+        "班达巴鲁（位于下霹雳）",
+        "怡保",
+        "太平",
+        "江沙"
+      ]
+    },
+    {
+      "id": "land-67",
+      "question": "请写出马来西亚第二高峰的山名。",
+      "answer": "特鲁斯马迪山",
+      "options": [
+        "基纳巴鲁山",
+        "穆鲁山",
+        "特鲁斯马迪山",
+        "打汉山"
+      ]
+    },
+    {
+      "id": "land-68",
+      "question": "霹雳州的铁矿在何处开采？",
+      "answer": "恩戈尔",
+      "options": [
+        "恩戈尔",
+        "拉律",
+        "近打",
+        "叶林"
+      ]
+    },
+    {
+      "id": "land-69",
+      "question": "18世纪，马来半岛东岸哪个港口经常被欧洲船只访问？",
+      "answer": "瓜拉登嘉楼",
+      "options": [
+        "瓜拉勿色",
+        "关丹",
+        "瓜拉登嘉楼",
+        "哥打巴鲁"
+      ]
+    },
+    {
+      "id": "land-70",
+      "question": "Nephelium Lappaceum 是哪种当地时令水果的学名？",
+      "answer": "红毛丹",
+      "options": [
+        "山竹",
+        "龙贡",
+        "红毛丹",
+        "榴莲"
+      ]
+    },
+    {
+      "id": "land-71",
+      "question": "槟城岛的陆地面积是多少？",
+      "answer": "293 平方公里",
+      "options": [
+        "350 平方公里",
+        "320 平方公里",
+        "250 平方公里",
+        "293 平方公里"
+      ]
+    },
+    {
+      "id": "land-72",
+      "question": "请写出亚洲大陆的最南端。",
+      "answer": "丹绒比艾 (柔佛州)",
+      "options": [
+        "丹绒比艾 (柔佛州)",
+        "丹绒古邦",
+        "丹绒普特里",
+        "丹绒佩马尼斯"
+      ]
+    },
+    {
+      "id": "land-73",
+      "question": "请写出霹雳州以陶器产品著称的城镇。",
+      "answer": "瓜拉沙勇村",
+      "options": [
+        "瓜拉康萨",
+        "大象石",
+        "瓜拉沙勇村",
+        "端顿"
+      ]
+    },
+    {
+      "id": "land-74",
+      "question": "马来西亚的第一棵橡胶树是在哪里种植的？",
+      "answer": "瓜拉康萨",
+      "options": [
+        "端顿",
+        "瓜拉康萨",
+        "怡保",
+        "太平"
+      ]
+    },
+    {
+      "id": "land-75",
+      "question": "哪个州被誉为“东方之珠”？",
+      "answer": "槟城",
+      "options": [
+        "槟城",
+        "沙巴",
+        "马六甲",
+        "砂拉越"
+      ]
+    },
+    {
+      "id": "land-76",
+      "question": "西马哪个州以种植水稻而闻名？",
+      "answer": "吉打州",
+      "options": [
+        "玻璃州",
+        "吉兰丹州",
+        "雪兰莪州",
+        "吉打州"
+      ]
+    },
+    {
+      "id": "land-77",
+      "question": "请写出每年皮背海龟上岸产卵的著名地点。",
+      "answer": "兰涛亚邦 (登嘉楼)",
+      "options": [
+        "停泊岛",
+        "热浪岛",
+        "兰涛亚邦 (登嘉楼)",
+        "切拉丁"
+      ]
+    },
+    {
+      "id": "land-78",
+      "question": "请写出玻璃州三个官方陆路入境点。",
+      "answer": "巴东比沙, 旺格连, 楚平",
+      "options": [
+        "巴东比沙, 加央, 亚劳",
+        "巴东比沙, 旺格连, 楚平",
+        "巴东比沙, 登嘉楼黑木山, 旺格连",
+        "巴东比沙, 旺格连, 玻璃州分岔口"
+      ]
+    },
+    {
+      "id": "land-79",
+      "question": "请写出玻璃州最大的湖泊。",
+      "answer": "蒂玛塔索湖",
+      "options": [
+        "奇尼湖",
+        "肯依恩湖",
+        "贝拉湖",
+        "蒂玛塔索湖"
+      ]
+    },
+    {
+      "id": "land-80",
+      "question": "哪个州被称为“Indera Kayangan”？",
+      "answer": "玻璃州",
+      "options": [
+        "吉兰丹州",
+        "吉打州",
+        "玻璃州",
+        "登嘉楼州"
+      ]
+    },
+    {
+      "id": "land-81",
+      "question": "吉兰丹的 Pantai Cinta Berahi 现在被称为什么？",
+      "answer": "PANTAI CAHAYA BULAN",
+      "options": [
+        "PANTAI SRI TUJUH",
+        "PANTAI CAHAYA BULAN",
+        "PANTAI MELAWI",
+        "PANTAI SENOK"
+      ]
+    },
+    {
+      "id": "land-82",
+      "question": "霹雳州的一座锡矿场曾使用囚犯劳动力将其改造为娱乐公园。请写出该公园的名称。",
+      "answer": "TAIPING LAKE GARDENS",
+      "options": [
+        "吉隆坡湖滨公园",
+        "武吉 merah 湖度假村",
+        "柏达拿植物园",
+        "TAIPING LAKE GARDENS"
+      ]
+    },
+    {
+      "id": "land-83",
+      "question": "纳卡万山脉（Nakawan Range）是马来西亚最长的连续石灰岩山脉，它位于哪个州？",
+      "answer": "PERLIS",
+      "options": [
+        "霹雳州",
+        "吉兰丹州",
+        "玻璃州",
+        "吉打州"
+      ]
+    },
+    {
+      "id": "land-84",
+      "question": "请写出马来西亚的三个联邦直辖区。",
+      "answer": "KUALA LUMPUR, LABUAN, PUTRAJAYA",
+      "options": [
+        "吉隆坡、拉布安、乔治市",
+        "布特拉贾亚、拉布安、亚庇",
+        "吉隆坡、布特拉贾亚、古晋",
+        "KUALA LUMPUR, LABUAN, PUTRAJAYA"
+      ]
+    },
+    {
+      "id": "land-85",
+      "question": "兰卡威的北部和西部是什么海？",
+      "answer": "ANDAMAN SEA",
+      "options": [
+        "爪哇海",
+        "南中国海",
+        "苏禄海",
+        "安达曼海"
+      ]
+    },
+    {
+      "id": "land-86",
+      "question": "请写出沙巴州最高的山脉名称。",
+      "answer": "CROCKER RANGE",
+      "options": [
+        "CROCKER RANGE",
+        "基那巴鲁山脉",
+        "蒂蒂旺沙山脉",
+        "巴拿威山脉"
+      ]
+    },
+    {
+      "id": "land-87",
+      "question": "克莱当山脉（Kledang Range）位于哪个州？",
+      "answer": "PERAK",
+      "options": [
+        "雪兰莪州",
+        "吉兰丹州",
+        "彭亨州",
+        "霹雳州"
+      ]
+    },
+    {
+      "id": "land-88",
+      "question": "请写出马来西亚最高的瀑布名称。",
+      "answer": "CEMERONG WATERFALL (Terengganu)",
+      "options": [
+        "杰拉旺瀑布",
+        "齐林瀑布",
+        "CEMERONG WATERFALL (Terengganu)",
+        "彩虹瀑布"
+      ]
+    },
+    {
+      "id": "land-89",
+      "question": "请写出马来西亚最大的兰花农场（据称也是世界第二大）的名称。",
+      "answer": "ORCHID VALLEY (Kangkar Pulai, Johor)",
+      "options": [
+        "高原兰花园",
+        "兰花园",
+        "ORCHID VALLEY (Kangkar Pulai, Johor)",
+        "Flora Park"
+      ]
+    },
+    {
+      "id": "land-90",
+      "question": "北南大道（North-South Expressway）的北端和南端分别在哪里？",
+      "answer": "BUKIT KAYU HITAM (NORTH) and JOHOR BARU (SOUTH)",
+      "options": [
+        "巴东必胜 (北) 和 巴斯古当 (南)",
+        "亚罗士多 (北) 和 新加坡 (南)",
+        "加央 (北) 和 丹绒比艾 (南)",
+        "BUKIT KAYU HITAM (NORTH) and JOHOR BARU (SOUTH)"
+      ]
+    },
+    {
+      "id": "land-91",
+      "question": "请列出与泰国接壤的马来西亚州属。",
+      "answer": "玻璃州, 吉打州, 霹雳州, 吉兰丹州",
+      "options": [
+        "玻璃州, 吉打州, 吉兰丹州, 登嘉楼州",
+        "玻璃州, 吉打州, 霹雳州, 彭亨州",
+        "玻璃州, 吉打州, 霹雳州, 吉兰丹州",
+        "吉打州, 霹雳州, 吉兰丹州, 登嘉楼州"
+      ]
+    },
+    {
+      "id": "land-92",
+      "question": "请列出在马来西亚发现的世界最大花朵。",
+      "answer": "阿诺德大王花",
+      "options": [
+        "阿兹兰大王花",
+        "阿诺德大王花",
+        "坎特利大王花",
+        "基斯大王花"
+      ]
+    },
+    {
+      "id": "land-93",
+      "question": "布特拉贾亚（Putrajaya）目前所在地原名为什么种植园？",
+      "answer": "PERANG BESAR 种植园",
+      "options": [
+        "布特拉贾亚种植园",
+        "PRANG JAYA 种植园",
+        "PERANG BESAR 种植园",
+        "PRANG 种植园"
+      ]
+    },
+    {
+      "id": "land-94",
+      "question": "请列出作为雪兰莪州和霹雳州边界的河流。",
+      "answer": "伯南河",
+      "options": [
+        "麻坡河",
+        "彭亨河",
+        "伯南河",
+        "霹雳河"
+      ]
+    },
+    {
+      "id": "land-95",
+      "question": "请列出沙巴州唯一铁路线的两个终点站。",
+      "answer": "丹绒亚鲁和丹南",
+      "options": [
+        "丹绒亚鲁和丹南",
+        "斗湖和丹南",
+        "山打根和丹南",
+        "亚庇和丹南"
+      ]
+    },
+    {
+      "id": "land-96",
+      "question": "卡达山杜顺人主要分布在哪个州？",
+      "answer": "沙巴州",
+      "options": [
+        "砂拉越州",
+        "沙巴州",
+        "彭亨州",
+        "登嘉楼州"
+      ]
+    },
+    {
+      "id": "land-97",
+      "question": "马来西亚的哪个岛屿曾被用作囚犯殖民地？",
+      "answer": "杰雷 জাক岛",
+      "options": [
+        "兰卡威岛",
+        "杰雷 জাক岛",
+        "邦咯岛",
+        "刁曼岛"
+      ]
+    },
+    {
+      "id": "land-98",
+      "question": "请列出吉打州的皇城。",
+      "answer": "阿纳布基",
+      "options": [
+        "江沙",
+        "阿纳布基",
+        "亚罗士打",
+        "加央"
+      ]
+    },
+    {
+      "id": "land-99",
+      "question": "哪个海峡将菲律宾的巴拉望岛与马来西亚的沙巴州分开？",
+      "answer": "巴拉巴克海峡",
+      "options": [
+        "马六甲海峡",
+        "巴拉巴克海峡",
+        "苏拉威西海",
+        "苏禄海"
+      ]
+    },
+    {
+      "id": "land-100",
+      "question": "请列出马来西亚的第三个联邦直辖区。",
+      "answer": "布特拉贾亚",
+      "options": [
+        "乔治市",
+        "纳闽",
+        "吉隆坡",
+        "布特拉贾亚"
+      ]
+    }
+  ],
+  "people": [
+    {
+      "id": "people-1",
+      "question": "在第二次世界大战期间，谁在巴西班长战役（Battle of Pasir Panjang）和武吉钱都战役（Battle of Bukit Chandu）中率军对抗日军？",
+      "answer": "LT ADNAN BIN SAIDI",
+      "options": [
+        "LT ADNAN BIN SAIDI",
+        "LT MALIK BIN OSMAN",
+        "LT MOHAMMAD BIN ISMAIL",
+        "LT ABDUL RAHMAN"
+      ]
+    },
+    {
+      "id": "people-2",
+      "question": "谁写了《普特拉古浓打汉》（Putera Gunung Tahan）？",
+      "answer": "ISHAK HAJI MUHAMMAD",
+      "options": [
+        "A. SAMAD SAID",
+        "ISHAK HAJI MUHAMMAD",
+        "KERJAYA USMAN",
+        "USMAN AWANG"
+      ]
+    },
+    {
+      "id": "people-3",
+      "question": "马来亚大学从新加坡迁至吉隆坡后，首任副校长是谁？",
+      "answer": "PROFESSOR SIR ALEXANDER OPPENHEIM",
+      "options": [
+        "PROFESSOR SIR GEOFFREY HOWE",
+        "SIR EDWARD TURNBULL",
+        "SIR HAROLD BRAND",
+        "PROFESSOR SIR ALEXANDER OPPENHEIM"
+      ]
+    },
+    {
+      "id": "people-4",
+      "question": "谁是首位马来西亚籍的国家银行行长？",
+      "answer": "TUN ISMAIL MOHAMED ALI",
+      "options": [
+        "TUN DR. ISMAIL ABD RAHMAN",
+        "TUN ISMAIL MOHAMED ALI",
+        "TUN ABDUL RAZAK",
+        "TUN MOHAMMAD ADNAN"
+      ]
+    },
+    {
+      "id": "people-5",
+      "question": "20 世纪 40 年代至 60 年代的政治活动家 Ahmad Boestamam 的原名是什么？",
+      "answer": "ABDULLAH SANI RAJA KECHIL",
+      "options": [
+        "RAJA ABDULLAH BIN SANI",
+        "ABDULLAH BIN MUSTAFA",
+        "ABDULLAH SANI RAJA KECHIL",
+        "MOHAMMAD SANI BIN RAJA"
+      ]
+    },
+    {
+      "id": "people-6",
+      "question": "请写出这位开发出可在 24 小时内诊断类鼻疽（Melioidosis）传染病的培养基的马来西亚人姓名。",
+      "answer": "ALEX FRANCIS",
+      "options": [
+        "ALEX FRANCIS",
+        "DR. LINUS CHOW",
+        "DR. SYED MOHD",
+        "DR. MUTHUSAMY PATHAN"
+      ]
+    },
+    {
+      "id": "people-7",
+      "question": "首位被任命进入内阁的马来西亚女性是谁？",
+      "answer": "TUN FATIMAH HASHIM",
+      "options": [
+        "DATUK NORAH MOHAMMAD",
+        "TUN KHADIJAH BINTI ISMAIL",
+        "TUN RAJA FATIMAH",
+        "TUN FATIMAH HASHIM"
+      ]
+    },
+    {
+      "id": "people-8",
+      "question": "请写出那位推广印度古典舞（尤其是奥迪西舞 Odissi）的著名马来西亚舞者和编舞家姓名。",
+      "answer": "RAMLI IBRAHIM",
+      "options": [
+        "RAMLI HAMID",
+        "RAMLI IBRAHIM",
+        "SHANTI KUMAR",
+        "RAJESH KARUNAKARAN"
+      ]
+    },
+    {
+      "id": "people-9",
+      "question": "请写出设计吉隆坡朝圣基金局大厦（Bangunan Tabung Haji）的建筑师姓名。",
+      "answer": "HIJJAS KASTURI",
+      "options": [
+        "TAN SRI WILLIAM JETSON",
+        "HIJJAS KASTURI",
+        "KEN YANGO",
+        "DATUK RAMLI ARIFFIN"
+      ]
+    },
+    {
+      "id": "people-10",
+      "question": "马六甲苏丹王朝鼎盛时期，谁担任本达哈拉（Bendahara/宰相）一职？",
+      "answer": "TUN PERAK",
+      "options": [
+        "TUN ABDUL JALIL",
+        "TUN PERAK",
+        "TUN TAMBAHAN",
+        "TUN KUDIN"
+      ]
+    },
+    {
+      "id": "people-11",
+      "question": "谁是马来青年协会 (Kesatuan Melayu Muda) 的创始人？",
+      "answer": "IBRAHIM YAACOB",
+      "options": [
+        "ONN JA'AFAR",
+        "BURHANUDDIN AL-HELMY",
+        "IBRAHIM YAACOB",
+        "ISMAIL ABD RAHMAN"
+      ]
+    },
+    {
+      "id": "people-12",
+      "question": "砂拉越的巴里奥 (Bario) 是哪个民族的传统家园？",
+      "answer": "KELABIT",
+      "options": [
+        "KAJANG",
+        "KELABIT",
+        "KENYAH",
+        "IBAN"
+      ]
+    },
+    {
+      "id": "people-13",
+      "question": "谁是彭亨州的第一任英国驻扎官 (British Resident)？",
+      "answer": "J.P. RODGER",
+      "options": [
+        "FRANK SWETTENHAM",
+        "SIR ANDREW CLAUKE",
+        "J.P. RODGER",
+        "J.W.W. BIRCH"
+      ]
+    },
+    {
+      "id": "people-14",
+      "question": "请写出在2007年世界女子壁球排名第一的“壁球女王”的名字？",
+      "answer": "NICOL ANN DAVID",
+      "options": [
+        "DATUK LEE CHONG WEI",
+        "DATUK MOHD AZLAN",
+        "SHARMI LAXMI",
+        "NICOL ANN DAVID"
+      ]
+    },
+    {
+      "id": "people-15",
+      "question": "请写出将第一辆汽车引入彭亨州的商人名字。",
+      "answer": "LOKE YEW",
+      "options": [
+        "YAP AH KONG",
+        "LOKE YEW",
+        "CHANG KAI CHUN",
+        "LEE KONG WEE"
+      ]
+    },
+    {
+      "id": "people-16",
+      "question": "谁是森美兰州第一位以第一等成绩通过学校证书考试 (School Certificate Examination) 的马来人？",
+      "answer": "ZAINAL ABIDIN BIN AHMAD (ZA'BA)",
+      "options": [
+        "ZAINAL ABIDIN BIN AHMAD (ZA'BA)",
+        "TUN ABDUL RAZAK",
+        "USTAZ HASAN BIN BAKRI",
+        "DATUK ONN JA'AFAR"
+      ]
+    },
+    {
+      "id": "people-17",
+      "question": "谁是马来西亚任职时间最长的总理？",
+      "answer": "TUN DR. MAHATHIR MOHAMAD (22 years)",
+      "options": [
+        "TUN ABDULLAH BADAWI (9 years)",
+        "TUN DR. MAHATHIR MOHAMAD (22 years)",
+        "TUN ABDUL RAZAK (11 years)",
+        "TUNKU ABDUL RAHMAN (12 years)"
+      ]
+    },
+    {
+      "id": "people-18",
+      "question": "谁是巫统 (UMNO) 的创始主席？",
+      "answer": "DATO' ONN BIN JA'AFAR",
+      "options": [
+        "TUNKU ABDUL RAHMAN",
+        "DATO' ONN BIN JA'AFAR",
+        "ISMAIL ABD RAHMAN",
+        "BURHANUDDIN AL-HELMY"
+      ]
+    },
+    {
+      "id": "people-19",
+      "question": "第二次世界大战期间，马来亚印度人的领袖是谁？",
+      "answer": "SUBHAS CHANDRA BOSE",
+      "options": [
+        "SARDAR PATEL",
+        "SUBHAS CHANDRA BOSE",
+        "MOHANDAS K. GANDHI",
+        "JAWAHARLAL NEHRU"
+      ]
+    },
+    {
+      "id": "people-20",
+      "question": "谁是马来亚/马来西亚印度国大党 (MIC) 的创始主席？",
+      "answer": "JOHN A. THIVY",
+      "options": [
+        "V. MANICKAM",
+        "C.V. GANESAN",
+        "JOHN A. THIVY",
+        "S. SAMY VELLU"
+      ]
+    },
+    {
+      "id": "people-21",
+      "question": "谁是马来亚/马来西亚印度国大党 (MIC) 的第五任主席？",
+      "answer": "TUN V.T. SAMBANTHAN",
+      "options": [
+        "TAN SRI G. PALANIVELU",
+        "TUN S. SAMY VELLU",
+        "TUN V.T. SAMBANTHAN",
+        "TUN H.S. LEE"
+      ]
+    },
+    {
+      "id": "people-22",
+      "question": "谁是 1969 年至 1990 年间任职时间最长的槟城首席部长？",
+      "answer": "TUN LIM CHONG EU",
+      "options": [
+        "TUN DR. LIM KENG YAIK",
+        "TUN LIM CHONG EU",
+        "TUN DR. LIM GUAN ENG",
+        "TAN SRI KOH TSU KOON"
+      ]
+    },
+    {
+      "id": "people-23",
+      "question": "谁是被任命的最年轻国会议员和最年轻州务大臣？",
+      "answer": "DATUK SERI NAJIB TUN RAZAK",
+      "options": [
+        "DATUK SERI HISHAMMUDDIN HUSSEIN",
+        "DATUK SERI NAJIB TUN RAZAK",
+        "DATUK SERI ANWAR IBRAHIM",
+        "TUN ABDUL RAZAK"
+      ]
+    },
+    {
+      "id": "people-24",
+      "question": "谁是第一位登上珠穆朗玛峰顶峰的马来西亚人？",
+      "answer": "MOHANDAS NAGAPPAN",
+      "options": [
+        "DATUK DR. AZMAN",
+        "MOHANDAS NAGAPPAN",
+        "N. RAVICHANDRAN",
+        "M. S. MANI"
+      ]
+    },
+    {
+      "id": "people-25",
+      "question": "谁是 1910 年从海峡殖民地和马来联邦政府医学院毕业的第一位马来医生？",
+      "answer": "DR. ABDUL LATIFF BIN ABDUL RAZAK",
+      "options": [
+        "DR. ABDUL LATIFF BIN ABDUL RAZAK",
+        "DR. HASSAN BIN OMAR",
+        "DR. MUHAMMAD YASSIN",
+        "DR. ABDUL AZIZ"
+      ]
+    },
+    {
+      "id": "people-26",
+      "question": "谁创作了诗歌《Uda dan Dara》？",
+      "answer": "USMAN AWANG",
+      "options": [
+        "USMAN AWANG",
+        "KERIS MAS",
+        "MUHAMMAD HAJI SALLEH",
+        "A. SAMAD SAID"
+      ]
+    },
+    {
+      "id": "people-27",
+      "question": "请写出 2003 年堪润艺术奖 (Cameronian Arts Awards) 终身成就奖的获得者。",
+      "answer": "KRISHEN JIT",
+      "options": [
+        "KRISHEN JIT",
+        "TANG SARI",
+        "STELLA KONIDIN",
+        "DATO' NOORDIN HASSAN"
+      ]
+    },
+    {
+      "id": "people-28",
+      "question": "哪位文学人物被人们亲切地称为 Pak Sako？",
+      "answer": "ISHAK HJ. MUHAMMAD",
+      "options": [
+        "A. SAMAD SAID",
+        "ISHAK HJ. MUHAMMAD",
+        "USMAN AWANG",
+        "KERIS MAS"
+      ]
+    },
+    {
+      "id": "people-29",
+      "question": "谁在 1959 年 2 月 20 日宣誓就任吉打州苏丹？",
+      "answer": "SULTAN ABDUL HALIM MU'ADZAM SHAH IBNI AL-MARHUM SULTAN BADLISHAH",
+      "options": [
+        "SULTAN BADLISHAH",
+        "SULTAN ABDUL HALIM MU'ADZAM SHAH IBNI AL-MARHUM SULTAN BADLISHAH",
+        "SULTAN ABDUL HAMID HALIM SHAH",
+        "SULTAN SALLEHUDDIN"
+      ]
+    },
+    {
+      "id": "people-30",
+      "question": "谁是登嘉楼的第一任苏丹？",
+      "answer": "SULTAN ZAINAL ABIDIN I",
+      "options": [
+        "SULTAN MANSUR",
+        "SULTAN SULAIMAN",
+        "SULTAN ZAINAL ABIDIN I",
+        "SULTAN OMAR"
+      ]
+    },
+    {
+      "id": "people-31",
+      "question": "谁是马来西亚理科大学 (USM) 的第一任副校长？",
+      "answer": "PROF. TAN SRI HAMZAH SENDUT",
+      "options": [
+        "PROF. DATO' DR. MOHD SALLEH",
+        "PROF. UNGKU AZIZ",
+        "PROF. TAN SRI HAMZAH SENDUT",
+        "PROF. TAN SRI ABDUL RAHMAN WAHID"
+      ]
+    },
+    {
+      "id": "people-32",
+      "question": "谁是第一位独自航行环球世界的马来西亚人？",
+      "answer": "DATUK AZHAR MANSOR",
+      "options": [
+        "DATUK DR. MOHD AMIN",
+        "DATUK AZHAR MANSOR",
+        "DATUK SERI AZMAN",
+        "KAPTEN AZLAN"
+      ]
+    },
+    {
+      "id": "people-33",
+      "question": "谁是第七任马来西亚最高国家元首？",
+      "answer": "SULTAN AHMAD SHAH AL-MUSTA'IN BILLAH IBNI AL-MARHUM SULTAN ABU BAKAR",
+      "options": [
+        "SULTAN AZLAN SHAH",
+        "SULTAN ABDUL HALIM",
+        "SULTAN SALAHUDDIN ABDUL AZIZ SHAH",
+        "SULTAN AHMAD SHAH AL-MUSTA'IN BILLAH IBNI AL-MARHUM SULTAN ABU BAKAR"
+      ]
+    },
+    {
+      "id": "people-34",
+      "question": "哪位彭亨州务大臣后来被封为爵士 (Sir)？",
+      "answer": "SIR MAHMUD BIN MAT",
+      "options": [
+        "DATO' SRI MOHD NAJIB",
+        "DATO' SRI AHMAD PAHMI",
+        "SIR MAHMUD BIN MAT",
+        "TUN ABDUL RAZAK"
+      ]
+    },
+    {
+      "id": "people-35",
+      "question": "哪位来自砂拉越的伊班领导人在1963年前往伦敦，就砂拉越独立和马来西亚联邦的成立进行谈判？",
+      "answer": "TUN TEMENGGUNG JUGAH ANAK BARIENG",
+      "options": [
+        "TUN STEPHEN KALONG NINGKAN",
+        "TUN TEMENGGUNG BARIENG",
+        "TUN TEMENGGUNG JUGAH ANAK BARIENG",
+        "TAN SRI DATUK AMAR JAMES WONG"
+      ]
+    },
+    {
+      "id": "people-36",
+      "question": "谁是第一位登上珠穆朗玛峰的马来西亚女性？",
+      "answer": "MARINA AHMAD",
+      "options": [
+        "DR. AZRAAI",
+        "NURUL HUDA",
+        "NORSIAH HASSAN",
+        "MARINA AHMAD"
+      ]
+    },
+    {
+      "id": "people-37",
+      "question": "请写出第一位被选为下议院议长的现任国会议员的名字。",
+      "answer": "TAN SRI DATO' SERI DIRAJA RAMLI BIN NGAH TALIB",
+      "options": [
+        "TAN SRI MOHD ZAHID BIN HASSAN",
+        "TAN SRI DATO' SERI DIRAJA RAMLI BIN NGAH TALIB",
+        "TAN SRI GHAFAR BABA",
+        "TAN SRI PANDAKI AMIN"
+      ]
+    },
+    {
+      "id": "people-38",
+      "question": "谁是太平博物馆的第一任馆长？",
+      "answer": "LEONARD WRAY",
+      "options": [
+        "FRANK SWETTENHAM",
+        "HUGH LOW",
+        "LEONARD WRAY",
+        "WILLIAM EDWARD"
+      ]
+    },
+    {
+      "id": "people-39",
+      "question": "马来西亚最伟大的足球运动员之一莫克塔·达哈里 (Mokhtar Dahari) 的绰号是什么？",
+      "answer": "SUPER MOKH",
+      "options": [
+        "SUPER MOKH",
+        "THE GOLDEN BOOT",
+        "THE MALAYAN TIGER",
+        "THE MAGIC MAN"
+      ]
+    },
+    {
+      "id": "people-40",
+      "question": "谁是1976年第一位被任命为驻外大使的女性？",
+      "answer": "P.G. LIM (Lim Phaik Gan)",
+      "options": [
+        "Tun Fatimah Hashim",
+        "P.G. LIM (Lim Phaik Gan)",
+        "Dato' Seri Dr. Siti Hasmah",
+        "Tan Sri Nora Ismail"
+      ]
+    },
+    {
+      "id": "people-41",
+      "question": "谁是第一位在 2002 年赢得国际汽车联合会 (FIA) 世界量产车驾驶员锦标赛的亚洲拉力赛车手？",
+      "answer": "KARAMJIT SINGH",
+      "options": [
+        "ALEX YOONG",
+        "SANTHANAM SINGH",
+        "KARAMJIT SINGH",
+        "MOHD FAIZAL"
+      ]
+    },
+    {
+      "id": "people-42",
+      "question": "谁是第一位担任综合医院代理医疗监督的马来女医生？",
+      "answer": "TUN DR. SITI HASMAH MOHD. ALI",
+      "options": [
+        "DR. NOOR LAILI",
+        "DR. JEMILAH MAHMOOD",
+        "TUN DR. ZALEHA ISMAIL",
+        "TUN DR. SITI HASMAH MOHD. ALI"
+      ]
+    },
+    {
+      "id": "people-43",
+      "question": "哪位马来西亚女演员出演了詹姆斯·邦德电影《明日永不消亡》？",
+      "answer": "DATUK MICHELLE YEOH",
+      "options": [
+        "ERRA FAZIRA",
+        "MAYA KARIN",
+        "ZIANA ZAIN",
+        "DATUK MICHELLE YEOH"
+      ]
+    },
+    {
+      "id": "people-44",
+      "question": "谁是赢得 1962 年 Ramon Magsaysay 社区领导力奖的劳工领袖？",
+      "answer": "P.P. NARAYANAN",
+      "options": [
+        "V. GOBILASINGAM",
+        "A.R. RAJA GOPALAN",
+        "P.P. NARAYANAN",
+        "S. SAMY VELLU"
+      ]
+    },
+    {
+      "id": "people-45",
+      "question": "哪位马来西亚女性政治家是巫统 (UMNO) 的创始成员，并在 20 世纪 50 年代初成为其妇女组 (Kaum Ibu) 主席？",
+      "answer": "TAN SRI ZAINUN BT. MUNSHI SULAIMAN (Ibu Zain)",
+      "options": [
+        "Shamsiah Yakob",
+        "Tun Fatimah",
+        "Khatijah Sidek",
+        "TAN SRI ZAINUN BT. MUNSHI SULAIMAN (Ibu Zain)"
+      ]
+    },
+    {
+      "id": "people-46",
+      "question": "请提供才华横溢的歌手、演员和音乐家 Tan Sri P. Ramlee 的原名，他拍摄了《Bujang Lapok》和《Penarik Beca》等马来电影。",
+      "answer": "TEUKU ZAKARIA BIN TEUKU NYAK PUTEH",
+      "options": [
+        "TEUKU MUSTAFA BIN TEUKU OMAR",
+        "TEUKU IBRAHIM BIN TEUKU MUSA",
+        "TEUKU ZAKARIA BIN TEUKU NYAK PUTEH",
+        "TEUKU AHMAD BIN TEUKU ALI"
+      ]
+    },
+    {
+      "id": "people-47",
+      "question": "谁在吉隆坡举行的第 21 届东南亚运动会上赢得了马术运动的四枚金牌？",
+      "answer": "QABIL AMBAK",
+      "options": [
+        "FARISH AMRAN",
+        "AZLAN WAHID",
+        "MOHD NASIR",
+        "QABIL AMBAK"
+      ]
+    },
+    {
+      "id": "people-48",
+      "question": "哪位马来西亚总理被誉为“国家团结之父”？",
+      "answer": "TUN HUSSEIN ONN",
+      "options": [
+        "TUN HUSSEIN ONN",
+        "TUNKU ABDUL RAHMAN",
+        "TUN DR. MAHATHIR MOHAMAD",
+        "TUN ABDUL RAZAK"
+      ]
+    },
+    {
+      "id": "people-49",
+      "question": "自马来西亚推出自己的货币以来，谁的头像出现在所有马来西亚林吉特钞票上？",
+      "answer": "TUANKU ABDUL RAHMAN IBNI ALMARHUM TUANKU MUHAMMAD ...(First Yang di-Pertuan Agong)",
+      "options": [
+        "Tuanku Jaafar",
+        "Sultan Sharafuddin",
+        "Sultan Abdul Halim",
+        "TUANKU ABDUL RAHMAN IBNI ALMARHUM TUANKU MUHAMMAD ...(First Yang di-Pertuan Agong)"
+      ]
+    },
+    {
+      "id": "people-50",
+      "question": "哪位马来西亚总理多年担任马来西亚奥委会主席？",
+      "answer": "TUN ABDUL RAZAK BIN HUSSEIN",
+      "options": [
+        "TUN HUSSEIN ONN",
+        "TUN ABDUL RAZAK BIN HUSSEIN",
+        "TUN ABDULLAH BADAWI",
+        "TUN DR. MAHATHIR MOHAMAD"
+      ]
+    },
+    {
+      "id": "people-51",
+      "question": "谁是沙巴的第一任首席部长？",
+      "answer": "敦富阿德·斯蒂芬斯 (TUN FUAD STEPHENS)",
+      "options": [
+        "敦莫哈末·赛义德·格鲁亚克 (TUN MOHD SAID KERUAK)",
+        "敦富阿德·斯蒂芬斯 (TUN FUAD STEPHENS)",
+        "敦穆斯塔法 (TUN MUSTAPHA)",
+        "敦哈里斯·萨莱 (TUN HARRIS SALLEH)"
+      ]
+    },
+    {
+      "id": "people-52",
+      "question": "谁被认为是砂拉越的第一任拉惹？",
+      "answer": "詹姆斯·布鲁克 (JAMES BROOKE)",
+      "options": [
+        "詹姆斯·布鲁克 (JAMES BROOKE)",
+        "怀纳·布鲁克 (VYNER BROOKE)",
+        "查尔斯·布鲁克 (CHARLES BROOKE)",
+        "安东尼·布鲁克 (ANTHONY BROOKE)"
+      ]
+    },
+    {
+      "id": "people-53",
+      "question": "哪位首相推出了新经济政策 (NEP)？",
+      "answer": "敦阿卜杜勒·拉扎克 (TUN ABDUL RAZAK BIN HUSSEIN)",
+      "options": [
+        "敦胡先翁 (TUN HUSSEIN ONN)",
+        "东姑阿都拉曼 (TUNKU ABDUL RAHMAN)",
+        "敦阿卜杜勒·拉扎克 (TUN ABDUL RAZAK BIN HUSSEIN)",
+        "敦马哈迪医生 (TUN DR. MAHATHIR MOHAMAD)"
+      ]
+    },
+    {
+      "id": "people-54",
+      "question": "拿督斯里阿都拉·巴达威何时成为马来西亚首相？",
+      "answer": "2003年10月31日",
+      "options": [
+        "2002年10月31日",
+        "2003年10月31日",
+        "2003年11月1日",
+        "2004年10月31日"
+      ]
+    },
+    {
+      "id": "people-55",
+      "question": "谁是马来西亚的第一任最高元首（宪政君主）？",
+      "answer": "图安库·阿都拉曼 (TUANKU ABDUL RAHMAN IBNI AL-MARHUM TUANKU MUHAMMAD)",
+      "options": [
+        "苏丹伊斯梅尔·纳斯鲁丁·沙 (SULTAN ISMAIL NASIRUDDIN SHAH)",
+        "苏丹巴德里沙 (SULTAN BADLISHAH)",
+        "图安库·阿都拉曼 (TUANKU ABDUL RAHMAN IBNI AL-MARHUM TUANKU MUHAMMAD)",
+        "苏丹希萨穆丁·阿拉姆·沙 (SULTAN HISAMUDDIN ALAM SHAH)"
+      ]
+    },
+    {
+      "id": "people-56",
+      "question": "谁是马来西亚的第一位国家文学 laureate (Sastrawan Negara)？",
+      "answer": "卡玛鲁丁·穆罕默德 (KAMALUDDIN MUHAMAD (KERIS MAS))",
+      "options": [
+        "卡玛鲁丁·穆罕默德 (KAMALUDDIN MUHAMAD (KERIS MAS))",
+        "A. 萨马德·赛义德 (A. SAMAD SAID)",
+        "乌斯曼·阿旺 (USMAN AWANG)",
+        "沙农·艾哈迈德 (SHAHNON AHMAD)"
+      ]
+    },
+    {
+      "id": "people-57",
+      "question": "谁是第一位被任命为高等法院法官的女性？",
+      "answer": "丹斯里西蒂·诺玛·雅各布 (TAN SRI SITI NORMA YAAKOB)",
+      "options": [
+        "丹斯里罗哈娜·尤索夫 (TAN SRI ROHANA YUSOF)",
+        "丹斯里扎莱哈·卡玛鲁丁 (TAN SRI ZALEHA KAMARUDDIN)",
+        "丹斯里娜奥米·摩尔 (TAN SRI NAOMI MOORE)",
+        "丹斯里西蒂·诺玛·雅各布 (TAN SRI SITI NORMA YAAKOB)"
+      ]
+    },
+    {
+      "id": "people-58",
+      "question": "请写出在1982年成为“亚洲最快男人”的马来西亚人。",
+      "answer": "拉布安·皮特 (RABUAN PIT)",
+      "options": [
+        "阿齐姆·法赫米 (AZEEM FAHMI)",
+        "拉布安·皮特 (RABUAN PIT)",
+        "巴德鲁尔·扎米尔 (BADRUL XAMIER)",
+        "莫哈末·哈菲兹 (MOHD HAFIZ)"
+      ]
+    },
+    {
+      "id": "people-59",
+      "question": "谁设计了我们的国旗？",
+      "answer": "莫哈末·哈姆扎 (MOHAMAD HAMZAH)",
+      "options": [
+        "莫哈末·阿里 (MOHAMAD ALI)",
+        "莫哈末·哈姆扎 (MOHAMAD HAMZAH)",
+        "艾哈迈德·哈姆扎 (AHMAD HAMZAH)",
+        "莫哈末·萨利赫 (MOHAMAD SALLEH)"
+      ]
+    },
+    {
+      "id": "people-60",
+      "question": "请写出使用笔名“Sri Delima”写作的马来西亚作家。",
+      "answer": "阿迪芭·阿敏 (ADIBAH AMIN)",
+      "options": [
+        "哈迪查·哈希姆 (KHADIJAH HASHIM)",
+        "阿迪芭·阿敏 (ADIBAH AMIN)",
+        "西蒂·扎伊农·伊斯梅尔 (SITI ZAINON ISMAIL)",
+        "法蒂玛·夏尔哈 (FATIMAH SYARHA)"
+      ]
+    },
+    {
+      "id": "people-61",
+      "question": "谁是曾被认为是世界顶尖鼠疫专家的马来西亚人？",
+      "answer": "伍连德医生 (DR. WU LIEN-TEH)",
+      "options": [
+        "孙中山医生 (DR. SUN YAT-SEN)",
+        "伍连德医生 (DR. WU LIEN-TEH)",
+        "杨廷 chew 医生 (DR. YEOH TENG CHEW)",
+        "林誓坚医生 (DR. LIM SWEE KIAT)"
+      ]
+    },
+    {
+      "id": "people-62",
+      "question": "请写出曾两次进入奥运会200米半决赛的马来西亚短跑运动员的名字。",
+      "answer": "马尼·杰加德森医生 (DR MANI JEGATHESAN)",
+      "options": [
+        "K. RAJAGOPAL",
+        "马尼·杰加德森医生 (DR MANI JEGATHESAN)",
+        "苏真安 (SOH CHIN AUN)",
+        "ABDUL AZIZ ZULKAFFLI"
+      ]
+    },
+    {
+      "id": "people-63",
+      "question": "谁曾六次获得亚洲先生（重量级）健美冠军？",
+      "answer": "马莱克·努尔 (MALEK NOOR)",
+      "options": [
+        "ZULKIFLI HASSAN",
+        "马莱克·努尔 (MALEK NOOR)",
+        "MOHD AZHAR",
+        "RIZAL HASHIM"
+      ]
+    },
+    {
+      "id": "people-64",
+      "question": "谁被任命为马来西亚首位女性参议员？",
+      "answer": "丹斯里艾莎·加尼 (TAN SRI AISHAH GHANI)",
+      "options": [
+        "敦西蒂哈斯玛医生 (TUN DR. SITI HASMAH)",
+        "丹斯里艾莎·加尼 (TAN SRI AISHAH GHANI)",
+        "拿督斯里拉菲达·阿齐兹 (DATUK SERI RAFIDAH AZIZ)",
+        "丹斯里诺拉·李 (TAN SRI NORA LEE)"
+      ]
+    },
+    {
+      "id": "people-65",
+      "question": "1971年首位获得敦拉萨文学奖的华文作家是谁？",
+      "answer": "张豁 (笔名：念鸿) (TEOH HUAT (Pen name: Nian Hong))",
+      "options": [
+        "陈国成 (TAN KOK SENG)",
+        "林阿比 (LIM AH BEE)",
+        "杨豁 (YEOH HUAT)",
+        "张豁 (笔名：念鸿) (TEOH HUAT (Pen name: Nian Hong))"
+      ]
+    },
+    {
+      "id": "people-66",
+      "question": "黄主岸 (Ng Joo Ngan) 精于哪项运动？",
+      "answer": "自行车",
+      "options": [
+        "自行车",
+        "田径",
+        "羽毛球",
+        "游泳"
+      ]
+    },
+    {
+      "id": "people-67",
+      "question": "请写出启动“2020年宏愿”的首相的名字。",
+      "answer": "敦马哈迪医生 (TUN DR. MAHATHIR MOHAMAD)",
+      "options": [
+        "敦马哈迪医生 (TUN DR. MAHATHIR MOHAMAD)",
+        "敦阿都拉萨 (TUN ABDUL RAZAK)",
+        "敦胡先翁 (TUN HUSSEIN ONN)",
+        "敦阿都拉·巴达威 (TUN ABDULLAH BADAWI)"
+      ]
+    },
+    {
+      "id": "people-68",
+      "question": "请写出19世纪90年代初在彭亨州领导反英起义的人名。",
+      "answer": "达都巴哈曼 (DATO BAHAMAN, ORANG KAYA SEMANTAN)",
+      "options": [
+        "达都巴哈曼 (DATO BAHAMAN, ORANG KAYA SEMANTAN)",
+        "马特·基劳 (MAT KILAU)",
+        "伦塔普 (RENTAP)",
+        "杜库·章古 (TOK JANGGUT)"
+      ]
+    },
+    {
+      "id": "people-69",
+      "question": "谁是首位独自前往南极洲和北极探险的马来西亚女性？",
+      "answer": "拿督帕杜卡·莎莉法·马兹莉娜 (DATUK PADUKA SHARIFAH MAZLINA SYED ABDUL KADIR)",
+      "options": [
+        "拿督斯里拉菲达·阿齐兹 (DATUK SERI RAFIDAH AZIZ)",
+        "拿督帕杜卡·莎莉法·马兹莉娜 (DATUK PADUKA SHARIFAH MAZLINA SYED ABDUL KADIR)",
+        "丹斯里诺拉·李 (TAN SRI NORA LEE)",
+        "拿督西蒂哈斯玛医生 (DATUK DR. SITI HASMAH)"
+      ]
+    },
+    {
+      "id": "people-70",
+      "question": "谁是内阁中任职时间最长的女性部长（截至2007年）？",
+      "answer": "拿督斯里拉菲达·阿齐兹 (DATUK SERI RAFIDAH AZIZ)",
+      "options": [
+        "拿督斯里拉菲达·阿齐兹 (DATUK SERI RAFIDAH AZIZ)",
+        "拿督斯里纳迪亚·胡赛因 (DATUK SERI WANITA NADIA HUSSEIN)",
+        "丹斯里艾莎·加尼 (TAN SRI AISHAH GHANI)",
+        "拿督斯里泽蒂·阿齐兹医生 (DATUK SERI DR. ZETI AZIZ)"
+      ]
+    },
+    {
+      "id": "people-71",
+      "question": "谁是第一位横渡英吉利海峡的马来西亚人？",
+      "answer": "MALIK MYDIN",
+      "options": [
+        "K. RAJAGOPAL",
+        "MALIK MYDIN",
+        "NURUL HUDA ABDULLAH",
+        "SOH CHIN AUN"
+      ]
+    },
+    {
+      "id": "people-72",
+      "question": "哪位“马华”诗人于2003年获得终身成就奖？",
+      "answer": "YU TIAN",
+      "options": [
+        "YU TIAN",
+        "LI HUAI",
+        "WANG JING",
+        "ZHANG MIN"
+      ]
+    },
+    {
+      "id": "people-73",
+      "question": "请写出对马来西亚史学贡献最大的英国官员。",
+      "answer": "SIR RICHARD OLOF WINSTEDT",
+      "options": [
+        "SIR RICHARD OLOF WINSTEDT",
+        "SIR FRANK SWETTENHAM",
+        "SIR STAMFORD RAFFLES",
+        "SIR ANDREW CLARKE"
+      ]
+    },
+    {
+      "id": "people-74",
+      "question": "谁是马来亚大学任命的第一位女性副校长？",
+      "answer": "DATUK RAFIAH SALIM",
+      "options": [
+        "DATUK RAFIAH SALIM",
+        "DATUK SERI DR. ZETI AZIZ",
+        "PROFESSOR EMERITA DR. NOOR LAILA",
+        "TAN SRI NORA LEE"
+      ]
+    },
+    {
+      "id": "people-75",
+      "question": "谁是第一任马来西亚警察总长？",
+      "answer": "TUN MOHAMMED SALLEH BIN ISMAIL",
+      "options": [
+        "TAN SRI MUSA HASSAN",
+        "TUN ABDUL RAZAK",
+        "TUN HUSSEIN ONN",
+        "TUN MOHAMMED SALLEH BIN ISMAIL"
+      ]
+    },
+    {
+      "id": "people-76",
+      "question": "哪位马来西亚总理在大学本科期间曾以化名“Che Det”匿名为《海峡时报》撰稿？",
+      "answer": "TUN DR. MAHATHIR MOHAMAD",
+      "options": [
+        "TUN DR. MAHATHIR MOHAMAD",
+        "TUNKU ABDUL RAHMAN",
+        "TUN ABDUL RAZAK",
+        "TUN HUSSEIN ONN"
+      ]
+    },
+    {
+      "id": "people-77",
+      "question": "哪位马来西亚足球运动员在1971年以21岁成为国家队最年轻的成员？",
+      "answer": "SOH CHIN AUN",
+      "options": [
+        "MOKHTAR DAHARI",
+        "SOH CHIN AUN",
+        "SANTOKH SINGH",
+        "K. RAJAGOPAL"
+      ]
+    },
+    {
+      "id": "people-78",
+      "question": "著名漫画家 Lat 的真名是什么？",
+      "answer": "MOHAMMAD NOR KHALID",
+      "options": [
+        "LATIFF MOHIDIN",
+        "MOHAMMAD NOR KHALID",
+        "ZULKIFLI HASSAN",
+        "IBRAHIM HUSSEIN"
+      ]
+    },
+    {
+      "id": "people-79",
+      "question": "哪位马来西亚人在1985年东南亚运动会游泳比赛中获得七枚金牌？",
+      "answer": "NURUL HUDA ABDULLAH",
+      "options": [
+        "NUR DHABITAH SABRI",
+        "DATO' PANDELELA RINONG",
+        "NURUL HUDA ABDULLAH",
+        "LEONG KAI XIN"
+      ]
+    },
+    {
+      "id": "people-80",
+      "question": "谁是马华公会 (MCA) 的创会主席？",
+      "answer": "TUN DATO SIR TAN CHENG LOCK",
+      "options": [
+        "TUN H.S. LEE",
+        "TUN DATO SIR TAN CHENG LOCK",
+        "TUN V.T. SAMBANTHAN",
+        "TUN TAN SIEW KIAN"
+      ]
+    },
+    {
+      "id": "people-81",
+      "question": "哪位马来西亚资深政治人物被称为“日鲁登之虎”？",
+      "answer": "KARPAL SINGH RAM SINGH",
+      "options": [
+        "LIM KIT SIANG",
+        "ANWAR IBRAHIM",
+        "KARPAL SINGH RAM SINGH",
+        "V.K. RAJAH"
+      ]
+    },
+    {
+      "id": "people-82",
+      "question": "哪位马来西亚作家赢得了 1979 年的东南亚作家奖 (S.E.A. Write Award)？",
+      "answer": "A. SAMAD SAID",
+      "options": [
+        "A. SAMAD SAID",
+        "USMAN AWANG",
+        "KERIS MAS",
+        "SHAHNON AHMAD"
+      ]
+    },
+    {
+      "id": "people-83",
+      "question": "著名马来西亚乐队 “The Alleycats” 的主唱是谁？",
+      "answer": "DAVID ARUMUGAM",
+      "options": [
+        "DAVID ARUMUGAM",
+        "FRANCISCA SARAWAK",
+        "JAMAL ABDILLAH",
+        "SUDIRMAN HJ. ARSHAD"
+      ]
+    },
+    {
+      "id": "people-84",
+      "question": "哪位马来亚羽毛球运动员参加了 1949 年的汤杯决赛",
+      "answer": "1952 年和 1955 年，并且四次获得全英赛单打冠军？",
+      "options": [
+        "Eddy Choong",
+        "Sidney Newcombe",
+        "Tan Aik Soon",
+        "1952 年和 1955 年，并且四次获得全英赛单打冠军？"
+      ]
+    },
+    {
+      "id": "people-85",
+      "question": "谁是创建了马来亚独立党 (Independence of Malaya Party) 和国家党 (Parti Negara) 的马来西亚政治人物？",
+      "answer": "DATO ONN BIN JAAFAR",
+      "options": [
+        "DATO ONN BIN JAAFAR",
+        "TUN DR. ISMAIL",
+        "TUNKU ABDUL RAHMAN",
+        "TUN ABDUL RAZAK"
+      ]
+    },
+    {
+      "id": "people-86",
+      "question": "哪位葡萄牙海军上将于 1511 年征服了马六甲？",
+      "answer": "ALFONSO DE ALBUQUERQUE",
+      "options": [
+        "VASCO DA GAMA",
+        "ALFONSO DE ALBUQUERQUE",
+        "FERDINAND MAGELLAN",
+        "PEDRO ÁLVARES CABRAL"
+      ]
+    },
+    {
+      "id": "people-87",
+      "question": "马六甲在哪个苏丹的统治时期达到了繁荣的顶峰？",
+      "answer": "SULTAN MAHMUD SHAH",
+      "options": [
+        "SULTAN MAHMUD SHAH",
+        "SULTAN MANSUR SHAH",
+        "SULTAN ALAUDDIN RIAYAT SHAH",
+        "SULTAN MUZAFFAR SHAH"
+      ]
+    },
+    {
+      "id": "people-88",
+      "question": "谁在吉兰丹领导了反抗英国殖民主义的斗争？",
+      "answer": "HAJI MAT HASSAN BIN MUNAS (Tok Janggut)",
+      "options": [
+        "Mat Kilau",
+        "Tok Gajah",
+        "Dato Bahaman",
+        "HAJI MAT HASSAN BIN MUNAS (Tok Janggut)"
+      ]
+    },
+    {
+      "id": "people-89",
+      "question": "著名的“唱歌律师”是谁？",
+      "answer": "SUDIRMAN HJ. ARSHAD",
+      "options": [
+        "P. RAMLEE",
+        "SUDIRMAN HJ. ARSHAD",
+        "JAMAL ABDILLAH",
+        "SHEILA MAJID"
+      ]
+    },
+    {
+      "id": "people-90",
+      "question": "哪位马来西亚总理被称为“现代化之父”？",
+      "answer": "TUN DR. MAHATHIR MOHAMAD",
+      "options": [
+        "TUN ABDUL RAZAK",
+        "TUN ABDULLAH BADAWI",
+        "TUNKU ABDUL RAHMAN",
+        "TUN DR. MAHATHIR MOHAMAD"
+      ]
+    },
+    {
+      "id": "people-91",
+      "question": "谁是马来亚锡兰联邦（Ceylon Federation of Malaya）的第一任领导人？这是一个代表来自斯里兰卡的小规模贾夫那（Jaffna）社区的政党。",
+      "answer": "DATUK SIR ERNEST EMMANUEL CLOUGH THURAISINGHAM",
+      "options": [
+        "SIR HENRY GURNEY",
+        "TUN V.T. SAMBANTHAN",
+        "DATUK SIR ERNEST EMMANUEL CLOUGH THURAISINGHAM",
+        "SIR GERALD TEMPLER"
+      ]
+    },
+    {
+      "id": "people-92",
+      "question": "著名的伊班族战士 Rentap（曾反对砂拉越詹姆斯·布鲁克的暴政）原名是什么？",
+      "answer": "LIBAU",
+      "options": [
+        "LIBAU",
+        "BALIAN",
+        "NYARING",
+        "KELING"
+      ]
+    },
+    {
+      "id": "people-93",
+      "question": "谁是沙巴的第一任州政务长/总督？",
+      "answer": "TUN DATU HAJI MUSTAPHA BIN DATU HARUN",
+      "options": [
+        "TUN DATU HAJI MUSTAPHA BIN DATU HARUN",
+        "TUN MOHD SAID KERUAK",
+        "DATUK SERI PANGLIMA HAJIJI NOOR",
+        "TUN FUAD STEPHENS"
+      ]
+    },
+    {
+      "id": "people-94",
+      "question": "谁是 1968 年首位被任命为本地大学副校长的马来西亚人？",
+      "answer": "ROYAL PROFESSOR UNGKU ABDUL AZIZ",
+      "options": [
+        "TAN SRI DR. SYED PUTRA",
+        "ROYAL PROFESSOR UNGKU ABDUL AZIZ",
+        "TAN SRI DR. MOHD NASIR",
+        "TUNKU ABDUL RAHMAN"
+      ]
+    },
+    {
+      "id": "people-95",
+      "question": "20 世纪 30 年代霹雳州领先的锡矿业者是谁？",
+      "answer": "LEONG SIN NAM",
+      "options": [
+        "YAP AH LOY",
+        "ZHANG ZHENG LIU",
+        "LEONG SIN NAM",
+        "LOKE YEW"
+      ]
+    },
+    {
+      "id": "people-96",
+      "question": "谁被誉为“现代柔佛之父”？",
+      "answer": "SULTAN ABU BAKAR",
+      "options": [
+        "SULTAN ABU ISA",
+        "SULTAN ABU BAKAR",
+        "SULTAN IBRAHIM",
+        "SULTAN ISKANDAR"
+      ]
+    },
+    {
+      "id": "people-97",
+      "question": "吉隆坡的第三任甲必丹（Kapitan China）是谁？",
+      "answer": "YAP AH LOY",
+      "options": [
+        "CHUNG KENG QUEE",
+        "ZHANG ZHENG LIU",
+        "LOKE YEW",
+        "YAP AH LOY"
+      ]
+    },
+    {
+      "id": "people-98",
+      "question": "谁是马来西亚联邦法院历史上最年轻的首席大法官（Lord President）？",
+      "answer": "SULTAN AZLAN MUHIBBUDDIN SHAH",
+      "options": [
+        "TUN SALLEH ABAS",
+        "TUN MOHAMED SUFFIAN",
+        "TUN TENGKU MUHIZA",
+        "SULTAN AZLAN MUHIBBUDDIN SHAH"
+      ]
+    },
+    {
+      "id": "people-99",
+      "question": "请写出 1959 年被任命的第一任财政部长。",
+      "answer": "TUN TAN SIEW SIN",
+      "options": [
+        "TUN TAN SIEW SIN",
+        "TUN V.T. SAMBANTHAN",
+        "TUN ABDUL RAZAK",
+        "TUN H.S. LEE"
+      ]
+    },
+    {
+      "id": "people-100",
+      "question": "Datuk Seri Abdullah Ahmad Badawi 的出生地在哪里？",
+      "answer": "KAMPUNG PERLIS, BAYAN LEPAS, PENANG",
+      "options": [
+        "BUTTERWORTH, PENANG",
+        "GELUGOR, PENANG",
+        "GEORGE TOWN, PENANG",
+        "KAMPUNG PERLIS, BAYAN LEPAS, PENANG"
+      ]
+    }
+  ],
+  "heritage": [
+    {
+      "id": "heritage-1",
+      "question": "请写出居住在皇家比鲁姆州立公园 (Royal Belum State Park) Sungai Kejar Hilir 村的 Negrito 原住民子群体的名称。",
+      "answer": "JAHAI",
+      "options": [
+        "BATEK",
+        "JAHAI",
+        "SEMANG",
+        "MANI"
+      ]
+    },
+    {
+      "id": "heritage-2",
+      "question": "国家图书馆的屋顶设计描绘了什么？",
+      "answer": "宋格头巾 (Tengkolok songket)",
+      "options": [
+        "月亮风筝 (Wau Bulan)",
+        "传统短剑 (Keris)",
+        "宋格头巾 (Tengkolok songket)",
+        "马来装 (Baju Melayu)"
+      ]
+    },
+    {
+      "id": "heritage-3",
+      "question": "请写出马来西亚最古老的银行名称。",
+      "answer": "渣打银行 (STANDARD CHARTERED BANK (1875))",
+      "options": [
+        "汇丰银行 (HSBC)",
+        "华侨银行 (OCBC BANK)",
+        "渣打银行 (STANDARD CHARTERED BANK (1875))",
+        "马银行 (MAYBANK)"
+      ]
+    },
+    {
+      "id": "heritage-4",
+      "question": "吉打州的州立清真寺叫什么名字？",
+      "answer": "扎希尔清真寺 (ZAHIR MOSQUE)",
+      "options": [
+        "Jamek 清真寺",
+        "苏丹沙拉胡丁阿都阿齐兹沙清真寺",
+        "国家清真寺",
+        "扎希尔清真寺 (ZAHIR MOSQUE)"
+      ]
+    },
+    {
+      "id": "heritage-5",
+      "question": "亚罗士打的 Balai Besar 是在什么时候建造的？",
+      "answer": "1898",
+      "options": [
+        "1898",
+        "1885",
+        "1876",
+        "1902"
+      ]
+    },
+    {
+      "id": "heritage-6",
+      "question": "请写出槟城最大的佛教寺庙名称。",
+      "answer": "柴亚曼加拉兰寺 (WAT CHAIYA MANGKALARAM)",
+      "options": [
+        "柴亚曼加拉兰寺 (WAT CHAIYA MANGKALARAM)",
+        "极乐寺 (Kek Lok Si)",
+        "Wat Phra Borommathat",
+        "Wat Nimmanrardi"
+      ]
+    },
+    {
+      "id": "heritage-7",
+      "question": "槟威大桥是在什么时候正式开通的？",
+      "answer": "1985年8月3日",
+      "options": [
+        "1985年8月31日",
+        "1982年9月15日",
+        "1987年10月12日",
+        "1985年8月3日"
+      ]
+    },
+    {
+      "id": "heritage-8",
+      "question": "请写出砂拉越最大的国家公园名称。",
+      "answer": "Lanjak Entimau 野生动物保护区",
+      "options": [
+        "Lanjak Entimau 野生动物保护区",
+        "尼亚国家公园 (NIAH NATIONAL PARK)",
+        "姆鲁山国家公园 (GUNUNG MULU NATIONAL PARK)",
+        "巴古国家公园 (BAKO NATIONAL PARK)"
+      ]
+    },
+    {
+      "id": "heritage-9",
+      "question": "Kellie's Castle 是以谁的名字命名的？",
+      "answer": "威廉·凯利·史密斯 (WILLIAM KELLIE SMITH)",
+      "options": [
+        "威廉·凯利·史密斯 (WILLIAM KELLIE SMITH)",
+        "斯坦福·莱佛士爵士 (SIR STAMFORD RAFFLES)",
+        "威廉·霍奇 (WILLIAM HODGE)",
+        "弗兰克·斯威登汉 (FRANK SWETTENHAM)"
+      ]
+    },
+    {
+      "id": "heritage-10",
+      "question": "哪个州的州徽上有鼠鹿？",
+      "answer": "马六甲 (MELAKA)",
+      "options": [
+        "彭亨 (PAHANG)",
+        "霹雳 (PERAK)",
+        "马六甲 (MELAKA)",
+        "吉打 (KEDAH)"
+      ]
+    }
+  ]
+}
