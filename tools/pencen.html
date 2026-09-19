@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <link rel="icon" href="../images/logo.png" type="image/png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>牛马退休日记</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Roboto+Mono:wght@500&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+      --glass-bg: rgba(255, 255, 255, 0.9);
+      --text-color: #333;
+      --accent-color: #673AB7;
+      --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    }
+
+    body {
+      margin: 0;
+      /* ??:???? padding,?????????? */
+      padding: 60px 20px 20px 20px;
+      font-family: 'Noto Sans SC', sans-serif;
+      background: var(--primary-gradient);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    /* --- ??:?????? --- */
+    .back-link-wrapper {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 8px 15px;
+      border-radius: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .back-link {
+      text-decoration: none;
+      color: var(--accent-color);
+      /* ???????? */
+      font-weight: bold;
+      font-size: 1rem;
+      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .back-link:hover {
+      color: #9c27b0;
+      text-decoration: underline;
+    }
+
+    /* ----------------------- */
+
+    /* ????? */
+    .card {
+      background: var(--glass-bg);
+      border-radius: 20px;
+      padding: 30px;
+      width: 100%;
+      max-width: 100%;
+      max-width: 100%;
+      max-width: 600px;
+      box-shadow: var(--shadow);
+      text-align: center;
+      position: relative;
+      z-index: 10;
+      backdrop-filter: blur(4px);
+    }
+
+    h1 {
+      font-size: 1.2rem;
+      color: #666;
+      margin: 0 0 10px 0;
+      font-weight: normal;
+    }
+
+    /* ??????? */
+    .countdown-box {
+      margin: 20px 0;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+
+    #countdown {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--accent-color);
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    /* ?????? */
+    .retired-text {
+      color: #4CAF50 !important;
+      font-size: 2rem !important;
+    }
+
+    /* ???? */
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    /* ??:????????? */
+    .manual-date-inputs {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: white;
+      padding: 8px 15px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+    }
+
+    .date-field {
+      border: none;
+      border-bottom: 2px solid #ddd;
+      text-align: center;
+      font-size: 1.1rem;
+      font-family: 'Roboto Mono', monospace;
+      color: #333;
+      outline: none;
+      transition: border-color 0.3s;
+      background: transparent;
+      padding: 4px 0;
+    }
+
+    .date-field:focus {
+      border-bottom-color: var(--accent-color);
+    }
+
+    /* ?? input type number ????? */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .separator {
+      color: #999;
+      font-weight: bold;
+    }
+
+    /* ?????? */
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: transform 0.1s, opacity 0.2s;
+      font-family: inherit;
+    }
+
+    .btn:active {
+      transform: scale(0.95);
+    }
+
+    .btn-update {
+      background-color: #333;
+      color: white;
+      min-width: 100px;
+    }
+
+    .btn-work {
+      background-color: var(--accent-color);
+      color: white;
+      box-shadow: 0 4px 15px rgba(103, 58, 183, 0.3);
+      width: 100%;
+      margin-top: 15px;
+      font-size: 1.1rem;
+      padding: 15px;
+    }
+
+    /* ????? */
+    .emoji-float {
+      position: absolute;
+      pointer-events: none;
+      font-size: 2rem;
+      animation: floatUp 2.5s cubic-bezier(0, 0.2, 0.8, 1) forwards;
+      z-index: 20;
+      opacity: 0;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) scale(0.5);
+        opacity: 0;
+      }
+
+      10% {
+        opacity: 1;
+        transform: translateY(-20px) scale(1.2);
+      }
+
+      100% {
+        transform: translateY(-300px) scale(1);
+        opacity: 0;
+      }
+    }
+
+    @media (min-width: 600px) {
+      #countdown {
+        font-size: 2.2rem;
+      }
+
+      .btn-work {
+        width: auto;
+        margin-top: 0;
+      }
+
+      .card {
+        padding: 40px;
+      }
+    }
+  </style>
+
+  <!-- Global Light Cyberpunk Theme -->
+  <link rel="stylesheet" href="../css/cyberpunk.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+</head>
+
+<body>
+
+  <div class="back-link-wrapper">
+    <a href="../index.html" class="back-link">← 返回工具箱主页</a>
+  </div>
+
+  <div class="card">
+    <h1>📅 距离光荣退休还有</h1>
+
+    <div class="countdown-box">
+      <div id="countdown">计算中...</div>
+    </div>
+
+    <div class="controls">
+      <div class="manual-date-inputs">
+        <input type="number" class="date-field" id="inputYear" placeholder="2059" style="width: 100%; max-width: 60px;">
+        <span class="separator">年</span>
+        <input type="number" class="date-field" id="inputMonth" placeholder="04" style="width: 100%; max-width: 40px;"
+          min="1" max="12">
+        <span class="separator">月</span>
+        <input type="number" class="date-field" id="inputDay" placeholder="02" style="width: 100%; max-width: 40px;"
+          min="1" max="31">
+        <span class="separator">日</span>
+      </div>
+
+      <button class="btn btn-update" id="updateButton">设定目标</button>
+    </div>
+
+    <div style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 20px;">
+      <button class="btn btn-work" id="emojiButton">💪 努力搬砖 +1</button>
+    </div>
+  </div>
+
+  <footer
+    style="text-align: center; margin-top: 50px; padding: 20px; color: #888; font-size: 14px; line-height: 1.6; width: 100%;">
+    <p style="margin: 5px 0;">若发现问题，电邮至 g-21543731@moe-dl.edu.my 潘老师。</p>
+    <p style="margin: 5px 0;">没有团队，不定期更新网站，恳请各位老师耐心等候。</p>
+    <a href="mailto:g-21543731@moe-dl.edu.my?subject=网站反馈"
+      style="color: #555; text-decoration: underline; font-weight: bold; cursor: pointer;">
+      👉 点我发送反馈
+    </a>
+  </footer>
+
+  <script>
+    const STORAGE_KEY = 'user_retirement_date';
+    const defaultDateStr = "2059-04-02";
+
+    let targetDate;
+    const countdownEl = document.getElementById("countdown");
+
+    // ???????
+    const inputY = document.getElementById("inputYear");
+    const inputM = document.getElementById("inputMonth");
+    const inputD = document.getElementById("inputDay");
+
+    // ?????
+    function init() {
+      let savedDate = localStorage.getItem(STORAGE_KEY);
+      if (!savedDate) {
+        savedDate = defaultDateStr;
+      }
+
+      // ?? YYYY-MM-DD ???????
+      const [y, m, d] = savedDate.split("-");
+      inputY.value = y;
+      inputM.value = m; // ??????0,input number?????
+      inputD.value = d;
+
+      // ???????
+      updateTargetFromInputs();
+
+      // ??????
+      updateTimer();
+    }
+
+    // ????:?????? targetDate
+    function updateTargetFromInputs() {
+      const y = inputY.value;
+      const m = inputM.value.padStart(2, '0'); // ?0
+      const d = inputD.value.padStart(2, '0'); // ?0
+
+      // ???????
+      if (!y || !m || !d) return false;
+
+      // ?? ISO ?????
+      const dateStr = `${y}-${m}-${d}`;
+      targetDate = new Date(dateStr + " 00:00:00").getTime();
+      return dateStr;
+    }
+
+    // ??:????????????
+    function enableScrollChange(element) {
+      element.addEventListener('wheel', function (e) {
+        // ??:??????,?????
+        e.preventDefault();
+
+        if (e.deltaY < 0) {
+          this.stepUp(); // ???,????
+        } else {
+          this.stepDown(); // ???,????
+        }
+      }, { passive: false });
+    }
+
+    // ?????????????
+    enableScrollChange(inputY);
+    enableScrollChange(inputM);
+    enableScrollChange(inputD);
+
+    // ???????
+    function updateTimer() {
+      if (!targetDate) return;
+
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+
+      if (distance < 0) {
+        countdownEl.innerHTML = "🎉 终于退休啦！该去环游世界了！";
+        countdownEl.classList.add('retired-text');
+        return;
+      } else {
+        countdownEl.classList.remove('retired-text');
+      }
+
+      const years = Math.floor(distance / (1000 * 60 * 60 * 24 * 365.25));
+      const days = Math.floor((distance % (1000 * 60 * 60 * 24 * 365.25)) / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      let displayStr = "";
+      if (years > 0) displayStr += `${years}年 `;
+      displayStr += `${days}天 ${hours}小时 ${minutes}分 ${seconds}秒`;
+
+      countdownEl.innerHTML = displayStr;
+    }
+
+    // ?????
+    setInterval(updateTimer, 1000);
+
+    // ?????
+    init();
+
+    // ??????
+    document.getElementById("updateButton").addEventListener("click", function () {
+      // ???????
+      if (!inputY.value || !inputM.value || !inputD.value) {
+        alert("请输入完整的年、月、日!");
+        return;
+      }
+
+      const m = parseInt(inputM.value);
+      const d = parseInt(inputD.value);
+
+      if (m < 1 || m > 12) { alert("月份必须在 1-12 之间"); return; }
+      if (d < 1 || d > 31) { alert("日期必须在 1-31 之间"); return; }
+
+      const dateStr = updateTargetFromInputs();
+
+      if (dateStr) {
+        localStorage.setItem(STORAGE_KEY, dateStr);
+        updateTimer();
+
+        this.innerText = "已保存!";
+        setTimeout(() => this.innerText = "设定目标", 1000);
+      }
+    });
+
+    // ???? Emoji ??
+    const emojiBtn = document.getElementById("emojiButton");
+    const emojis = ["💻", "📞", "📧", "📝", "🧱", "🤯", "☕", "📊"];
+
+    emojiBtn.addEventListener("click", function (e) {
+      const emoji = document.createElement("div");
+      emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      emoji.classList.add("emoji-float");
+
+      const randomLeft = Math.random() * 80 + 10;
+      emoji.style.left = randomLeft + "%";
+
+      const rect = emojiBtn.getBoundingClientRect();
+      emoji.style.top = (rect.top - 20) + "px";
+
+      emoji.style.fontSize = (Math.random() * 20 + 20) + "px";
+
+      document.body.appendChild(emoji);
+
+      emoji.addEventListener("animationend", () => {
+        emoji.remove();
+      });
+    });
+
+  </script>
+</body>
+
+</html>

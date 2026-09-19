@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>科学探险岛 - 一年级全集</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" href="../images/logo.png" type="image/png">
+    <style>
+        /* 科学专区特定样式 */
+        :root {
+            --science-primary: #00ACC1;
+            --science-bg: #E0F7FA;
+        }
+
+        body {
+            background-color: var(--science-bg);
+            /* 增加顶部内边距 */
+            padding-top: 60px;
+        }
+
+        .welcome-section h1 {
+            color: #006064;
+        }
+
+        .welcome-section p {
+            color: #00838F;
+        }
+
+        /* 返回按钮 */
+        .back-link-wrapper {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 15px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: var(--science-primary);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: #00838F;
+            text-decoration: underline;
+        }
+
+        /* 科学卡片主题 */
+        .theme-science {
+            border-top: 6px solid var(--science-primary);
+            background: linear-gradient(to bottom, #ffffff 70%, #E0F7FA 100%);
+            transition: transform 0.2s;
+        }
+
+        .theme-science:hover {
+            transform: translateY(-5px);
+        }
+
+        .theme-science .card-icon {
+            background: linear-gradient(135deg, #00ACC1, #26C6DA);
+            -webkit-background-clip: text;
+        }
+
+        .theme-science .card-links a:hover {
+            background: linear-gradient(135deg, #00ACC1, #26C6DA);
+            color: white;
+        }
+
+        /* 单元标签 */
+        .unit-tag {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #B2EBF2;
+            color: #006064;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+    </style>
+
+    <!-- Global Light Cyberpunk Theme -->
+    <link rel="stylesheet" href="../css/cyberpunk.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+</head>
+
+<body>
+
+    <div class="back-link-wrapper">
+        <a href="../index.html" class="back-link">← 返回主站</a>
+    </div>
+
+    <div class="dashboard">
+        <header class="welcome-section">
+            <div style="font-size: 60px; margin-bottom: 10px;">🔬</div>
+            <h1>科学探险岛 (一年级)</h1>
+            <p>这里有一年级的科学互动游戏，让孩子们在玩乐中学习！</p>
+        </header>
+
+        <div class="grid">
+
+            <div class="feature-card theme-science">
+                <span class="unit-tag">单元 3</span>
+                <div class="card-icon">🌱</div>
+                <h3>生物与非生物</h3>
+                <p>将物品拖进正确的篮子，分辨什么是有生命的，什么是无生命的。</p>
+                <div class="card-links">
+                    <a href="t131-生物非生物.html">开始分类</a>
+                </div>
+            </div>
+
+            <div class="feature-card theme-science">
+                <span class="unit-tag">单元 3</span>
+                <div class="card-icon">💧</div>
+                <h3>生物的基本需求</h3>
+                <p>帮助人类、动物和植物找到它们生存所需的水、空气和食物。</p>
+                <div class="card-links">
+                    <a href="t132-基本需求.html">开始探险</a>
+                </div>
+            </div>
+
+            <div class="feature-card theme-science">
+                <span class="unit-tag">单元 4</span>
+                <div class="card-icon">👀</div>
+                <h3>感官实验室</h3>
+                <p>动用你的眼耳口鼻，判断各种物体带来的感觉体验！</p>
+                <div class="card-links">
+                    <a href="t141-感觉器官.html">进入实验室</a>
+                </div>
+            </div>
+
+            <div class="feature-card theme-science">
+                <span class="unit-tag">单元 5</span>
+                <div class="card-icon">🦁</div>
+                <h3>动物拼拼乐</h3>
+                <p>认识动物的身体部位，如喙、鳞、蹼、角等特征。</p>
+                <div class="card-links">
+                    <a href="t151-动物部位.html">开始拼图</a>
+                </div>
+            </div>
+
+            <div class="feature-card theme-science">
+                <span class="unit-tag">单元 6</span>
+                <div class="card-icon">🌻</div>
+                <h3>植物拼拼乐</h3>
+                <p>认识植物的身体部位：花、叶、茎、根。来亲手种一棵太阳花吧！</p>
+                <div class="card-links">
+                    <a href="t161-植物部位.html">开始种植</a>
+                </div>
+            </div>
+
+            <div class="feature-card theme-science">
+                <span class="unit-tag">单元 7</span>
+                <div class="card-icon">🧲</div>
+                <h3>神奇的磁铁</h3>
+                <p>做个小实验：什么东西能被吸住？磁铁相遇时会发生什么？</p>
+                <div class="card-links">
+                    <a href="t171-磁铁.html">进入实验室</a>
+                </div>
+            </div>
+
+            <div class="feature-card theme-science">
+                <span class="unit-tag">单元 8</span>
+                <div class="card-icon">🧻</div>
+                <h3>吸水能力大挑战</h3>
+                <p>有些东西会喝水，有些不会。谁是吸水冠军？来比一比！</p>
+                <div class="card-links">
+                    <a href="t181-吸水能力.html">做实验</a>
+                </div>
+            </div>
+
+            <div class="feature-card theme-science">
+                <span class="unit-tag">单元 9</span>
+                <div class="card-icon">🏔️</div>
+                <h3>地球表面：地形</h3>
+                <p>高山、河流、大海、山谷... 来看看地球美丽的衣裳！</p>
+                <div class="card-links">
+                    <a href="t191-地形.html">去探险</a>
+                </div>
+            </div>
+
+            <div class="feature-card theme-science">
+                <span class="unit-tag">单元 9</span>
+                <div class="card-icon">🏜️</div>
+                <h3>地球表面：土壤</h3>
+                <p>沙土、黏土和壤土有什么不同？哪种最适合种树？</p>
+                <div class="card-links">
+                    <a href="t192-土壤.html">观察土壤</a>
+                </div>
+            </div>
+
+        </div>
+
+        <footer
+            style="text-align: center; margin-top: 50px; padding: 20px; color: #888; font-size: 14px; line-height: 1.6; width: 100%;">
+            <p style="margin: 5px 0;">若发现问题，电邮至 g-21543731@moe-dl.edu.my 潘老师。</p>
+            <p style="margin: 5px 0;">没有团队，不定期更新网站，恳请各位老师耐心等候。</p>
+            <a href="mailto:g-21543731@moe-dl.edu.my?subject=网站反馈"
+                style="color: #555; text-decoration: underline; font-weight: bold; cursor: pointer;">
+                👉 点我发送反馈
+            </a>
+        </footer>
+    </div>
+
+</body>
+
+</html>

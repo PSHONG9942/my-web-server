@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <link rel="icon" href="../../images/logo.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生点名系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* --- 1. 核心字体设置 --- */
+        body {
+            font-family: 'KaiTi', '楷体', 'STKaiti', sans-serif;
+            background-color: #f4f4f4; /* 与习字簿一致的背景色 */
+            color: #333;
+        }
+
+        /* --- 2. 统一的返回按钮样式 (与习字簿完全一致) --- */
+        .back-link {
+            text-decoration: none;
+            color: #28a745; /* 强制绿色 */
+            font-weight: bold;
+            transition: color 0.2s;
+            font-size: 16px;
+        }
+        
+        /* 访问过也不变色 */
+        .back-link:visited { color: #28a745; }
+        .back-link:hover { color: #1e7e34; text-decoration: underline; }
+
+        /* --- 3. 打印专属样式 --- */
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            
+            body { background-color: white; }
+            #list-container { border: none; box-shadow: none; padding: 0; }
+            
+            /* 打印时的紧凑排版 */
+            .student-row {
+                border-bottom: 1px solid #e2e8f0;
+                padding: 0.2rem 0;
+            }
+            .list-header {
+                padding: 0.2rem 1rem;
+                border-bottom: 2px solid #000; /* 打印时表头线加深 */
+            }
+            
+            /* 打印时的按钮状态文字化 */
+            .toggle-btn { display: none; } /* 隐藏原来的按钮背景 */
+            .toggle-btn-wrapper::after { content: "☐"; font-size: 1.2em; } /* 未点名显示方框 */
+            .toggle-btn-wrapper.submitted::after { content: "☑"; color: black; font-size: 1.2em; } /* 已点名显示勾选框 */
+        }
+
+        .print-only { display: none; text-align: center; font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; }
+
+        /* --- 4. 列表布局样式 --- */
+        .list-header, .student-row {
+            display: grid;
+            grid-template-columns: 0.5fr 3fr 1fr;
+            gap: 1rem;
+            align-items: center;
+            padding: 0.75rem 1rem;
+        }
+
+        .list-header {
+            background-color: #eef6ff; /* 浅蓝背景，区分表头 */
+            font-weight: bold;
+            color: #333;
+            border-bottom: 2px solid #cbd5e1;
+            border-top-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
+        }
+
+        /* 点名按钮样式 */
+        .toggle-btn {
+            background-color: #ef4444; /* 红 */
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .toggle-btn:hover { filter: brightness(1.1); }
+
+        .toggle-btn.submitted {
+            background-color: #22c55e; /* 绿 */
+        }
+
+        /* 按钮文字伪类 (非打印模式) */
+        .toggle-btn::after { content: "未交"; }
+        .toggle-btn.submitted::after { content: "已交"; }
+    </style>
+
+    <!-- Global Light Cyberpunk Theme -->
+    <link rel="stylesheet" href="../../css/cyberpunk.css">
+    <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body class="p-4 md:p-8 pt-16"> <div class="no-print" style="position: absolute; top: 20px; left: 20px; z-index: 100;">
+        <a href="../../index.html" class="back-link">← 返回工具箱主页</a>
+    </div>
+
+    <div class="max-w-2xl mx-auto bg-white p-6 rounded-3xl shadow-xl no-print-shadow">
+        <h1 class="text-3xl font-bold text-center mb-6 no-print text-gray-800">学生作业点名系统</h1>
+        
+        <div class="print-only" id="print-title-display"></div>
+
+        <div id="input-section" class="no-print mb-6">
+            <label for="student-names" class="block text-lg font-medium mb-3 text-gray-700">
+                输入学生姓名 (每行一个)
+            </label>
+            <textarea id="student-names" rows="8" 
+                placeholder="例如：&#10;李小白&#10;张小明&#10;王小丽" 
+                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all resize-none text-lg"></textarea>
+            
+            <button id="generate-list-btn" class="mt-4 w-full bg-green-500 text-white font-bold py-3 px-6 rounded-xl shadow-md hover:bg-green-600 hover:-translate-y-1 transition-all duration-200">
+                生成点名表
+            </button>
+        </div>
+
+        <div id="list-container" class="mt-8 border-2 border-gray-100 rounded-xl hidden shadow-sm">
+            <div class="list-header text-center">
+                <span>序号</span>
+                <span>姓名</span>
+                <span>状态</span>
+            </div>
+            </div>
+
+        <div class="mt-8 flex justify-center no-print">
+            <button id="print-btn" class="hidden bg-blue-500 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-blue-600 hover:-translate-y-1 transition-all duration-200 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+                打印名单 (PDF)
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const generateBtn = document.getElementById('generate-list-btn');
+        const printBtn = document.getElementById('print-btn');
+        const nameTextarea = document.getElementById('student-names');
+        const listContainer = document.getElementById('list-container');
+        const printTitleDisplay = document.getElementById('print-title-display');
+        
+        // 自动保存功能：从 LocalStorage 读取上次输入的名单
+        window.addEventListener('load', () => {
+            const savedNames = localStorage.getItem('sjkc_student_names');
+            if (savedNames) {
+                nameTextarea.value = savedNames;
+            }
+        });
+
+        function generateList() {
+            const rawText = nameTextarea.value;
+            // 保存到本地，下次不用重新输入
+            localStorage.setItem('sjkc_student_names', rawText);
+
+            const names = rawText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+            
+            // 重置容器
+            listContainer.innerHTML = `
+                <div class="list-header text-center">
+                    <span>序号</span>
+                    <span>姓名</span>
+                    <span>状态</span>
+                </div>
+            `;
+            
+            if (names.length > 0) {
+                names.forEach((name, index) => {
+                    const row = document.createElement('div');
+                    row.className = 'student-row hover:bg-gray-50 transition-colors';
+                    
+                    // 状态按钮容器
+                    const btnWrapper = document.createElement('div');
+                    btnWrapper.className = 'toggle-btn-wrapper flex justify-center'; // 用于打印样式的钩子
+                    
+                    const btn = document.createElement('button');
+                    btn.className = 'toggle-btn'; // 默认未提交
+                    
+                    // 点击切换逻辑
+                    btn.addEventListener('click', () => {
+                        btn.classList.toggle('submitted');
+                        btnWrapper.classList.toggle('submitted');
+                    });
+                    
+                    btnWrapper.appendChild(btn);
+
+                    row.innerHTML = `
+                        <span class="text-gray-500 text-center font-mono">${index + 1}</span>
+                        <span class="text-gray-800 font-medium text-center text-lg">${name}</span>
+                    `;
+                    row.appendChild(btnWrapper);
+                    listContainer.appendChild(row);
+                });
+                
+                listContainer.classList.remove('hidden');
+                printBtn.classList.remove('hidden');
+            } else {
+                listContainer.classList.add('hidden');
+                printBtn.classList.add('hidden');
+            }
+        }
+        
+        generateBtn.addEventListener('click', generateList);
+        
+        printBtn.addEventListener('click', () => {
+            const title = prompt("请输入打印标题 (例如：6A班 华文听写):", "学生作业呈交名单");
+            if (title !== null) {
+                printTitleDisplay.textContent = title;
+                window.print();
+            }
+        });
+    </script>
+
+    <footer style="text-align: center; margin-top: 50px; padding: 20px; color: #888; font-size: 14px; line-height: 1.6; width: 100%;">
+        <p style="margin: 5px 0;">若发现问题，电邮至 g-21543731@moe-dl.edu.my 潘老师。</p>
+        <p style="margin: 5px 0;">没有团队，不定期更新网站，恳请各位老师耐心等候。</p>
+        <a href="mailto:g-21543731@moe-dl.edu.my?subject=网站反馈" style="color: #555; text-decoration: underline; font-weight: bold; cursor: pointer;">
+            👉 点我发送反馈
+        </a>
+    </footer>
+
+</body>
+</html>

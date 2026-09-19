@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <link rel="icon" href="../../images/logo.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>内部资源共享中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'KaiTi', '楷体', 'STKaiti', sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: #28a745;
+            font-weight: bold;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 16px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+            color: #1e7e34;
+        }
+
+        iframe {
+            width: 100%;
+            border: none;
+            border-radius: 10px;
+        }
+
+        /* 简单的淡入动画 */
+        .fade-in {
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+
+    <!-- Global Light Cyberpunk Theme -->
+    <link rel="stylesheet" href="../../css/cyberpunk.css">
+    <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+
+<body class="flex flex-col items-center min-h-screen p-4 pt-16">
+
+    <a href="../../index.html" class="back-link">← 返回工具箱主页</a>
+
+    <div id="login-section" class="bg-white p-8 rounded-2xl shadow-xl mt-10 text-center max-w-md w-full">
+        <div class="text-6xl mb-4">🔒</div>
+        <h2 class="text-2xl font-bold mb-4 text-gray-800">教师内部专区</h2>
+        <p class="text-gray-500 mb-6">请输入访问密码以进入文件中心</p>
+
+        <input type="password" id="password-input" placeholder="输入密码"
+            class="w-full p-3 border-2 border-gray-200 rounded-lg mb-4 text-center text-xl focus:border-green-500 outline-none transition-colors">
+
+        <button onclick="checkPassword()"
+            class="w-full bg-green-500 text-white py-3 rounded-lg font-bold hover:bg-green-600 transition shadow-md hover:-translate-y-0.5">
+            解锁进入
+        </button>
+        <p id="error-msg" class="text-red-500 mt-3 hidden">密码错误，请询问管理员。</p>
+    </div>
+
+    <div id="content-section" class="hidden w-full max-w-5xl mt-5 space-y-8 fade-in mb-10">
+
+        <div class="text-center">
+            <h1 class="text-3xl font-bold text-gray-800">📂 资源互助站</h1>
+            <p class="text-gray-600 mt-2">安全分享，共同进步</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-md">
+            <div class="flex items-center gap-3 mb-4 border-b pb-3 border-gray-100">
+                <span class="text-2xl">⬇️</span>
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800">资源下载区</h3>
+                    <p class="text-sm text-gray-500">这里存放着大家共享的优质教案和素材。</p>
+                </div>
+            </div>
+
+            <iframe src="https://drive.google.com/embeddedfolderview?id=1SxaecohWYNXoPYUwamvzR1o2JHchinWM#list"
+                style="height: 500px; border: 1px solid #eee;"></iframe>
+
+            <div class="text-right mt-3">
+                <a href="https://drive.google.com/drive/folders/1SxaecohWYNXoPYUwamvzR1o2JHchinWM?usp=sharing"
+                    target="_blank" class="text-blue-500 text-sm hover:underline flex items-center justify-end gap-1">
+                    <span>无法显示？点击这里直接打开云端硬盘</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-md">
+            <div class="flex items-center gap-3 mb-4 border-b pb-3 border-gray-100">
+                <span class="text-2xl">⬆️</span>
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800">文件投递箱</h3>
+                    <p class="text-sm text-gray-500">如果你有好的资源想分享，请通过下方表格上传 (支持 Word, PDF, 图片)。</p>
+                </div>
+            </div>
+
+            <iframe
+                src="https://docs.google.com/forms/d/e/1FAIpQLSdwJ6YVl7UOWqxMqUEfIC1gQlgQOzSA1laY8mE7MMWS2PpVog/viewform?embedded=true"
+                height="800">正在加载…</iframe>
+        </div>
+
+    </div>
+
+    <script>
+        // --- 配置区 ---
+        const SECRET_CODE = "123456";    // 你的密码
+        const TIMEOUT_MINUTES = 5;       // 设置超时时间（分钟），这里设为 5 分钟
+
+        // --- 核心逻辑 ---
+
+        function checkPassword() {
+            const input = document.getElementById('password-input').value;
+            const errorMsg = document.getElementById('error-msg');
+            const inputEl = document.getElementById('password-input');
+
+            if (input === SECRET_CODE) {
+                // 1. 密码正确：记录当前的时间戳
+                const now = new Date().getTime();
+                sessionStorage.setItem('access_timestamp', now);
+
+                // 2. 切换界面
+                showContent();
+            } else {
+                // 密码错误：显示提示并震动
+                errorMsg.classList.remove('hidden');
+                inputEl.classList.add('border-red-500');
+                inputEl.animate([
+                    { transform: 'translateX(0)' },
+                    { transform: 'translateX(-10px)' },
+                    { transform: 'translateX(10px)' },
+                    { transform: 'translateX(0)' }
+                ], { duration: 300 });
+            }
+        }
+
+        function showContent() {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('content-section').classList.remove('hidden');
+        }
+
+        function checkSessionValidity() {
+            // 获取上次登录的时间
+            const savedTime = sessionStorage.getItem('access_timestamp');
+
+            if (savedTime) {
+                const now = new Date().getTime();
+                const timeDiff = now - parseInt(savedTime);
+                const maxDiff = TIMEOUT_MINUTES * 60 * 1000; // 将分钟转换为毫秒
+
+                if (timeDiff < maxDiff) {
+                    // 如果还在有效期内 -> 自动进入
+                    showContent();
+                } else {
+                    // 如果超时了 -> 清除记录，这就必须重新输入密码
+                    sessionStorage.removeItem('access_timestamp');
+                    console.log("会话已超时，需重新登录");
+                }
+            }
+        }
+
+        // --- 页面加载逻辑 ---
+        window.onload = function () {
+            // 如果你希望“刷新页面必须重输密码”，请把下面这行 checkSessionValidity() 注释掉或删除。
+            // checkSessionValidity(); 
+
+            // 现在的逻辑是：刷新页面 = 必须重输密码 (最安全)
+            // 只有在同一个标签页内没有刷新时，才保留状态。
+
+            // 但是，为了防止老师误触刷新导致要重输密码很烦，
+            // 我建议保留上面的 checkSessionValidity()，但你可以自己决定。
+
+            // 👇 决定时刻：
+            // 选项 A：刷新页面后，如果在 5 分钟内，依然保持登录？ -> 保留下面这行
+            checkSessionValidity();
+
+            // 选项 B：刷新页面后，强制必须重输密码？ -> 删除上面那行 checkSessionValidity();
+        }
+
+        // 绑定回车键
+        document.getElementById("password-input").addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+                checkPassword();
+            }
+        });
+    </script>
+</body>
+
+</html>

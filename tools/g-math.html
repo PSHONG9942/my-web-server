@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <link rel="icon" href="../images/logo.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G-MATH 数学游戏 - 华小老师专区</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* 页面特定样式：继承紫色主题 */
+        :root {
+            --primary-color: #6f42c1;
+            /* 紫色主题 */
+            --primary-hover: #5a32a3;
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-main: #333;
+            --text-sub: #666;
+            --shadow: 0 10px 20px rgba(111, 66, 193, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding-top: 50px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 返回按钮 */
+        .back-link-wrapper {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 1rem;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .back-link:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
+        }
+
+        /* 头部 */
+        .tool-header {
+            text-align: center;
+            margin-bottom: 40px;
+            max-width: 800px;
+            padding: 0 20px;
+        }
+
+        .tool-header h1 {
+            color: #2c3e50;
+            margin: 0 0 10px 0;
+            font-size: 2.5rem;
+        }
+
+        .tool-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        /* 游戏版本选择卡片容器 */
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            width: 90%;
+            max-width: 1000px;
+            padding-bottom: 50px;
+        }
+
+        /* 游戏卡片 */
+        .game-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-top: 5px solid var(--primary-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow);
+        }
+
+        .game-icon {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+        }
+
+        .game-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .game-desc {
+            color: #777;
+            font-size: 0.95rem;
+            margin-bottom: 25px;
+            flex-grow: 1;
+            line-height: 1.5;
+        }
+
+        .play-btn {
+            background: linear-gradient(135deg, #6f42c1, #a29bfe);
+            color: white;
+            text-decoration: none;
+            padding: 12px 35px;
+            border-radius: 50px;
+            font-weight: bold;
+            transition: opacity 0.3s, transform 0.2s;
+            box-shadow: 0 4px 10px rgba(111, 66, 193, 0.3);
+        }
+
+        .play-btn:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+        }
+
+        /* 不同版本的微调 */
+        .card-standard .game-icon {
+            text-shadow: 0 0 20px #a29bfe;
+        }
+
+        .card-advanced .game-icon {
+            text-shadow: 0 0 20px #ff6b81;
+        }
+
+        .card-multi .game-icon {
+            text-shadow: 0 0 20px #2ed573;
+        }
+
+        .footer {
+            margin-top: auto;
+            padding: 20px;
+            color: #aaa;
+            font-size: 0.8rem;
+        }
+    </style>
+
+    <!-- Global Light Cyberpunk Theme -->
+    <link rel="stylesheet" href="../css/cyberpunk.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+</head>
+
+<body>
+
+    <div class="back-link-wrapper">
+        <a href="../index.html" class="back-link">← 返回主页</a>
+    </div>
+
+    <div class="tool-header">
+        <h1>G-MATH 数学竞技场</h1>
+        <p>寓教于乐的数学计算游戏，提升学生的心算速度与反应能力。</p>
+    </div>
+
+    <div class="game-grid">
+
+        <div class="game-card card-standard">
+            <div class="game-icon">🔢</div>
+            <div class="game-title">标准版 (Standard)</div>
+            <div class="game-desc">四人一组，在游戏板摆上正确的数学算式</div>
+            <a href="/tools/g-math/g-math.html" class="play-btn" target="_blank">开始游戏</a>
+        </div>
+
+        <div class="game-card card-advanced">
+            <div class="game-icon">🚀</div>
+            <div class="game-title">进阶版 (Advanced)</div>
+            <div class="game-desc">透明化手牌，更具竞争性的进攻与防守策略</div>
+            <a href="/tools/g-math/g-mathv2.html" class="play-btn" target="_blank">挑战极限</a>
+        </div>
+
+        <div class="game-card card-multi">
+            <div class="game-icon">⚔️</div>
+            <div class="game-title">联机对战 (Multiplayer)</div>
+            <div class="game-desc">和好友一起远程游戏，实现“去到哪，玩到哪”</div>
+            <a href="/tools/g-math/g-math-pvp.html" class="play-btn" target="_blank">进入对战</a>
+        </div>
+
+    </div>
+
+    <footer class="mt-8 text-gray-500 text-center text-sm leading-relaxed pb-8">
+        <p>若发现问题，电邮至 g-21543731@moe-dl.edu.my 潘老师。</p>
+        <p>没有团队，不定期更新网站，恳请各位老师耐心等候。</p>
+        <a href="mailto:g-21543731@moe-dl.edu.my?subject=网站反馈" class="underline font-bold hover:text-blue-500">
+            👉 点我发送反馈
+        </a>
+    </footer>
+
+</body>
+
+</html>
