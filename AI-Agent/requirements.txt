@@ -1,0 +1,9 @@
+streamlit
+openai
+faster-whisper
+opencv-python-headless
+python-docx
+Pillow
+PyPDF2
+python-pptx
+PyMuPDF
