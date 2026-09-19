@@ -15,6 +15,13 @@ export default function MainMenu({ onPlay, onInstructions }) {
 
   return (
     <div className="main-menu-container">
+      <a 
+        href={typeof window !== 'undefined' && window.location.pathname.includes('/dist/') ? '../../index.html' : '../index.html'}
+        className="custom-dropdown-toggle home-return-btn"
+        style={{ position: 'absolute', top: '20px', left: '20px', textDecoration: 'none', zIndex: 50 }}
+      >
+        🏠 {t('menu.home')}
+      </a>
       <div className="language-selector">
         <button 
           className="custom-dropdown-toggle" 

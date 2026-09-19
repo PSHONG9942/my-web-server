@@ -330,7 +330,7 @@
   align-items: center;
   gap: 20px;
   background-color: white; /* fallback */
-  background-image: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), url('/src/assets/cards/general_bg.png');
+  background-image: linear-gradient(rgba(255,255,255,0.92), rgba(255,255,255,0.92)), url('./assets/main_bg.jpg');
 }
 
 .game-over-title {
