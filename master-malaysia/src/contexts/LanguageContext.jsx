@@ -13,9 +13,9 @@ export function LanguageProvider({ children }) {
   const t = (key, variables = {}) => {
     let text = dictionaries[language][key] || dictionaries['en'][key] || key;
     
-    // Replace variables like {name}
+    // Replace all occurrences of variables like {name} or {pts}
     Object.keys(variables).forEach(varKey => {
-      text = text.replace(`{${varKey}}`, variables[varKey]);
+      text = text.split(`{${varKey}}`).join(variables[varKey]);
     });
     
     return text;

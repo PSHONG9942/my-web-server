@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const EMOTES = ['🇲🇾', '🔥', '😱', '😂', '👍', '💪'];
 
 export default function EmoteBar({ multiplayerService, localPlayer }) {
+  const { t } = useLanguage();
   const [activeEmotes, setActiveEmotes] = useState([]);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     if (!multiplayerService) return;
@@ -37,7 +40,7 @@ export default function EmoteBar({ multiplayerService, localPlayer }) {
       {/* Floating Animated Emote Toasts */}
       <div className="floating-emotes-container" style={{
         position: 'fixed',
-        bottom: '80px',
+        bottom: '70px',
         right: '25px',
         display: 'flex',
         flexDirection: 'column',
@@ -50,9 +53,9 @@ export default function EmoteBar({ multiplayerService, localPlayer }) {
             key={item.id}
             className="emote-bubble"
             style={{
-              background: 'rgba(15, 23, 42, 0.85)',
-              backdropFilter: 'blur(8px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
+              background: 'rgba(15, 23, 42, 0.88)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.25)',
               borderRadius: '20px',
               padding: '8px 16px',
               color: '#fff',
@@ -70,44 +73,50 @@ export default function EmoteBar({ multiplayerService, localPlayer }) {
         ))}
       </div>
 
-      {/* Emote Reaction Bar */}
-      <div className="emote-bar glass-panel" style={{
+      {/* Collapsible Emote Reaction Bar */}
+      <div className="emote-wrapper" style={{
         position: 'fixed',
         bottom: '15px',
         right: '25px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        padding: '6px 14px',
-        borderRadius: '30px',
-        background: 'rgba(255, 255, 255, 0.85)',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255, 255, 255, 0.6)',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
         zIndex: 9000
       }}>
-        <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 'bold', marginRight: '4px' }}>
-          💬
-        </span>
-        {EMOTES.map(emoji => (
+        {!isExpanded ? (
           <button
-            key={emoji}
-            onClick={() => handleSendEmote(emoji)}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              fontSize: '1.3rem',
-              cursor: 'pointer',
-              padding: '4px 6px',
-              borderRadius: '8px',
-              transition: 'transform 0.15s'
-            }}
-            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.3)'}
-            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            className="emote-toggle-btn glass-panel"
+            onClick={() => setIsExpanded(true)}
+            title={t('emotes.toggle')}
+            aria-label={t('emotes.toggle')}
           >
-            {emoji}
+            <span style={{ fontSize: '1.2rem' }}>💬</span>
+            <span className="emote-toggle-label">{t('emotes.toggle')}</span>
           </button>
-        ))}
+        ) : (
+          <div className="emote-bar glass-panel emote-expanded">
+            <span style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 'bold', marginRight: '4px' }}>
+              💬
+            </span>
+            <div className="emote-buttons-grid">
+              {EMOTES.map(emoji => (
+                <button
+                  key={emoji}
+                  onClick={() => handleSendEmote(emoji)}
+                  className="emote-btn"
+                  title={emoji}
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+            <button
+              className="emote-collapse-btn"
+              onClick={() => setIsExpanded(false)}
+              title={t('emotes.collapse')}
+              aria-label={t('emotes.collapse')}
+            >
+              ✕
+            </button>
+          </div>
+        )}
       </div>
 
       <style>{`

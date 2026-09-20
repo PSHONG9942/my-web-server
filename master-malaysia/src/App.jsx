@@ -168,6 +168,11 @@ function App() {
   const [questionDecks, setQuestionDecks] = useState({
     land: [], people: [], heritage: [], culture: [], general: []
   });
+  const questionDecksRef = useRef(questionDecks);
+
+  useEffect(() => {
+    questionDecksRef.current = questionDecks;
+  }, [questionDecks]);
 
   useEffect(() => {
     async function loadQuestions() {
@@ -192,22 +197,84 @@ function App() {
          return shuffle(arr);
       };
       
-      setQuestionDecks({
+      const newDecks = {
         land: getCategory('land'),
         people: getCategory('people'),
         heritage: getCategory('heritage'),
         culture: getCategory('culture'),
         general: getCategory('general')
-      });
+      };
+      questionDecksRef.current = newDecks;
+      setQuestionDecks(newDecks);
     }
     loadQuestions();
   }, [language]);
 
   const currentPlayer = players[turnIndex] || players[0];
 
+  // Helper: Draw and show a single question card cleanly without loop
+  const drawAndShowCard = (positionIndex) => {
+    const currentSpace = BOARD_SPACES[positionIndex];
+    const category = getCategoryForSpace(currentSpace);
+
+    let deck = [...(questionDecksRef.current[category] || [])];
+    if (deck.length === 0) {
+      deck = [...(questionsData[category] || [])].sort(() => Math.random() - 0.5);
+    }
+    const drawnQuestion = deck.shift() || {
+      question: "Sample Question",
+      options: ["A", "B", "C", "D"],
+      answer: "A"
+    };
+    deck.push(drawnQuestion); // Recycle back to end
+
+    const updatedDecks = {
+      ...questionDecksRef.current,
+      [category]: deck
+    };
+    questionDecksRef.current = updatedDecks;
+    setQuestionDecks(updatedDecks);
+
+    const fullQuestion = {
+      ...drawnQuestion,
+      category
+    };
+
+    setCurrentQuestion(fullQuestion);
+    setGameState('DRAW_CARD');
+
+    // If online host, broadcast card to all clients
+    if (isOnline && isHost) {
+      multiplayer.broadcast({
+        type: 'GAME_ACTION',
+        action: 'DRAW_CARD',
+        question: fullQuestion
+      });
+    }
+
+    // Delay answering state slightly for smooth transition (600ms)
+    setTimeout(() => {
+      setGameState('ANSWERING');
+      if (isOnline && isHost) {
+        multiplayer.broadcast({
+          type: 'GAME_ACTION',
+          action: 'START_ANSWERING'
+        });
+      }
+    }, 600);
+  };
+
   // Helper: Core Dice Rolling Execution
   const executeRollDice = (activePlayersArr, activeTurn) => {
     setGameState('DICE_ROLLING');
+
+    // Synchronize rolling state across multiplayer
+    if (isOnline && isHost) {
+      multiplayer.broadcast({
+        type: 'GAME_ACTION',
+        action: 'DICE_ROLLING'
+      });
+    }
     
     setTimeout(() => {
       const roll1 = Math.floor(Math.random() * 6) + 1;
@@ -241,8 +308,14 @@ function App() {
         const currentSpace = BOARD_SPACES[p.positionIndex];
         if (currentSpace.type === 'CORNER_RISK' || (currentSpace.type === 'STEP' && RISK_AREAS.includes(currentSpace.stepNum))) {
           setGameState('RISK_PROMPT');
+          if (isOnline && isHost) {
+            multiplayer.broadcast({
+              type: 'GAME_ACTION',
+              action: 'RISK_PROMPT'
+            });
+          }
         } else {
-          setGameState('DRAW_CARD');
+          drawAndShowCard(p.positionIndex);
         }
       }, 1500); // Wait 1.5s to show dice result
     }, 1500); // Dice rolling animation duration
@@ -261,46 +334,6 @@ function App() {
 
     executeRollDice(players, turnIndex);
   };
-
-  // Triggered when gameState changes to DRAW_CARD
-  useEffect(() => {
-    if (gameState === 'DRAW_CARD') {
-      // In online mode, only Host manages and draws cards to maintain sync
-      if (isOnline && !isHost) return;
-
-      const currentSpace = BOARD_SPACES[currentPlayer.positionIndex];
-      const category = getCategoryForSpace(currentSpace);
-      
-      const deck = [...(questionDecks[category] || [])];
-      if (deck.length === 0) return;
-      const drawnQuestion = deck.shift();
-      deck.push(drawnQuestion); // Recycle back to end
-      
-      setQuestionDecks(prev => ({
-        ...prev,
-        [category]: deck
-      }));
-      
-      const fullQuestion = {
-        ...drawnQuestion,
-        category
-      };
-
-      setCurrentQuestion(fullQuestion);
-      
-      // If online host, broadcast card to all clients
-      if (isOnline && isHost) {
-        multiplayer.broadcast({
-          type: 'GAME_ACTION',
-          action: 'DRAW_CARD',
-          question: fullQuestion
-        });
-      }
-
-      // Delay answering state slightly for UX
-      setTimeout(() => setGameState('ANSWERING'), 500);
-    }
-  }, [gameState, currentPlayer.positionIndex, isOnline, isHost, questionDecks]);
 
   const endTurnTransition = (updatedPlayersArr) => {
     setTimeout(() => {
@@ -413,7 +446,7 @@ function App() {
     }
 
     if (takeRisk) {
-      setGameState('DRAW_CARD');
+      drawAndShowCard(currentPlayer.positionIndex);
     } else {
       setLastAnswerResult(null);
       setGameState('TURN_END');
@@ -434,27 +467,24 @@ function App() {
 
     // GUEST ACTION RECEIVER
     const handleGameAction = (msg) => {
-      if (msg.action === 'DICE_RESULT') {
+      if (msg.action === 'DICE_ROLLING') {
         setGameState('DICE_ROLLING');
-        setTimeout(() => {
-          setPlayers(msg.updatedPlayers);
-          setGameState('DICE_RESULT');
-          setTimeout(() => {
-            const currentSpace = BOARD_SPACES[msg.updatedPlayers[msg.activeTurn].positionIndex];
-            if (currentSpace.type === 'CORNER_RISK' || (currentSpace.type === 'STEP' && RISK_AREAS.includes(currentSpace.stepNum))) {
-              setGameState('RISK_PROMPT');
-            } else {
-              setGameState('DRAW_CARD');
-            }
-          }, 1500);
-        }, 1500);
+      } else if (msg.action === 'DICE_RESULT') {
+        setPlayers(msg.updatedPlayers);
+        setGameState('DICE_RESULT');
+      } else if (msg.action === 'RISK_PROMPT') {
+        setGameState('RISK_PROMPT');
       } else if (msg.action === 'DRAW_CARD') {
         setCurrentQuestion(msg.question);
+        setGameState('DRAW_CARD');
+        // Fallback in case START_ANSWERING packet is delayed
+        setTimeout(() => {
+          setGameState(prev => (prev === 'DRAW_CARD' ? 'ANSWERING' : prev));
+        }, 800);
+      } else if (msg.action === 'START_ANSWERING') {
         setGameState('ANSWERING');
       } else if (msg.action === 'RISK_CHOICE') {
-        if (msg.takeRisk) {
-          setGameState('DRAW_CARD');
-        } else {
+        if (!msg.takeRisk) {
           setLastAnswerResult(null);
           setGameState('TURN_END');
           setScoreBreakdown({ total: 0, breakdown: [{ label: 'Played it safe', value: 0 }] });
