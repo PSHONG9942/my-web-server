@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教学影音下载助手 - 华小老师专区</title>
+    <meta name="description" content="基于 yt-dlp 与 ffmpeg 驱动的教学多媒体提取工具，支持 YouTube、Bilibili、TikTok 等视频一键下载与 MP3 音频提取。">
+    <link rel="icon" href="../images/logo.png" type="image/png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-hover: #0284c7;
+            --primary-glow: rgba(14, 165, 233, 0.35);
+            --accent: #8b5cf6;
+            --accent-glow: rgba(139, 92, 246, 0.3);
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.3);
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-base: #0b0f19;
+            --bg-card: rgba(17, 24, 39, 0.75);
+            --bg-input: rgba(15, 23, 42, 0.85);
+            --border-card: rgba(255, 255, 255, 0.1);
+            --border-glow: rgba(14, 165, 233, 0.4);
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --text-muted: #64748b;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 24px 16px 60px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 920px;
+            margin: 0 auto;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 18px;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #cbd5e1;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: var(--transition);
+        }
+
+        .back-btn:hover {
+            color: #fff;
+            background: rgba(51, 65, 85, 0.9);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px var(--primary-glow);
+        }
+
+        .status-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        .status-badge.online .status-dot {
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        .status-badge.offline .status-dot {
+            background: var(--danger);
+            box-shadow: 0 0 10px var(--danger);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.25); opacity: 0.7; }
+        }
+
+        .settings-btn {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #cbd5e1;
+            padding: 7px 14px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .settings-btn:hover {
+            color: #fff;
+            background: rgba(51, 65, 85, 0.9);
+            border-color: var(--accent);
+        }
+
+        /* Hero Header */
+        .hero {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .hero-icon {
+            font-size: 3.2rem;
+            display: inline-block;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 4px 20px rgba(14, 165, 233, 0.4));
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .hero h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            color: var(--text-sub);
+            font-size: 1.05rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Main Card */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+            margin-bottom: 24px;
+            transition: var(--transition);
+        }
+
+        /* Input Form */
+        .input-group {
+            display: flex;
+            position: relative;
+            background: var(--bg-input);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-md);
+            padding: 6px;
+            gap: 8px;
+            transition: var(--transition);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        .input-group:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow), inset 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        .input-group input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 12px 16px;
+            color: #fff;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .input-group input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .btn-paste, .btn-clear {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-paste:hover, .btn-clear:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+
+        .btn-analyze {
+            background: linear-gradient(135deg, var(--primary), #2563eb);
+            color: #fff;
+            border: none;
+            padding: 10px 24px;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 14px var(--primary-glow);
+        }
+
+        .btn-analyze:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px var(--primary-glow);
+            filter: brightness(1.1);
+        }
+
+        .btn-analyze:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Supported Platforms */
+        .platforms-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 18px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .platform-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: var(--text-sub);
+        }
+
+        /* Offline Helper Box */
+        .helper-box {
+            display: none;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: var(--radius-md);
+            padding: 18px 20px;
+            margin-top: 20px;
+            color: #fca5a5;
+        }
+
+        .helper-box.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .helper-box h4 {
+            color: #f87171;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .helper-box ul {
+            padding-left: 20px;
+            font-size: 0.9rem;
+            color: #fecaca;
+        }
+
+        .helper-box li {
+            margin-bottom: 6px;
+        }
+
+        .helper-box code {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #fdba74;
+        }
+
+        /* Result / Video Preview Card */
+        .result-card {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .result-card.show {
+            display: block;
+        }
+
+        .video-meta {
+            display: flex;
+            gap: 24px;
+            flex-direction: column;
+        }
+
+        @media (min-width: 680px) {
+            .video-meta {
+                flex-direction: row;
+            }
+        }
+
+        .video-thumbnail-wrap {
+            position: relative;
+            flex-shrink: 0;
+            width: 100%;
+            max-width: 320px;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+            background: #1e293b;
+            aspect-ratio: 16 / 9;
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .video-duration {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.85);
+            color: #fff;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .video-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .video-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .video-author {
+            color: var(--text-sub);
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Format Tabs */
+        .format-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 12px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-sub);
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn.active {
+            background: rgba(14, 165, 233, 0.15);
+            color: #38bdf8;
+            border: 1px solid rgba(14, 165, 233, 0.3);
+        }
+
+        /* Quality Options */
+        .options-group {
+            margin-bottom: 20px;
+        }
+
+        .options-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            display: block;
+            font-weight: 500;
+        }
+
+        .quality-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chip {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chip:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
+            color: #fff;
+        }
+
+        .chip.selected {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.3), rgba(139, 92, 246, 0.3));
+            border-color: var(--primary);
+            color: #fff;
+            box-shadow: 0 0 12px var(--primary-glow);
+            font-weight: 600;
+        }
+
+        /* Download Button */
+        .btn-download-start {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+            border: none;
+            padding: 14px 28px;
+            border-radius: var(--radius-md);
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            box-shadow: 0 4px 18px var(--success-glow);
+        }
+
+        .btn-download-start:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--success-glow);
+            filter: brightness(1.1);
+        }
+
+        .btn-download-start:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Progress Card */
+        .progress-card {
+            display: none;
+            animation: fadeIn 0.4s ease;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(14, 165, 233, 0.3);
+            box-shadow: 0 8px 30px rgba(14, 165, 233, 0.2);
+        }
+
+        .progress-card.show {
+            display: block;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .progress-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #38bdf8;
+        }
+
+        .progress-percent {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #38bdf8;
+            font-family: monospace;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 14px;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #38bdf8, #818cf8, #10b981);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-sub);
+            font-size: 0.85rem;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .progress-finished-action {
+            margin-top: 18px;
+            display: none;
+            text-align: center;
+        }
+
+        .progress-finished-action.show {
+            display: block;
+        }
+
+        .btn-save-file {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 18px var(--accent-glow);
+            transition: var(--transition);
+        }
+
+        .btn-save-file:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--accent-glow);
+            filter: brightness(1.1);
+        }
+
+        /* Features Section */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-top: 36px;
+        }
+
+        .feature-box {
+            background: rgba(17, 24, 39, 0.6);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            transition: var(--transition);
+        }
+
+        .feature-box:hover {
+            border-color: rgba(14, 165, 233, 0.4);
+            transform: translateY(-3px);
+        }
+
+        .feature-box h4 {
+            font-size: 1rem;
+            color: #e2e8f0;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .feature-box p {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            line-height: 1.5;
+        }
+
+        /* Settings Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-content {
+            background: #111827;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 480px;
+            padding: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .modal-header h3 {
+            font-size: 1.2rem;
+            color: #fff;
+        }
+
+        .btn-close-modal {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.4rem;
+            cursor: pointer;
+        }
+
+        .modal-body label {
+            display: block;
+            font-size: 0.88rem;
+            color: var(--text-sub);
+            margin-bottom: 8px;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: var(--radius-sm);
+            color: #fff;
+            font-size: 0.95rem;
+            margin-bottom: 16px;
+            outline: none;
+        }
+
+        .modal-input:focus {
+            border-color: var(--primary);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-modal-cancel {
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #cbd5e1;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+        }
+
+        .btn-modal-save {
+            padding: 8px 18px;
+            background: var(--primary);
+            border: none;
+            color: #fff;
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Spinner */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <a href="../index.html" class="back-btn">
+                <span>⬅️</span> 返回主页
+            </a>
+            <div class="status-actions">
+                <div class="status-badge" id="backendStatusBadge">
+                    <span class="status-dot"></span>
+                    <span id="backendStatusText">检测服务中...</span>
+                </div>
+                <button class="settings-btn" id="openSettingsBtn">
+                    ⚙️ API 设置
+                </button>
+            </div>
+        </div>
+
+        <!-- Hero Section -->
+        <div class="hero">
+            <div class="hero-icon">🎬</div>
+            <h1>教学影音下载助手</h1>
+            <p>基于 yt-dlp 与 ffmpeg 驱动 · 一键抓取教学视频与 MP3 课件音频</p>
+        </div>
+
+        <!-- Main Input Card -->
+        <div class="card">
+            <div class="input-group">
+                <input type="text" id="videoUrlInput" placeholder="粘贴 YouTube、Bilibili、TikTok、Facebook 等视频链接..." autocomplete="off">
+                <div class="action-btns">
+                    <button class="btn-paste" id="pasteBtn" title="粘贴剪贴板内容">📋 粘贴</button>
+                    <button class="btn-clear" id="clearBtn" title="清空内容" style="display: none;">✖️</button>
+                    <button class="btn-analyze" id="analyzeBtn">
+                        <span id="analyzeBtnIcon">✨</span>
+                        <span id="analyzeBtnText">解析视频</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Platforms List -->
+            <div class="platforms-bar">
+                <span>已测试支持：</span>
+                <span class="platform-tag">▶️ YouTube</span>
+                <span class="platform-tag">📺 Bilibili (B站)</span>
+                <span class="platform-tag">🎵 TikTok / 抖音</span>
+                <span class="platform-tag">📘 Facebook</span>
+                <span class="platform-tag">🐦 Twitter / X</span>
+                <span class="platform-tag">📷 Instagram</span>
+                <span class="platform-tag">🌐 1000+ 平台</span>
+            </div>
+
+            <!-- Offline Diagnostic Box -->
+            <div class="helper-box" id="offlineHelper">
+                <h4>⚠️ 尚未连接到本地或远程后端服务</h4>
+                <ul>
+                    <li><b>如果在电脑本地使用：</b>请打开项目目录下的 <code>yt-dlp-service</code> 文件夹，双击运行 <code>start_windows.bat</code> 启动后端服务。</li>
+                    <li><b>如果已部署在 Linux 服务器：</b>请点击右上角 <b>⚙️ API 设置</b>，将接口地址修改为你的服务器地址（如 <code>http://your-server-ip:8503</code> 或 ngrok 域名）。</li>
+                    <li><b>确保依赖完整：</b>需安装 Python 3.10+ 及 ffmpeg。</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Video Info & Download Options Card -->
+        <div class="card result-card" id="resultCard">
+            <div class="video-meta">
+                <div class="video-thumbnail-wrap">
+                    <img id="videoThumb" class="video-thumbnail" src="" alt="Thumbnail">
+                    <div class="video-duration" id="videoDuration">00:00</div>
+                </div>
+                <div class="video-details">
+                    <div>
+                        <h2 class="video-title" id="videoTitle">视频标题</h2>
+                        <div class="video-author" id="videoAuthor">
+                            <span>👤</span> <span id="uploaderName">作者名</span>
+                        </div>
+                    </div>
+
+                    <!-- Format Selection -->
+                    <div>
+                        <div class="format-tabs">
+                            <button class="tab-btn active" id="tabVideo" data-type="video">
+                                🎬 视频下载 (MP4)
+                            </button>
+                            <button class="tab-btn" id="tabAudio" data-type="audio">
+                                🎵 提取音频 (MP3)
+                            </button>
+                        </div>
+
+                        <!-- Video Options -->
+                        <div class="options-group" id="videoQualityOptions">
+                            <span class="options-label">画质选项 (自动合并音频轨)：</span>
+                            <div class="quality-chips" id="videoChips">
+                                <div class="chip selected" data-quality="best">🌟 最佳画质 (自动匹配)</div>
+                                <div class="chip" data-quality="1080p">1080p 全高清</div>
+                                <div class="chip" data-quality="720p">720p 标清 (课件推荐)</div>
+                                <div class="chip" data-quality="480p">480p</div>
+                                <div class="chip" data-quality="360p">360p (节省流量)</div>
+                            </div>
+                        </div>
+
+                        <!-- Audio Options -->
+                        <div class="options-group" id="audioQualityOptions" style="display: none;">
+                            <span class="options-label">音频音质选项 (自动转码 MP3)：</span>
+                            <div class="quality-chips" id="audioChips">
+                                <div class="chip selected" data-quality="320k">🎧 超清音质 (320 kbps)</div>
+                                <div class="chip" data-quality="192k">🎵 标准音质 (192 kbps)</div>
+                            </div>
+                        </div>
+
+                        <button class="btn-download-start" id="startDownloadBtn">
+                            <span>⬇️</span> 立即开始下载
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Download Progress Card -->
+        <div class="card progress-card" id="progressCard">
+            <div class="progress-header">
+                <div class="progress-title">
+                    <span id="progressSpinner" class="spinner"></span>
+                    <span id="progressStatusText">正在准备下载任务...</span>
+                </div>
+                <div class="progress-percent" id="progressPercent">0%</div>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progressBarFill"></div>
+            </div>
+            <div class="progress-stats">
+                <span>下载速率: <strong id="downloadSpeed">--</strong></span>
+                <span>预估剩余: <strong id="downloadEta">--</strong></span>
+                <span>文件名: <strong id="downloadFilename">解析中...</strong></span>
+            </div>
+            <div class="progress-finished-action" id="finishedAction">
+                <a href="#" class="btn-save-file" id="manualSaveBtn" target="_blank" download>
+                    💾 点击直接保存文件到电脑
+                </a>
+            </div>
+        </div>
+
+        <!-- Features Showcase -->
+        <div class="features-grid">
+            <div class="feature-box">
+                <h4>🎯 教师课件必备</h4>
+                <p>课堂无网或网络卡顿时，提前将 YouTube 优质科普或公开教学视频下载至 U 盘或本地电脑流畅播放。</p>
+            </div>
+            <div class="feature-box">
+                <h4>🎶 听力与朗读音频提取</h4>
+                <p>一键提取视频中的纯音频并转为 MP3 格式，轻松制作听力理解、课文朗读和课堂背景音乐素材。</p>
+            </div>
+            <div class="feature-box">
+                <h4>⚡ 本地与私有云驱动</h4>
+                <p>底层使用强大的开源引擎 yt-dlp 与 ffmpeg，无烦人弹窗与流氓插件，高速且安全。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⚙️ 后端 API 服务设置</h3>
+                <button class="btn-close-modal" id="closeSettingsBtn">✕</button>
+            </div>
+            <div class="modal-body">
+                <label for="apiUrlInput">后端 API 基础地址 (Base URL)：</label>
+                <input type="text" id="apiUrlInput" class="modal-input" placeholder="https://birmingham-bumper-hills-noticed.trycloudflare.com">
+                <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px;">
+                    默认线上地址为 <code>https://birmingham-bumper-hills-noticed.trycloudflare.com</code>。如需切换为本地测试或其他服务器，请修改并保存。
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal-cancel" id="cancelSettingsBtn">取消</button>
+                <button class="btn-modal-save" id="saveSettingsBtn">保存并重新连接</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Default API configuration
+        const STORAGE_KEY = "ytdlp_api_base_url";
+        const DEFAULT_API_URL = "https://birmingham-bumper-hills-noticed.trycloudflare.com";
+        let storedUrl = localStorage.getItem(STORAGE_KEY);
+        // Automatically migrate if no storage or old temporary URL / localhost
+        if (!storedUrl || storedUrl.includes("localhost") || storedUrl.includes("127.0.0.1") || storedUrl.includes("rat-senior")) {
+            storedUrl = DEFAULT_API_URL;
+            localStorage.setItem(STORAGE_KEY, DEFAULT_API_URL);
+        }
+        let API_BASE_URL = storedUrl;
+
+
+
+        // DOM elements
+        const statusBadge = document.getElementById("backendStatusBadge");
+        const statusText = document.getElementById("backendStatusText");
+        const offlineHelper = document.getElementById("offlineHelper");
+
+        const videoUrlInput = document.getElementById("videoUrlInput");
+        const pasteBtn = document.getElementById("pasteBtn");
+        const clearBtn = document.getElementById("clearBtn");
+        const analyzeBtn = document.getElementById("analyzeBtn");
+        const analyzeBtnIcon = document.getElementById("analyzeBtnIcon");
+        const analyzeBtnText = document.getElementById("analyzeBtnText");
+
+        const resultCard = document.getElementById("resultCard");
+        const videoThumb = document.getElementById("videoThumb");
+        const videoDuration = document.getElementById("videoDuration");
+        const videoTitle = document.getElementById("videoTitle");
+        const uploaderName = document.getElementById("uploaderName");
+
+        const tabVideo = document.getElementById("tabVideo");
+        const tabAudio = document.getElementById("tabAudio");
+        const videoQualityOptions = document.getElementById("videoQualityOptions");
+        const audioQualityOptions = document.getElementById("audioQualityOptions");
+        const startDownloadBtn = document.getElementById("startDownloadBtn");
+
+        const progressCard = document.getElementById("progressCard");
+        const progressSpinner = document.getElementById("progressSpinner");
+        const progressStatusText = document.getElementById("progressStatusText");
+        const progressPercent = document.getElementById("progressPercent");
+        const progressBarFill = document.getElementById("progressBarFill");
+        const downloadSpeed = document.getElementById("downloadSpeed");
+        const downloadEta = document.getElementById("downloadEta");
+        const downloadFilename = document.getElementById("downloadFilename");
+        const finishedAction = document.getElementById("finishedAction");
+        const manualSaveBtn = document.getElementById("manualSaveBtn");
+
+        const settingsModal = document.getElementById("settingsModal");
+        const openSettingsBtn = document.getElementById("openSettingsBtn");
+        const closeSettingsBtn = document.getElementById("closeSettingsBtn");
+        const cancelSettingsBtn = document.getElementById("cancelSettingsBtn");
+        const saveSettingsBtn = document.getElementById("saveSettingsBtn");
+        const apiUrlInput = document.getElementById("apiUrlInput");
+
+        // State
+        let currentMeta = null;
+        let selectedType = "video"; // "video" | "audio"
+        let selectedQuality = "best"; // "best", "1080p", etc. or "320k", "192k"
+        let activePollingTimer = null;
+
+        // Check Backend Status
+        async function checkBackendStatus() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/status`, { method: "GET" });
+                if (res.ok) {
+                    const data = await res.json();
+                    statusBadge.className = "status-badge online";
+                    statusText.innerText = `服务正常 (v${data.yt_dlp_version})`;
+                    offlineHelper.classList.remove("show");
+                    return true;
+                } else {
+                    throw new Error("HTTP " + res.status);
+                }
+            } catch (err) {
+                statusBadge.className = "status-badge offline";
+                statusText.innerText = "后端未连接";
+                return false;
+            }
+        }
+
+        // URL input interactions
+        videoUrlInput.addEventListener("input", () => {
+            clearBtn.style.display = videoUrlInput.value.trim() ? "inline-block" : "none";
+        });
+
+        clearBtn.addEventListener("click", () => {
+            videoUrlInput.value = "";
+            clearBtn.style.display = "none";
+            videoUrlInput.focus();
+        });
+
+        pasteBtn.addEventListener("click", async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text) {
+                    videoUrlInput.value = text.trim();
+                    clearBtn.style.display = "inline-block";
+                    analyzeVideo();
+                }
+            } catch (e) {
+                videoUrlInput.focus();
+            }
+        });
+
+        videoUrlInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                analyzeVideo();
+            }
+        });
+
+        analyzeBtn.addEventListener("click", analyzeVideo);
+
+        // Analyze Video Function
+        async function analyzeVideo() {
+            const url = videoUrlInput.value.trim();
+            if (!url) {
+                alert("请输入或粘贴要解析的视频链接");
+                videoUrlInput.focus();
+                return;
+            }
+
+            const isOnline = await checkBackendStatus();
+            if (!isOnline) {
+                offlineHelper.classList.add("show");
+                alert("未检测到后台服务，请先启动后台服务或检查 API 地址设置！");
+                return;
+            }
+
+            // UI Loading
+            analyzeBtn.disabled = true;
+            analyzeBtnIcon.innerHTML = '<span class="spinner"></span>';
+            analyzeBtnText.innerText = "正在解析中...";
+            resultCard.classList.remove("show");
+            progressCard.classList.remove("show");
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/info`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ url: url })
+                });
+
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({ detail: "解析失败" }));
+                    throw new Error(errData.detail || "解析失败");
+                }
+
+                const data = await res.json();
+                currentMeta = data;
+
+                // Render Metadata
+                videoThumb.src = data.thumbnail || "../images/logo.png";
+                videoDuration.innerText = data.duration_formatted || "--:--";
+                videoTitle.innerText = data.title || "未知标题";
+                uploaderName.innerText = data.uploader || "未知作者";
+
+                // Show Card
+                resultCard.classList.add("show");
+                resultCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+            } catch (err) {
+                alert("解析出错: " + err.message);
+            } finally {
+                analyzeBtn.disabled = false;
+                analyzeBtnIcon.innerText = "✨";
+                analyzeBtnText.innerText = "解析视频";
+            }
+        }
+
+        // Format Tab Switch
+        tabVideo.addEventListener("click", () => {
+            tabVideo.classList.add("active");
+            tabAudio.classList.remove("active");
+            videoQualityOptions.style.display = "block";
+            audioQualityOptions.style.display = "none";
+            selectedType = "video";
+            selectedQuality = document.querySelector("#videoChips .chip.selected").dataset.quality || "best";
+        });
+
+        tabAudio.addEventListener("click", () => {
+            tabAudio.classList.add("active");
+            tabVideo.classList.remove("active");
+            videoQualityOptions.style.display = "none";
+            audioQualityOptions.style.display = "block";
+            selectedType = "audio";
+            selectedQuality = document.querySelector("#audioChips .chip.selected").dataset.quality || "320k";
+        });
+
+        // Chip selection
+        function setupChips(containerId) {
+            const container = document.getElementById(containerId);
+            container.querySelectorAll(".chip").forEach(chip => {
+                chip.addEventListener("click", () => {
+                    container.querySelectorAll(".chip").forEach(c => c.classList.remove("selected"));
+                    chip.classList.add("selected");
+                    selectedQuality = chip.dataset.quality;
+                });
+            });
+        }
+        setupChips("videoChips");
+        setupChips("audioChips");
+
+        // Download Action
+        startDownloadBtn.addEventListener("click", async () => {
+            if (!currentMeta) return;
+
+            startDownloadBtn.disabled = true;
+            progressCard.classList.add("show");
+            progressCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+            // Reset progress state
+            progressPercent.innerText = "0%";
+            progressBarFill.style.width = "0%";
+            progressStatusText.innerText = "正在向服务端创建下载任务...";
+            progressSpinner.style.display = "inline-block";
+            downloadSpeed.innerText = "--";
+            downloadEta.innerText = "--";
+            downloadFilename.innerText = "准备中...";
+            finishedAction.classList.remove("show");
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/download`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        url: currentMeta.webpage_url || videoUrlInput.value.trim(),
+                        format_type: selectedType,
+                        quality: selectedQuality
+                    })
+                });
+
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({ detail: "创建下载任务失败" }));
+                    throw new Error(errData.detail || "创建下载任务失败");
+                }
+
+                const data = await res.json();
+                const taskId = data.task_id;
+
+                // Start polling status
+                pollTaskStatus(taskId);
+
+            } catch (err) {
+                alert("下载启动失败: " + err.message);
+                startDownloadBtn.disabled = false;
+                progressCard.classList.remove("show");
+            }
+        });
+
+        // Poll Task Progress
+        function pollTaskStatus(taskId) {
+            if (activePollingTimer) clearInterval(activePollingTimer);
+
+            activePollingTimer = setInterval(async () => {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/tasks/${taskId}`);
+                    if (!res.ok) return;
+
+                    const task = await res.json();
+
+                    if (task.status === "downloading") {
+                        progressStatusText.innerText = `正在下载流数据...`;
+                        const pct = task.progress || 0;
+                        progressPercent.innerText = pct.toFixed(1) + "%";
+                        progressBarFill.style.width = pct + "%";
+                        downloadSpeed.innerText = task.speed || "--";
+                        downloadEta.innerText = task.eta || "--";
+                        downloadFilename.innerText = task.filename || "提取中...";
+                    } else if (task.status === "processing") {
+                        progressStatusText.innerText = `正在转码及合并音视频轨 (ffmpeg)...`;
+                        progressPercent.innerText = "99%";
+                        progressBarFill.style.width = "99%";
+                        downloadSpeed.innerText = "转码中";
+                        downloadEta.innerText = "即将完成";
+                    } else if (task.status === "completed") {
+                        clearInterval(activePollingTimer);
+                        activePollingTimer = null;
+                        startDownloadBtn.disabled = false;
+
+                        progressStatusText.innerText = `🎉 下载完成！`;
+                        progressSpinner.style.display = "none";
+                        progressPercent.innerText = "100%";
+                        progressBarFill.style.width = "100%";
+                        downloadSpeed.innerText = "完成";
+                        downloadEta.innerText = "0s";
+                        downloadFilename.innerText = task.filename || "完成文件";
+
+                        // Setup file download link
+                        const fileUrl = `${API_BASE_URL}/api/tasks/${taskId}/file`;
+                        manualSaveBtn.href = fileUrl;
+                        finishedAction.classList.add("show");
+
+                        // Auto-trigger browser download
+                        const tempAnchor = document.createElement("a");
+                        tempAnchor.href = fileUrl;
+                        tempAnchor.download = task.filename || "download";
+                        document.body.appendChild(tempAnchor);
+                        tempAnchor.click();
+                        document.body.removeChild(tempAnchor);
+
+                    } else if (task.status === "error") {
+                        clearInterval(activePollingTimer);
+                        activePollingTimer = null;
+                        startDownloadBtn.disabled = false;
+                        progressSpinner.style.display = "none";
+                        progressStatusText.innerText = "❌ 下载失败: " + (task.error || "未知错误");
+                    }
+                } catch (e) {
+                    console.error("轮询状态出错:", e);
+                }
+            }, 1000);
+        }
+
+        // Settings Modal Interaction
+        openSettingsBtn.addEventListener("click", () => {
+            apiUrlInput.value = API_BASE_URL;
+            settingsModal.classList.add("show");
+        });
+
+        function closeSettings() {
+            settingsModal.classList.remove("show");
+        }
+
+        closeSettingsBtn.addEventListener("click", closeSettings);
+        cancelSettingsBtn.addEventListener("click", closeSettings);
+
+        saveSettingsBtn.addEventListener("click", () => {
+            let val = apiUrlInput.value.trim();
+            if (!val) {
+                val = DEFAULT_API_URL;
+            }
+            // Remove trailing slash
+            val = val.replace(/\/+$/, "");
+            API_BASE_URL = val;
+            localStorage.setItem(STORAGE_KEY, val);
+            closeSettings();
+            checkBackendStatus();
+        });
+
+        // Initialize status check
+        checkBackendStatus();
+    </script>
+</body>
+
+</html>
