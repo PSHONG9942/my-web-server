@@ -29,3 +29,13 @@ tmux new -s tunnel
 cloudflared tunnel --url http://localhost:8503
 # 按 Ctrl+B 然后按 D 即可让其在后台挂起运行
 ```
+
+### 3. 查看下载审计日志 (防滥用风控)
+系统会自动在 `logs/downloads.log` 中记录每次下载活动（包含请求时间、访客 IP、格式画质、文件大小、视频标题与链接）：
+- 在 Linux 终端中实时监控下载流：
+  ```bash
+  tail -f logs/downloads.log
+  ```
+- 或在浏览器直接访问接口查看最近 100 条记录：
+  `https://birmingham-bumper-hills-noticed.trycloudflare.com/api/admin/logs`
+

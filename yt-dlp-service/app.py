@@ -8,7 +8,7 @@ from typing import Optional, Dict, Any
 from pathlib import Path
 from urllib.parse import quote
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
@@ -18,7 +18,7 @@ import yt_dlp
 app = FastAPI(
     title="yt-dlp Media Downloader API",
     description="High-performance backend for parsing and downloading video/audio via yt-dlp & ffmpeg",
-    version="1.1.0"
+    version="1.2.0"
 )
 
 # Enable CORS for all origins (supports local development, Cloudflare Pages, ngrok, etc.)
@@ -34,9 +34,31 @@ BASE_DIR = Path(__file__).resolve().parent
 DOWNLOADS_DIR = BASE_DIR / "downloads"
 DOWNLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
+LOGS_DIR = BASE_DIR / "logs"
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+AUDIT_LOG_FILE = LOGS_DIR / "downloads.log"
+
+def log_audit_event(url: str, title: str, format_type: str, quality: str, file_size: int, client_ip: str):
+    """Logs download activity for security, abuse monitoring, and traffic audit."""
+    try:
+        now_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        size_mb = f"{file_size / (1024 * 1024):.2f} MB" if file_size else "--"
+        log_entry = (
+            f"[{now_str}] IP: {client_ip} | "
+            f"格式: {format_type.upper()} ({quality}) | "
+            f"大小: {size_mb} | "
+            f"标题: {title} | "
+            f"网址: {url}\n"
+        )
+        with open(AUDIT_LOG_FILE, "a", encoding="utf-8") as f:
+            f.write(log_entry)
+    except Exception as e:
+        print(f"[Audit Log Error] {e}")
+
 # In-memory stores
 tasks: Dict[str, Dict[str, Any]] = {}
 cache_store: Dict[str, str] = {}  # cache_key -> task_id
+
 
 # Retention policies: 30 minutes safety buffer & 5GB quota
 CACHE_TTL_SECONDS = 1800  # 30 minutes
@@ -178,7 +200,7 @@ async def extract_info(req: InfoRequest):
         "has_audio": has_audio,
     }
 
-def run_download_task(task_id: str, url: str, format_type: str, quality: str, cache_key: str):
+def run_download_task(task_id: str, url: str, format_type: str, quality: str, cache_key: str, client_ip: str = "unknown"):
     task_dir = DOWNLOADS_DIR / task_id
     task_dir.mkdir(parents=True, exist_ok=True)
 
@@ -260,28 +282,39 @@ def run_download_task(task_id: str, url: str, format_type: str, quality: str, ca
             raise Exception("下载完成但未找到生成的文件")
 
         final_file = target_files[0]
+        file_size = final_file.stat().st_size
         tasks[task_id].update({
             "status": "completed",
             "progress": 100.0,
             "filename": final_file.name,
-            "file_size": final_file.stat().st_size,
+            "file_size": file_size,
             "filepath": str(final_file)
         })
         # Register in smart cache
         cache_store[cache_key] = task_id
+        # Record audit log
+        log_audit_event(url, final_file.name, format_type, quality, file_size, client_ip)
 
     except Exception as e:
         tasks[task_id].update({
             "status": "error",
             "error": str(e)
         })
+        log_audit_event(url, f"下载失败: {str(e)[:100]}", format_type, quality, 0, f"{client_ip} (Error)")
 
 @app.post("/api/download")
-async def start_download(req: DownloadRequest):
+async def start_download(req: DownloadRequest, request: Request):
     if not req.url or not req.url.strip():
         raise HTTPException(status_code=400, detail="URL 不能为空")
 
     cleanup_old_files()
+
+    # Extract client IP (supports Cloudflare Tunnel / proxies)
+    client_ip = (
+        request.headers.get("cf-connecting-ip")
+        or request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+        or (request.client.host if request.client else "unknown")
+    )
 
     cache_key = get_cache_key(req.url, req.format_type, req.quality)
 
@@ -292,11 +325,12 @@ async def start_download(req: DownloadRequest):
         if cached_task.get("status") == "completed" and cached_task.get("filepath"):
             fp = Path(cached_task["filepath"])
             if fp.exists():
-                # Touch modification time to refresh retention period
                 try:
                     fp.parent.touch(exist_ok=True)
                 except Exception:
                     pass
+                # Record cache hit in audit log
+                log_audit_event(req.url.strip(), cached_task.get("filename", "已缓存文件"), req.format_type, req.quality, cached_task.get("file_size", 0), f"{client_ip} (Cache-Hit)")
                 return {"task_id": cached_task_id, "cached": True}
 
     # 2. Create new download task
@@ -317,11 +351,27 @@ async def start_download(req: DownloadRequest):
     # Start download task in background thread
     threading.Thread(
         target=run_download_task,
-        args=(task_id, req.url.strip(), req.format_type, req.quality, cache_key),
+        args=(task_id, req.url.strip(), req.format_type, req.quality, cache_key, client_ip),
         daemon=True
     ).start()
 
     return {"task_id": task_id, "cached": False}
+
+@app.get("/api/admin/logs")
+async def get_audit_logs(limit: int = 100):
+    """Allows admin to view recent download audit logs."""
+    if not AUDIT_LOG_FILE.exists():
+        return {"logs": [], "total_entries": 0}
+    try:
+        with open(AUDIT_LOG_FILE, "r", encoding="utf-8", errors="replace") as f:
+            lines = f.readlines()
+        return {
+            "total_entries": len(lines),
+            "recent_logs": [line.strip() for line in lines[-limit:]]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.get("/api/tasks/{task_id}")
 async def get_task_status(task_id: str):
