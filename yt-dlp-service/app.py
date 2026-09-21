@@ -18,7 +18,7 @@ import yt_dlp
 app = FastAPI(
     title="yt-dlp Media Downloader API",
     description="High-performance backend for parsing and downloading video/audio via yt-dlp & ffmpeg",
-    version="1.0.0"
+    version="1.1.0"
 )
 
 # Enable CORS for all origins (supports local development, Cloudflare Pages, ngrok, etc.)
@@ -34,8 +34,13 @@ BASE_DIR = Path(__file__).resolve().parent
 DOWNLOADS_DIR = BASE_DIR / "downloads"
 DOWNLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
-# In-memory task store
+# In-memory stores
 tasks: Dict[str, Dict[str, Any]] = {}
+cache_store: Dict[str, str] = {}  # cache_key -> task_id
+
+# Retention policies: 30 minutes safety buffer & 5GB quota
+CACHE_TTL_SECONDS = 1800  # 30 minutes
+MAX_STORAGE_BYTES = 5 * 1024 * 1024 * 1024  # 5 GB
 
 class InfoRequest(BaseModel):
     url: str
@@ -44,6 +49,9 @@ class DownloadRequest(BaseModel):
     url: str
     format_type: str = "video"  # "video" or "audio"
     quality: str = "best"       # "best", "1080p", "720p", "480p", "360p", "320k", "192k"
+
+def get_cache_key(url: str, format_type: str, quality: str) -> str:
+    return f"{format_type.strip().lower()}_{quality.strip().lower()}_{url.strip()}"
 
 def format_duration(seconds: Optional[int]) -> str:
     if not seconds:
@@ -54,13 +62,53 @@ def format_duration(seconds: Optional[int]) -> str:
         return f"{h}:{m:02d}:{s:02d}"
     return f"{m:02d}:{s:02d}"
 
+def get_dir_size(path: Path) -> int:
+    total = 0
+    try:
+        for entry in path.rglob('*'):
+            if entry.is_file():
+                total += entry.stat().st_size
+    except Exception:
+        pass
+    return total
+
 def cleanup_old_files():
-    """Removes temporary download folders older than 30 minutes."""
+    """
+    Cleans up files:
+    1. Purges tasks older than 30 minutes.
+    2. Enforces LRU quota if downloads folder exceeds 5GB.
+    """
     try:
         now = time.time()
-        for item in DOWNLOADS_DIR.iterdir():
-            if item.is_dir() and (now - item.stat().st_mtime > 1800):
+        # 1. Purge expired task directories (> 30 min)
+        for item in list(DOWNLOADS_DIR.iterdir()):
+            if item.is_dir() and (now - item.stat().st_mtime > CACHE_TTL_SECONDS):
                 shutil.rmtree(item, ignore_errors=True)
+
+        # 2. Enforce total storage cap (LRU: remove oldest if > 5GB)
+        total_size = get_dir_size(DOWNLOADS_DIR)
+        if total_size > MAX_STORAGE_BYTES:
+            dirs = [d for d in DOWNLOADS_DIR.iterdir() if d.is_dir()]
+            dirs.sort(key=lambda d: d.stat().st_mtime)  # Oldest first
+            for d in dirs:
+                shutil.rmtree(d, ignore_errors=True)
+                total_size = get_dir_size(DOWNLOADS_DIR)
+                if total_size <= (MAX_STORAGE_BYTES * 0.6):  # Reduced to 60%
+                    break
+
+        # 3. Clean up in-memory task records
+        dead_tasks = []
+        for tid, t in tasks.items():
+            if now - t.get("created_at", 0) > CACHE_TTL_SECONDS:
+                dead_tasks.append(tid)
+        for tid in dead_tasks:
+            tasks.pop(tid, None)
+
+        # 4. Clean up cache store
+        dead_cache = [k for k, tid in cache_store.items() if tid not in tasks]
+        for k in dead_cache:
+            cache_store.pop(k, None)
+
     except Exception as e:
         print(f"[Cleanup Error] {e}")
 
@@ -72,6 +120,7 @@ async def get_status():
         "yt_dlp_version": yt_dlp.version.__version__,
         "ffmpeg_available": ffmpeg_path is not None,
         "ffmpeg_path": ffmpeg_path or "Not found",
+        "cache_count": len(cache_store),
         "timestamp": time.time()
     }
 
@@ -129,7 +178,7 @@ async def extract_info(req: InfoRequest):
         "has_audio": has_audio,
     }
 
-def run_download_task(task_id: str, url: str, format_type: str, quality: str):
+def run_download_task(task_id: str, url: str, format_type: str, quality: str, cache_key: str):
     task_dir = DOWNLOADS_DIR / task_id
     task_dir.mkdir(parents=True, exist_ok=True)
 
@@ -218,6 +267,9 @@ def run_download_task(task_id: str, url: str, format_type: str, quality: str):
             "file_size": final_file.stat().st_size,
             "filepath": str(final_file)
         })
+        # Register in smart cache
+        cache_store[cache_key] = task_id
+
     except Exception as e:
         tasks[task_id].update({
             "status": "error",
@@ -225,10 +277,29 @@ def run_download_task(task_id: str, url: str, format_type: str, quality: str):
         })
 
 @app.post("/api/download")
-async def start_download(req: DownloadRequest, background_tasks: BackgroundTasks):
+async def start_download(req: DownloadRequest):
     if not req.url or not req.url.strip():
         raise HTTPException(status_code=400, detail="URL 不能为空")
 
+    cleanup_old_files()
+
+    cache_key = get_cache_key(req.url, req.format_type, req.quality)
+
+    # 1. Smart Cache check: If identical download was completed recently and file exists, return immediately!
+    cached_task_id = cache_store.get(cache_key)
+    if cached_task_id and cached_task_id in tasks:
+        cached_task = tasks[cached_task_id]
+        if cached_task.get("status") == "completed" and cached_task.get("filepath"):
+            fp = Path(cached_task["filepath"])
+            if fp.exists():
+                # Touch modification time to refresh retention period
+                try:
+                    fp.parent.touch(exist_ok=True)
+                except Exception:
+                    pass
+                return {"task_id": cached_task_id, "cached": True}
+
+    # 2. Create new download task
     task_id = str(uuid.uuid4())
     tasks[task_id] = {
         "task_id": task_id,
@@ -246,11 +317,11 @@ async def start_download(req: DownloadRequest, background_tasks: BackgroundTasks
     # Start download task in background thread
     threading.Thread(
         target=run_download_task,
-        args=(task_id, req.url.strip(), req.format_type, req.quality),
+        args=(task_id, req.url.strip(), req.format_type, req.quality, cache_key),
         daemon=True
     ).start()
 
-    return {"task_id": task_id}
+    return {"task_id": task_id, "cached": False}
 
 @app.get("/api/tasks/{task_id}")
 async def get_task_status(task_id: str):
@@ -268,16 +339,8 @@ async def get_task_status(task_id: str):
         "error": task.get("error")
     }
 
-def remove_task_directory(task_id: str, task_dir: Path):
-    time.sleep(15)  # Wait 15s to ensure client completes receiving stream
-    try:
-        shutil.rmtree(task_dir, ignore_errors=True)
-        tasks.pop(task_id, None)
-    except Exception as e:
-        print(f"[Cleanup Task Error] {e}")
-
 @app.get("/api/tasks/{task_id}/file")
-async def download_file(task_id: str, background_tasks: BackgroundTasks):
+async def download_file(task_id: str):
     task = tasks.get(task_id)
     if not task:
         raise HTTPException(status_code=404, detail="任务未找到")
@@ -291,20 +354,20 @@ async def download_file(task_id: str, background_tasks: BackgroundTasks):
     filename = task.get("filename") or file_path.name
     encoded_filename = quote(filename)
 
-    # Standard RFC 5987 header for UTF-8 Chinese characters support
+    # Standard headers for resumable downloads (HTTP Range) and UTF-8 filenames
     headers = {
-        "Content-Disposition": f"attachment; filename*=UTF-8''{encoded_filename}"
+        "Content-Disposition": f"attachment; filename*=UTF-8''{encoded_filename}",
+        "Accept-Ranges": "bytes",
+        "Cache-Control": f"public, max-age={CACHE_TTL_SECONDS}"
     }
 
-    # Automatically purge temporary files from the server 15 seconds after download finishes
-    background_tasks.add_task(remove_task_directory, task_id, file_path.parent)
-
+    # Note: We do NOT delete the file on download. The 30-minute safety buffer
+    # allows broken downloads to resume and users on poor networks to re-download freely.
     return FileResponse(
         path=file_path,
         media_type="application/octet-stream",
         headers=headers
     )
-
 
 if __name__ == "__main__":
     import uvicorn

@@ -1018,9 +1018,10 @@
             </div>
             <div class="disclaimer-grid">
                 <div class="disclaimer-item">
-                    <h4>🔒 隐私安全 · 下载即焚</h4>
-                    <p>服务器<strong>绝对不保留</strong>任何用户的下载历史或个人身份信息；音视频文件仅临时中转，在用户下载完成后 <strong>15 秒内自动彻底粉碎销毁</strong>，不占用服务器任何长期存储空间。</p>
+                    <h4>🔒 隐私安全 · 自动过期销毁</h4>
+                    <p>服务器<strong>绝对不保留</strong>任何用户的下载历史或个人身份信息；音视频文件仅在服务器安全暂存 <strong>30 分钟</strong>（专用于弱网环境下的断点续传与重试），到期自动彻底粉碎销毁，绝不长期占用服务器存储空间。</p>
                 </div>
+
                 <div class="disclaimer-item">
                     <h4>⚖️ 合理使用 · 教学专用</h4>
                     <p>本工具专为<strong>马来西亚华小教师备课、课件离线播放及听力材料制作</strong>等非营利性教育场景设计。请严格遵守相关版权法规，尊重原创作者权益，<strong>严禁用于商业牟利或未经授权的二次分发传播</strong>。</p>
@@ -1296,8 +1297,13 @@
                 const data = await res.json();
                 const taskId = data.task_id;
 
+                if (data.cached) {
+                    progressStatusText.innerText = "⚡ 已命中服务器高速缓存，准备就绪！";
+                }
+
                 // Start polling status
                 pollTaskStatus(taskId);
+
 
             } catch (err) {
                 alert("下载启动失败: " + err.message);
