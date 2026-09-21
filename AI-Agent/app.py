@@ -37,6 +37,7 @@ AUDIT_LOG_FILE = LOGS_DIR / "agent_access.log"
 DEFAULT_API_KEY = os.environ.get("NVIDIA_API_KEY", "")
 DEFAULT_BASE_URL = "https://integrate.api.nvidia.com/v1"
 DEFAULT_MODEL = "meta/muse-glimmer-30b"
+SERVER_COMPRESS_KEY = os.environ.get("AGENT_SECRET_KEY", "123456")
 
 app = FastAPI(
     title="教师专属 Office & 多模态 AI Agent API",
@@ -515,6 +516,117 @@ async def upload_file(file: UploadFile = File(...), request: Request = None):
         "saved_path": str(saved_path),
         "file_size": file_size
     }
+
+def get_video_duration(video_path: str) -> float:
+    try:
+        cmd = [
+            "ffprobe", "-v", "error",
+            "-show_entries", "format=duration",
+            "-of", "default=noprint_wrappers=1:nokey=1",
+            video_path
+        ]
+        res = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+        return float(res.stdout.strip())
+    except Exception:
+        try:
+            cap = cv2.VideoCapture(video_path)
+            fps = cap.get(cv2.CAP_PROP_FPS)
+            frame_count = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+            cap.release()
+            if fps > 0 and frame_count > 0:
+                return float(frame_count / fps)
+        except Exception:
+            pass
+    return 600.0
+
+@app.post("/api/compress")
+async def compress_video(
+    file: UploadFile = File(...),
+    target_size_mb: float = Form(25.0),
+    mode: str = Form("target_size"),
+    secret_key: Optional[str] = Form(""),
+    request: Request = None
+):
+    """
+    仅受权用户专享的服务器级原生极速转码服务（普通用户默认在浏览器端本地 WASM 运行，避免占满服务器 CPU）
+    """
+    client_ip = request.client.host if request and request.client else "unknown"
+    
+    if not secret_key or secret_key.strip() != SERVER_COMPRESS_KEY:
+        log_audit_event("COMPRESS_DENIED", client_ip, f"鉴权未通过: {secret_key}")
+        raise HTTPException(
+            status_code=403,
+            detail="⚠️ 权限不足：为保证核心 Agent 稳定运行，服务器原生转码引擎仅对持有授权口令的内部人员开放。普通用户请使用页面内置的【本地浏览器模式】！"
+        )
+        
+    cleanup_old_files()
+    temp_input = UPLOADS_DIR / f"raw_{uuid.uuid4().hex[:8]}_{file.filename}"
+    with open(temp_input, "wb") as f:
+        shutil.copyfileobj(file.file, f)
+        
+    original_size = os.path.getsize(temp_input)
+    
+    try:
+        if mode == "audio_only":
+            out_filename = f"audio_{uuid.uuid4().hex[:6]}_{Path(file.filename).stem}.mp3"
+            out_path = OUTPUTS_DIR / out_filename
+            cmd = [
+                "ffmpeg", "-y", "-i", str(temp_input),
+                "-vn", "-c:a", "libmp3lame", "-q:a", "4",
+                str(out_path)
+            ]
+            subprocess.run(cmd, capture_output=True, check=True)
+        else:
+            out_filename = f"comp_{uuid.uuid4().hex[:6]}_{Path(file.filename).stem}.mp4"
+            out_path = OUTPUTS_DIR / out_filename
+            
+            duration = get_video_duration(str(temp_input))
+            if duration <= 0:
+                duration = 600.0
+                
+            target_bits = target_size_mb * 8 * 1024 * 1024
+            audio_bitrate_kbps = 64
+            target_video_kbps = max(80, int((target_bits / duration) / 1000 - audio_bitrate_kbps))
+            
+            cmd = [
+                "ffmpeg", "-y", "-i", str(temp_input),
+                "-b:v", f"{target_video_kbps}k",
+                "-maxrate", f"{int(target_video_kbps * 1.4)}k",
+                "-bufsize", f"{int(target_video_kbps * 2)}k",
+                "-vf", "scale=-2:720",
+                "-c:v", "libx264",
+                "-preset", "faster",
+                "-c:a", "aac", "-b:a", "64k",
+                str(out_path)
+            ]
+            subprocess.run(cmd, capture_output=True, check=True)
+            
+        compressed_size = os.path.getsize(out_path)
+        saved_percent = max(0.0, (original_size - compressed_size) / original_size * 100)
+        
+        try:
+            temp_input.unlink()
+        except Exception:
+            pass
+            
+        log_audit_event("COMPRESS_SUCCESS", client_ip, f"模式: {mode} | 原始: {original_size/(1024*1024):.1f}MB | 压缩后: {compressed_size/(1024*1024):.1f}MB")
+        
+        return {
+            "status": "success",
+            "filename": out_filename,
+            "download_url": f"/api/download/{out_filename}",
+            "saved_path": str(out_path),
+            "original_size": original_size,
+            "compressed_size": compressed_size,
+            "saved_percent": round(saved_percent, 1)
+        }
+    except Exception as e:
+        try:
+            if temp_input.exists():
+                temp_input.unlink()
+        except Exception:
+            pass
+        raise HTTPException(status_code=500, detail=f"压缩转码失败: {str(e)}")
 
 class ChatRequest(BaseModel):
     messages: List[Dict[str, Any]]

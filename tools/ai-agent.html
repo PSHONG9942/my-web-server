@@ -13,6 +13,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
 
+    <!-- FFmpeg.wasm for 100% Client-Side In-Browser Video/Audio Compression (compress.lol engine) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ffmpeg/0.11.6/ffmpeg.min.js"></script>
+
     <style>
         :root {
             --primary: #0ea5e9;
@@ -372,6 +375,262 @@
 
         .info-box b {
             color: #38bdf8;
+        }
+
+        /* Compress.lol Tabs & Controls */
+        .left-tabs {
+            display: flex;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-md);
+            padding: 4px;
+            margin-bottom: 16px;
+            gap: 4px;
+        }
+
+        .left-tab-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 8px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .left-tab-btn:hover {
+            color: #fff;
+        }
+
+        .left-tab-btn.active {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.25), rgba(139, 92, 246, 0.25));
+            color: #fff;
+            font-weight: 600;
+            border: 1px solid rgba(14, 165, 233, 0.35);
+            box-shadow: 0 2px 8px var(--primary-glow);
+        }
+
+        /* Engine radio selection */
+        .engine-toggle-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            margin-bottom: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .engine-label {
+            font-size: 0.76rem;
+            color: var(--text-sub);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .engine-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            color: #e2e8f0;
+        }
+
+        .engine-row input {
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .engine-tag {
+            font-size: 0.7rem;
+            padding: 1px 6px;
+            border-radius: 6px;
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            font-weight: 500;
+        }
+
+        .engine-tag.server {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+        }
+
+        .secret-field {
+            display: none;
+            margin-top: 4px;
+            padding-left: 20px;
+        }
+
+        .secret-field.show {
+            display: block;
+        }
+
+        .secret-input {
+            width: 100%;
+            padding: 6px 10px;
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: var(--radius-sm);
+            color: #fff;
+            font-size: 0.78rem;
+            outline: none;
+        }
+
+        .secret-input:focus {
+            border-color: var(--warning);
+        }
+
+        /* Target size chips */
+        .target-chips-container {
+            margin-bottom: 14px;
+        }
+
+        .target-chips-title {
+            font-size: 0.78rem;
+            color: var(--text-sub);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .target-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .target-chip {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .target-chip:hover {
+            border-color: var(--primary);
+            color: #fff;
+        }
+
+        .target-chip.selected {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #fff;
+            border-color: transparent;
+            font-weight: 600;
+            box-shadow: 0 2px 10px var(--primary-glow);
+        }
+
+        .compress-action-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #10b981, #0284c7);
+            color: #fff;
+            border: none;
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .compress-action-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+        }
+
+        .compress-action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Result card */
+        .compress-result-box {
+            display: none;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(14, 165, 233, 0.12));
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            margin-top: 14px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .compress-result-box.show {
+            display: block;
+        }
+
+        .stats-badge-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.82rem;
+            color: #f1f5f9;
+        }
+
+        .saved-badge {
+            background: var(--success);
+            color: #0b0f19;
+            font-weight: 700;
+            font-size: 0.74rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .result-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .btn-apply-agent {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .btn-apply-agent:hover {
+            box-shadow: 0 4px 14px var(--primary-glow);
+        }
+
+        .btn-download-comp {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #cbd5e1;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 0.82rem;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-download-comp:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.15);
         }
 
         /* Right Panel: Chat Interface */
@@ -793,35 +1052,129 @@
         <!-- Main Workspace -->
         <main class="workspace-grid">
             <!-- Left Panel: File Uploads & Context -->
-            <section class="card" aria-label="文件上传面板">
-                <h2 class="card-title">📂 会议素材与课件</h2>
-
-                <!-- Dropzone -->
-                <div id="dropzone" class="dropzone">
-                    <span class="dropzone-icon">☁️</span>
-                    <div class="dropzone-text">点击或拖拽文件到此处</div>
-                    <div class="dropzone-hint">支持 MP4 录屏, MP3/M4A 录音, PDF, PPTX (最大 500MB)</div>
-                    <input type="file" id="fileInput" class="file-input" accept=".mp4,.mp3,.m4a,.pdf,.pptx">
+            <section class="card" aria-label="文件管理与压缩面板">
+                <div class="left-tabs">
+                    <button id="tabFilesBtn" class="left-tab-btn active">📁 会议素材箱</button>
+                    <button id="tabCompressBtn" class="left-tab-btn">🗜️ 压缩工坊 (compress.lol)</button>
                 </div>
 
-                <!-- Upload Progress -->
-                <div id="uploadProgress" class="upload-progress">
-                    <div class="progress-bar-bg">
-                        <div id="progressBarFill" class="progress-bar-fill"></div>
+                <!-- Tab 1: Upload Files -->
+                <div id="tabFilesContent">
+                    <h2 class="card-title" style="font-size:0.95rem;">📂 会议素材与课件</h2>
+
+                    <!-- Dropzone -->
+                    <div id="dropzone" class="dropzone">
+                        <span class="dropzone-icon">☁️</span>
+                        <div class="dropzone-text">点击或拖拽文件到此处</div>
+                        <div class="dropzone-hint">支持 MP4 录屏, MP3/M4A 录音, PDF, PPTX (最大 500MB)</div>
+                        <input type="file" id="fileInput" class="file-input" accept=".mp4,.mp3,.m4a,.pdf,.pptx">
                     </div>
-                    <div class="upload-status-text">
-                        <span id="uploadStatusLabel">正在上传文件...</span>
-                        <span id="uploadPercent">0%</span>
+
+                    <!-- Upload Progress -->
+                    <div id="uploadProgress" class="upload-progress">
+                        <div class="progress-bar-bg">
+                            <div id="progressBarFill" class="progress-bar-fill"></div>
+                        </div>
+                        <div class="upload-status-text">
+                            <span id="uploadStatusLabel">正在上传文件...</span>
+                            <span id="uploadPercent">0%</span>
+                        </div>
+                    </div>
+
+                    <!-- Attached files list -->
+                    <div id="attachedFilesList"></div>
+
+                    <!-- Notice Box -->
+                    <div class="info-box">
+                        💡 <b>超长音频无痕切片防崩溃引擎已就绪</b><br>
+                        若上传数小时的长音频或几百兆会议视频，系统会在 Linux 本地后台极速无损分段消化并精准识别，彻底杜绝爆内存崩溃！
                     </div>
                 </div>
 
-                <!-- Attached files list -->
-                <div id="attachedFilesList"></div>
+                <!-- Tab 2: compress.lol Engine -->
+                <div id="tabCompressContent" style="display:none;">
+                    <!-- Engine Mode Selection -->
+                    <div class="engine-toggle-card">
+                        <div class="engine-label">⚙️ 压缩计算引擎选择</div>
+                        <label class="engine-row">
+                            <input type="radio" name="compressEngine" id="engineClient" value="client" checked>
+                            <div>
+                                <span>💻 本地电脑浏览器模式</span> <span class="engine-tag">默认·0 消耗服务器</span>
+                                <div class="engine-desc">利用浏览器本地 WebAssembly 运算，100% 隐私安全，不消耗服务器 CPU。</div>
+                            </div>
+                        </label>
+                        <label class="engine-row">
+                            <input type="radio" name="compressEngine" id="engineServer" value="server">
+                            <div>
+                                <span>⚡ 服务器极速引擎</span> <span class="engine-tag server">需口令</span>
+                                <div class="engine-desc">调用 Linux 服务器多核 FFmpeg 进行极速转码（仅对授权人员开放）。</div>
+                            </div>
+                        </label>
+                        <div id="secretRow" class="secret-field">
+                            <input type="password" id="compressSecretKey" class="secret-input" placeholder="请输入服务器口令 (默认留空)" value="">
+                        </div>
+                    </div>
 
-                <!-- Notice Box -->
-                <div class="info-box">
-                    💡 <b>超长音频无痕切片防崩溃引擎已就绪</b><br>
-                    若上传数小时的长音频或几百兆会议视频，系统会在 Linux 本地后台极速无损分段消化并精准识别，彻底杜绝爆内存崩溃！
+                    <!-- Video Dropzone for compression -->
+                    <div id="compressDropzone" class="dropzone" style="padding: 18px 12px;">
+                        <span class="dropzone-icon" style="font-size: 1.8rem;">🗜️</span>
+                        <div class="dropzone-text" id="compressDropzoneText">点击或拖拽视频到此处压缩</div>
+                        <div class="dropzone-hint">支持 MP4, MOV, MKV, WebM, AVI</div>
+                        <input type="file" id="compressFileInput" class="file-input" accept="video/*">
+                    </div>
+
+                    <!-- Selected Video Info -->
+                    <div id="selectedVideoCard" style="display:none;" class="file-chip">
+                        <div class="file-info">
+                            <span>🎬</span>
+                            <span id="selectedVideoName" class="file-name">未选择</span>
+                            <span id="selectedVideoSize" class="file-size">--</span>
+                        </div>
+                        <button id="clearSelectedVideoBtn" class="remove-file-btn" title="清除">&times;</button>
+                    </div>
+
+                    <!-- Target Size / Mode Chips -->
+                    <div class="target-chips-container">
+                        <div class="target-chips-title">
+                            <span>🎯 目标压缩规格 (compress.lol 方案)</span>
+                            <span id="selectedTargetLabel" style="color: var(--primary); font-weight: 600;">🎧 提取纯音频</span>
+                        </div>
+                        <div class="target-chips" id="targetChips">
+                            <button type="button" class="target-chip selected" data-target="audio_only" data-label="🎧 提取纯音频 (极速几秒)">🎧 提取纯音频 (极速)</button>
+                            <button type="button" class="target-chip" data-target="8" data-label="8 MB (极限轻量)">8 MB</button>
+                            <button type="button" class="target-chip" data-target="25" data-label="25 MB (课件推荐)">25 MB</button>
+                            <button type="button" class="target-chip" data-target="50" data-label="50 MB (画质均衡)">50 MB</button>
+                            <button type="button" class="target-chip" data-target="100" data-label="100 MB (超清长视频)">100 MB</button>
+                        </div>
+                    </div>
+
+                    <!-- Action Button -->
+                    <button id="startCompressBtn" class="compress-action-btn">
+                        <span>⚡ 开始极速压缩处理</span>
+                    </button>
+
+                    <!-- Compression Progress -->
+                    <div id="compressProgress" class="upload-progress" style="margin-top: 14px;">
+                        <div class="progress-bar-bg">
+                            <div id="compressBarFill" class="progress-bar-fill"></div>
+                        </div>
+                        <div class="upload-status-text">
+                            <span id="compressStatusText">正在准备处理...</span>
+                            <span id="compressPercent">0%</span>
+                        </div>
+                    </div>
+
+                    <!-- Compress Result Card -->
+                    <div id="compressResultBox" class="compress-result-box">
+                        <div class="stats-badge-row">
+                            <span id="compStatsText">450MB ➔ 18.2MB</span>
+                            <span id="compSavedBadge" class="saved-badge">瘦身 96%</span>
+                        </div>
+                        <div class="result-actions">
+                            <button id="applyToAgentBtn" class="btn-apply-agent">🚀 一键填入素材箱并写公文</button>
+                            <a id="downloadCompBtn" class="btn-download-comp" download="compressed.mp4">⬇️ 下载保存到电脑</a>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -1296,6 +1649,351 @@
             btn.addEventListener("click", () => {
                 sendMessage(btn.dataset.prompt);
             });
+        });
+
+        // ================= compress.lol 压缩工坊交互逻辑 =================
+        const tabFilesBtn = document.getElementById("tabFilesBtn");
+        const tabCompressBtn = document.getElementById("tabCompressBtn");
+        const tabFilesContent = document.getElementById("tabFilesContent");
+        const tabCompressContent = document.getElementById("tabCompressContent");
+
+        const engineClient = document.getElementById("engineClient");
+        const engineServer = document.getElementById("engineServer");
+        const secretRow = document.getElementById("secretRow");
+        const compressSecretKey = document.getElementById("compressSecretKey");
+
+        const compressDropzone = document.getElementById("compressDropzone");
+        const compressFileInput = document.getElementById("compressFileInput");
+        const selectedVideoCard = document.getElementById("selectedVideoCard");
+        const selectedVideoName = document.getElementById("selectedVideoName");
+        const selectedVideoSize = document.getElementById("selectedVideoSize");
+        const clearSelectedVideoBtn = document.getElementById("clearSelectedVideoBtn");
+
+        const targetChips = document.getElementById("targetChips");
+        const selectedTargetLabel = document.getElementById("selectedTargetLabel");
+        const startCompressBtn = document.getElementById("startCompressBtn");
+
+        const compressProgress = document.getElementById("compressProgress");
+        const compressBarFill = document.getElementById("compressBarFill");
+        const compressStatusText = document.getElementById("compressStatusText");
+        const compressPercent = document.getElementById("compressPercent");
+
+        const compressResultBox = document.getElementById("compressResultBox");
+        const compStatsText = document.getElementById("compStatsText");
+        const compSavedBadge = document.getElementById("compSavedBadge");
+        const applyToAgentBtn = document.getElementById("applyToAgentBtn");
+        const downloadCompBtn = document.getElementById("downloadCompBtn");
+
+        let selectedCompressFile = null;
+        let selectedTargetMode = "audio_only";
+        let lastCompressedResult = null; // { blob, downloadUrl, filename, originalSize, compressedSize, savedPath }
+
+        // Tab Switching
+        tabFilesBtn.addEventListener("click", () => {
+            tabFilesBtn.classList.add("active");
+            tabCompressBtn.classList.remove("active");
+            tabFilesContent.style.display = "block";
+            tabCompressContent.style.display = "none";
+        });
+
+        tabCompressBtn.addEventListener("click", () => {
+            tabCompressBtn.classList.add("active");
+            tabFilesBtn.classList.remove("active");
+            tabCompressContent.style.display = "block";
+            tabFilesContent.style.display = "none";
+        });
+
+        // Engine Toggle
+        document.querySelectorAll('input[name="compressEngine"]').forEach(radio => {
+            radio.addEventListener("change", (e) => {
+                if (e.target.value === "server") {
+                    secretRow.classList.add("show");
+                    startCompressBtn.querySelector("span").innerText = "⚡ 开始服务器原生极速处理";
+                } else {
+                    secretRow.classList.remove("show");
+                    startCompressBtn.querySelector("span").innerText = "⚡ 开始本地浏览器极速处理";
+                }
+            });
+        });
+
+        // Target Size Chips Selection
+        targetChips.querySelectorAll(".target-chip").forEach(chip => {
+            chip.addEventListener("click", () => {
+                targetChips.querySelectorAll(".target-chip").forEach(c => c.classList.remove("selected"));
+                chip.classList.add("selected");
+                selectedTargetMode = chip.dataset.target;
+                selectedTargetLabel.innerText = chip.dataset.label;
+            });
+        });
+
+        // Compress File Selection
+        compressDropzone.addEventListener("click", () => compressFileInput.click());
+
+        compressDropzone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            compressDropzone.classList.add("dragover");
+        });
+
+        compressDropzone.addEventListener("dragleave", () => {
+            compressDropzone.classList.remove("dragover");
+        });
+
+        compressDropzone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            compressDropzone.classList.remove("dragover");
+            if (e.dataTransfer.files.length > 0) {
+                setCompressVideo(e.dataTransfer.files[0]);
+            }
+        });
+
+        compressFileInput.addEventListener("change", (e) => {
+            if (e.target.files.length > 0) {
+                setCompressVideo(e.target.files[0]);
+            }
+        });
+
+        function setCompressVideo(file) {
+            selectedCompressFile = file;
+            selectedVideoName.innerText = file.name;
+            selectedVideoSize.innerText = `(${formatBytes(file.size)})`;
+            selectedVideoCard.style.display = "flex";
+            compressResultBox.classList.remove("show");
+        }
+
+        clearSelectedVideoBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            selectedCompressFile = null;
+            selectedVideoCard.style.display = "none";
+            compressFileInput.value = "";
+            compressResultBox.classList.remove("show");
+        });
+
+        // Lazy-loaded client-side FFmpeg instance
+        let ffmpegInstance = null;
+        async function getClientFFmpeg() {
+            if (!window.FFmpeg) {
+                throw new Error("FFmpeg.wasm 脚本未就绪，请检查网络。");
+            }
+            if (!ffmpegInstance) {
+                const { createFFmpeg } = FFmpeg;
+                ffmpegInstance = createFFmpeg({
+                    log: false,
+                    corePath: 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js'
+                });
+                await ffmpegInstance.load();
+            }
+            return ffmpegInstance;
+        }
+
+        // Execute Compression Action
+        startCompressBtn.addEventListener("click", async () => {
+            if (!selectedCompressFile) {
+                alert("请先拖入或选择需要压缩的视频文件！");
+                return;
+            }
+
+            const engine = document.querySelector('input[name="compressEngine"]:checked').value;
+            startCompressBtn.disabled = true;
+            compressProgress.classList.add("active");
+            compressResultBox.classList.remove("show");
+            compressBarFill.style.width = "10%";
+            compressPercent.innerText = "10%";
+
+            try {
+                if (engine === "server") {
+                    // =================== 服务器引擎 (受密钥保护) ===================
+                    compressStatusText.innerText = "正在向 Linux Mint 服务器发送压缩任务...";
+                    const secretKeyVal = compressSecretKey.value.trim();
+
+                    const formData = new FormData();
+                    formData.append("file", selectedCompressFile);
+                    formData.append("target_size_mb", selectedTargetMode === "audio_only" ? "0" : selectedTargetMode);
+                    formData.append("mode", selectedTargetMode === "audio_only" ? "audio_only" : "target_size");
+                    formData.append("secret_key", secretKeyVal);
+
+                    const xhr = new XMLHttpRequest();
+                    xhr.open("POST", `${API_BASE_URL}/api/compress`);
+
+                    xhr.upload.onprogress = (e) => {
+                        if (e.lengthComputable) {
+                            const pct = Math.round((e.loaded / e.total) * 70);
+                            compressBarFill.style.width = `${pct}%`;
+                            compressPercent.innerText = `${pct}%`;
+                            compressStatusText.innerText = `正在上传视频至服务器并转码 (${pct}%)...`;
+                        }
+                    };
+
+                    const result = await new Promise((resolve, reject) => {
+                        xhr.onload = () => {
+                            if (xhr.status === 200) {
+                                resolve(JSON.parse(xhr.responseText));
+                            } else if (xhr.status === 403) {
+                                reject(new Error("AUTH_FORBIDDEN"));
+                            } else {
+                                reject(new Error(xhr.responseText || "服务器转码失败"));
+                            }
+                        };
+                        xhr.onerror = () => reject(new Error("网络异常，无法连接到服务器"));
+                        xhr.send(formData);
+                    });
+
+                    compressBarFill.style.width = "100%";
+                    compressPercent.innerText = "100%";
+                    compressStatusText.innerText = "🎉 极速转码完成！";
+
+                    lastCompressedResult = {
+                        isClient: false,
+                        filename: result.filename,
+                        downloadUrl: `${API_BASE_URL}${result.download_url}`,
+                        savedPath: result.saved_path,
+                        originalSize: result.original_size,
+                        compressedSize: result.compressed_size,
+                        savedPercent: result.saved_percent
+                    };
+
+                    renderCompressSuccess(lastCompressedResult);
+
+                } else {
+                    // =================== 本地浏览器模式 (100% 客户端，0 消耗服务器) ===================
+                    compressStatusText.innerText = "正在载入浏览器 WebAssembly 引擎 (首次需数秒)...";
+                    const ffmpeg = await getClientFFmpeg();
+                    const { fetchFile } = FFmpeg;
+
+                    compressBarFill.style.width = "30%";
+                    compressPercent.innerText = "30%";
+                    compressStatusText.innerText = "正在将视频写入浏览器本地沙箱...";
+
+                    const inputName = "input_" + selectedCompressFile.name.replace(/[^a-zA-Z0-9._]/g, "_");
+                    ffmpeg.FS("writeFile", inputName, await fetchFile(selectedCompressFile));
+
+                    // Progress handler
+                    ffmpeg.setProgress(({ ratio }) => {
+                        const pct = Math.min(99, Math.round(30 + ratio * 65));
+                        compressBarFill.style.width = `${pct}%`;
+                        compressPercent.innerText = `${pct}%`;
+                        compressStatusText.innerText = `本地 CPU 正在极速转码中 (${pct}%)...`;
+                    });
+
+                    let outputName = "";
+                    let outBlobType = "";
+
+                    if (selectedTargetMode === "audio_only") {
+                        outputName = "output_audio.mp3";
+                        outBlobType = "audio/mp3";
+                        compressStatusText.innerText = "正在剥离画面，提取纯语音 MP3...";
+                        await ffmpeg.run("-i", inputName, "-vn", "-c:a", "libmp3lame", "-q:a", "4", outputName);
+                    } else {
+                        outputName = "output_comp.mp4";
+                        outBlobType = "video/mp4";
+                        const targetMb = parseFloat(selectedTargetMode);
+                        const durationSec = 300.0;
+                        const targetBits = targetMb * 8 * 1024 * 1024;
+                        const videoBitrateKbps = Math.max(80, Math.floor((targetBits / durationSec) / 1000) - 64);
+
+                        compressStatusText.innerText = `正在按目标 ${targetMb}MB 进行本地视频编码...`;
+                        await ffmpeg.run(
+                            "-i", inputName,
+                            "-b:v", `${videoBitrateKbps}k`,
+                            "-vf", "scale=-2:720",
+                            "-preset", "ultrafast",
+                            "-c:a", "aac", "-b:a", "64k",
+                            outputName
+                        );
+                    }
+
+                    const data = ffmpeg.FS("readFile", outputName);
+                    const compressedBlob = new Blob([data.buffer], { type: outBlobType });
+                    const downloadUrl = URL.createObjectURL(compressedBlob);
+                    const cleanExt = selectedTargetMode === "audio_only" ? ".mp3" : ".mp4";
+                    const finalFilename = selectedCompressFile.name.replace(/\.[^/.]+$/, "") + (selectedTargetMode === "audio_only" ? "_音频" : `_${selectedTargetMode}MB`) + cleanExt;
+
+                    // Clean FS
+                    try {
+                        ffmpeg.FS("unlink", inputName);
+                        ffmpeg.FS("unlink", outputName);
+                    } catch (e) {}
+
+                    compressBarFill.style.width = "100%";
+                    compressPercent.innerText = "100%";
+                    compressStatusText.innerText = "🎉 本地极速转码完成！";
+
+                    const originalSize = selectedCompressFile.size;
+                    const compressedSize = compressedBlob.size;
+                    const savedPercent = Math.max(0, ((originalSize - compressedSize) / originalSize) * 100).toFixed(1);
+
+                    lastCompressedResult = {
+                        isClient: true,
+                        blob: compressedBlob,
+                        filename: finalFilename,
+                        downloadUrl: downloadUrl,
+                        originalSize: originalSize,
+                        compressedSize: compressedSize,
+                        savedPercent: savedPercent
+                    };
+
+                    renderCompressSuccess(lastCompressedResult);
+                }
+            } catch (err) {
+                if (err.message === "AUTH_FORBIDDEN") {
+                    alert("⚠️ 授权口令错误！为保护服务器 CPU 资源，服务器引擎仅限管理员使用。\n\n系统已为您自动切换为【本地电脑浏览器模式】，请重新点击开始，完全在本地处理即可！");
+                    engineClient.checked = true;
+                    secretRow.classList.remove("show");
+                    startCompressBtn.querySelector("span").innerText = "⚡ 开始本地浏览器极速处理";
+                } else {
+                    alert("转码异常: " + err.message);
+                }
+            } finally {
+                startCompressBtn.disabled = false;
+                compressProgress.classList.remove("active");
+            }
+        });
+
+        function renderCompressSuccess(res) {
+            compStatsText.innerText = `${formatBytes(res.originalSize)} ➔ ${formatBytes(res.compressedSize)}`;
+            compSavedBadge.innerText = `瘦身 ${res.savedPercent}%`;
+            downloadCompBtn.href = res.downloadUrl;
+            downloadCompBtn.download = res.filename;
+            compressResultBox.classList.add("show");
+        }
+
+        // Apply to Agent Action
+        applyToAgentBtn.addEventListener("click", async () => {
+            if (!lastCompressedResult) return;
+
+            applyToAgentBtn.disabled = true;
+            applyToAgentBtn.innerText = "正在填入素材箱...";
+
+            try {
+                if (lastCompressedResult.isClient) {
+                    const formData = new FormData();
+                    formData.append("file", lastCompressedResult.blob, lastCompressedResult.filename);
+
+                    const uploadRes = await fetch(`${API_BASE_URL}/api/upload`, {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    if (!uploadRes.ok) throw new Error("上传素材箱失败");
+                    const data = await uploadRes.json();
+                    currentUploadedFiles.push(data);
+                } else {
+                    currentUploadedFiles.push({
+                        filename: lastCompressedResult.filename,
+                        saved_path: lastCompressedResult.savedPath,
+                        file_size: lastCompressedResult.compressedSize
+                    });
+                }
+
+                renderAttachedFiles();
+
+                tabFilesBtn.click();
+                appendAssistantBubble(`🎉 已成功将压缩后的轻量素材【<b>${lastCompressedResult.filename}</b>】放入素材箱！体积仅 <b>${formatBytes(lastCompressedResult.compressedSize)}</b>，AI 可极速分析并生成 Minit Curai！`);
+            } catch (e) {
+                alert("载入素材箱失败: " + e.message);
+            } finally {
+                applyToAgentBtn.disabled = false;
+                applyToAgentBtn.innerText = "🚀 一键填入素材箱并写公文";
+            }
         });
 
         // Init Check
