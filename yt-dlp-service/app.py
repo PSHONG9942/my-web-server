@@ -268,8 +268,16 @@ async def get_task_status(task_id: str):
         "error": task.get("error")
     }
 
+def remove_task_directory(task_id: str, task_dir: Path):
+    time.sleep(15)  # Wait 15s to ensure client completes receiving stream
+    try:
+        shutil.rmtree(task_dir, ignore_errors=True)
+        tasks.pop(task_id, None)
+    except Exception as e:
+        print(f"[Cleanup Task Error] {e}")
+
 @app.get("/api/tasks/{task_id}/file")
-async def download_file(task_id: str):
+async def download_file(task_id: str, background_tasks: BackgroundTasks):
     task = tasks.get(task_id)
     if not task:
         raise HTTPException(status_code=404, detail="任务未找到")
@@ -288,11 +296,15 @@ async def download_file(task_id: str):
         "Content-Disposition": f"attachment; filename*=UTF-8''{encoded_filename}"
     }
 
+    # Automatically purge temporary files from the server 15 seconds after download finishes
+    background_tasks.add_task(remove_task_directory, task_id, file_path.parent)
+
     return FileResponse(
         path=file_path,
         media_type="application/octet-stream",
         headers=headers
     )
+
 
 if __name__ == "__main__":
     import uvicorn
