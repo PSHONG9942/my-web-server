@@ -1,11 +1,11 @@
 #!/bin/bash
 
 echo "=================================================="
-echo "🚀 开始部署 AI-Agent 到 Linux Mint 服务器"
+echo "🚀 开始部署 教师专属 AI-Agent 后端服务 到 Linux Mint 服务器"
 echo "=================================================="
 
 # 1. 更新系统并安装必要的环境
-echo "[1/4] 📦 正在安装系统依赖 (ffmpeg, python3-venv)..."
+echo "[1/4] 📦 正在检查/安装系统依赖 (ffmpeg, python3-venv, python3-pip)..."
 sudo apt-get update
 sudo apt-get install -y python3-venv python3-pip ffmpeg git
 
@@ -20,21 +20,22 @@ pip install --upgrade pip
 pip install -r requirements.txt
 
 # 4. 创建系统后台服务 (systemd)
-echo "[4/4] ⚙️ 正在配置后台常驻服务 (守护进程)..."
+echo "[4/4] ⚙️ 正在配置后台常驻守护服务 (systemd)..."
 SERVICE_FILE=/etc/systemd/system/ai-agent.service
 CURRENT_DIR=$(pwd)
 USER=$(whoami)
 
 sudo bash -c "cat > $SERVICE_FILE <<EOF
 [Unit]
-Description=Streamlit AI-Agent Service
+Description=Teacher Multi-Modal AI-Agent FastAPI Service
 After=network.target
 
 [Service]
 User=$USER
 WorkingDirectory=$CURRENT_DIR
-ExecStart=$CURRENT_DIR/venv/bin/streamlit run app.py --server.port 8502
+ExecStart=$CURRENT_DIR/venv/bin/python -m uvicorn app:app --host 0.0.0.0 --port 8502
 Restart=always
+RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
@@ -46,6 +47,7 @@ sudo systemctl restart ai-agent
 
 echo "=================================================="
 echo "✅ 部署完成！"
-echo "🌐 本地应用已在后台运行，端口为 8502"
+echo "🌐 本地应用已在后台常驻运行，端口为 8502"
 echo "可以通过 'sudo systemctl status ai-agent' 查看运行状态"
+echo "可以通过 'journalctl -u ai-agent -f' 查看实时日志"
 echo "=================================================="

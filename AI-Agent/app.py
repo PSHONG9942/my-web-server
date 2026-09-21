@@ -1,107 +1,90 @@
 import json
 import os
 import base64
-import cv2
-import tempfile
+import time
+import shutil
 import uuid
+import glob
+import asyncio
+from pathlib import Path
+from typing import List, Dict, Any, Optional
+
+import cv2
 import docx
 from docx.shared import Pt, Inches
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from faster_whisper import WhisperModel
-import streamlit as st
 from openai import OpenAI
 import subprocess
-import glob
 
-# ================= 设置页面信息 =================
-st.set_page_config(page_title="马来西亚教师专属 AI 助理", page_icon="🤖", layout="wide")
-st.title("🤖 教师专属 Office & 多模态 AI Agent")
-st.markdown("通过上传会议录屏或音频，AI 能够自动提取语音并分析画面内容，最终生成标准格式的 Minit Curai。")
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+from pydantic import BaseModel
 
-# ================= 侧边栏配置 =================
-with st.sidebar:
-    st.markdown("[🏠 返回华小老师专区主页](https://sjkcabm.pages.dev)", help="点击回到网站首页")
-    st.header("⚙️ 配置参数")
-    # 尝试从 Streamlit Secrets 中读取 API Key
-    default_api_key = st.secrets.get("NVIDIA_API_KEY", "") if hasattr(st, "secrets") and "NVIDIA_API_KEY" in st.secrets else ""
-    
-    if not default_api_key:
-        api_key = st.text_input("API Key (必填)", value="", type="password", placeholder="请填入你的 Nvidia NIM API Key")
-    else:
-        api_key = default_api_key
-        st.success("✅ 已自动加载系统内置的 API Key")
-        
-    # Nvidia NIM 官方接口地址
-    base_url = st.text_input("Base URL", value="https://integrate.api.nvidia.com/v1")
-    model_name = st.text_input("模型名称", value="meta/muse-glimmer-30b")
-    
-    st.divider()
-    st.header("📂 上传文件")
-    st.warning("⚠️ **云端系统限制**\n\n为确保全国教师的使用体验，系统已限制最大上传文件为 **500MB**。")
-    
-    with st.expander("💡 提示：本系统已支持超长音频全自动处理！", expanded=False):
-        st.markdown("""
-        🎉 **最新系统更新：全自动无痕切片防崩溃引擎已上线！**
-        
-        你再也不需要去第三方网站寻找满是广告的切割工具了！
-        
-        **现在你只需体验全自动流程：**
-        1. 只要你的单文件不超过系统原生的 `500MB` 限制，直接将几个小时的超长录音扔进来即可。
-        2. 系统一旦检测到大文件，会自动在后台**瞬间、无损地**将其切割成小片段。
-        3. AI 会逐个消化这些片段，从而彻底告别以前长音频导致“爆内存崩溃 (Oh no)”的问题。
-        4. 喝杯咖啡，静待 AI 最终拼接出一份完整、连贯的会议逐字稿与公文吧！
-        """)
-        # 自动播放的动图演示（使用 WebP 格式体积更小）
-        st.video(os.path.join(os.path.dirname(__file__), "Recording 2026-08-17 220610.mp4"), autoplay=True, loop=True, muted=True)
+# ================= 基础目录与配置 =================
+BASE_DIR = Path(__file__).resolve().parent
+UPLOADS_DIR = BASE_DIR / "uploads"
+OUTPUTS_DIR = BASE_DIR / "outputs"
+LOGS_DIR = BASE_DIR / "logs"
 
-    uploaded_files = st.file_uploader("上传录音/录屏/文档 (mp4, mp3, m4a, pdf, pptx)", type=["mp4", "mp3", "m4a", "pdf", "pptx"], accept_multiple_files=True)
-    
-    # 将上传的文件保存到本地临时路径供 cv2 和 whisper 读取
-    if "user_session_id" not in st.session_state:
-        st.session_state.user_session_id = str(uuid.uuid4())[:8]
-        
-    if uploaded_files:
-        temp_dir = tempfile.gettempdir()
-        paths = []
-        for uploaded_file in uploaded_files:
-            # 使用 session_id 保存，避免不同用户的文件覆盖，且避免同一用户重复写入硬盘
-            current_file_path = os.path.join(temp_dir, f"{st.session_state.user_session_id}_{uploaded_file.name}")
-            
-            if not os.path.exists(current_file_path):
-                with open(current_file_path, "wb") as f:
-                    f.write(uploaded_file.getbuffer())
-            paths.append(current_file_path)
-            st.success(f"文件已就绪: {uploaded_file.name}")
-            
-        # 提供给 Agent 一个系统提示，告诉它当前文件的路径
-        st.session_state["current_file_paths"] = paths
-        
-    # 显示生成的供下载的文件
-    if "generated_files" in st.session_state and st.session_state.generated_files:
-        st.divider()
-        st.header("📥 下载生成的公文")
-        for fname, fbytes in st.session_state.generated_files.items():
-            st.download_button(
-                label=f"下载 {fname}", 
-                data=fbytes, 
-                file_name=fname, 
-                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            )
+UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+AUDIT_LOG_FILE = LOGS_DIR / "agent_access.log"
 
-# ================= 初始化 OpenAI 客户端 =================
-client = OpenAI(
-    base_url=base_url,
-    api_key=api_key if api_key else "dummy_key_to_prevent_crash",
-    timeout=120.0 # 增加到 120 秒超时，防止长文本 OCR 被强制打断
+DEFAULT_API_KEY = os.environ.get("NVIDIA_API_KEY", "")
+DEFAULT_BASE_URL = "https://integrate.api.nvidia.com/v1"
+DEFAULT_MODEL = "meta/muse-glimmer-30b"
+
+app = FastAPI(
+    title="教师专属 Office & 多模态 AI Agent API",
+    description="高并发后端 API 服务：支持超长会议音视频切片转录、录屏 PPT 视觉提取与标准 Minit Curai 官函公文一键生成",
+    version="2.0.0"
 )
 
-# ================= 本地工具实现 (复用原代码) =================
-def extract_slides_text(video_path, sample_interval_sec=10, diff_threshold=35.0, max_slides=6):
+# 允许跨域（支持 Cloudflare Pages、Localhost 等各前端直连）
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+def log_audit_event(action: str, client_ip: str, detail: str = ""):
+    try:
+        now_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        log_entry = f"[{now_str}] IP: {client_ip} | 操作: {action} | 详情: {detail}\n"
+        with open(AUDIT_LOG_FILE, "a", encoding="utf-8") as f:
+            f.write(log_entry)
+    except Exception as e:
+        print(f"[Audit Log Error] {e}")
+
+def cleanup_old_files(max_age_seconds: int = 7200):
+    """自动清理两小时前的临时上传与生成文件，防止磁盘溢出"""
+    try:
+        now = time.time()
+        for folder in [UPLOADS_DIR, OUTPUTS_DIR]:
+            for item in folder.iterdir():
+                if item.is_file() and (now - item.stat().st_mtime > max_age_seconds):
+                    try:
+                        item.unlink()
+                    except Exception:
+                        pass
+    except Exception as e:
+        print(f"[Cleanup Error] {e}")
+
+# ================= 核心多模态与工具函数 =================
+
+def extract_slides_text(video_path: str, client: OpenAI, emit_callback=None, sample_interval_sec=10, diff_threshold=35.0, max_slides=6) -> str:
     if not os.path.exists(video_path):
         return f"错误：找不到视频文件 {video_path}"
     
-    st.toast("🖼️ 正在分析录屏 PPT 画面...", icon="🔍")
+    if emit_callback:
+        emit_callback("🖼️ 正在抽帧分析录屏 PPT 画面关键节点...")
+    
     try:
         cap = cv2.VideoCapture(video_path)
         fps = cap.get(cv2.CAP_PROP_FPS)
@@ -134,6 +117,8 @@ def extract_slides_text(video_path, sample_interval_sec=10, diff_threshold=35.0,
                 
                 if is_new_slide:
                     slide_count += 1
+                    if emit_callback:
+                        emit_callback(f"🔍 捕捉到第 {slide_count} 页 PPT 幻灯片，正在使用轻量视觉模型提取图文...")
                     
                     resized_frame = cv2.resize(frame, (512, int(512 * frame.shape[0] / frame.shape[1])))
                     _, buffer = cv2.imencode('.jpg', resized_frame)
@@ -141,7 +126,7 @@ def extract_slides_text(video_path, sample_interval_sec=10, diff_threshold=35.0,
                     
                     try:
                         vision_resp = client.chat.completions.create(
-                            model="meta/llama-3.2-11b-vision-instruct", # 改用 11B 轻量视觉模型，大幅提升速度
+                            model="meta/llama-3.2-11b-vision-instruct",
                             max_tokens=1024,
                             messages=[{
                                 "role": "user",
@@ -154,7 +139,7 @@ def extract_slides_text(video_path, sample_interval_sec=10, diff_threshold=35.0,
                         slide_text = vision_resp.choices[0].message.content
                         slide_summaries.append(f"--- [幻灯片第 {slide_count} 页要点] ---\n{slide_text}")
                     except Exception as ve:
-                        st.error(f"视觉分析略过: {str(ve)}")
+                        print(f"视觉提取跳过: {ve}")
                         
             frame_idx += 1
         
@@ -162,80 +147,89 @@ def extract_slides_text(video_path, sample_interval_sec=10, diff_threshold=35.0,
         total_extracted = "\n\n".join(slide_summaries)
         return total_extracted if total_extracted else "录屏中未检测到明显的 PPT 幻灯片切换。"
     except Exception as e:
-        return "未能提取 PPT 画面，请完全依据语音逐字稿内容进行整理。"
+        return f"未能提取 PPT 画面: {str(e)}"
 
-def transcribe_audio(file_path):
+# 单例全局 Whisper 模型缓存，避免每次请求重复载入权重
+whisper_model_instance = None
+
+def get_whisper_model():
+    global whisper_model_instance
+    if whisper_model_instance is None:
+        whisper_model_instance = WhisperModel("base", device="cpu", compute_type="int8")
+    return whisper_model_instance
+
+def transcribe_audio(file_path: str, emit_callback=None) -> tuple[str, Optional[str]]:
+    """转录音频，返回 (转录文本, 逐字稿生成文件名)"""
     if not os.path.exists(file_path):
-        return f"错误：找不到文件 {file_path}"
+        return f"错误：找不到文件 {file_path}", None
     
-    st.toast("🎙️ 正在准备转录音视频语音...", icon="⏳")
-    try:
-        model = WhisperModel("base", device="cpu", compute_type="int8")
+    if emit_callback:
+        emit_callback("🎙️ 正在启动 Faster-Whisper 音频转录引擎...")
         
+    try:
+        model = get_whisper_model()
         file_size_mb = os.path.getsize(file_path) / (1024 * 1024)
         full_transcript = ""
         
         if file_size_mb > 25:
-            st.toast(f"检测到大文件 ({file_size_mb:.1f}MB)，正在后台极速切片防崩溃...", icon="✂️")
-            temp_dir = tempfile.gettempdir()
-            base_name = os.path.basename(file_path)
-            # 使用源文件的后缀，以防 ffmpeg copy 报错
-            ext = os.path.splitext(file_path)[1]
-            if not ext:
-                ext = ".mp4"
-            chunk_pattern = os.path.join(temp_dir, f"chunk_{base_name}_%03d{ext}")
+            if emit_callback:
+                emit_callback(f"✂️ 检测到大文件 ({file_size_mb:.1f}MB)，正在后台极速无损分段切片...")
+                
+            temp_dir = BASE_DIR / "uploads" / "chunks"
+            temp_dir.mkdir(parents=True, exist_ok=True)
+            base_name = Path(file_path).stem
+            ext = Path(file_path).suffix or ".mp4"
+            chunk_pattern = str(temp_dir / f"chunk_{base_name}_%03d{ext}")
             
             subprocess.run([
-                "ffmpeg", "-y", "-i", file_path, 
-                "-f", "segment", "-segment_time", "600", 
+                "ffmpeg", "-y", "-i", file_path,
+                "-f", "segment", "-segment_time", "600",
                 "-c", "copy", chunk_pattern
             ], capture_output=True)
             
-            chunk_files = sorted(glob.glob(os.path.join(temp_dir, f"chunk_{base_name}_*{ext}")))
+            chunk_files = sorted(glob.glob(str(temp_dir / f"chunk_{base_name}_*{ext}")))
             
             if not chunk_files:
-                # 兼容部分环境无 ffmpeg，回退到整体识别
-                st.toast("音频分段环境准备中，正在尝试直接解析...", icon="⚠️")
-                segments, info = model.transcribe(file_path, beam_size=5)
-                for segment in segments:
-                    full_transcript += segment.text
+                if emit_callback:
+                    emit_callback("⚠️ 未检测到分片，回退到全局整体转录...")
+                segments, _ = model.transcribe(file_path, beam_size=5)
+                for s in segments:
+                    full_transcript += s.text
             else:
+                total_chunks = len(chunk_files)
                 for i, chunk_file in enumerate(chunk_files):
-                    st.toast(f"正在处理第 {i+1}/{len(chunk_files)} 个片段...", icon="⚙️")
-                    segments, info = model.transcribe(chunk_file, beam_size=5)
-                    for segment in segments:
-                        full_transcript += segment.text
-                    os.remove(chunk_file)
+                    if emit_callback:
+                        emit_callback(f"⚙️ 正在转录第 {i+1}/{total_chunks} 个语音片段...")
+                    segments, _ = model.transcribe(chunk_file, beam_size=5)
+                    for s in segments:
+                        full_transcript += s.text
+                    try:
+                        os.remove(chunk_file)
+                    except Exception:
+                        pass
         else:
-            st.toast("正在转录短音频...", icon="⚙️")
-            segments, info = model.transcribe(file_path, beam_size=5)
-            transcript = [segment.text for segment in segments]
-            full_transcript = "".join(transcript).strip()
+            if emit_callback:
+                emit_callback("⚙️ 音频长度适中，正在全速转录中...")
+            segments, _ = model.transcribe(file_path, beam_size=5)
+            full_transcript = "".join([s.text for s in segments])
             
         full_transcript = full_transcript.strip()
         
-        txt_path = os.path.splitext(file_path)[0] + "_逐字稿.txt"
-        with open(txt_path, "w", encoding="utf-8") as f:
+        # 写入 outputs 目录供下载
+        transcript_filename = f"会议逐字稿_{uuid.uuid4().hex[:6]}.txt"
+        transcript_path = OUTPUTS_DIR / transcript_filename
+        with open(transcript_path, "w", encoding="utf-8") as f:
             f.write(full_transcript)
             
-        # 将逐字稿一并推送到前端的下载列表中
-        if "generated_files" not in st.session_state:
-            st.session_state.generated_files = {}
-        st.session_state.generated_files["会议逐字稿.txt"] = full_transcript.encode("utf-8")
-        
-        # 释放硬盘资源
-        if os.path.exists(txt_path):
-            os.remove(txt_path)
-            
-        return f"语音转录成功！以下为转录文本内容：\n{full_transcript}"
+        return f"语音转录成功！以下为转录文本内容：\n{full_transcript}", transcript_filename
     except Exception as e:
-        return f"语音转录失败，错误原因: {str(e)}"
+        return f"语音转录失败，原因: {str(e)}", None
 
-def extract_pdf_text(file_path):
+def extract_pdf_text(file_path: str, emit_callback=None) -> str:
     if not os.path.exists(file_path):
         return f"错误：找不到文件 {file_path}"
-    
-    st.toast("📄 正在提取 PDF 文本...", icon="⏳")
+    if emit_callback:
+        emit_callback("📄 正在解析 PDF 文档排版与文本...")
     try:
         import PyPDF2
         text = ""
@@ -245,19 +239,17 @@ def extract_pdf_text(file_path):
                 extracted = page.extract_text()
                 if extracted:
                     text += extracted + "\n"
-        
         if not text.strip():
-            return "PDF 提取完成，但未发现任何文本。这可能是一个扫描版或纯图片的 PDF，当前系统无法读取其中的文字。请告知用户该文档不支持提取，并请用户提供原版文档或音频。"
-            
-        return f"PDF 文本提取成功！以下为文本内容：\n{text}"
+            return "PDF 提取完成，但未发现纯文本内容（可能是纯图片扫描版）。"
+        return f"PDF 文本提取成功！内容如下：\n{text}"
     except Exception as e:
-        return f"PDF 文本提取失败，错误原因: {str(e)}"
+        return f"PDF 提取失败: {str(e)}"
 
-def extract_ppt_text(file_path):
+def extract_ppt_text(file_path: str, emit_callback=None) -> str:
     if not os.path.exists(file_path):
         return f"错误：找不到文件 {file_path}"
-    
-    st.toast("📊 正在提取 PPT 文本...", icon="⏳")
+    if emit_callback:
+        emit_callback("📊 正在提取 PPTX 演示幻灯片内容...")
     try:
         from pptx import Presentation
         prs = Presentation(file_path)
@@ -269,15 +261,15 @@ def extract_ppt_text(file_path):
                     text += shape.text + "\n"
         return f"PPT 文本提取成功！内容如下：\n{text}"
     except Exception as e:
-        return f"PPT 文本提取失败，错误原因: {str(e)}"
+        return f"PPT 提取失败: {str(e)}"
 
 def generate_minit_curai(
-    file_path, tajuk_program, tarikh, masa, tempat, penganjur, penceramah,
-    nama_sekolah="NAMA SEKOLAH", alamat_sekolah="ALAMAT SEKOLAH",
-    nama_penyedia="NAMA GURU", jawatan_penyedia="Guru Penolong",
-    nama_pengesah="NAMA GURU BESAR", jawatan_pengesah="Guru Besar",
-    salinan_kepada="SEMUA GURU", pengisian_items=[]
-):
+    file_path: str, tajuk_program: str, tarikh: str, masa: str, tempat: str, penganjur: str, penceramah: str,
+    nama_sekolah: str = "NAMA SEKOLAH", alamat_sekolah: str = "ALAMAT SEKOLAH",
+    nama_penyedia: str = "NAMA GURU", jawatan_penyedia: str = "Guru Penolong",
+    nama_pengesah: str = "NAMA GURU BESAR", jawatan_pengesah: str = "Guru Besar",
+    salinan_kepada: str = "SEMUA GURU", pengisian_items: list = []
+) -> str:
     doc = docx.Document()
     
     for section in doc.sections:
@@ -372,15 +364,9 @@ def generate_minit_curai(
     p_right.add_run("Tarikh : ")
     
     doc.save(file_path)
-    
-    if "generated_files" not in st.session_state:
-        st.session_state.generated_files = {}
-    with open(file_path, "rb") as f:
-        st.session_state.generated_files[os.path.basename(file_path)] = f.read()
-        
-    return "成功生成公文！【重要指示】请在回复中明确告诉用户：公文已成功生成，请点击网页左侧边栏底部的『📥 下载生成的公文』按钮进行下载。绝对不要在回复中提供虚假的文件下载链接！"
+    return "成功生成标准公文 Word 文件！"
 
-# ================= 工具 Schema 定义 =================
+# ================= Agent 工具 Schema =================
 tools = [
     {
         "type": "function",
@@ -442,7 +428,7 @@ tools = [
         "type": "function",
         "function": {
             "name": "generate_minit_curai",
-            "description": "严格按照标准格式生成规范的 Minit Curai Word 文档",
+            "description": "严格按照马来西亚教育机构标准格式生成规范的 Minit Curai Word 文档",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -479,8 +465,7 @@ tools = [
     }
 ]
 
-# ================= 交互核心 =================
-system_prompt = """
+SYSTEM_PROMPT = """
 你是马来西亚全国教师专属的教学与公文助理。
 
 【最高优先级铁律】：
@@ -491,129 +476,252 @@ system_prompt = """
 5. 你完全支持中文（华文），当用户询问或要求使用华文生成会议记录（Minit Curai）时，请使用华文来生成内容，并且与用户使用华文进行对话。
 """
 
-if "messages" not in st.session_state:
-    st.session_state.messages = [{"role": "system", "content": system_prompt}]
+# ================= API 路由 =================
 
-# 显示历史消息 (过滤掉 system 提示和 tool 的原始调用，保持界面整洁)
-for msg in st.session_state.messages:
-    if msg["role"] == "user":
-        with st.chat_message("user"):
-            st.markdown(msg["content"])
-    elif msg["role"] == "assistant" and msg.get("content"):
-        with st.chat_message("assistant"):
-            st.markdown(msg["content"])
-    elif msg["role"] == "tool":
-        # 可以选择显示工具执行结果
-        with st.chat_message("assistant", avatar="⚙️"):
-            st.info(f"✅ 工具执行完毕: {msg.get('name', 'Tool')}")
+@app.get("/api/status")
+async def get_status():
+    """获取服务健康状态与运行环境"""
+    cleanup_old_files()
+    ffmpeg_available = shutil.which("ffmpeg") is not None
+    return {
+        "status": "online",
+        "service": "AI-Agent Multi-Modal Backend",
+        "version": "2.0.0",
+        "ffmpeg_available": ffmpeg_available,
+        "has_server_api_key": bool(DEFAULT_API_KEY),
+        "default_model": DEFAULT_MODEL,
+        "timestamp": time.time()
+    }
 
-# 获取用户输入
-if prompt := st.chat_input("输入你的指令，例如：'帮我整理刚才上传的会议视频并生成公文'"):
+@app.post("/api/upload")
+async def upload_file(file: UploadFile = File(...), request: Request = None):
+    """文件上传接口，保存到本地临时存储并返回文件信息"""
+    cleanup_old_files()
+    client_ip = request.client.host if request and request.client else "unknown"
     
-    # 如果用户上传了文件，我们悄悄在用户的提示词里附上文件路径
-    if st.session_state.get("current_file_paths"):
-        paths_str = "\n".join(st.session_state["current_file_paths"])
-        context_prompt = f"{prompt}\n[系统提示：用户已上传文件，路径为:\n{paths_str}]"
-    else:
-        context_prompt = prompt
-
-    st.session_state.messages.append({"role": "user", "content": context_prompt})
+    ext = Path(file.filename).suffix
+    safe_name = f"{uuid.uuid4().hex[:8]}_{file.filename}"
+    saved_path = UPLOADS_DIR / safe_name
     
-    with st.chat_message("user"):
-        st.markdown(prompt)
-
-    with st.chat_message("assistant"):
-        message_placeholder = st.empty()
+    with open(saved_path, "wb") as f:
+        shutil.copyfileobj(file.file, f)
         
-        with st.spinner("思考中..."):
-            try:
-                # 允许模型进行连续的思考和多轮工具调用（最多 5 轮）
-                for _ in range(5):
-                    response = client.chat.completions.create(
-                        model=model_name,
-                        messages=st.session_state.messages,
-                        tools=tools
+    file_size = os.path.getsize(saved_path)
+    log_audit_event("UPLOAD_FILE", client_ip, f"文件名: {file.filename} | 大小: {file_size / (1024*1024):.2f}MB")
+    
+    return {
+        "status": "success",
+        "filename": file.filename,
+        "saved_path": str(saved_path),
+        "file_size": file_size
+    }
+
+class ChatRequest(BaseModel):
+    messages: List[Dict[str, Any]]
+    current_files: Optional[List[str]] = []
+    api_key: Optional[str] = ""
+    base_url: Optional[str] = ""
+    model: Optional[str] = ""
+
+@app.post("/api/chat")
+async def chat_stream(req: ChatRequest, request: Request):
+    """
+    智能 Agent 对话流（通过 SSE Server-Sent Events 实现多轮思考、工具执行与打字机响应）
+    """
+    client_ip = request.client.host if request.client else "unknown"
+    log_audit_event("CHAT_REQUEST", client_ip, f"消息轮数: {len(req.messages)}")
+    
+    actual_api_key = req.api_key.strip() if req.api_key else DEFAULT_API_KEY
+    actual_base_url = req.base_url.strip() if req.base_url else DEFAULT_BASE_URL
+    actual_model = req.model.strip() if req.model else DEFAULT_MODEL
+    
+    if not actual_api_key:
+        async def err_stream():
+            err_msg = "❌ 服务端及客户端均未配置 Nvidia NIM API Key。请在前端右上角【设置】中填入你的 API Key！"
+            yield f"data: {json.dumps({'type': 'error', 'message': err_msg}, ensure_ascii=False)}\n\n"
+        return StreamingResponse(err_stream(), media_type="text/event-stream")
+    
+    client = OpenAI(
+        base_url=actual_base_url,
+        api_key=actual_api_key,
+        timeout=120.0
+    )
+    
+    async def event_generator():
+        # 构建初始消息列表
+        convo_messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+        
+        # 复制用户传入的会话历史
+        for msg in req.messages:
+            convo_messages.append({"role": msg.get("role"), "content": msg.get("content")})
+            
+        # 如果当前有挂载的文件，静默给最后一条用户指令注入文件上下文
+        if req.current_files and convo_messages[-1]["role"] == "user":
+            files_prompt = "\n".join(req.current_files)
+            convo_messages[-1]["content"] += f"\n[系统提示：用户已上传待处理文件，路径如下:\n{files_prompt}]"
+            
+        # 工具执行状态回调队列
+        loop = asyncio.get_running_loop()
+        status_queue = asyncio.Queue()
+        
+        def emit_status(status_text: str):
+            loop.call_soon_threadsafe(status_queue.put_nowait, status_text)
+            
+        # 多轮工具调用循环（最多允许 5 轮思考与工具链触发）
+        try:
+            for round_idx in range(5):
+                yield f"data: {json.dumps({'type': 'thought', 'message': f'AI Agent 正在分析与组织下一步执行策略 (第 {round_idx+1} 轮)...'}, ensure_ascii=False)}\n\n"
+                
+                # 调用 LLM 判断是否触发工具
+                response = await asyncio.to_thread(
+                    client.chat.completions.create,
+                    model=actual_model,
+                    messages=convo_messages,
+                    tools=tools
+                )
+                
+                resp_message = response.choices[0].message
+                convo_messages.append(resp_message.model_dump(exclude_none=True))
+                
+                # 如果无需调用工具，输出内容并结束
+                if not resp_message.tool_calls:
+                    final_text = resp_message.content or ""
+                    yield f"data: {json.dumps({'type': 'content', 'delta': final_text}, ensure_ascii=False)}\n\n"
+                    break
+                    
+                # 遍历处理本轮请求的所有工具
+                for tool_call in resp_message.tool_calls:
+                    func_name = tool_call.function.name
+                    args = json.loads(tool_call.function.arguments)
+                    
+                    yield f"data: {json.dumps({'type': 'tool_start', 'name': func_name, 'args': args}, ensure_ascii=False)}\n\n"
+                    
+                    tool_result = ""
+                    generated_file_info = None
+                    
+                    # 启动后台线程执行可能耗时的本地多模态工具，同时排空并发送 status_queue 状态
+                    async def run_tool():
+                        nonlocal tool_result, generated_file_info
+                        if func_name == "transcribe_audio":
+                            res_text, transcript_file = transcribe_audio(args.get("file_path"), emit_callback=emit_status)
+                            tool_result = res_text
+                            if transcript_file:
+                                generated_file_info = {
+                                    "filename": transcript_file,
+                                    "title": "会议完整逐字稿 (.txt)",
+                                    "url": f"/api/download/{transcript_file}"
+                                }
+                        elif func_name == "extract_slides_text":
+                            tool_result = extract_slides_text(args.get("video_path"), client=client, emit_callback=emit_status)
+                        elif func_name == "extract_pdf_text":
+                            tool_result = extract_pdf_text(args.get("file_path"), emit_callback=emit_status)
+                        elif func_name == "extract_ppt_text":
+                            tool_result = extract_ppt_text(args.get("file_path"), emit_callback=emit_status)
+                        elif func_name == "generate_minit_curai":
+                            raw_filename = os.path.basename(args.get("file_path", "Minit_Curai.docx"))
+                            if not raw_filename.endswith(".docx"):
+                                raw_filename += ".docx"
+                            unique_filename = f"Minit_Curai_{uuid.uuid4().hex[:6]}.docx"
+                            save_path = str(OUTPUTS_DIR / unique_filename)
+                            
+                            emit_status("📄 正在按照规范排版生成 Minit Curai 官函文档...")
+                            tool_result = generate_minit_curai(
+                                file_path=save_path,
+                                tajuk_program=args.get("tajuk_program", "TAJUK"),
+                                tarikh=args.get("tarikh", "TARIKH"),
+                                masa=args.get("masa", "MASA"),
+                                tempat=args.get("tempat", "TEMPAT"),
+                                penganjur=args.get("penganjur", args.get("penceramah", "PENGANJUR")),
+                                penceramah=args.get("penceramah", "PENCERAMAH"),
+                                nama_sekolah=args.get("nama_sekolah", "NAMA SEKOLAH"),
+                                alamat_sekolah=args.get("alamat_sekolah", "ALAMAT SEKOLAH"),
+                                nama_penyedia=args.get("nama_penyedia", "NAMA GURU"),
+                                jawatan_penyedia=args.get("jawatan_penyedia", "Guru Penolong"),
+                                nama_pengesah=args.get("nama_pengesah", "NAMA GURU BESAR"),
+                                jawatan_pengesah=args.get("jawatan_pengesah", "Guru Besar"),
+                                salinan_kepada=args.get("salinan_kepada", "SEMUA GURU"),
+                                pengisian_items=args.get("pengisian_items", [])
+                            )
+                            generated_file_info = {
+                                "filename": unique_filename,
+                                "title": "标准 Minit Curai 公文 (.docx)",
+                                "url": f"/api/download/{unique_filename}"
+                            }
+                        else:
+                            tool_result = f"未知的工具名称: {func_name}"
+                            
+                    task = asyncio.create_task(asyncio.to_thread(lambda: asyncio.run(run_tool()) if False else None)) # placeholder
+                    tool_future = asyncio.to_thread(
+                        lambda: asyncio.run(run_tool()) if False else None # we invoke run_tool synchronously in thread
                     )
                     
-                    response_message = response.choices[0].message
-                    st.session_state.messages.append(response_message.model_dump(exclude_none=True))
+                    # 真正执行并在前台流式输出中间进度
+                    tool_task = asyncio.create_task(run_tool())
+                    while not tool_task.done():
+                        try:
+                            msg = await asyncio.wait_for(status_queue.get(), timeout=0.2)
+                            yield f"data: {json.dumps({'type': 'thought', 'message': msg}, ensure_ascii=False)}\n\n"
+                        except asyncio.TimeoutError:
+                            pass
+                    await tool_task
                     
-                    # 如果没有调用工具，直接显示模型的最终回答并跳出循环
-                    if not response_message.tool_calls:
-                        message_placeholder.markdown(response_message.content)
-                        break
+                    # 剩余的 status_queue 全部吐出
+                    while not status_queue.empty():
+                        msg = status_queue.get_nowait()
+                        yield f"data: {json.dumps({'type': 'thought', 'message': msg}, ensure_ascii=False)}\n\n"
                         
-                    # 执行模型请求的所有工具
-                    for tool_call in response_message.tool_calls:
-                        func_name = tool_call.function.name
-                        args = json.loads(tool_call.function.arguments)
-                        
-                        with st.status(f"执行工具: {func_name}...", expanded=True):
-                            st.write(f"参数: {args}")
-                            
-                            if func_name == "transcribe_audio":
-                                result = transcribe_audio(args.get("file_path"))
-                            elif func_name == "extract_slides_text":
-                                result = extract_slides_text(args.get("video_path"))
-                            elif func_name == "extract_pdf_text":
-                                result = extract_pdf_text(args.get("file_path"))
-                            elif func_name == "extract_ppt_text":
-                                result = extract_ppt_text(args.get("file_path"))
-                            elif func_name == "generate_minit_curai":
-                                # 强制将文件保存在临时文件夹中，提取文件名
-                                filename = os.path.basename(args.get("file_path", "Minit_Curai.docx"))
-                                if not filename.endswith(".docx"):
-                                    filename += ".docx"
-                                
-                                # 使用 uuid 结合原文件名，防止全国教师并发生成时出现覆盖串车
-                                safe_filename = f"{str(uuid.uuid4())[:8]}_{filename}"
-                                save_path = os.path.join(tempfile.gettempdir(), safe_filename)
-                                
-                                result = generate_minit_curai(
-                                    file_path=save_path,
-                                    tajuk_program=args.get("tajuk_program"),
-                                    tarikh=args.get("tarikh"),
-                                    masa=args.get("masa"),
-                                    tempat=args.get("tempat"),
-                                    penganjur=args.get("penganjur", args.get("penceramah")),
-                                    penceramah=args.get("penceramah"),
-                                    nama_sekolah=args.get("nama_sekolah", "NAMA SEKOLAH"),
-                                    alamat_sekolah=args.get("alamat_sekolah", "ALAMAT SEKOLAH"),
-                                    nama_penyedia=args.get("nama_penyedia", "NAMA GURU"),
-                                    jawatan_penyedia=args.get("jawatan_penyedia", "Guru Penolong"),
-                                    nama_pengesah=args.get("nama_pengesah", "NAMA GURU BESAR"),
-                                    jawatan_pengesah=args.get("jawatan_pengesah", "Guru Besar"),
-                                    salinan_kepada=args.get("salinan_kepada", "SEMUA GURU"),
-                                    pengisian_items=args.get("pengisian_items", [])
-                                )
-                                
-                                # 将生成的文件读取到 session_state 中，实现持久化下载
-                                if os.path.exists(save_path):
-                                    with open(save_path, "rb") as f:
-                                        file_bytes = f.read()
-                                    if "generated_files" not in st.session_state:
-                                        st.session_state.generated_files = {}
-                                    # 对外呈现的下载文件名依然保持干净
-                                    st.session_state.generated_files[filename] = file_bytes
-                                    
-                                    # 已经读入内存，立即删除硬盘上的文件防止资源泄漏
-                                    os.remove(save_path)
-                                    
-                                    st.success(f"🎉 文件已生成，请在左侧侧边栏点击下载！")
-                            else:
-                                result = "未知工具"
-                                
-                            st.write("执行结果:", result)
-                        
-                        st.session_state.messages.append({
-                            "role": "tool",
-                            "tool_call_id": tool_call.id,
-                            "name": func_name,
-                            "content": str(result)
-                        })
-                        
-                # 当整个工具链执行完毕并有了最终回复后，强制刷新页面以立刻渲染侧边栏的下载按钮
-                st.rerun()
+                    # 发送工具结果
+                    yield f"data: {json.dumps({'type': 'tool_done', 'name': func_name, 'summary': '执行成功'}, ensure_ascii=False)}\n\n"
                     
-            except Exception as e:
-                st.error(f"请求出错: {str(e)}")
+                    # 如果生成了可下载的文件，即刻推送到前端
+                    if generated_file_info:
+                        yield f"data: {json.dumps({'type': 'file_ready', **generated_file_info}, ensure_ascii=False)}\n\n"
+                        
+                    convo_messages.append({
+                        "role": "tool",
+                        "tool_call_id": tool_call.id,
+                        "name": func_name,
+                        "content": str(tool_result)
+                    })
+                    
+            yield f"data: {json.dumps({'type': 'done'}, ensure_ascii=False)}\n\n"
+            
+        except Exception as e:
+            err_str = f"Agent 执行异常: {str(e)}"
+            print(f"[Agent Error] {e}")
+            yield f"data: {json.dumps({'type': 'error', 'message': err_str}, ensure_ascii=False)}\n\n"
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+@app.get("/api/download/{filename}")
+async def download_file(filename: str):
+    """安全下载生成的 Word 公文或逐字稿"""
+    # 路径安全防护，防止目录穿越
+    clean_name = os.path.basename(filename)
+    target_file = OUTPUTS_DIR / clean_name
+    
+    if not target_file.exists():
+        raise HTTPException(status_code=404, detail="文件不存在或已被系统自动回收")
+        
+    media_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    if clean_name.endswith(".txt"):
+        media_type = "text/plain; charset=utf-8"
+        
+    return FileResponse(
+        path=str(target_file),
+        filename=clean_name,
+        media_type=media_type
+    )
+
+@app.get("/api/admin/logs")
+async def get_admin_logs(limit: int = 50):
+    """查看最近的系统访问与使用审计日志"""
+    if not AUDIT_LOG_FILE.exists():
+        return {"logs": []}
+    with open(AUDIT_LOG_FILE, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+    return {"logs": lines[-limit:]}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("app:app", host="0.0.0.0", port=8502, reload=True)
