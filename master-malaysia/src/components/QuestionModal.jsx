@@ -7,6 +7,18 @@ export default function QuestionModal({ currentQuestion, gameState, onAnswer, on
   const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
   const isMyTurn = !isOnline || (currentPlayer && currentPlayer.id === localPlayerId);
 
+  const isTrueFalse = Boolean(
+    (currentQuestion?.options && currentQuestion.options.length === 2) ||
+    (currentQuestion?.answer && (
+      currentQuestion.answer.toString().trim().toUpperCase().startsWith('TRUE') ||
+      currentQuestion.answer.toString().trim().toUpperCase().startsWith('FALSE') ||
+      currentQuestion.answer.toString().trim().toUpperCase().startsWith('BENAR') ||
+      currentQuestion.answer.toString().trim().toUpperCase().startsWith('PALSU') ||
+      currentQuestion.answer.toString().trim().startsWith('正确') ||
+      currentQuestion.answer.toString().trim().startsWith('错误')
+    ))
+  );
+
   useEffect(() => {
     let timer;
     if (gameState === 'ANSWERING' && !isAnswerRevealed && timeLeft > 0) {
@@ -14,15 +26,38 @@ export default function QuestionModal({ currentQuestion, gameState, onAnswer, on
     } else if (gameState === 'ANSWERING' && timeLeft === 0 && !isAnswerRevealed) {
       // In online mode, only the active player submits timeout
       if (isMyTurn) {
-        if (currentQuestion?.options?.length === 4) {
-          onAnswer(false); // Time out counts as wrong answer for MCQ
+        if (currentQuestion?.options?.length === 4 || isTrueFalse) {
+          onAnswer(false); // Time out counts as wrong answer for MCQ and True/False
         } else {
           setIsAnswerRevealed(true);
         }
       }
     }
     return () => clearTimeout(timer);
-  }, [timeLeft, gameState, isAnswerRevealed, currentQuestion, onAnswer, isMyTurn]);
+  }, [timeLeft, gameState, isAnswerRevealed, currentQuestion, onAnswer, isMyTurn, isTrueFalse]);
+
+  const handleSelectOption = (option) => {
+    if (isTrueFalse) {
+      const optNorm = option.toString().trim().toUpperCase();
+      const isSelectedTrue = 
+        optNorm === 'TRUE' || 
+        optNorm === 'BENAR' || 
+        optNorm === 'BETUL' || 
+        option.toString().trim() === '正确';
+
+      const ansNorm = currentQuestion.answer ? currentQuestion.answer.toString().trim().toUpperCase() : '';
+      const isAnswerTrue = 
+        ansNorm.startsWith('TRUE') || 
+        ansNorm.startsWith('BENAR') || 
+        ansNorm.startsWith('BETUL') || 
+        (currentQuestion.answer && currentQuestion.answer.toString().trim().startsWith('正确'));
+
+      const isCorrect = (isSelectedTrue === isAnswerTrue);
+      onAnswer(isCorrect);
+    } else {
+      onAnswer(option === currentQuestion.answer);
+    }
+  };
 
   useEffect(() => {
     if (gameState === 'DRAW_CARD') {
@@ -181,7 +216,67 @@ export default function QuestionModal({ currentQuestion, gameState, onAnswer, on
               </div>
             )}
             
-            {currentQuestion.options && currentQuestion.options.length === 4 ? (
+            {isTrueFalse ? (
+              <div className="tf-options-grid" style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '20px',
+                marginTop: '25px',
+                pointerEvents: (!isMyTurn) ? 'none' : 'auto',
+                opacity: (!isMyTurn) ? 0.75 : 1
+              }}>
+                {(() => {
+                  const optionsToRender = (currentQuestion.options && currentQuestion.options.length === 2)
+                    ? currentQuestion.options
+                    : [t('modal.true'), t('modal.false')];
+                  return optionsToRender.map((option, idx) => {
+                    const optNorm = option.toString().trim().toUpperCase();
+                    const isTrueBtn = optNorm === 'TRUE' || optNorm === 'BENAR' || optNorm === 'BETUL' || option.toString().trim() === '正确' || idx === 0;
+                    return (
+                      <button 
+                        key={idx} 
+                        className="btn-option tf-btn" 
+                        style={{ 
+                          padding: '18px 20px', 
+                          background: isTrueBtn ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)', 
+                          backdropFilter: 'blur(4px)',
+                          border: isTrueBtn ? '2px solid #10b981' : '2px solid #ef4444', 
+                          borderRadius: '16px', 
+                          fontSize: '1.4rem', 
+                          cursor: isMyTurn ? 'pointer' : 'default',
+                          boxShadow: '0 4px 15px rgba(0,0,0,0.06)',
+                          transition: 'all 0.2s ease',
+                          color: isTrueBtn ? '#065f46' : '#991b1b',
+                          fontWeight: 'bold',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '10px'
+                        }}
+                        onMouseOver={(e) => { 
+                          if (isMyTurn) { 
+                            e.currentTarget.style.transform = 'translateY(-3px)'; 
+                            e.currentTarget.style.boxShadow = isTrueBtn ? '0 8px 25px rgba(16, 185, 129, 0.3)' : '0 8px 25px rgba(239, 68, 68, 0.3)';
+                            e.currentTarget.style.background = isTrueBtn ? 'rgba(16, 185, 129, 0.22)' : 'rgba(239, 68, 68, 0.22)'; 
+                          } 
+                        }}
+                        onMouseOut={(e) => { 
+                          if (isMyTurn) { 
+                            e.currentTarget.style.transform = 'none'; 
+                            e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.06)';
+                            e.currentTarget.style.background = isTrueBtn ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)'; 
+                          } 
+                        }}
+                        onClick={() => handleSelectOption(option)}
+                      >
+                        <span style={{ fontSize: '1.6rem' }}>{isTrueBtn ? '✓' : '✗'}</span>
+                        <span>{option}</span>
+                      </button>
+                    );
+                  });
+                })()}
+              </div>
+            ) : currentQuestion.options && currentQuestion.options.length === 4 ? (
               <div className="options-grid" style={{
                 display: 'grid',
                 gridTemplateColumns: '1fr 1fr',
@@ -209,7 +304,7 @@ export default function QuestionModal({ currentQuestion, gameState, onAnswer, on
                     }}
                     onMouseOver={(e) => { if (isMyTurn) { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.background = 'rgba(255, 255, 255, 0.8)'; } }}
                     onMouseOut={(e) => { if (isMyTurn) { e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.8)'; e.currentTarget.style.transform = 'none'; e.currentTarget.style.background = 'rgba(255, 255, 255, 0.5)'; } }}
-                    onClick={() => onAnswer(option === currentQuestion.answer)}
+                    onClick={() => handleSelectOption(option)}
                   >
                     {option}
                   </button>

@@ -2313,6 +2313,165 @@
         "马六甲 (MELAKA)",
         "吉打 (KEDAH)"
       ]
+    },
+    {
+      "id": "heritage-96",
+      "question": "我国国家航空公司——马来西亚航空（Malaysia Airlines）的标志是什么？",
+      "answer": "月亮风筝 (Wau Bulan)",
+      "options": [
+        "天鹅",
+        "红毛猩猩",
+        "蜻蜓",
+        "月亮风筝 (Wau Bulan)"
+      ]
+    },
+    {
+      "id": "heritage-97",
+      "question": "谁设计了怡保圣米高修道院中学（St. Michael's Institution）的第一座建筑？",
+      "answer": "VERNIE AUGUSTE",
+      "options": [
+        "VERNIE AUGUSTE",
+        "A.C. NORMAN",
+        "LILIAN LANE",
+        "ST. MICHAEL"
+      ]
+    },
+    {
+      "id": "heritage-98",
+      "question": "吉隆坡独立广场的旗杆高度是多少？",
+      "answer": "100 米",
+      "options": [
+        "150 米",
+        "100 米",
+        "75 米",
+        "50 米"
+      ]
+    },
+    {
+      "id": "heritage-99",
+      "question": "吉隆坡的中央艺术坊（Central Market）又被称为什么？",
+      "answer": "PASAR SENI (艺术巴刹)",
+      "options": [
+        "PASAR MALAM (夜市)",
+        "PASAR SENI (艺术巴刹)",
+        "PASAR RAYA (超级市场)",
+        "PASAR KELANTAN (吉兰丹巴刹)"
+      ]
+    },
+    {
+      "id": "heritage-100",
+      "question": "请说出马来西亚历史最悠久的监狱名称。",
+      "answer": "太平监狱 (TAIPING PRISON)",
+      "options": [
+        "太平监狱 (TAIPING PRISON)",
+        "棉兰监狱 (MEDAN PRISON)",
+        "居銮监狱 (KLUANG PRISON)",
+        "槟城监狱 (PENANG PRISON)"
+      ]
+    }
+  ],
+  "elementary_black": [
+    {
+      "id": "elementary_black-96",
+      "question": "玻璃市是马来西亚面积最小的州属。正确 / 错误",
+      "answer": "正确",
+      "options": [
+        "正确",
+        "错误"
+      ]
+    },
+    {
+      "id": "elementary_black-97",
+      "question": "新加坡在1964年曾是马来西亚的一部分。正确 / 错误",
+      "answer": "正确",
+      "options": [
+        "正确",
+        "错误"
+      ]
+    },
+    {
+      "id": "elementary_black-98",
+      "question": "彭亨州是马来西亚半岛面积最大的州属。正确 / 错误",
+      "answer": "正确",
+      "options": [
+        "正确",
+        "错误"
+      ]
+    },
+    {
+      "id": "elementary_black-99",
+      "question": "彭亨河是马来西亚最长的河流。正确 / 错误",
+      "answer": "错误。答案：拉让江 (SUNGAI RAJANG)",
+      "options": [
+        "正确",
+        "错误"
+      ]
+    },
+    {
+      "id": "elementary_black-100",
+      "question": "马来西亚于1957年获得独立。正确 / 错误",
+      "answer": "正确",
+      "options": [
+        "正确",
+        "错误"
+      ]
+    }
+  ],
+  "general": [
+    {
+      "id": "general-96",
+      "question": "哪个州属被称为“风下之乡”？",
+      "answer": "沙巴 (SABAH)",
+      "options": [
+        "沙巴 (SABAH)",
+        "砂拉越 (SARAWAK)",
+        "登嘉楼 (TERENGGANU)",
+        "玻璃市 (PERLIS)"
+      ]
+    },
+    {
+      "id": "general-97",
+      "question": "请说出在马来半岛发现的三大原住民群体。",
+      "answer": "尼格利陀人、塞诺伊人和原始马来人 (NEGRITOS, SENOI and PROTO-MALAYS)",
+      "options": [
+        "达雅族、卡达山族与伊班族",
+        "尼格利陀人、塞诺伊人和原始马来人 (NEGRITOS, SENOI and PROTO-MALAYS)",
+        "毛律族、巴瑶族与马兰诺族",
+        "塞芒人、加昆人与特穆安人"
+      ]
+    },
+    {
+      "id": "general-98",
+      "question": "PORIM 代表什么机构？",
+      "answer": "马来西亚棕榈油研究所 (PALM OIL RESEARCH INSTITUTE OF MALAYSIA)",
+      "options": [
+        "马来西亚棕榈油研究所 (PALM OIL RESEARCH INSTITUTE OF MALAYSIA)",
+        "马来西亚棕榈油资源研究所",
+        "马来西亚棕榈油研究理事会",
+        "马来西亚种植业油品研究所"
+      ]
+    },
+    {
+      "id": "general-99",
+      "question": "请说出马来西亚引入的第一个大众捷运系统。",
+      "answer": "实达轻快铁 (STAR LRT)",
+      "options": [
+        "布特拉轻快铁 (Putra LRT)",
+        "格拉那再也线 (Kelana Jaya Line)",
+        "吉隆坡单轨列车 (KL Monorail)",
+        "实达轻快铁 (STAR LRT)"
+      ]
+    },
+    {
+      "id": "general-100",
+      "question": "“香蕉之王”（Pisang Embun，大米蕉）又称为什么？",
+      "answer": "牙买加香蕉 (JAMAICAN BANANA)",
+      "options": [
+        "皇帝蕉 (LADY FINGER BANANA)",
+        "红肉蕉 (PISANG RAJA)",
+        "牙买加香蕉 (JAMAICAN BANANA)",
+        "华蕉 (CAVENDISH BANANA)"
+      ]
     }
   ]
 }

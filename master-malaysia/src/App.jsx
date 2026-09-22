@@ -191,9 +191,12 @@ function App() {
       
       const shuffle = (array) => [...(array || [])].sort(() => Math.random() - 0.5);
       
-      const getCategory = (cat) => {
-         const arr = data[cat] || [];
-         if (arr.length < 10) return shuffle(questionsData[cat]); // Fallback to EN if translating
+      const getCategory = (cat, fallbackCat = null) => {
+         const arr = data[cat] || (fallbackCat ? data[fallbackCat] : []) || [];
+         if (arr.length < 5) {
+           const fallbackData = questionsData[cat] || (fallbackCat ? questionsData[fallbackCat] : []) || [];
+           return shuffle(fallbackData);
+         }
          return shuffle(arr);
       };
       
@@ -202,7 +205,7 @@ function App() {
         people: getCategory('people'),
         heritage: getCategory('heritage'),
         culture: getCategory('culture'),
-        general: getCategory('general')
+        general: getCategory('elementary_black', 'general')
       };
       questionDecksRef.current = newDecks;
       setQuestionDecks(newDecks);
@@ -219,7 +222,10 @@ function App() {
 
     let deck = [...(questionDecksRef.current[category] || [])];
     if (deck.length === 0) {
-      deck = [...(questionsData[category] || [])].sort(() => Math.random() - 0.5);
+      const fallbackDeck = (category === 'general' && questionsData.elementary_black) 
+        ? questionsData.elementary_black 
+        : (questionsData[category] || []);
+      deck = [...fallbackDeck].sort(() => Math.random() - 0.5);
     }
     const drawnQuestion = deck.shift() || {
       question: "Sample Question",

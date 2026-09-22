@@ -125,5 +125,7 @@
   "tooltip.potential": "Potensi Maksimum Ekstra",
   "tooltip.pts": "mata",
   "emotes.toggle": "Reaksi",
-  "emotes.collapse": "Tutup Reaksi"
+  "emotes.collapse": "Tutup Reaksi",
+  "modal.true": "Benar",
+  "modal.false": "Palsu"
 }

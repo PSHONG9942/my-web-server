@@ -125,5 +125,7 @@
   "tooltip.potential": "最高额外潜在分",
   "tooltip.pts": "分",
   "emotes.toggle": "互动表情",
-  "emotes.collapse": "收起表情"
+  "emotes.collapse": "收起表情",
+  "modal.true": "正确",
+  "modal.false": "错误"
 }

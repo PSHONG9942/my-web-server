@@ -125,5 +125,7 @@
   "tooltip.potential": "Max Potential Extra",
   "tooltip.pts": "pts",
   "emotes.toggle": "Reactions",
-  "emotes.collapse": "Close Reactions"
+  "emotes.collapse": "Close Reactions",
+  "modal.true": "True",
+  "modal.false": "False"
 }

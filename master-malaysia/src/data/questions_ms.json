@@ -2313,6 +2313,165 @@
         "MELAKA",
         "KEDAH"
       ]
+    },
+    {
+      "id": "heritage-96",
+      "question": "Apakah logo syarikat penerbangan kebangsaan kita, Malaysia Airlines?",
+      "answer": "WAU BULAN",
+      "options": [
+        "ANGSA",
+        "ORANGUTAN",
+        "PATUNG-PATUNG",
+        "WAU BULAN"
+      ]
+    },
+    {
+      "id": "heritage-97",
+      "question": "Siapakah yang mereka bentuk blok pertama Institusi St. Michael di Ipoh?",
+      "answer": "VERNIE AUGUSTE",
+      "options": [
+        "VERNIE AUGUSTE",
+        "A.C. NORMAN",
+        "LILIAN LANE",
+        "ST. MICHAEL"
+      ]
+    },
+    {
+      "id": "heritage-98",
+      "question": "Berapakah ketinggian Tiang Bendera di Dataran Merdeka?",
+      "answer": "100 METER",
+      "options": [
+        "150 METER",
+        "100 METER",
+        "75 METER",
+        "50 METER"
+      ]
+    },
+    {
+      "id": "heritage-99",
+      "question": "Apakah nama lain bagi Pasar Seni (Central Market) di Kuala Lumpur?",
+      "answer": "PASAR SENI",
+      "options": [
+        "PASAR MALAM",
+        "PASAR SENI",
+        "PASAR RAYA",
+        "PASAR KELANTAN"
+      ]
+    },
+    {
+      "id": "heritage-100",
+      "question": "Namakan penjara tertua di Malaysia.",
+      "answer": "PENJARA TAIPING",
+      "options": [
+        "PENJARA TAIPING",
+        "PENJARA MEDAN",
+        "PENJARA KLUANG",
+        "PENJARA PENANG"
+      ]
+    }
+  ],
+  "elementary_black": [
+    {
+      "id": "elementary_black-96",
+      "question": "Perlis merupakan negeri terkecil di Malaysia. Benar / Palsu",
+      "answer": "BENAR",
+      "options": [
+        "BENAR",
+        "PALSU"
+      ]
+    },
+    {
+      "id": "elementary_black-97",
+      "question": "Singapura pernah menjadi sebahagian daripada Malaysia pada tahun 1964. Benar / Palsu",
+      "answer": "BENAR",
+      "options": [
+        "BENAR",
+        "PALSU"
+      ]
+    },
+    {
+      "id": "elementary_black-98",
+      "question": "Pahang ialah negeri terbesar di Semenanjung Malaysia. Benar / Palsu",
+      "answer": "BENAR",
+      "options": [
+        "BENAR",
+        "PALSU"
+      ]
+    },
+    {
+      "id": "elementary_black-99",
+      "question": "Sungai Pahang ialah sungai terpanjang di Malaysia. Benar / Palsu",
+      "answer": "PALSU. Jawapan: SUNGAI RAJANG",
+      "options": [
+        "BENAR",
+        "PALSU"
+      ]
+    },
+    {
+      "id": "elementary_black-100",
+      "question": "Malaysia mencapai kemerdekaan pada tahun 1957. Benar / Palsu",
+      "answer": "BENAR",
+      "options": [
+        "BENAR",
+        "PALSU"
+      ]
+    }
+  ],
+  "general": [
+    {
+      "id": "general-96",
+      "question": "Negeri manakah yang dikenali sebagai 'Negeri Di Bawah Bayu'?",
+      "answer": "SABAH",
+      "options": [
+        "SABAH",
+        "SARAWAK",
+        "TERENGGANU",
+        "PERLIS"
+      ]
+    },
+    {
+      "id": "general-97",
+      "question": "Namakan tiga kumpulan utama Orang Asli yang terdapat di Semenanjung Malaysia.",
+      "answer": "NEGRITO, SENOI dan PROTO-MALAY",
+      "options": [
+        "DAYAK, KADAZAN dan IBAN",
+        "NEGRITO, SENOI dan PROTO-MALAY",
+        "MURUT, BAJAU dan MELANAU",
+        "SEMANG, JAKUN dan TEMUAN"
+      ]
+    },
+    {
+      "id": "general-98",
+      "question": "Apakah maksud singkatan bagi PORIM?",
+      "answer": "INSTITUT PENYELIDIKAN MINYAK KELAPA SAWIT MALAYSIA",
+      "options": [
+        "INSTITUT PENYELIDIKAN MINYAK KELAPA SAWIT MALAYSIA",
+        "INSTITUT SUMBER MINYAK KELAPA SAWIT MALAYSIA",
+        "MAJLIS PENYELIDIKAN MINYAK KELAPA SAWIT MALAYSIA",
+        "INSTITUT PENYELIDIKAN MINYAK PERLADANGAN MALAYSIA"
+      ]
+    },
+    {
+      "id": "general-99",
+      "question": "Namakan sistem transit massa pertama yang diperkenalkan di Malaysia.",
+      "answer": "STAR LRT (Sistem Transit Aliran Ringan Sdn. Bhd. Light Rail System)",
+      "options": [
+        "Putra Lrt",
+        "Kelana Jaya Line",
+        "Kl Monorail",
+        "STAR LRT (Sistem Transit Aliran Ringan Sdn. Bhd. Light Rail System)"
+      ]
+    },
+    {
+      "id": "general-100",
+      "question": "Apakah nama lain bagi 'pisang embun'?",
+      "answer": "PISANG JAMAICA",
+      "options": [
+        "PISANG EMAS",
+        "PISANG RAJA",
+        "PISANG JAMAICA",
+        "PISANG CAVENDISH"
+      ]
     }
   ]
 }

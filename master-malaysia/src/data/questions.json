@@ -3248,6 +3248,61 @@
         "TUNKU ABDUL RAHMAN STATE PARK",
         "CROCKER RANGE PARK"
       ]
+    },
+    {
+      "id": "heritage-96",
+      "question": "What is the logo of our national carrier, Malaysia Airlines?",
+      "answer": "MOON KITE (Wau Bulan)",
+      "options": [
+        "ANGSA",
+        "ORANGUTAN",
+        "DRAGONFLY",
+        "MOON KITE (Wau Bulan)"
+      ]
+    },
+    {
+      "id": "heritage-97",
+      "question": "Who designed the first block of St. Michael's Institution in Ipoh?",
+      "answer": "VERNIE AUGUSTE",
+      "options": [
+        "VERNIE AUGUSTE",
+        "A.C. NORMAN",
+        "LILIAN LANE",
+        "ST. MICHAEL"
+      ]
+    },
+    {
+      "id": "heritage-98",
+      "question": "What is the height of the Dataran Merdeka Flagpole?",
+      "answer": "100 METRES",
+      "options": [
+        "150 METRES",
+        "100 METRES",
+        "75 METRES",
+        "50 METRES"
+      ]
+    },
+    {
+      "id": "heritage-99",
+      "question": "What is the Central Market in Kuala Lumpur also known as?",
+      "answer": "PASAR SENI",
+      "options": [
+        "PASAR MALAM",
+        "PASAR SENI",
+        "PASAR RAYA",
+        "PASAR KELANTAN"
+      ]
+    },
+    {
+      "id": "heritage-100",
+      "question": "Name the oldest prison in Malaysia.",
+      "answer": "TAIPING PRISON",
+      "options": [
+        "TAIPING PRISON",
+        "MEDAN PRISON",
+        "KLUANG PRISON",
+        "PENANG PRISON"
+      ]
     }
   ],
   "culture": [
@@ -5460,10 +5515,8 @@
       "question": "Malaysia lies south of the equator.",
       "answer": "FALSE. Ans: NORTH",
       "options": [
-        "FALSE. Ans: NORTH",
-        "East",
-        "West",
-        "South"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -5471,10 +5524,8 @@
       "question": "Penang lies off the east coast of Peninsular Malaysia.",
       "answer": "FALSE. Ans: WEST COAST",
       "options": [
-        "South Coast",
-        "North Coast",
-        "FALSE. Ans: WEST COAST",
-        "East Coast"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -5482,10 +5533,8 @@
       "question": "The bougainvillea is the national flower of Malaysia.",
       "answer": "FALSE. Ans: HIBISCUS",
       "options": [
-        "Orchid",
-        "Jasmine",
-        "Rose",
-        "FALSE. Ans: HIBISCUS"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -5493,10 +5542,8 @@
       "question": "Kuala Lumpur was declared a city on 1st February 1974.",
       "answer": "TRUE",
       "options": [
-        "1ST MARCH 1974",
         "TRUE",
-        "1ST FEBRUARY 1972",
-        "1ST JANUARY 1975"
+        "FALSE"
       ]
     },
     {
@@ -5504,10 +5551,8 @@
       "question": "Gunung Tahan is the highest mountain in Peninsular Malaysia.",
       "answer": "TRUE",
       "options": [
-        "GUNUNG KINABALU",
-        "GUNUNG LEDANG",
         "TRUE",
-        "GUNUNG MURUD"
+        "FALSE"
       ]
     },
     {
@@ -5515,10 +5560,8 @@
       "question": "Sarawak is the 2nd largest state in Malaysia.",
       "answer": "FALSE. Ans: LARGEST",
       "options": [
-        "3rd largest",
-        "2nd smallest",
-        "FALSE. Ans: LARGEST",
-        "Smallest"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -5526,10 +5569,8 @@
       "question": "The Dutch invaded Malaya in 1600.",
       "answer": "FALSE. Ans: 1641",
       "options": [
-        "1602",
-        "FALSE. Ans: 1641",
-        "1511",
-        "1655"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -5537,10 +5578,8 @@
       "question": "Kenyir Dam is the deepest dam in Malaysia.",
       "answer": "TRUE",
       "options": [
-        "BAKUN DAM",
-        "TEMENGGOR DAM",
-        "CHEOP DAM",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -5548,10 +5587,8 @@
       "question": "Proton City is located in Kulim.",
       "answer": "FALSE. Ans: TANJUNG MALIM",
       "options": [
-        "Seremban",
-        "Ipoh",
-        "FALSE. Ans: TANJUNG MALIM",
-        "Shah Alam"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -5560,9 +5597,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "TITIWANGSA HIGHLANDS",
-        "CROCKER RANGE",
-        "BINTANG RANGE"
+        "FALSE"
       ]
     },
     {
@@ -5570,10 +5605,8 @@
       "question": "Pulau Ketam is part of the state of Selangor.",
       "answer": "TRUE",
       "options": [
-        "PERAK",
         "TRUE",
-        "JOHOR",
-        "NEGERI SEMBILAN"
+        "FALSE"
       ]
     },
     {
@@ -5581,10 +5614,8 @@
       "question": "Gunung Murud is located in Sabah.",
       "answer": "FALSE. Ans: SARAWAK",
       "options": [
-        "Pahang",
-        "Sabah",
-        "FALSE. Ans: SARAWAK",
-        "Perak"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -5592,10 +5623,8 @@
       "question": "Sibu is the second largest town in Sarawak.",
       "answer": "TRUE",
       "options": [
-        "THIRD LARGEST",
         "TRUE",
-        "LARGEST",
-        "SMALLEST"
+        "FALSE"
       ]
     },
     {
@@ -5603,10 +5632,8 @@
       "question": "The Golok River is situated in Pahang.",
       "answer": "FALSE. Ans: KELANTAN",
       "options": [
-        "Terengganu",
-        "FALSE. Ans: KELANTAN",
-        "Pahang",
-        "Perlis"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -5614,10 +5641,8 @@
       "question": "Lake Chini is situated in Pahang.",
       "answer": "TRUE",
       "options": [
-        "KELANTAN",
-        "PERAK",
         "TRUE",
-        "KEDAH"
+        "FALSE"
       ]
     },
     {
@@ -5625,10 +5650,8 @@
       "question": "Province Wellesley is the old name for Seberang Perai.",
       "answer": "TRUE",
       "options": [
-        "MALACCA",
         "TRUE",
-        "GEORGE TOWN",
-        "STRAITS SETTLEMENTS"
+        "FALSE"
       ]
     },
     {
@@ -5636,10 +5659,8 @@
       "question": "The Straits of Johor separates Malaysia from Singapore.",
       "answer": "FALSE. Ans: STRAITS OF TEBRAU",
       "options": [
-        "Straits of Malacca",
-        "FALSE. Ans: STRAITS OF TEBRAU",
-        "Sulu Sea",
-        "Singapore Strait"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -5647,10 +5668,8 @@
       "question": "The longest river in Sabah is the Kinabatangan.",
       "answer": "TRUE",
       "options": [
-        "RAJANG RIVER",
-        "PAHANG RIVER",
-        "PERAK RIVER",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -5658,10 +5677,8 @@
       "question": "The Sulu Sea lies between Peninsular and East Malaysia.",
       "answer": "FALSE. Ans: SOUTH CHINA SEA",
       "options": [
-        "Andaman Sea",
-        "Java Sea",
-        "FALSE. Ans: SOUTH CHINA SEA",
-        "Celebes Sea"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -5670,9 +5687,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "ISTHMUS OF PANAMA",
-        "STRAIT OF MALACCA",
-        "ISTHMUS OF SUEZ"
+        "FALSE"
       ]
     },
     {
@@ -5680,10 +5695,8 @@
       "question": "Prior to the formation of the DID (Department of Irrigation & Drainage) in 1932, all works in connection with drainage and irrigation were undertaken by the Public Works Department.",
       "answer": "TRUE",
       "options": [
-        "DEPARTMENT OF LAND AND MINES",
-        "MINISTRY OF FINANCE",
         "TRUE",
-        "DEPARTMENT OF AGRICULTURE"
+        "FALSE"
       ]
     },
     {
@@ -5691,10 +5704,8 @@
       "question": "Tan Sri Zeti Akhtar Aziz is the present Governor of Bank Negara (2007).",
       "answer": "TRUE",
       "options": [
-        "TAN SRI MUSTAFA MOHAMMED",
-        "TAN SRI MOHD KUALA",
         "TRUE",
-        "DATO' SERI ABDUL HAMID BAHAROM"
+        "FALSE"
       ]
     },
     {
@@ -5702,10 +5713,8 @@
       "question": "The Senoi (Orang Asli natives) are found in Sabah.",
       "answer": "FALSE. Ans: PENINSULAR MALAYSIA",
       "options": [
-        "Sarawak",
-        "Sabah",
-        "FALSE. Ans: PENINSULAR MALAYSIA",
-        "Labuan"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -5714,9 +5723,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "SALOMA",
-        "MARIA MENADO",
-        "NOOR ASHMAN"
+        "FALSE"
       ]
     },
     {
@@ -5724,10 +5731,8 @@
       "question": "Cameron Highlands, Malaysia's largest and best-known hill resort, was discovered by James Cameron.",
       "answer": "FALSE. Ans: WILLIAM CAMERON",
       "options": [
-        "George Cameron",
-        "Arthur Cameron",
-        "Robert Cameron",
-        "FALSE. Ans: WILLIAM CAMERON"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -5736,9 +5741,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "SECOND",
-        "FIFTH",
-        "FOURTH"
+        "FALSE"
       ]
     },
     {
@@ -5746,10 +5749,8 @@
       "question": "The Chinese Admiral who reached the shores of Melaka in 1409 was Admiral Zheng He.",
       "answer": "TRUE",
       "options": [
-        "ADMIRAL LIU CHENG",
-        "ADMIRAL YI SUN-SIN",
         "TRUE",
-        "ADMIRAL WANG DAYUAN"
+        "FALSE"
       ]
     },
     {
@@ -5757,10 +5758,8 @@
       "question": "The first Malaysian Idol was Jacqueline Victor.",
       "answer": "TRUE",
       "options": [
-        "MISHA OMAR",
-        "SITI NURHALIZA",
-        "DAYANG NURFAIZAH",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -5768,10 +5767,8 @@
       "question": "Lee Chong Wei won the Sportsman of the Year Award in 2005.",
       "answer": "TRUE",
       "options": [
-        "2007",
-        "2004",
-        "2006",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -5779,10 +5776,8 @@
       "question": "Malaysia lies within the equatorial zone.",
       "answer": "TRUE",
       "options": [
-        "SUBTROPICAL ZONE",
-        "TEMPERATE ZONE",
         "TRUE",
-        "POLAR ZONE"
+        "FALSE"
       ]
     },
     {
@@ -5790,10 +5785,8 @@
       "question": "The Kelabit (an ethnic group in Sarawak) are also known as Orang Ulu.",
       "answer": "TRUE",
       "options": [
-        "KADAZAN-DUSUN",
-        "IBAN",
         "TRUE",
-        "ORANG ASLI"
+        "FALSE"
       ]
     },
     {
@@ -5801,10 +5794,8 @@
       "question": "The Jah Hut and Mah Meri are indigenous Orang Asli found in East Malaysia.",
       "answer": "FALSE. Ans: PENINSULAR MALAYSIA",
       "options": [
-        "Sabah",
-        "Labuan",
-        "FALSE. Ans: PENINSULAR MALAYSIA",
-        "Sarawak"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -5812,10 +5803,8 @@
       "question": "You can find the largest group of people of Portuguese descent in the state of Penang.",
       "answer": "FALSE. Ans: MELAKA",
       "options": [
-        "FALSE. Ans: MELAKA",
-        "Johor",
-        "Penang",
-        "Perak"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -5824,9 +5813,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "SULTAN MUDASHIR SHAH",
-        "SULTAN ALAUDDIN RIAYAT SHAH",
-        "TUN PERAK"
+        "FALSE"
       ]
     },
     {
@@ -5835,9 +5822,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "SULTAN MAHMUD SHAH",
-        "SULTAN ABU BAKAR",
-        "SULTAN IBRAHIM"
+        "FALSE"
       ]
     },
     {
@@ -5845,10 +5830,8 @@
       "question": "Sultan Abdul Jalil was the Sultan of Johor who was assassinated in 1699.",
       "answer": "FALSE. Ans: SULTAN MAHMUD SHAH II",
       "options": [
-        "FALSE. Ans: SULTAN MAHMUD SHAH II",
-        "Sultan Abdul Jalil",
-        "Sultan Abu Bakar",
-        "Sultan Iskandar"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -5857,9 +5840,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "ERRA FAZIRA",
-        "ZIANA ZAIN",
-        "NING BAIZURA"
+        "FALSE"
       ]
     },
     {
@@ -5867,10 +5848,8 @@
       "question": "Tun Abdul Razak bin Hussein was born in Pekan (Pahang).",
       "answer": "TRUE",
       "options": [
-        "TEMERLOH",
-        "KUANTAN",
-        "BENTONG",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -5878,10 +5857,8 @@
       "question": "The first and only female athlete who represented Malaya in the 1956 Olympic Games in Melbourne was Annie Choong.",
       "answer": "TRUE",
       "options": [
-        "SHANTI PEREIRA",
-        "SITI ZUBAIDAH",
         "TRUE",
-        "NOOR HUDA"
+        "FALSE"
       ]
     },
     {
@@ -5889,10 +5866,8 @@
       "question": "Sultan Mansor Shah of Melaka married Princess Hang Li Po.",
       "answer": "TRUE",
       "options": [
-        "PRINCESS KENCANA",
-        "PRINCESS PUNING",
-        "PRINCESS MAYANG SARI",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -5900,10 +5875,8 @@
       "question": "The Carcosa Seri Negara is situated in Kuala Lumpur.",
       "answer": "TRUE",
       "options": [
-        "SHAH ALAM",
-        "PUTRAJAYA",
-        "PETALING JAYA",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -5911,10 +5884,8 @@
       "question": "'A Famosa' is in Negeri Sembilan.",
       "answer": "FALSE. Ans: MELAKA",
       "options": [
-        "Johor",
-        "FALSE. Ans: MELAKA",
-        "Perak",
-        "Penang"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -5922,10 +5893,8 @@
       "question": "Malaya was once part of the 'Golden Chersonese'.",
       "answer": "TRUE",
       "options": [
-        "EMERALD LAND",
-        "GOLDEN ARCHIPELAGO",
         "TRUE",
-        "SILVER PENINSULA"
+        "FALSE"
       ]
     },
     {
@@ -5933,10 +5902,8 @@
       "question": "The Menara Komtar, Penang's tallest building, has 55 storeys.",
       "answer": "FALSE. Ans: 65 STOREYS",
       "options": [
-        "55",
-        "60",
-        "70",
-        "FALSE. Ans: 65 STOREYS"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -5944,10 +5911,8 @@
       "question": "The Stadthuys building in Melaka is painted blue.",
       "answer": "FALSE. Ans: RED",
       "options": [
-        "Yellow",
-        "Blue",
-        "FALSE. Ans: RED",
-        "Green"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -5956,9 +5921,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "TERENGGANU",
-        "PERLIS",
-        "KEDAH"
+        "FALSE"
       ]
     },
     {
@@ -5966,10 +5929,8 @@
       "question": "University of Malaya is situated in Petaling Jaya.",
       "answer": "FALSE. Ans: KUALA LUMPUR",
       "options": [
-        "FALSE. Ans: KUALA LUMPUR",
-        "Petaling Jaya",
-        "Cyberjaya",
-        "Shah Alam"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -5977,10 +5938,8 @@
       "question": "The Kuala Lumpur Tower is located in Bukit Nanas.",
       "answer": "TRUE",
       "options": [
-        "BUKIT TUNKU",
-        "BUKIT BINTANG",
         "TRUE",
-        "BUKIT DAMANSARA"
+        "FALSE"
       ]
     },
     {
@@ -5988,10 +5947,8 @@
       "question": "Penang was once known as Prince of Wales Island.",
       "answer": "TRUE",
       "options": [
-        "ISLAND OF PINES",
         "TRUE",
-        "PRINCE OF WALES LAND",
-        "PRINCE OF ORANGE ISLAND"
+        "FALSE"
       ]
     },
     {
@@ -5999,10 +5956,8 @@
       "question": "Penang Free School is the oldest school in Malaysia.",
       "answer": "TRUE",
       "options": [
-        "METHODIST BOYS' SCHOOL",
-        "ST. JOHN'S INSTITUTION",
         "TRUE",
-        "VICTORIA INSTITUTION"
+        "FALSE"
       ]
     },
     {
@@ -6010,10 +5965,8 @@
       "question": "Dataran Merdeka was formerly known as Padang Perwira.",
       "answer": "FALSE. Ans: PADANG KELAB SELANGOR",
       "options": [
-        "FALSE. Ans: PADANG KELAB SELANGOR",
-        "Padang Perwira",
-        "Padang Merdeka",
-        "Padang Kota"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6021,10 +5974,8 @@
       "question": "The oldest Catholic church is St. Peter's Church in Melaka.",
       "answer": "TRUE",
       "options": [
-        "ST. FRANCIS XAVIER CHURCH",
-        "ST. GEORGE'S CHURCH",
-        "ST. PAUL'S CHURCH",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6032,10 +5983,8 @@
       "question": "Taiping Lake Gardens is the oldest recreation park in Malaysia.",
       "answer": "TRUE",
       "options": [
-        "PERDANA BOTANICAL GARDENS",
-        "BUKIT JALIL GARDENS",
         "TRUE",
-        "LAKE GARDENS KL"
+        "FALSE"
       ]
     },
     {
@@ -6044,9 +5993,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "UNESCO WORLD HERITAGE SITE",
-        "PROTECTED STATE LANDMARK",
-        "NATIONAL MONUMENT"
+        "FALSE"
       ]
     },
     {
@@ -6054,10 +6001,8 @@
       "question": "Victoria Institution, the oldest school in Kuala Lumpur, was built in 1794.",
       "answer": "FALSE. Ans: 1894",
       "options": [
-        "1904",
-        "1884",
-        "FALSE. Ans: 1894",
-        "1794"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6066,9 +6011,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "BUKIT SENYUM",
-        "BUKIT TINGGI",
-        "BUKIT BARU"
+        "FALSE"
       ]
     },
     {
@@ -6077,9 +6020,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "JALUR KEMERDEKAAN",
-        "BINTANG GEMILANG",
-        "JALUR BERANI"
+        "FALSE"
       ]
     },
     {
@@ -6087,10 +6028,8 @@
       "question": "The term for the elected constitutional monarch (Yang di-Pertuan Agong) is 3 years.",
       "answer": "FALSE. Ans: 5 YEARS",
       "options": [
-        "4",
-        "3",
-        "FALSE. Ans: 5 YEARS",
-        "6"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6098,10 +6037,8 @@
       "question": "Johar Bahar was the composer of the patriotic song 'Malaysia Tanah Airku'.",
       "answer": "TRUE",
       "options": [
-        "ZUBIR SAID",
         "TRUE",
-        "P. RAMLEE",
-        "SAIFUL BAHRI"
+        "FALSE"
       ]
     },
     {
@@ -6109,10 +6046,8 @@
       "question": "There are 32 chapters in the Laws of Melaka (Hukum Kanun Melaka).",
       "answer": "FALSE. Ans: 44 CHAPTERS",
       "options": [
-        "FALSE. Ans: 44 CHAPTERS",
-        "50",
-        "32",
-        "40"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6120,10 +6055,8 @@
       "question": "The auspicious colour for the Chinese is red.",
       "answer": "TRUE",
       "options": [
-        "YELLOW",
-        "BLUE",
         "TRUE",
-        "GREEN"
+        "FALSE"
       ]
     },
     {
@@ -6132,9 +6065,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "KOMPANG",
-        "SAPE",
-        "TABLA"
+        "FALSE"
       ]
     },
     {
@@ -6143,9 +6074,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "DEEPAVALI",
-        "THAIPUSAM",
-        "HOLI"
+        "FALSE"
       ]
     },
     {
@@ -6153,10 +6082,8 @@
       "question": "'Kaul' is a festival celebrated by the Bidayuh.",
       "answer": "FALSE. Ans: MELANAU",
       "options": [
-        "Bidayuh",
-        "Kadazan",
-        "FALSE. Ans: MELANAU",
-        "Iban"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6164,10 +6091,8 @@
       "question": "The 'miring' (appeasing the spirits) ceremony is an important aspect of the Iban Gawai festival.",
       "answer": "TRUE",
       "options": [
-        "NGAJAT",
-        "SAPE",
         "TRUE",
-        "GAWAI"
+        "FALSE"
       ]
     },
     {
@@ -6175,10 +6100,8 @@
       "question": "The traditional dance 'canggung' is popular in Perlis.",
       "answer": "TRUE",
       "options": [
-        "KEDAH",
-        "TERENGGANU",
         "TRUE",
-        "KELANTAN"
+        "FALSE"
       ]
     },
     {
@@ -6186,10 +6109,8 @@
       "question": "The 'angklung' is a musical instrument made from bamboo.",
       "answer": "TRUE",
       "options": [
-        "IVORY",
         "TRUE",
-        "WOOD",
-        "STEEL"
+        "FALSE"
       ]
     },
     {
@@ -6198,9 +6119,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "PARANG",
-        "RENCONG",
-        "KRIS"
+        "FALSE"
       ]
     },
     {
@@ -6208,10 +6127,8 @@
       "question": "In Malay weddings the 'Wali' conducts the 'akad nikah' ceremony.",
       "answer": "FALSE. Ans: TOK KADI",
       "options": [
-        "Imam",
-        "FALSE. Ans: TOK KADI",
-        "Mufti",
-        "Wali"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6220,9 +6137,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "INANG",
-        "JOGET",
-        "ZAPIN"
+        "FALSE"
       ]
     },
     {
@@ -6231,9 +6146,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "FIVE",
-        "FOUR",
-        "TWO"
+        "FALSE"
       ]
     },
     {
@@ -6242,9 +6155,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "KEBAYA",
-        "SARI",
-        "BAJU KURUNG"
+        "FALSE"
       ]
     },
     {
@@ -6253,9 +6164,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "BABA MALAY",
-        "PORTUGUESE",
-        "DUTCH"
+        "FALSE"
       ]
     },
     {
@@ -6263,10 +6172,8 @@
       "question": "Chinese opera is commonly known as 'Tarian Cina'.",
       "answer": "FALSE. Ans: WAYANG CINA",
       "options": [
-        "FALSE. Ans: WAYANG CINA",
-        "Tarian Cina",
-        "Teater Cina",
-        "Opera Cina"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6274,10 +6181,8 @@
       "question": "San Pedro's Festival is celebrated by the Portuguese Malaysian community in Melaka.",
       "answer": "TRUE",
       "options": [
-        "FEAST OF ST. FRANCIS",
         "TRUE",
-        "SAN JUAN'S FESTIVAL",
-        "FESTA DA FLOR"
+        "FALSE"
       ]
     },
     {
@@ -6285,10 +6190,8 @@
       "question": "The Public Works Department (PWD) was established in 1872.",
       "answer": "TRUE",
       "options": [
-        "1882",
-        "1892",
-        "1862",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6296,10 +6199,8 @@
       "question": "The 'kebaya' is a traditional dress worn by the Straits Chinese women (Nyonyas).",
       "answer": "TRUE",
       "options": [
-        "BAJU KURUNG",
         "TRUE",
-        "SARI",
-        "CHEONGSAM"
+        "FALSE"
       ]
     },
     {
@@ -6307,10 +6208,8 @@
       "question": "The traditional dance 'kuda kepang' is popular in Kedah.",
       "answer": "FALSE. Ans: JOHOR",
       "options": [
-        "Kedah",
-        "FALSE. Ans: JOHOR",
-        "Perlis",
-        "Pahang"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6318,10 +6217,8 @@
       "question": "The Federation Military College is now known as Royal Military College.",
       "answer": "TRUE",
       "options": [
-        "FEDERAL DEFENCE COLLEGE",
-        "MALAYSIAN MILITARY ACADEMY",
         "TRUE",
-        "NATIONAL DEFENCE UNIVERSITY"
+        "FALSE"
       ]
     },
     {
@@ -6329,10 +6226,8 @@
       "question": "The Tamil New Year falls on the first day of the month of Chitthirai.",
       "answer": "TRUE",
       "options": [
-        "AIPPASI",
-        "MARGAZHI",
         "TRUE",
-        "THAI"
+        "FALSE"
       ]
     },
     {
@@ -6351,8 +6246,6 @@
       "question": "Pulau Langkawi consists of 99 islands.",
       "answer": "TRUE",
       "options": [
-        "NOT TRUE",
-        "INCORRECT",
         "TRUE",
         "FALSE"
       ]
@@ -6362,10 +6255,8 @@
       "question": "The year 2006 was declared 'Visit Malaysia Year'.",
       "answer": "FALSE. Ans: 2007",
       "options": [
-        "Correct",
-        "FALSE. Ans: 2007",
-        "True",
-        "Accurate"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6373,10 +6264,8 @@
       "question": "The Kenyir Dam is situated in Pahang.",
       "answer": "FALSE. Ans: TERENGGANU",
       "options": [
-        "FALSE. Ans: TERENGGANU",
-        "True",
-        "Correct",
-        "Accurate"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6384,10 +6273,8 @@
       "question": "Sarawak depends mainly on its rivers for transportation.",
       "answer": "TRUE",
       "options": [
-        "INCORRECT",
-        "FALSE",
-        "NOT TRUE",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6395,10 +6282,8 @@
       "question": "The Tenom Pangi dam is built along the Perak River.",
       "answer": "FALSE. Ans: PEDAS RIVER, SABAH",
       "options": [
-        "FALSE. Ans: PEDAS RIVER, SABAH",
-        "Correct",
-        "True",
-        "Accurate"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6406,10 +6291,8 @@
       "question": "Copper is mined in Mamut, Sabah.",
       "answer": "TRUE",
       "options": [
-        "FALSE",
-        "INCORRECT",
         "TRUE",
-        "NOT TRUE"
+        "FALSE"
       ]
     },
     {
@@ -6417,10 +6300,8 @@
       "question": "Tea is grown in Genting Highlands.",
       "answer": "FALSE. Ans: CAMERON HIGHLANDS",
       "options": [
-        "Accurate",
-        "Correct",
-        "True",
-        "FALSE. Ans: CAMERON HIGHLANDS"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6428,10 +6309,8 @@
       "question": "The North-South Highway does not cross the town of Raub.",
       "answer": "TRUE",
       "options": [
-        "FALSE",
         "TRUE",
-        "NOT TRUE",
-        "INCORRECT"
+        "FALSE"
       ]
     },
     {
@@ -6439,10 +6318,8 @@
       "question": "Golok River is located in Kelantan.",
       "answer": "TRUE",
       "options": [
-        "NOT TRUE",
-        "FALSE",
-        "INCORRECT",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6450,10 +6327,8 @@
       "question": "Malaysia was hit by the worst-ever tsunami on 15th December 2004.",
       "answer": "FALSE. Ans: 26th DECEMBER 2004",
       "options": [
-        "FALSE. Ans: 26th DECEMBER 2004",
-        "True",
-        "Correct",
-        "Accurate"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6461,10 +6336,8 @@
       "question": "Penang once belonged to the Kedah Sultanate.",
       "answer": "TRUE",
       "options": [
-        "INCORRECT",
         "TRUE",
-        "FALSE",
-        "NOT TRUE"
+        "FALSE"
       ]
     },
     {
@@ -6472,10 +6345,8 @@
       "question": "Malaysia's leading exports in 2006 were electrical & electronic products.",
       "answer": "TRUE",
       "options": [
-        "FALSE",
         "TRUE",
-        "INCORRECT",
-        "NOT TRUE"
+        "FALSE"
       ]
     },
     {
@@ -6483,10 +6354,8 @@
       "question": "Kuantan port is located at Tanjung Sepang.",
       "answer": "FALSE. Ans: TANJUNG GELANG",
       "options": [
-        "Correct",
-        "FALSE. Ans: TANJUNG GELANG",
-        "Accurate",
-        "True"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6495,8 +6364,6 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "INCORRECT",
-        "NOT TRUE",
         "FALSE"
       ]
     },
@@ -6505,10 +6372,8 @@
       "question": "Thirty-three athletes from Malaya took part in the 1956 Olympic Games in Melbourne.",
       "answer": "TRUE",
       "options": [
-        "INCORRECT",
-        "NOT TRUE",
-        "FALSE",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6517,9 +6382,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "FALSE",
-        "NOT TRUE",
-        "INCORRECT"
+        "FALSE"
       ]
     },
     {
@@ -6528,8 +6391,6 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "NOT TRUE",
-        "INCORRECT",
         "FALSE"
       ]
     },
@@ -6538,10 +6399,8 @@
       "question": "Ten players are fielded by each team during a 'Kabaddi' competition.",
       "answer": "FALSE. Ans: SEVEN",
       "options": [
-        "True",
-        "Accurate",
-        "FALSE. Ans: SEVEN",
-        "Correct"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6549,10 +6408,8 @@
       "question": "The scientific name for the Malaysian variety of durian is Durio zibethinus.",
       "answer": "TRUE",
       "options": [
-        "INCORRECT",
-        "FALSE",
-        "NOT TRUE",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     }
   ],
@@ -6562,10 +6419,8 @@
       "question": "The capital of Penang is Butterworth. True / False",
       "answer": "FALSE. Ans: GEORGETOWN",
       "options": [
-        "FALSE. Ans: GEORGETOWN",
-        "Alor Setar",
-        "Kota Bharu",
-        "Kangar"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6573,10 +6428,8 @@
       "question": "The Endau River serves as a natural state border for Johor and Pahang. True / False",
       "answer": "TRUE",
       "options": [
-        "SUNGAI RAJANG",
-        "SUNGAI PAHANG",
         "TRUE",
-        "SUNGAI KINABATANGAN"
+        "FALSE"
       ]
     },
     {
@@ -6584,10 +6437,8 @@
       "question": "Tanjung Aru Beach is the most famous beach in the state of Sarawak. True / False",
       "answer": "FALSE. Ans: SABAH",
       "options": [
-        "Pahang",
-        "Kelantan",
-        "Terengganu",
-        "FALSE. Ans: SABAH"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6595,10 +6446,8 @@
       "question": "Mount Kinabalu is situated in the Crocker Range. True / False",
       "answer": "TRUE",
       "options": [
-        "TITIWANGSA RANGE",
-        "MAIN RANGE",
         "TRUE",
-        "BINTANG RANGE"
+        "FALSE"
       ]
     },
     {
@@ -6606,10 +6455,8 @@
       "question": "Ipoh is famous for this fruit - watermelon. True / False",
       "answer": "FALSE. Ans: Pomelo",
       "options": [
-        "Rambutan",
-        "Durian",
-        "Mangosteen",
-        "FALSE. Ans: Pomelo"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6617,10 +6464,8 @@
       "question": "The town Rusila is located in the state of Terengganu. True / False",
       "answer": "TRUE",
       "options": [
-        "KELANTAN",
-        "PAHANG",
         "TRUE",
-        "JOHOR"
+        "FALSE"
       ]
     },
     {
@@ -6628,10 +6473,8 @@
       "question": "The capital of Selangor is Shah Alam. True / False",
       "answer": "TRUE",
       "options": [
-        "PETALING JAYA",
-        "SUBANG JAYA",
         "TRUE",
-        "KLANG"
+        "FALSE"
       ]
     },
     {
@@ -6639,10 +6482,8 @@
       "question": "Pulau Indah is part of the state of Perak. True / False",
       "answer": "FALSE. Ans: SELANGOR",
       "options": [
-        "Melaka",
-        "FALSE. Ans: SELANGOR",
-        "Negeri Sembilan",
-        "Johor"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6650,10 +6491,8 @@
       "question": "Kuala Lumpur International Airport is situated in Subang. True / False",
       "answer": "FALSE. Ans: SEPANG",
       "options": [
-        "Hulu Langat",
-        "Klang",
-        "FALSE. Ans: SEPANG",
-        "Kuala Lumpur"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6662,9 +6501,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "OIL RESERVES",
-        "MANGROVES",
-        "VOLCANIC ASH"
+        "FALSE"
       ]
     },
     {
@@ -6672,10 +6509,8 @@
       "question": "Miri is located in Sarawak. True / False",
       "answer": "TRUE",
       "options": [
-        "PAHANG",
-        "SABAH",
-        "PERAK",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6683,10 +6518,8 @@
       "question": "Selangor was the first state in Malaysia to have a system of government similar to the federation that we have today. True / False",
       "answer": "FALSE. Ans: NEGERI SEMBILAN",
       "options": [
-        "Pahang",
-        "Perak",
-        "Kedah",
-        "FALSE. Ans: NEGERI SEMBILAN"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6694,10 +6527,8 @@
       "question": "The state that produces the most pineapples is Kelantan. True / False",
       "answer": "FALSE. Ans: JOHOR",
       "options": [
-        "Perak",
-        "Pahang",
-        "FALSE. Ans: JOHOR",
-        "Kedah"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6705,10 +6536,8 @@
       "question": "Ipoh was declared a city on 27th May 1988. True / False",
       "answer": "TRUE",
       "options": [
-        "12TH OCTOBER 1988",
-        "2ND JANUARY 1989",
-        "15TH AUGUST 1987",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6716,10 +6545,8 @@
       "question": "Kuala Lipis is the royal town of Pahang. True / False",
       "answer": "FALSE. Ans: PEKAN",
       "options": [
-        "Kuantan",
-        "FALSE. Ans: PEKAN",
-        "Bentong",
-        "Temerloh"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6727,10 +6554,8 @@
       "question": "Tunku Abdul Rahman Putra Al-Haj was born in Alor Setar. True / False",
       "answer": "TRUE",
       "options": [
-        "GEORGE TOWN",
         "TRUE",
-        "KANGAR",
-        "KOTA BHARU"
+        "FALSE"
       ]
     },
     {
@@ -6738,10 +6563,8 @@
       "question": "Dr. Lim Chong Eu was the first Chief Minister of Penang. True / False",
       "answer": "FALSE. Ans: TAN SRI WONG POW NEE",
       "options": [
-        "Tun Abdul Razak",
-        "FALSE. Ans: TAN SRI WONG POW NEE",
-        "Tun Hussein Onn",
-        "Tun Dr. Mahathir"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6750,9 +6573,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "FIFTH",
-        "THIRD",
-        "SIXTH"
+        "FALSE"
       ]
     },
     {
@@ -6760,10 +6581,8 @@
       "question": "Tun Tan Siew Sin was a Finance Minister for 15 years. True / False",
       "answer": "TRUE",
       "options": [
-        "12 YEARS",
-        "10 YEARS",
-        "20 YEARS",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6771,10 +6590,8 @@
       "question": "The Sportswoman of the Year Award for 2000 was won by Shalin Zulkifli. True / False",
       "answer": "FALSE. Ans: NORASEELA MOHD. KHALID",
       "options": [
-        "Nicol David",
-        "FALSE. Ans: NORASEELA MOHD. KHALID",
-        "Pandelela Rinong",
-        "Farah Ann"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6782,10 +6599,8 @@
       "question": "The Bidayuhs are one of the ethnic groups of Sarawak. True / False",
       "answer": "TRUE",
       "options": [
-        "PAHANG",
-        "SABAH",
         "TRUE",
-        "JOHOR"
+        "FALSE"
       ]
     },
     {
@@ -6793,10 +6608,8 @@
       "question": "Tunku Abdul Rahman Putra Al-Haj was the first Prime Minister of Malaysia. True / False",
       "answer": "TRUE",
       "options": [
-        "TUN HUSSEIN ONN",
-        "TUN ABDUL RAZAK",
         "TRUE",
-        "TUN DR MAHATHIR MOHAMAD"
+        "FALSE"
       ]
     },
     {
@@ -6805,9 +6618,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "1980 AND 2005",
-        "1970 AND 1998",
-        "1965 AND 1990"
+        "FALSE"
       ]
     },
     {
@@ -6815,10 +6626,8 @@
       "question": "The novel 'Salina' was written by Arena Wati. True / False",
       "answer": "FALSE. Ans: A. SAMAD SAID",
       "options": [
-        "Usman Awang",
-        "Keris Mas",
-        "FALSE. Ans: A. SAMAD SAID",
-        "Shahnon Ahmad"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6826,10 +6635,8 @@
       "question": "Hang Tuah was the famous legendary hero in Melaka during the reign of Sultan Mahmud Shah. True / False",
       "answer": "TRUE",
       "options": [
-        "SULTAN MUZAFFAR SHAH",
-        "SULTAN ALAUDDIN RIAYAT SHAH",
         "TRUE",
-        "SULTAN MANSUR SHAH"
+        "FALSE"
       ]
     },
     {
@@ -6837,10 +6644,8 @@
       "question": "Tun Abdul Razak was the second Prime Minister of Malaysia. True / False",
       "answer": "TRUE",
       "options": [
-        "TUN ABDULLAH BADAWI",
-        "TUN HUSSEIN ONN",
-        "TUN DR MAHATHIR MOHAMAD",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6848,10 +6653,8 @@
       "question": "Bajaus are an ethnic group found in Sarawak. True / False",
       "answer": "FALSE. Ans: SABAH",
       "options": [
-        "FALSE. Ans: SABAH",
-        "Sarawak",
-        "Brunei",
-        "Kalimantan"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6859,10 +6662,8 @@
       "question": "Soccer goalkeeper R. Arumugam was nicknamed 'Spiderman'. True / False",
       "answer": "TRUE",
       "options": [
-        "SANTOKH SINGH",
-        "MOKHTAR DAHARI",
-        "SOH CHIN AUN",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6870,10 +6671,8 @@
       "question": "The Coliseum cinema in Kuala Lumpur was built by Chua Cheng Bok. True / False",
       "answer": "TRUE",
       "options": [
-        "TAN SRI LEE KONG CHIAN",
-        "LOW YEE HOCK",
-        "YAP KWAN SENG",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6881,10 +6680,8 @@
       "question": "The famous Malaysian fashion designer Zang Toi spent many years overseas and is based in London. True / False",
       "answer": "FALSE. Ans: NEW YORK",
       "options": [
-        "Milan",
-        "Paris",
-        "London",
-        "FALSE. Ans: NEW YORK"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6892,10 +6689,8 @@
       "question": "Koo Kien Keat and Tan Boon Heong won the All England Open Badminton Championships doubles title in 2007. True / False",
       "answer": "TRUE",
       "options": [
-        "2008",
-        "2009",
         "TRUE",
-        "2005"
+        "FALSE"
       ]
     },
     {
@@ -6904,9 +6699,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "DATUK ROHANA SALLEH",
-        "DATUK NOOR AZRINA",
-        "DATUK SITI ZUBAIDAH"
+        "FALSE"
       ]
     },
     {
@@ -6914,10 +6707,8 @@
       "question": "Sir Gerald Templar was the first Governor of the Malayan Union. True / False",
       "answer": "FALSE. Ans: SIR EDWARD GENT",
       "options": [
-        "FALSE. Ans: SIR EDWARD GENT",
-        "Sir Henry Gurney",
-        "Sir Harold MacMichael",
-        "Sir Gerald Templer"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6926,9 +6717,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "DATO' BAHAMAN",
-        "HAJI ABDUL RAHMAN LIMBONG",
-        "TOK JANGGUT"
+        "FALSE"
       ]
     },
     {
@@ -6937,9 +6726,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "YAMAHA",
-        "SUZUKI",
-        "KAWASAKI"
+        "FALSE"
       ]
     },
     {
@@ -6948,9 +6735,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "PERODUA KANCIL",
-        "PROTON WIRA",
-        "PROTON PERDANA"
+        "FALSE"
       ]
     },
     {
@@ -6958,10 +6743,8 @@
       "question": "There are 13 stripes in the Malaysian flag. True / False",
       "answer": "FALSE. Ans: 14",
       "options": [
-        "12",
-        "13",
-        "FALSE. Ans: 14",
-        "15"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6969,10 +6752,8 @@
       "question": "The oldest clock tower in Malaysia is located in Teluk Intan. True / False",
       "answer": "FALSE. Ans: TAIPING",
       "options": [
-        "Kuala Kangsar",
-        "Teluk Intan",
-        "FALSE. Ans: TAIPING",
-        "Ipoh"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6980,10 +6761,8 @@
       "question": "The Petronas Twin Towers are the tallest buildings in Malaysia. True / False",
       "answer": "TRUE",
       "options": [
-        "EXCHANGE 106",
-        "MERDEKA 118",
-        "MENARA KL",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -6991,10 +6770,8 @@
       "question": "There are 18 major ports in Malaysia (2007). True / False",
       "answer": "TRUE",
       "options": [
-        "20",
         "TRUE",
-        "22",
-        "15"
+        "FALSE"
       ]
     },
     {
@@ -7002,10 +6779,8 @@
       "question": "Kellie's Castle is located in Kuala Kangsar. True / False",
       "answer": "FALSE. Ans: BATU GAJAH",
       "options": [
-        "Taiping",
-        "FALSE. Ans: BATU GAJAH",
-        "Ipoh",
-        "Teluk Intan"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7013,10 +6788,8 @@
       "question": "The 'A Famosa' was built by the Portuguese in 1511. True / False",
       "answer": "TRUE",
       "options": [
-        "1508",
-        "1521",
-        "1515",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7024,10 +6797,8 @@
       "question": "The tomb of the legendary Mahsuri is in Langkawi. True / False",
       "answer": "TRUE",
       "options": [
-        "PULAU TIOMAN",
         "TRUE",
-        "PULAU PANGKOR",
-        "PULAU REDANG"
+        "FALSE"
       ]
     },
     {
@@ -7035,10 +6806,8 @@
       "question": "The only remaining tin dredge can be found in Ipoh. True / False",
       "answer": "FALSE. Ans: KAMPAR",
       "options": [
-        "Taiping",
-        "Kuala Kangsar",
-        "Tapah",
-        "FALSE. Ans: KAMPAR"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7047,9 +6816,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "SELANGOR",
-        "PERAK",
-        "PAHANG"
+        "FALSE"
       ]
     },
     {
@@ -7057,10 +6824,8 @@
       "question": "Melaka is known as the \"Historical City of Malaysia\". True / False",
       "answer": "TRUE",
       "options": [
-        "GEORGE TOWN",
         "TRUE",
-        "KUCHING",
-        "KUALA LUMPUR"
+        "FALSE"
       ]
     },
     {
@@ -7068,10 +6833,8 @@
       "question": "P. Ramlee's house is in Perak. True / False",
       "answer": "FALSE. Ans: PENANG",
       "options": [
-        "Kedah",
-        "Johor",
-        "FALSE. Ans: PENANG",
-        "Melaka"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7079,10 +6842,8 @@
       "question": "The first Malay to be Lord President of Malaysia was Tun Syed Sheh Hassan Barakbah. True/False",
       "answer": "TRUE",
       "options": [
-        "TUN DR. MAHATHIR",
         "TRUE",
-        "TUN HUSSEIN ONN",
-        "TUN ABDUL RAZAK"
+        "FALSE"
       ]
     },
     {
@@ -7090,10 +6851,8 @@
       "question": "The Petronas Twin Towers were recognised as the world's tallest twin buildings in 1996. True / False",
       "answer": "TRUE",
       "options": [
-        "1998",
-        "1994",
-        "2000",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7101,10 +6860,8 @@
       "question": "Jeram Toi Waterfall is in the state of Melaka. True / False",
       "answer": "FALSE. Ans: NEGERI SEMBILAN",
       "options": [
-        "Pahang",
-        "FALSE. Ans: NEGERI SEMBILAN",
-        "Selangor",
-        "Perak"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7112,10 +6869,8 @@
       "question": "Tun Dr. Mahathir Mohamad's home in Langkawi has been converted into a museum. True / False",
       "answer": "TRUE",
       "options": [
-        "PULAU TIOMAN",
-        "PULAU PANGKOR",
-        "PULAU PINANG",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7123,10 +6878,8 @@
       "question": "The 'joget Melayu', a traditional Malay dance is preserved as a heritage item. True / False",
       "answer": "TRUE",
       "options": [
-        "TARIAN KIPAS",
         "TRUE",
-        "TARIAN PIRING",
-        "TARIAN SINGA"
+        "FALSE"
       ]
     },
     {
@@ -7134,10 +6887,8 @@
       "question": "The Belum Nature Park is situated in Johor. True / False",
       "answer": "FALSE. Ans: PERAK",
       "options": [
-        "Pahang",
-        "FALSE. Ans: PERAK",
-        "Terengganu",
-        "Kelantan"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7146,9 +6897,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "1865",
-        "1875",
-        "1845"
+        "FALSE"
       ]
     },
     {
@@ -7156,10 +6905,8 @@
       "question": "The Tengkolok Di Raja is preserved as a heritage item. True / False",
       "answer": "TRUE",
       "options": [
-        "KERIS DIRAJA",
-        "PENDING DIRAJA",
-        "TANJAK RAKYAT",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7167,10 +6914,8 @@
       "question": "Sumazau is a traditional dance of Sabah. True / False",
       "answer": "TRUE",
       "options": [
-        "PAHANG",
-        "SARAWAK",
-        "KELANTAN",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7179,9 +6924,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "HARI RAYA AIDILFITRI",
-        "MAULIDUR RASUL",
-        "ISRAK MIKRAJ"
+        "FALSE"
       ]
     },
     {
@@ -7189,10 +6932,8 @@
       "question": "Deepavali is a festival celebrated by Hindus. True / False",
       "answer": "TRUE",
       "options": [
-        "CHRISTIANS",
-        "BUDDHISTS",
-        "SIKHS",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7200,10 +6941,8 @@
       "question": "The Kadazandusun have a special drink made of rice called 'tapai'. True / False",
       "answer": "TRUE",
       "options": [
-        "AIR BANDUNG",
-        "TEH TARIK",
-        "SIRAP BANDUNG",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7211,10 +6950,8 @@
       "question": "The Babas and Nyonyas are found in Kelantan and Terengganu. True / False",
       "answer": "FALSE. Ans: MELAKA AND PENANG",
       "options": [
-        "Kedah and Perak",
-        "FALSE. Ans: MELAKA AND PENANG",
-        "Johor and Pahang",
-        "Sabah and Sarawak"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7223,9 +6960,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "PERLIS",
-        "KEDAH",
-        "TERENGGANU"
+        "FALSE"
       ]
     },
     {
@@ -7233,10 +6968,8 @@
       "question": "The Gawai festival is celebrated to mark the end of the harvest season. True / False",
       "answer": "TRUE",
       "options": [
-        "BEGINNING OF THE PLANTING SEASON",
-        "ARRIVAL OF THE MONSOON",
         "TRUE",
-        "END OF THE RAINY SEASON"
+        "FALSE"
       ]
     },
     {
@@ -7244,10 +6977,8 @@
       "question": "Vasakhi is celebrated by Buddhists in Malaysia. True / False",
       "answer": "FALSE. Ans: SIKHS",
       "options": [
-        "Hindus",
-        "Jains",
-        "FALSE. Ans: SIKHS",
-        "Parsis"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7255,10 +6986,8 @@
       "question": "The Mooncake festival is celebrated by the Chinese in Malaysia. True / False",
       "answer": "TRUE",
       "options": [
-        "JAPANESE",
         "TRUE",
-        "KOREANS",
-        "VIETNAMESE"
+        "FALSE"
       ]
     },
     {
@@ -7266,10 +6995,8 @@
       "question": "The fasting month for Muslims is the month of Syawal. True / False",
       "answer": "FALSE. Ans: RAMADHAN",
       "options": [
-        "Rajab",
-        "Muharram",
-        "Sha'ban",
-        "FALSE. Ans: RAMADHAN"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7277,10 +7004,8 @@
       "question": "Sheila Majid performed the popular song 'Lagenda'. True / False",
       "answer": "TRUE",
       "options": [
-        "SITI NURHALIZA",
         "TRUE",
-        "NING BAIZURA",
-        "ZIANA ZAIN"
+        "FALSE"
       ]
     },
     {
@@ -7288,10 +7013,8 @@
       "question": "Ghazal music is very popular in Kelantan. True / False",
       "answer": "FALSE. Ans: JOHOR",
       "options": [
-        "Pahang",
-        "Kedah",
-        "FALSE. Ans: JOHOR",
-        "Melaka"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7299,10 +7022,8 @@
       "question": "The sari is a traditional Indian costume. True / False",
       "answer": "TRUE",
       "options": [
-        "JAVANESE",
-        "MALAY",
         "TRUE",
-        "CHINESE"
+        "FALSE"
       ]
     },
     {
@@ -7310,10 +7031,8 @@
       "question": "The 'kiblat' shows the direction a Muslim worshipper has to face when praying and it points towards the direction of the Kaaba. True / False",
       "answer": "TRUE",
       "options": [
-        "PROPHET'S MOSQUE",
         "TRUE",
-        "AL-AQSA MOSQUE",
-        "DOME OF THE ROCK"
+        "FALSE"
       ]
     },
     {
@@ -7321,10 +7040,8 @@
       "question": "Rice is the staple food of Malaysians. True / False",
       "answer": "TRUE",
       "options": [
-        "MAIZE",
-        "WHEAT",
         "TRUE",
-        "BARLEY"
+        "FALSE"
       ]
     },
     {
@@ -7333,9 +7050,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "CHILDREN",
-        "WOMEN",
-        "ELDERS"
+        "FALSE"
       ]
     },
     {
@@ -7343,10 +7058,8 @@
       "question": "Among the Ibans the 'God of War' is known as Singalong Burung. True / False",
       "answer": "TRUE",
       "options": [
-        "LULONG BURUNG",
-        "SENGALONG NYELANG",
         "TRUE",
-        "KELING BURUNG"
+        "FALSE"
       ]
     },
     {
@@ -7354,10 +7067,8 @@
       "question": "The 'thavil' is a traditional Indian drum played during weddings and temple ceremonies. True / False",
       "answer": "TRUE",
       "options": [
-        "THAI DRUM",
-        "CHINESE DRUM",
-        "MALAY DRUM",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7365,10 +7076,8 @@
       "question": "The 'kompang' is a traditional Malay hand-held drum that is played at weddings and other important functions. True / False",
       "answer": "TRUE",
       "options": [
-        "CHINESE HAND-HELD DRUM",
         "TRUE",
-        "INDIAN HAND-HELD DRUM",
-        "JAVANESE HAND-HELD DRUM"
+        "FALSE"
       ]
     },
     {
@@ -7376,10 +7085,8 @@
       "question": "The puppeteer or storyteller in 'wayang kulit' (shadow play) is called a 'Pendeta'. True/False",
       "answer": "FALSE. Ans: TOK DALANG",
       "options": [
-        "Tok Mudim",
-        "Tok Syeikh",
-        "FALSE. Ans: TOK DALANG",
-        "Tok Guru"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7387,10 +7094,8 @@
       "question": "The Royal Malaysian Navy base is located at Pangkor Island. True / False",
       "answer": "FALSE. Ans: LUMUT",
       "options": [
-        "Kota Kinabalu",
-        "FALSE. Ans: LUMUT",
-        "Kuantan",
-        "Sandakan"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7398,10 +7103,8 @@
       "question": "Gua Tempurung is situated in Selangor. True / False",
       "answer": "FALSE. Ans: PERAK",
       "options": [
-        "Kedah",
-        "FALSE. Ans: PERAK",
-        "Kelantan",
-        "Pahang"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7409,10 +7112,8 @@
       "question": "The population of Malaysia is 30 million. True / False",
       "answer": "FALSE. Ans: 25 MILLION- 2007",
       "options": [
-        "28 million",
-        "22 million",
-        "20 million",
-        "FALSE. Ans: 25 MILLION- 2007"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7420,10 +7121,8 @@
       "question": "Malaysia was the world's top exporter of palm oil in 2007. True / False",
       "answer": "TRUE",
       "options": [
-        "SECOND LARGEST EXPORTER",
         "TRUE",
-        "THIRD LARGEST EXPORTER",
-        "FIFTH LARGEST EXPORTER"
+        "FALSE"
       ]
     },
     {
@@ -7431,10 +7130,8 @@
       "question": "Before 1842, Perlis was part of Kedah. True / False",
       "answer": "TRUE",
       "options": [
-        "PERAK",
-        "SELANGOR",
         "TRUE",
-        "KELANTAN"
+        "FALSE"
       ]
     },
     {
@@ -7442,10 +7139,8 @@
       "question": "Kedah is known as the 'Rice Bowl' of Malaysia. True / False",
       "answer": "TRUE",
       "options": [
-        "PERLIS",
         "TRUE",
-        "KELANTAN",
-        "PERAK"
+        "FALSE"
       ]
     },
     {
@@ -7453,10 +7148,8 @@
       "question": "The Cenderoh Dam is situated in Pahang. True / False",
       "answer": "FALSE. Ans: PERAK",
       "options": [
-        "Kelantan",
-        "Terengganu",
-        "Pahang",
-        "FALSE. Ans: PERAK"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7464,10 +7157,8 @@
       "question": "The old name for Bukit Larut was Maxwell Hill. True / False",
       "answer": "TRUE",
       "options": [
-        "FRASER'S HILL",
-        "GENTING HIGHLANDS",
-        "CAMERON HIGHLANDS",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7475,10 +7166,8 @@
       "question": "The first Sultan of Perak was Sultan Alauddin Riayat Shah. True / False",
       "answer": "FALSE. Ans: SULTAN MUZAFFAR SHAH",
       "options": [
-        "Sultan Mahmud Shah",
-        "Sultan Alauddin Riayat Shah",
-        "Sultan Iskandar Shah",
-        "FALSE. Ans: SULTAN MUZAFFAR SHAH"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7486,10 +7175,8 @@
       "question": "The Asian rhinoceros is an endangered species in Malaysia. True / False",
       "answer": "TRUE",
       "options": [
-        "SUN BEAR",
-        "MALAYAN TIGER",
         "TRUE",
-        "PYGMY ELEPHANT"
+        "FALSE"
       ]
     },
     {
@@ -7497,10 +7184,8 @@
       "question": "The city of Ipoh is named after a tree. True / False",
       "answer": "TRUE",
       "options": [
-        "CENGAL",
-        "KERUING",
-        "MERANTI",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7508,10 +7193,8 @@
       "question": "The northeast monsoon brings more rain to Peninsular Malaysia than the southwest monsoon. True / False",
       "answer": "TRUE",
       "options": [
-        "SOUTHWEST MONSOON",
-        "INTER-MONSOON",
-        "TRADE WINDS",
-        "TRUE"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7520,9 +7203,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "SEBERANG PERAI AND BUTTERWORTH",
-        "PENANG ISLAND AND GEORGE TOWN",
-        "PENANG ISLAND AND KULIM"
+        "FALSE"
       ]
     },
     {
@@ -7530,10 +7211,8 @@
       "question": "The second longest river in Peninsular Malaysia is the Johor River. True / False",
       "answer": "FALSE. Ans: PERAK RIVER",
       "options": [
-        "Kelantan River",
-        "Johor River",
-        "FALSE. Ans: PERAK RIVER",
-        "Pahang River"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7541,10 +7220,8 @@
       "question": "The largest animal found in Malaysia is the elephant. True / False",
       "answer": "TRUE",
       "options": [
-        "TAPIR",
         "TRUE",
-        "RHINOCEROS",
-        "MALAYAN TIGER"
+        "FALSE"
       ]
     },
     {
@@ -7552,10 +7229,8 @@
       "question": "Petaling Jaya was declared a city on 20th June 2005. True / False",
       "answer": "FALSE. Ans: 20th JUNE 2006",
       "options": [
-        "20th June 2004",
-        "20th June 2007",
-        "FALSE. Ans: 20th JUNE 2006",
-        "20th June 2005"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7563,10 +7238,8 @@
       "question": "Malaysia was formed on 16th September 1963. True / False",
       "answer": "TRUE",
       "options": [
-        "31ST AUGUST 1957",
         "TRUE",
-        "31ST AUGUST 1963",
-        "16TH SEPTEMBER 1962"
+        "FALSE"
       ]
     },
     {
@@ -7574,10 +7247,8 @@
       "question": "The mascot for the 1998 Commonwealth Games was called 'Jaguh'. True / False",
       "answer": "FALSE. Ans: WIRA",
       "options": [
-        "Satria",
-        "FALSE. Ans: WIRA",
-        "Jaguh",
-        "Rimba"
+        "TRUE",
+        "FALSE"
       ]
     },
     {
@@ -7586,9 +7257,7 @@
       "answer": "TRUE",
       "options": [
         "TRUE",
-        "THIRTY-ONE",
-        "TWENTY-NINE",
-        "TWENTY-FIVE"
+        "FALSE"
       ]
     },
     {
@@ -7596,10 +7265,53 @@
       "question": "The royal capital of Selangor is Klang. True / False",
       "answer": "TRUE",
       "options": [
-        "KUALA LUMPUR",
-        "SHAH ALAM",
-        "SABAK BERNAM",
-        "TRUE"
+        "TRUE",
+        "FALSE"
+      ]
+    },
+    {
+      "id": "elementary_black-96",
+      "question": "Perlis is the smallest state in Malaysia. True / False",
+      "answer": "TRUE",
+      "options": [
+        "TRUE",
+        "FALSE"
+      ]
+    },
+    {
+      "id": "elementary_black-97",
+      "question": "Singapore was part of Malaysia in 1964. True / False",
+      "answer": "TRUE",
+      "options": [
+        "TRUE",
+        "FALSE"
+      ]
+    },
+    {
+      "id": "elementary_black-98",
+      "question": "Pahang is the biggest state in Peninsular Malaysia. True / False",
+      "answer": "TRUE",
+      "options": [
+        "TRUE",
+        "FALSE"
+      ]
+    },
+    {
+      "id": "elementary_black-99",
+      "question": "The Pahang River is the longest river in Malaysia. True / False",
+      "answer": "FALSE. Ans: RAJANG RIVER",
+      "options": [
+        "TRUE",
+        "FALSE"
+      ]
+    },
+    {
+      "id": "elementary_black-100",
+      "question": "Malaysia gained independence in 1957. True / False",
+      "answer": "TRUE",
+      "options": [
+        "TRUE",
+        "FALSE"
       ]
     }
   ]
