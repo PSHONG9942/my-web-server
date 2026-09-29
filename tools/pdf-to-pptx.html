@@ -1202,13 +1202,13 @@
                     <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #94a3b8; margin-bottom: 6px;">
                         后端 API 地址 (支持本地 localhost 或 Cloudflare Tunnel 域名)
                     </label>
-                    <input type="text" class="text-input" id="apiUrlInput" placeholder="http://127.0.0.1:8503">
+                    <input type="text" class="text-input" id="apiUrlInput" placeholder="https://car-skirts-loaded-beauty.trycloudflare.com">
                 </div>
                 <div style="font-size: 0.82rem; color: #94a3b8; line-height: 1.5; background: rgba(15,23,42,0.6); padding: 12px; border-radius: 8px;">
                     💡 <strong>常用地址参考：</strong><br>
-                    • 综合服务 (yt-dlp + PDF 统一部署): <code>http://127.0.0.1:8503</code><br>
-                    • 专属 PDF 微服务: <code>http://127.0.0.1:8505</code><br>
-                    • 公网 Cloudflare Tunnel 域名
+                    • 线上默认隧道: <code>https://car-skirts-loaded-beauty.trycloudflare.com</code><br>
+                    • 本地综合服务 (yt-dlp + PDF 统一部署): <code>http://127.0.0.1:8503</code><br>
+                    • 专属 PDF 微服务: <code>http://127.0.0.1:8505</code>
                 </div>
             </div>
             <div class="modal-footer">
@@ -1227,8 +1227,14 @@
 
         // Storage & Constants
         const STORAGE_API_KEY = "pdf2pptx_api_base_url";
-        const DEFAULT_API_URL = "http://127.0.0.1:8503";
-        let API_BASE_URL = localStorage.getItem(STORAGE_API_KEY) || DEFAULT_API_URL;
+        const DEFAULT_API_URL = "https://car-skirts-loaded-beauty.trycloudflare.com";
+        let storedUrl = localStorage.getItem(STORAGE_API_KEY);
+        // Automatically migrate if unset or old temporary tunnel
+        if (!storedUrl || storedUrl.includes("127.0.0.1") || storedUrl.includes("localhost") || storedUrl.includes("birmingham-bumper")) {
+            storedUrl = DEFAULT_API_URL;
+            localStorage.setItem(STORAGE_API_KEY, DEFAULT_API_URL);
+        }
+        let API_BASE_URL = storedUrl;
 
         // State
         let currentEngine = "local"; // "local" | "server"

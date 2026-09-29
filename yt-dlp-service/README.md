@@ -1,10 +1,10 @@
 # yt-dlp 影音下载后端服务说明
 
 ## 🌐 当前线上 API 网址
-- **Cloudflare Tunnel 公网地址**：`https://birmingham-bumper-hills-noticed.trycloudflare.com`
+- **Cloudflare Tunnel 公网地址**：`https://car-skirts-loaded-beauty.trycloudflare.com`
 - **本地回环地址**：`http://127.0.0.1:8503`
 
-- **前端工具页面**：已默认配置该 Cloudflare Tunnel 地址，用户访问网页无需额外设置即可直连下载。
+- **前端工具页面**：已默认配置该 Cloudflare Tunnel 地址，用户访问网页无需额外设置即可直连使用（包括影音下载与 PDF 转 PPTX 高清转换）。
 
 ---
 
@@ -37,5 +37,5 @@ cloudflared tunnel --url http://localhost:8503
   tail -f logs/downloads.log
   ```
 - 或在浏览器直接访问接口查看最近 100 条记录：
-  `https://birmingham-bumper-hills-noticed.trycloudflare.com/api/admin/logs`
+  `https://car-skirts-loaded-beauty.trycloudflare.com/api/admin/logs`
 
