@@ -8,12 +8,19 @@ from typing import Optional, Dict, Any
 from pathlib import Path
 from urllib.parse import quote
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Request, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
 import yt_dlp
+try:
+    from pdf_engine import convert_pdf_to_pptx, get_pdf_info, pymupdf, pptx
+except ImportError:
+    convert_pdf_to_pptx = None
+    get_pdf_info = None
+    pymupdf = None
+    pptx = None
 
 app = FastAPI(
     title="yt-dlp Media Downloader API",
@@ -371,6 +378,158 @@ async def get_audit_logs(limit: int = 100):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# =====================================================================
+# PDF to PPTX High-Performance Conversion Endpoints
+# =====================================================================
+
+@app.get("/api/pdf/status")
+async def get_pdf_status():
+    """Returns status of the PDF conversion engine and installed capabilities."""
+    return {
+        "status": "online",
+        "engine": "PyMuPDF + python-pptx",
+        "has_pymupdf": pymupdf is not None,
+        "has_pptx": pptx is not None,
+        "max_size_mb": 1000,
+        "features": ["presentation", "hybrid", "extracted", "dpi_custom", "page_range"]
+    }
+
+
+@app.post("/api/pdf/info")
+async def extract_pdf_info(file: UploadFile = File(...)):
+    """Extracts metadata, dimensions, and page 1 thumbnail without full conversion."""
+    if get_pdf_info is None:
+        raise HTTPException(status_code=500, detail="PyMuPDF is not installed on this server.")
+    try:
+        content = await file.read()
+        info = get_pdf_info(content)
+        info["file_name"] = file.filename or "uploaded.pdf"
+        return info
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"PDF 解析失败: {str(e)}")
+
+
+def run_pdf_conversion_task(task_id: str, pdf_path: Path, pptx_path: Path, mode: str, dpi: int, page_range: str, client_ip: str):
+    """Worker thread for PDF to PPTX conversion."""
+    try:
+        def progress_cb(cur: int, total: int, stage: str, pct: float):
+            if task_id in tasks:
+                tasks[task_id]["current_page"] = cur
+                tasks[task_id]["total_pages"] = total
+                tasks[task_id]["stage"] = stage
+                tasks[task_id]["progress"] = round(pct, 1)
+
+        res = convert_pdf_to_pptx(
+            pdf_source=pdf_path,
+            output_dest=pptx_path,
+            mode=mode,
+            dpi=dpi,
+            page_range=page_range,
+            progress_callback=progress_cb
+        )
+
+        try:
+            if pdf_path.exists():
+                pdf_path.unlink()
+        except Exception:
+            pass
+
+        if task_id in tasks:
+            tasks[task_id]["status"] = "completed"
+            tasks[task_id]["progress"] = 100.0
+            tasks[task_id]["stage"] = "转换完成！"
+            tasks[task_id]["filepath"] = str(pptx_path)
+            tasks[task_id]["file_size"] = res["output_size_bytes"]
+            tasks[task_id]["duration"] = res["duration_seconds"]
+            tasks[task_id]["pages_converted"] = res["pages_converted"]
+
+        log_audit_event(
+            url="PDF-Upload",
+            title=f"PDF2PPTX: {pptx_path.name} ({res['pages_converted']}p)",
+            format_type="pptx",
+            quality=f"{mode}_{dpi}dpi",
+            file_size=res["output_size_bytes"],
+            client_ip=client_ip
+        )
+
+    except Exception as e:
+        print(f"[PDF Conversion Error] Task {task_id}: {e}")
+        if task_id in tasks:
+            tasks[task_id]["status"] = "error"
+            tasks[task_id]["error"] = str(e)
+            tasks[task_id]["stage"] = f"转换出错: {e}"
+
+
+@app.post("/api/pdf/convert")
+async def start_pdf_conversion(
+    request: Request,
+    file: UploadFile = File(...),
+    mode: str = Form("presentation"),
+    dpi: int = Form(180),
+    page_range: str = Form("all")
+):
+    """
+    Accepts PDF upload (no size limit) and converts into PPTX.
+    """
+    if convert_pdf_to_pptx is None:
+        raise HTTPException(status_code=500, detail="PyMuPDF 或 python-pptx 未安装，请在服务端执行 pip install -r requirements.txt")
+
+    cleanup_old_files()
+
+    client_ip = request.client.host if request.client else "unknown"
+    task_id = str(uuid.uuid4())
+    raw_name = file.filename or "presentation.pdf"
+    stem = Path(raw_name).stem or "presentation"
+    safe_stem = "".join([c for c in stem if c.isalnum() or c in (" ", "-", "_", "(", ")")]).strip() or "presentation"
+    out_filename = f"{safe_stem}.pptx"
+
+    temp_pdf_path = DOWNLOADS_DIR / f"upload_{task_id}.pdf"
+    pptx_path = DOWNLOADS_DIR / f"{safe_stem}_{task_id[:8]}.pptx"
+
+    try:
+        with open(temp_pdf_path, "wb") as f:
+            while chunk := await file.read(1024 * 1024):
+                f.write(chunk)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"保存上传文件失败: {str(e)}")
+
+    tasks[task_id] = {
+        "task_id": task_id,
+        "status": "processing",
+        "progress": 5.0,
+        "current_page": 0,
+        "total_pages": 0,
+        "stage": "正在解析 PDF 结构...",
+        "filename": out_filename,
+        "filepath": None,
+        "file_size": 0,
+        "error": None,
+        "created_at": time.time(),
+        "speed": "--",
+        "eta": "--"
+    }
+
+    threading.Thread(
+        target=run_pdf_conversion_task,
+        args=(task_id, temp_pdf_path, pptx_path, mode, dpi, page_range, client_ip),
+        daemon=True
+    ).start()
+
+    return {"task_id": task_id, "filename": out_filename}
+
+
+@app.get("/api/pdf/tasks/{task_id}")
+async def get_pdf_task_status(task_id: str):
+    """Alias for task status."""
+    return await get_task_status(task_id)
+
+
+@app.get("/api/pdf/tasks/{task_id}/file")
+async def get_pdf_task_file(task_id: str):
+    """Alias for task file download."""
+    return await download_file(task_id)
 
 
 @app.get("/api/tasks/{task_id}")

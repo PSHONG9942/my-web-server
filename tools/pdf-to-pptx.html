@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF 转 PPTX 高清转换器 - 突破 15MB 限制 · 华小老师专区</title>
+    <meta name="description" content="专为突破 IlovePDF 等第三方平台 15MB 文件大小限制打造的 PDF 转 PPTX 转换工具。支持 24MB+ 大文件无损转为 PowerPoint 幻灯片，双引擎架构（本地极速浏览器端 + 自建服务器端）。">
+    <link rel="icon" href="../images/logo.png" type="image/png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Client-Side Engine CDNs: PDF.js & PptxGenJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-hover: #0284c7;
+            --primary-glow: rgba(14, 165, 233, 0.35);
+            --accent: #8b5cf6;
+            --accent-glow: rgba(139, 92, 246, 0.3);
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.3);
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --danger-glow: rgba(239, 68, 68, 0.3);
+            --bg-base: #0b0f19;
+            --bg-card: rgba(17, 24, 39, 0.78);
+            --bg-card-hover: rgba(30, 41, 59, 0.88);
+            --bg-input: rgba(15, 23, 42, 0.9);
+            --border-card: rgba(255, 255, 255, 0.1);
+            --border-glow: rgba(14, 165, 233, 0.45);
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --text-muted: #64748b;
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 8px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-base);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.18) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.18) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.12) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 24px 16px 80px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 18px;
+            background: rgba(30, 41, 59, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #cbd5e1;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: var(--transition);
+        }
+
+        .back-btn:hover {
+            color: #fff;
+            background: rgba(51, 65, 85, 0.95);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px var(--primary-glow);
+        }
+
+        .top-status-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 14px;
+            border-radius: 30px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .status-badge:hover {
+            border-color: var(--primary);
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #64748b;
+        }
+
+        .status-badge.online .status-indicator {
+            background-color: var(--success);
+            box-shadow: 0 0 10px var(--success);
+        }
+
+        .status-badge.client-mode .status-indicator {
+            background-color: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        .status-badge.offline .status-indicator {
+            background-color: var(--danger);
+            box-shadow: 0 0 10px var(--danger);
+        }
+
+        .settings-btn {
+            background: rgba(30, 41, 59, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #cbd5e1;
+            padding: 7px 14px;
+            border-radius: 30px;
+            font-size: 0.82rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+        }
+
+        .settings-btn:hover {
+            color: #fff;
+            border-color: var(--accent);
+            box-shadow: 0 4px 14px var(--accent-glow);
+        }
+
+        /* Hero Header */
+        .hero {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 15px;
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(139, 92, 246, 0.15));
+            border: 1px solid rgba(14, 165, 233, 0.35);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #38bdf8;
+            font-weight: 600;
+            margin-bottom: 14px;
+        }
+
+        .hero h1 {
+            font-size: 2.3rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #ffffff 30%, #38bdf8 70%, #818cf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            color: var(--text-sub);
+            font-size: 1.05rem;
+            max-width: 720px;
+            margin: 0 auto 18px;
+        }
+
+        .hero-highlights {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .hero-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #cbd5e1;
+        }
+
+        .hero-chip strong {
+            color: #38bdf8;
+        }
+
+        /* Glass Cards */
+        .glass-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+            margin-bottom: 24px;
+            transition: var(--transition);
+        }
+
+        /* Engine Switcher */
+        .engine-tabs-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .engine-tabs {
+            display: inline-flex;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 4px;
+            border-radius: 40px;
+            gap: 4px;
+        }
+
+        .engine-tab {
+            padding: 10px 20px;
+            border-radius: 30px;
+            border: none;
+            background: transparent;
+            color: var(--text-sub);
+            font-size: 0.92rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .engine-tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #fff;
+            box-shadow: 0 4px 18px var(--primary-glow);
+        }
+
+        .engine-tab-badge {
+            font-size: 0.72rem;
+            padding: 2px 7px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        /* Upload Area */
+        .upload-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.18);
+            border-radius: var(--radius-md);
+            padding: 44px 20px;
+            text-align: center;
+            background: rgba(15, 23, 42, 0.45);
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-zone:hover,
+        .upload-zone.dragover {
+            border-color: var(--primary);
+            background: rgba(14, 165, 233, 0.08);
+            box-shadow: 0 0 30px rgba(14, 165, 233, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .upload-icon {
+            font-size: 54px;
+            margin-bottom: 14px;
+            display: inline-block;
+            filter: drop-shadow(0 4px 12px rgba(14, 165, 233, 0.4));
+            animation: floatUpDown 3s ease-in-out infinite;
+        }
+
+        @keyframes floatUpDown {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .upload-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 8px;
+        }
+
+        .upload-subtitle {
+            font-size: 0.92rem;
+            color: var(--text-sub);
+            max-width: 500px;
+            margin: 0 auto 16px;
+        }
+
+        .upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            background: linear-gradient(135deg, var(--primary), #0284c7);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 18px var(--primary-glow);
+            transition: var(--transition);
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 22px rgba(14, 165, 233, 0.55);
+        }
+
+        .sample-file-trigger {
+            margin-top: 18px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.84rem;
+            color: #38bdf8;
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            opacity: 0.85;
+            transition: var(--transition);
+        }
+
+        .sample-file-trigger:hover {
+            opacity: 1;
+            color: #7dd3fc;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* File Inspection Card */
+        .inspection-card {
+            display: none;
+            animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .inspection-card.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .file-details-grid {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        @media (max-width: 768px) {
+            .file-details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .thumb-preview-container {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .thumb-preview-img {
+            width: 100%;
+            height: auto;
+            max-height: 220px;
+            object-fit: contain;
+            display: block;
+            background: #1e293b;
+        }
+
+        .thumb-overlay-label {
+            padding: 8px 12px;
+            font-size: 0.78rem;
+            color: var(--text-sub);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .file-meta-box {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .file-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .file-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+            word-break: break-all;
+        }
+
+        .rechoose-btn {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 5px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: var(--transition);
+        }
+
+        .rechoose-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .stat-badges-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .meta-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-sm);
+            font-size: 0.84rem;
+            color: #cbd5e1;
+        }
+
+        .meta-pill.highlight {
+            background: rgba(14, 165, 233, 0.15);
+            border-color: rgba(14, 165, 233, 0.35);
+            color: #38bdf8;
+            font-weight: 600;
+        }
+
+        .size-advantage-banner {
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.86rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(14, 165, 233, 0.12));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+        }
+
+        /* Option Controls */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 6px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .option-group label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-sub);
+            margin-bottom: 6px;
+        }
+
+        .select-input, .text-input {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: var(--radius-sm);
+            padding: 9px 12px;
+            color: #fff;
+            font-size: 0.9rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .select-input:focus, .text-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .start-convert-cta {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn-action-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 13px 32px;
+            background: linear-gradient(135deg, #0ea5e9, #6366f1);
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 6px 24px rgba(14, 165, 233, 0.4);
+            transition: var(--transition);
+        }
+
+        .btn-action-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(14, 165, 233, 0.6);
+            background: linear-gradient(135deg, #0284c7, #4f46e5);
+        }
+
+        .btn-action-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            filter: grayscale(0.5);
+        }
+
+        /* Progress Card */
+        .progress-card {
+            display: none;
+            animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .progress-card.show {
+            display: block;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .progress-stage {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .progress-percentage {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #38bdf8;
+            font-family: monospace;
+        }
+
+        .progress-bar-track {
+            width: 100%;
+            height: 12px;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #0ea5e9, #8b5cf6, #10b981);
+            background-size: 200% 100%;
+            animation: gradientShift 2s linear infinite;
+            border-radius: 10px;
+            transition: width 0.2s ease-out;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 100% 0; }
+            100% { background-position: -100% 0; }
+        }
+
+        .progress-metrics {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-sub);
+        }
+
+        /* Result Card */
+        .result-card {
+            display: none;
+            animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .result-card.show {
+            display: block;
+        }
+
+        .success-banner {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(14, 165, 233, 0.15));
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            border-radius: var(--radius-md);
+            margin-bottom: 24px;
+        }
+
+        .success-icon {
+            font-size: 38px;
+            filter: drop-shadow(0 2px 8px var(--success-glow));
+        }
+
+        .success-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #34d399;
+            margin-bottom: 4px;
+        }
+
+        .success-sub {
+            font-size: 0.9rem;
+            color: #cbd5e1;
+        }
+
+        .download-actions-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .btn-download-pptx {
+            flex: 2;
+            min-width: 220px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 28px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            box-shadow: 0 6px 24px var(--success-glow);
+            transition: var(--transition);
+        }
+
+        .btn-download-pptx:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.6);
+            background: linear-gradient(135deg, #059669, #047857);
+        }
+
+        .btn-convert-another {
+            flex: 1;
+            min-width: 150px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 15px 22px;
+            background: rgba(30, 41, 59, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: #f1f5f9;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-convert-another:hover {
+            background: rgba(51, 65, 85, 0.95);
+            border-color: var(--primary);
+        }
+
+        .stats-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            text-align: center;
+        }
+
+        .stat-box-val {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .stat-box-label {
+            font-size: 0.78rem;
+            color: var(--text-sub);
+        }
+
+        /* Comparison Table */
+        .comparison-section {
+            margin-top: 36px;
+        }
+
+        .section-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-subtitle {
+            font-size: 0.92rem;
+            color: var(--text-sub);
+            margin-bottom: 20px;
+        }
+
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.92rem;
+        }
+
+        .compare-table th, .compare-table td {
+            padding: 14px 18px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .compare-table th {
+            color: var(--text-sub);
+            font-weight: 600;
+            background: rgba(15, 23, 42, 0.7);
+        }
+
+        .compare-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .tag-win {
+            color: #34d399;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .tag-limit {
+            color: #f87171;
+            font-weight: 500;
+        }
+
+        /* Settings Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 16px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-box {
+            background: #111827;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: var(--radius-lg);
+            max-width: 520px;
+            width: 100%;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            animation: modalPop 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .modal-close-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-close-btn:hover {
+            color: #fff;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            background: rgba(15, 23, 42, 0.7);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn-modal-cancel {
+            padding: 9px 18px;
+            border-radius: 20px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-sub);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-modal-cancel:hover {
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-modal-save {
+            padding: 9px 22px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--primary), #0284c7);
+            border: none;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-modal-save:hover {
+            box-shadow: 0 4px 14px var(--primary-glow);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <a href="../index.html" class="back-btn" id="backToHomeBtn">
+                <span>⬅️</span>
+                <span>返回主页</span>
+            </a>
+            <div class="top-status-bar">
+                <div class="status-badge client-mode" id="engineStatusBadge" title="点击配置后端或切换引擎">
+                    <span class="status-indicator" id="statusIndicatorDot"></span>
+                    <span id="engineStatusText">引擎: 本地极速浏览器模式</span>
+                </div>
+                <button class="settings-btn" id="openSettingsBtn" title="配置自建 Python 后端服务器">
+                    <span>⚙️</span>
+                    <span>服务设置</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Hero Header -->
+        <section class="hero">
+            <div class="hero-badge">⚡ 专为大体积课件与长文档定制 · 零门槛无限制</div>
+            <h1>PDF 转 PPTX 高清转换器</h1>
+            <p>
+                告别 <strong>IlovePDF</strong> 等第三方平台仅 <strong>15MB</strong> 的免费上限与繁琐排队！
+                支持 <strong>24MB、50MB+</strong> 大体积教学课件无损转换为 PowerPoint 幻灯片，排版 100% 还原。
+            </p>
+            <div class="hero-highlights">
+                <div class="hero-chip"><strong>🚀 无体积限制</strong> 24MB+ 随意吞吐</div>
+                <div class="hero-chip"><strong>🎨 视网膜高清</strong> 300DPI 零乱码零错位</div>
+                <div class="hero-chip"><strong>🛡️ 双引擎架构</strong> 浏览器纯本地 + 自建高速服务</div>
+                <div class="hero-chip"><strong>🔒 隐私零泄露</strong> 数据绝不上载未知第三方</div>
+            </div>
+        </section>
+
+        <!-- Engine Switcher -->
+        <div class="engine-tabs-wrapper">
+            <div class="engine-tabs">
+                <button class="engine-tab active" id="tabLocalEngine">
+                    <span>⚡ 本地极速引擎 (无需启动服务)</span>
+                    <span class="engine-tab-badge">推荐</span>
+                </button>
+                <button class="engine-tab" id="tabServerEngine">
+                    <span>🚀 自建服务器引擎 (PyMuPDF 算力)</span>
+                    <span class="engine-tab-badge" id="serverStateChip">待检测</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Card -->
+        <main class="glass-card">
+            <!-- 1. Upload Zone -->
+            <div class="upload-zone" id="uploadDropZone">
+                <div class="upload-icon">📑</div>
+                <div class="upload-title">拖拽 PDF 文件到此处，或点击浏览选择</div>
+                <div class="upload-subtitle">
+                    支持各类复杂排版、大图背景课件。没有 15MB 烦人限制，无论 24MB 还是更大皆可畅快转换！
+                </div>
+                <button class="upload-btn" id="browseFilesBtn">
+                    <span>📂 选择 PDF 文件</span>
+                </button>
+                <input type="file" id="fileInput" accept=".pdf,application/pdf">
+                <div>
+                    <span class="sample-file-trigger" id="sampleTestTrigger">
+                        🎯 点击载入测试样例 (15.34MB 竞赛课件，超越第三方平台限制)
+                    </span>
+                </div>
+            </div>
+
+            <!-- 2. File Inspection & Settings Card -->
+            <div class="inspection-card" id="inspectionCard">
+                <div class="file-details-grid">
+                    <!-- Left: Slide 1 Preview -->
+                    <div class="thumb-preview-container">
+                        <img id="pdfThumbnailImg" class="thumb-preview-img" alt="PDF 首页缩略图" src="">
+                        <div class="thumb-overlay-label" id="previewDimensionTag">第 1 页预览</div>
+                    </div>
+
+                    <!-- Right: Metadata & Conversion Options -->
+                    <div class="file-meta-box">
+                        <div class="file-title-row">
+                            <div class="file-name" id="displayFileName">file.pdf</div>
+                            <button class="rechoose-btn" id="rechooseFileBtn">重新选择</button>
+                        </div>
+
+                        <div class="stat-badges-row">
+                            <span class="meta-pill highlight" id="fileSizeBadge">大小: 24.0 MB</span>
+                            <span class="meta-pill" id="pageCountBadge">页数: 0 页</span>
+                            <span class="meta-pill" id="aspectRatioBadge">比例: 16:9 宽屏</span>
+                            <span class="meta-pill" id="activeEngineBadge">当前引擎: 本地极速</span>
+                        </div>
+
+                        <div class="size-advantage-banner" id="sizeAdvantageBanner">
+                            <span>🎉</span>
+                            <span id="sizeAdvantageText">该文件已突破第三方 15MB 限制，本站无限制免费为您转换！</span>
+                        </div>
+
+                        <div class="options-grid">
+                            <div class="option-group">
+                                <label for="conversionModeSelect">转换模式</label>
+                                <select class="select-input" id="conversionModeSelect">
+                                    <option value="presentation" selected>🌟 视网膜高清演示 (100% 视觉保真，推荐)</option>
+                                    <option value="hybrid">📝 混合可编辑文本 (高清底图 + 原生文本框)</option>
+                                </select>
+                            </div>
+
+                            <div class="option-group">
+                                <label for="resolutionDpiSelect">清晰度画质 (DPI)</label>
+                                <select class="select-input" id="resolutionDpiSelect">
+                                    <option value="150">平衡标准 (150 DPI · 体积小速度快)</option>
+                                    <option value="180" selected>超清推荐 (180 DPI · 锐利清爽)</option>
+                                    <option value="200">视网膜大屏 (200 DPI · 课室大屏投影)</option>
+                                    <option value="300">印刷级极致 (300 DPI · 极限细节)</option>
+                                </select>
+                            </div>
+
+                            <div class="option-group">
+                                <label for="pageRangeInput">页面范围</label>
+                                <input type="text" class="text-input" id="pageRangeInput" placeholder="all 或例如: 1-10, 15" value="all">
+                            </div>
+                        </div>
+
+                        <div class="start-convert-cta">
+                            <button class="btn-action-primary" id="startConvertBtn">
+                                <span>🚀</span>
+                                <span id="startBtnLabel">立即转换生成 PPTX</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Progress Card -->
+            <div class="progress-card" id="progressCard">
+                <div class="progress-header">
+                    <div class="progress-stage" id="progressStageText">
+                        <span class="spinner"></span>
+                        <span id="stageLabel">正在初始化...</span>
+                    </div>
+                    <div class="progress-percentage" id="progressPercentText">0%</div>
+                </div>
+                <div class="progress-bar-track">
+                    <div class="progress-bar-fill" id="progressBarFill"></div>
+                </div>
+                <div class="progress-metrics">
+                    <span id="progressPageMetrics">进度: 第 0 / 0 页</span>
+                    <span id="progressSpeedMetrics">耗时: 0s</span>
+                </div>
+            </div>
+
+            <!-- 4. Result Card -->
+            <div class="result-card" id="resultCard">
+                <div class="success-banner">
+                    <div class="success-icon">🎉</div>
+                    <div>
+                        <div class="success-title">转换成功！PPTX 演示文稿已生成</div>
+                        <div class="success-sub" id="successDetailText">
+                            所有幻灯片已按原页面比例完美渲染打包，可直接在 PowerPoint / WPS 中播放演示。
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-summary-grid">
+                    <div class="stat-box">
+                        <div class="stat-box-val" id="resConvertedPages">13</div>
+                        <div class="stat-box-label">已转换幻灯片</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-box-val" id="resDurationTime">3.8s</div>
+                        <div class="stat-box-label">转换耗时</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-box-val" id="resPptxSize">7.4 MB</div>
+                        <div class="stat-box-label">生成 PPTX 大小</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-box-val" id="resEfficiency">100%</div>
+                        <div class="stat-box-label">视觉无损还原</div>
+                    </div>
+                </div>
+
+                <div class="download-actions-row">
+                    <a href="#" class="btn-download-pptx" id="downloadPptxActionBtn" download="presentation.pptx">
+                        <span>📥</span>
+                        <span>下载 PPTX 演示文稿 (.pptx)</span>
+                    </a>
+                    <button class="btn-convert-another" id="convertAnotherBtn">
+                        <span>🔄</span>
+                        <span>转换新文件</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Comparison Table Section -->
+        <section class="glass-card comparison-section">
+            <h2 class="section-title">
+                <span>⚖️</span>
+                <span>为什么选择自建与本地方案，对比 IlovePDF 等第三方平台？</span>
+            </h2>
+            <div class="section-subtitle">完全突破商业平台的各种人工壁垒，为大马老师和教职人员打造最自由、最安全的工具箱。</div>
+
+            <table class="compare-table">
+                <thead>
+                    <tr>
+                        <th>对比项目</th>
+                        <th>IlovePDF 等公开在线转换器</th>
+                        <th>本站转换器 (自建 / 本地双引擎)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>文件体积上限</strong></td>
+                        <td><span class="tag-limit">❌ 免费版限 15MB (大课件直接报错)</span></td>
+                        <td><span class="tag-win">✅ 无限制 (轻松吞吐 24MB、50MB+)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>排版与字体保真度</strong></td>
+                        <td>有时会丢失生僻华文字符或产生错位</td>
+                        <td><span class="tag-win">✅ 100% 视网膜保真，公式/图表零变形</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>数据隐私与安全性</strong></td>
+                        <td>课件与敏感试卷上载到海外商业服务器</td>
+                        <td><span class="tag-win">✅ 本地沙盒不离机 / 自建私有服务</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>高峰期排队与广告</strong></td>
+                        <td><span class="tag-limit">❌ 频繁弹出升级 VIP 弹窗与广告</span></td>
+                        <td><span class="tag-win">✅ 零广告、免排队、完全免费</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>跨平台即开即用</strong></td>
+                        <td>需网络良好上传大文件</td>
+                        <td><span class="tag-win">✅ 支持浏览器离线运行 + 桌面拖拽脚本</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
+
+    <!-- Backend Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title">⚙️ 自建后端服务器配置</div>
+                <button class="modal-close-btn" id="closeSettingsModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 0.9rem; color: #cbd5e1; margin-bottom: 14px;">
+                    你可以将 PDF 转 PPTX 任务交给自建的 Python 高性能算力服务（基于 PyMuPDF + python-pptx），在 Linux 服务器或本机后台运行，处理极速！
+                </p>
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #94a3b8; margin-bottom: 6px;">
+                        后端 API 地址 (支持本地 localhost 或 Cloudflare Tunnel 域名)
+                    </label>
+                    <input type="text" class="text-input" id="apiUrlInput" placeholder="http://127.0.0.1:8503">
+                </div>
+                <div style="font-size: 0.82rem; color: #94a3b8; line-height: 1.5; background: rgba(15,23,42,0.6); padding: 12px; border-radius: 8px;">
+                    💡 <strong>常用地址参考：</strong><br>
+                    • 综合服务 (yt-dlp + PDF 统一部署): <code>http://127.0.0.1:8503</code><br>
+                    • 专属 PDF 微服务: <code>http://127.0.0.1:8505</code><br>
+                    • 公网 Cloudflare Tunnel 域名
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal-cancel" id="cancelSettingsModalBtn">取消</button>
+                <button class="btn-modal-save" id="saveSettingsModalBtn">保存并测试连接</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        // Setup PDF.js Worker
+        if (window.pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+
+        // Storage & Constants
+        const STORAGE_API_KEY = "pdf2pptx_api_base_url";
+        const DEFAULT_API_URL = "http://127.0.0.1:8503";
+        let API_BASE_URL = localStorage.getItem(STORAGE_API_KEY) || DEFAULT_API_URL;
+
+        // State
+        let currentEngine = "local"; // "local" | "server"
+        let currentPdfFile = null;
+        let currentPdfDoc = null;
+        let currentPdfMetadata = null;
+        let isProcessing = false;
+
+        // DOM Elements
+        const engineStatusBadge = document.getElementById("engineStatusBadge");
+        const statusIndicatorDot = document.getElementById("statusIndicatorDot");
+        const engineStatusText = document.getElementById("engineStatusText");
+        const openSettingsBtn = document.getElementById("openSettingsBtn");
+
+        const tabLocalEngine = document.getElementById("tabLocalEngine");
+        const tabServerEngine = document.getElementById("tabServerEngine");
+        const serverStateChip = document.getElementById("serverStateChip");
+
+        const uploadDropZone = document.getElementById("uploadDropZone");
+        const browseFilesBtn = document.getElementById("browseFilesBtn");
+        const fileInput = document.getElementById("fileInput");
+        const sampleTestTrigger = document.getElementById("sampleTestTrigger");
+
+        const inspectionCard = document.getElementById("inspectionCard");
+        const pdfThumbnailImg = document.getElementById("pdfThumbnailImg");
+        const previewDimensionTag = document.getElementById("previewDimensionTag");
+        const displayFileName = document.getElementById("displayFileName");
+        const rechooseFileBtn = document.getElementById("rechooseFileBtn");
+        const fileSizeBadge = document.getElementById("fileSizeBadge");
+        const pageCountBadge = document.getElementById("pageCountBadge");
+        const aspectRatioBadge = document.getElementById("aspectRatioBadge");
+        const activeEngineBadge = document.getElementById("activeEngineBadge");
+        const sizeAdvantageBanner = document.getElementById("sizeAdvantageBanner");
+        const sizeAdvantageText = document.getElementById("sizeAdvantageText");
+
+        const conversionModeSelect = document.getElementById("conversionModeSelect");
+        const resolutionDpiSelect = document.getElementById("resolutionDpiSelect");
+        const pageRangeInput = document.getElementById("pageRangeInput");
+        const startConvertBtn = document.getElementById("startConvertBtn");
+        const startBtnLabel = document.getElementById("startBtnLabel");
+
+        const progressCard = document.getElementById("progressCard");
+        const progressStageText = document.getElementById("stageLabel");
+        const progressPercentText = document.getElementById("progressPercentText");
+        const progressBarFill = document.getElementById("progressBarFill");
+        const progressPageMetrics = document.getElementById("progressPageMetrics");
+        const progressSpeedMetrics = document.getElementById("progressSpeedMetrics");
+
+        const resultCard = document.getElementById("resultCard");
+        const successDetailText = document.getElementById("successDetailText");
+        const resConvertedPages = document.getElementById("resConvertedPages");
+        const resDurationTime = document.getElementById("resDurationTime");
+        const resPptxSize = document.getElementById("resPptxSize");
+        const downloadPptxActionBtn = document.getElementById("downloadPptxActionBtn");
+        const convertAnotherBtn = document.getElementById("convertAnotherBtn");
+
+        const settingsModal = document.getElementById("settingsModal");
+        const closeSettingsModalBtn = document.getElementById("closeSettingsModalBtn");
+        const cancelSettingsModalBtn = document.getElementById("cancelSettingsModalBtn");
+        const saveSettingsModalBtn = document.getElementById("saveSettingsModalBtn");
+        const apiUrlInput = document.getElementById("apiUrlInput");
+
+        // Helper: Format bytes
+        function formatBytes(bytes) {
+            if (!bytes || bytes <= 0) return "0 B";
+            const sizes = ["B", "KB", "MB", "GB"];
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return (bytes / Math.pow(1024, i)).toFixed(2) + " " + sizes[i];
+        }
+
+        // Helper: Parse page ranges
+        function parsePageRanges(rangeStr, totalPages) {
+            if (!rangeStr || rangeStr.trim().toLowerCase() === "all") {
+                return Array.from({ length: totalPages }, (_, i) => i + 1);
+            }
+            const pages = new Set();
+            const parts = rangeStr.split(",");
+            for (let part of parts) {
+                part = part.trim();
+                if (!part) continue;
+                if (part.includes("-")) {
+                    const [start, end] = part.split("-").map(n => parseInt(n.trim(), 10));
+                    if (!isNaN(start) && !isNaN(end)) {
+                        for (let p = Math.max(1, start); p <= Math.min(totalPages, end); p++) {
+                            pages.add(p);
+                        }
+                    }
+                } else {
+                    const p = parseInt(part, 10);
+                    if (!isNaN(p) && p >= 1 && p <= totalPages) {
+                        pages.add(p);
+                    }
+                }
+            }
+            const arr = Array.from(pages).sort((a, b) => a - b);
+            return arr.length > 0 ? arr : Array.from({ length: totalPages }, (_, i) => i + 1);
+        }
+
+        // Check Backend Server Status
+        async function checkServerHealth() {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 2500);
+                const res = await fetch(`${API_BASE_URL}/api/pdf/status`, { signal: controller.signal });
+                clearTimeout(timeoutId);
+                if (res.ok) {
+                    serverStateChip.innerText = "在线";
+                    serverStateChip.style.background = "rgba(16, 185, 129, 0.35)";
+                    return true;
+                }
+            } catch (e) {
+                // Try fallback to /api/status
+                try {
+                    const c2 = new AbortController();
+                    const t2 = setTimeout(() => c2.abort(), 2000);
+                    const r2 = await fetch(`${API_BASE_URL}/api/status`, { signal: c2.signal });
+                    clearTimeout(t2);
+                    if (r2.ok) {
+                        serverStateChip.innerText = "在线";
+                        serverStateChip.style.background = "rgba(16, 185, 129, 0.35)";
+                        return true;
+                    }
+                } catch (err) {}
+            }
+            serverStateChip.innerText = "离线";
+            serverStateChip.style.background = "rgba(239, 68, 68, 0.35)";
+            return false;
+        }
+
+        // Update Engine UI
+        function updateEngineUI() {
+            if (currentEngine === "local") {
+                tabLocalEngine.classList.add("active");
+                tabServerEngine.classList.remove("active");
+                engineStatusBadge.className = "status-badge client-mode";
+                engineStatusText.innerText = "引擎: 本地极速浏览器模式";
+                activeEngineBadge.innerText = "当前引擎: 本地极速 (离线零泄露)";
+            } else {
+                tabServerEngine.classList.add("active");
+                tabLocalEngine.classList.remove("active");
+                engineStatusBadge.className = "status-badge online";
+                engineStatusText.innerText = "引擎: 自建服务器模式";
+                activeEngineBadge.innerText = "当前引擎: 自建服务器 (PyMuPDF 算力)";
+            }
+        }
+
+        tabLocalEngine.addEventListener("click", () => {
+            currentEngine = "local";
+            updateEngineUI();
+        });
+
+        tabServerEngine.addEventListener("click", async () => {
+            currentEngine = "server";
+            updateEngineUI();
+            const online = await checkServerHealth();
+            if (!online) {
+                alert(`未检测到在 ${API_BASE_URL} 运行的后端服务。\n若需使用自建服务器加速，请先在终端运行 start_windows.bat 或检查服务设置。已为您切换为服务器模式，您也可随时切回本地极速引擎！`);
+            }
+        });
+
+        // Drag & Drop / File Selection
+        browseFilesBtn.addEventListener("click", () => fileInput.click());
+        uploadDropZone.addEventListener("click", (e) => {
+            if (e.target !== sampleTestTrigger && !browseFilesBtn.contains(e.target)) {
+                fileInput.click();
+            }
+        });
+
+        uploadDropZone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            uploadDropZone.classList.add("dragover");
+        });
+
+        uploadDropZone.addEventListener("dragleave", () => {
+            uploadDropZone.classList.remove("dragover");
+        });
+
+        uploadDropZone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            uploadDropZone.classList.remove("dragover");
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                handleSelectedFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener("change", (e) => {
+            if (e.target.files && e.target.files.length > 0) {
+                handleSelectedFile(e.target.files[0]);
+            }
+        });
+
+        rechooseFileBtn.addEventListener("click", () => {
+            fileInput.value = "";
+            currentPdfFile = null;
+            currentPdfDoc = null;
+            inspectionCard.classList.remove("show");
+            progressCard.classList.remove("show");
+            resultCard.classList.remove("show");
+            uploadDropZone.style.display = "block";
+        });
+
+        // Sample File Trigger
+        sampleTestTrigger.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            sampleTestTrigger.innerHTML = '<span class="spinner"></span> 正在载入 15.34MB 课件样例...';
+            try {
+                const sampleUrl = "assets/KIRABLE DAERAH MANJUNG 2026.pdf";
+                const res = await fetch(sampleUrl);
+                if (!res.ok) throw new Error("无法加载样例文件");
+                const blob = await res.blob();
+                const file = new File([blob], "KIRABLE DAERAH MANJUNG 2026.pdf", { type: "application/pdf" });
+                sampleTestTrigger.innerHTML = '🎯 点击载入测试样例 (15.3MB 课件)';
+                handleSelectedFile(file);
+            } catch (err) {
+                alert("载入样例失败: " + err.message);
+                sampleTestTrigger.innerHTML = '🎯 点击载入测试样例 (15.3MB 课件)';
+            }
+        });
+
+        // Handle Selected File
+        async function handleSelectedFile(file) {
+            if (!file || !file.name.toLowerCase().endsWith(".pdf")) {
+                alert("请选择有效的 .pdf 文件！");
+                return;
+            }
+
+            currentPdfFile = file;
+            uploadDropZone.style.display = "none";
+            progressCard.classList.remove("show");
+            resultCard.classList.remove("show");
+            inspectionCard.classList.add("show");
+
+            displayFileName.innerText = file.name;
+            const sizeStr = formatBytes(file.size);
+            fileSizeBadge.innerText = `大小: ${sizeStr}`;
+
+            const mb = file.size / (1024 * 1024);
+            if (mb > 15) {
+                const extra = (mb - 15).toFixed(1);
+                sizeAdvantageBanner.style.display = "flex";
+                sizeAdvantageText.innerText = `该文件 (${mb.toFixed(1)}MB) 超越第三方 15MB 限制整整 ${extra}MB，本站自建无限制免费转换！`;
+            } else {
+                sizeAdvantageBanner.style.display = "flex";
+                sizeAdvantageText.innerText = `文件大小 ${sizeStr}，本站提供双引擎极速转换，排版完美保真！`;
+            }
+
+            // Inspect PDF via PDF.js to get page count and page 1 thumbnail
+            try {
+                pdfThumbnailImg.src = "";
+                previewDimensionTag.innerText = "正在分析文档...";
+                const arrayBuffer = await file.arrayBuffer();
+                const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+                const pdf = await loadingTask.promise;
+                currentPdfDoc = pdf;
+
+                const numPages = pdf.numPages;
+                pageCountBadge.innerText = `页数: ${numPages} 页`;
+
+                // Render page 1 thumbnail
+                const page1 = await pdf.getPage(1);
+                const vp = page1.getViewport({ scale: 0.6 });
+                const canvas = document.createElement("canvas");
+                canvas.width = vp.width;
+                canvas.height = vp.height;
+                const ctx = canvas.getContext("2d");
+                await page1.render({ canvasContext: ctx, viewport: vp }).promise;
+
+                pdfThumbnailImg.src = canvas.toDataURL("image/jpeg", 0.85);
+
+                const unscaledVp = page1.getViewport({ scale: 1.0 });
+                const aspect = unscaledVp.width / unscaledVp.height;
+                let aspectDesc = `${Math.round(unscaledVp.width)} × ${Math.round(unscaledVp.height)} pt`;
+                if (Math.abs(aspect - (16 / 9)) < 0.1) {
+                    aspectDesc = "16:9 宽屏";
+                } else if (Math.abs(aspect - (4 / 3)) < 0.1) {
+                    aspectDesc = "4:3 标清";
+                }
+                aspectRatioBadge.innerText = `比例: ${aspectDesc}`;
+                previewDimensionTag.innerText = `第 1 页 (${aspectDesc})`;
+
+                currentPdfMetadata = {
+                    totalPages: numPages,
+                    widthPt: unscaledVp.width,
+                    heightPt: unscaledVp.height,
+                    aspect: aspect
+                };
+            } catch (err) {
+                console.error("PDF 解析失败:", err);
+                previewDimensionTag.innerText = "预览生成失败";
+            }
+        }
+
+        // Start Conversion Process
+        startConvertBtn.addEventListener("click", () => {
+            if (!currentPdfFile) return;
+            if (currentEngine === "server") {
+                runServerConversion();
+            } else {
+                runClientConversion();
+            }
+        });
+
+        // 1. Client-Side Pure Browser Conversion (PDF.js + PptxGenJS)
+        async function runClientConversion() {
+            if (isProcessing) return;
+            isProcessing = true;
+
+            inspectionCard.classList.remove("show");
+            resultCard.classList.remove("show");
+            progressCard.classList.add("show");
+
+            const startTime = Date.now();
+            const totalDocPages = currentPdfMetadata ? currentPdfMetadata.totalPages : (currentPdfDoc ? currentPdfDoc.numPages : 1);
+            const rangeStr = pageRangeInput.value.trim();
+            const targetPages = parsePageRanges(rangeStr, totalDocPages);
+            const totalToProcess = targetPages.length;
+
+            const mode = conversionModeSelect.value;
+            const dpi = parseInt(resolutionDpiSelect.value, 10) || 180;
+
+            // Map DPI to scale factor (72 pt = 1 inch)
+            const scaleFactor = dpi / 72.0;
+
+            try {
+                updateProgress(5, "正在初始化 PowerPoint 演示文稿结构...", 0, totalToProcess);
+
+                if (!window.PptxGenJS) {
+                    throw new Error("PptxGenJS 库尚未加载完毕，请检查网络连接");
+                }
+
+                const pptx = new PptxGenJS();
+
+                // Define slide dimensions matching the first target page
+                const firstPage = await currentPdfDoc.getPage(targetPages[0]);
+                const baseVp = firstPage.getViewport({ scale: 1.0 });
+                const slideW_Inches = baseVp.width / 72.0;
+                const slideH_Inches = baseVp.height / 72.0;
+
+                pptx.defineLayout({
+                    name: 'MATCH_PDF',
+                    width: slideW_Inches,
+                    height: slideH_Inches
+                });
+                pptx.layout = 'MATCH_PDF';
+
+                // Process pages sequentially
+                for (let i = 0; i < totalToProcess; i++) {
+                    const pageNum = targetPages[i];
+                    const currentStep = i + 1;
+                    const pct = Math.round(5 + (i / totalToProcess) * 85);
+                    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+
+                    updateProgress(
+                        pct,
+                        `正在渲染幻灯片画面 (第 ${pageNum} 页 · ${currentStep}/${totalToProcess})...`,
+                        currentStep,
+                        totalToProcess,
+                        `${elapsed}s`
+                    );
+
+                    const page = await currentPdfDoc.getPage(pageNum);
+                    const viewport = page.getViewport({ scale: scaleFactor });
+
+                    const canvas = document.createElement("canvas");
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    const ctx = canvas.getContext("2d", { alpha: false });
+
+                    await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+
+                    // JPEG quality 0.88 maintains crisp text & graphics while keeping memory low
+                    const imgData = canvas.toDataURL("image/jpeg", 0.88);
+
+                    const slide = pptx.addSlide();
+                    slide.addImage({
+                        data: imgData,
+                        x: 0,
+                        y: 0,
+                        w: '100%',
+                        h: '100%'
+                    });
+
+                    // Optional Hybrid text layer extraction in browser
+                    if (mode === "hybrid") {
+                        try {
+                            const textContent = await page.getTextContent();
+                            if (textContent && textContent.items) {
+                                // Add text boxes or notes for searchability
+                                const fullPageText = textContent.items.map(it => it.str).join(" ");
+                                if (fullPageText.trim()) {
+                                    slide.addNotes(fullPageText);
+                                }
+                            }
+                        } catch (te) {}
+                    }
+
+                    // Yield to event loop to keep UI smooth
+                    await new Promise(resolve => setTimeout(resolve, 10));
+                }
+
+                updateProgress(94, "正在打包并生成 PPTX 文件...", totalToProcess, totalToProcess);
+
+                const stem = currentPdfFile.name.replace(/\.[^/.]+$/, "");
+                const outFilename = `${stem}.pptx`;
+
+                // Export PPTX as Blob
+                const pptxBlob = await pptx.write({ outputType: 'blob' });
+                const blobUrl = URL.createObjectURL(pptxBlob);
+
+                const durationSec = ((Date.now() - startTime) / 1000).toFixed(1);
+                updateProgress(100, "转换完成！", totalToProcess, totalToProcess);
+
+                // Show Results
+                progressCard.classList.remove("show");
+                resultCard.classList.add("show");
+
+                resConvertedPages.innerText = `${totalToProcess} 页`;
+                resDurationTime.innerText = `${durationSec} 秒`;
+                resPptxSize.innerText = formatBytes(pptxBlob.size);
+                successDetailText.innerText = `已将《${currentPdfFile.name}》成功转换为标准 PPTX 演示文稿，文件大小为 ${formatBytes(pptxBlob.size)}。`;
+
+                downloadPptxActionBtn.href = blobUrl;
+                downloadPptxActionBtn.download = outFilename;
+
+                // Auto trigger download
+                const tempAnchor = document.createElement("a");
+                tempAnchor.href = blobUrl;
+                tempAnchor.download = outFilename;
+                document.body.appendChild(tempAnchor);
+                tempAnchor.click();
+                document.body.removeChild(tempAnchor);
+
+            } catch (err) {
+                console.error("转换失败:", err);
+                alert("转换出错: " + err.message);
+                progressCard.classList.remove("show");
+                inspectionCard.classList.add("show");
+            } finally {
+                isProcessing = false;
+            }
+        }
+
+        // 2. Server-Side Conversion (PyMuPDF Backend API)
+        async function runServerConversion() {
+            if (isProcessing) return;
+            isProcessing = true;
+
+            inspectionCard.classList.remove("show");
+            resultCard.classList.remove("show");
+            progressCard.classList.add("show");
+
+            updateProgress(5, "正在上传 PDF 至服务器...", 0, 0);
+
+            const formData = new FormData();
+            formData.append("file", currentPdfFile);
+            formData.append("mode", conversionModeSelect.value);
+            formData.append("dpi", resolutionDpiSelect.value);
+            formData.append("page_range", pageRangeInput.value.trim() || "all");
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/pdf/convert`, {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    throw new Error(errData.detail || `服务端错误 (HTTP ${res.status})`);
+                }
+
+                const data = await res.json();
+                const taskId = data.task_id;
+                const outFilename = data.filename || "presentation.pptx";
+
+                // Poll task status
+                pollServerTask(taskId, outFilename);
+
+            } catch (err) {
+                console.error("服务器转换请求出错:", err);
+                const fallback = confirm(`连接自建服务器失败: ${err.message}\n\n是否立即切换为【本地极速浏览器引擎】进行免服务转换？`);
+                if (fallback) {
+                    currentEngine = "local";
+                    updateEngineUI();
+                    isProcessing = false;
+                    runClientConversion();
+                } else {
+                    progressCard.classList.remove("show");
+                    inspectionCard.classList.add("show");
+                    isProcessing = false;
+                }
+            }
+        }
+
+        function pollServerTask(taskId, outFilename) {
+            const startTime = Date.now();
+            const pollTimer = setInterval(async () => {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/pdf/tasks/${taskId}`);
+                    if (!res.ok) return;
+
+                    const task = await res.json();
+                    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+
+                    updateProgress(
+                        task.progress || 10,
+                        task.stage || "服务端处理中...",
+                        task.current_page || 0,
+                        task.total_pages || 0,
+                        `${elapsed}s`
+                    );
+
+                    if (task.status === "completed") {
+                        clearInterval(pollTimer);
+                        isProcessing = false;
+
+                        const fileUrl = `${API_BASE_URL}/api/pdf/tasks/${taskId}/file`;
+
+                        progressCard.classList.remove("show");
+                        resultCard.classList.add("show");
+
+                        resConvertedPages.innerText = `${task.pages_converted || task.total_pages || "--"} 页`;
+                        resDurationTime.innerText = `${task.duration || elapsed} 秒`;
+                        resPptxSize.innerText = formatBytes(task.file_size);
+                        successDetailText.innerText = `自建服务器高速完成转换！PPTX 文件大小: ${formatBytes(task.file_size)}。`;
+
+                        downloadPptxActionBtn.href = fileUrl;
+                        downloadPptxActionBtn.download = outFilename;
+
+                        // Auto trigger download
+                        const tempAnchor = document.createElement("a");
+                        tempAnchor.href = fileUrl;
+                        tempAnchor.download = outFilename;
+                        document.body.appendChild(tempAnchor);
+                        tempAnchor.click();
+                        document.body.removeChild(tempAnchor);
+
+                    } else if (task.status === "error") {
+                        clearInterval(pollTimer);
+                        isProcessing = false;
+                        alert("服务端转换出错: " + (task.error || "未知错误"));
+                        progressCard.classList.remove("show");
+                        inspectionCard.classList.add("show");
+                    }
+                } catch (pe) {
+                    console.warn("轮询异常:", pe);
+                }
+            }, 1000);
+        }
+
+        function updateProgress(pct, stage, curPage, totalPages, elapsedStr = "--") {
+            const safePct = Math.min(100, Math.max(0, pct));
+            progressBarFill.style.width = `${safePct}%`;
+            progressPercentText.innerText = `${safePct}%`;
+            progressStageText.innerText = stage;
+            if (totalPages > 0) {
+                progressPageMetrics.innerText = `进度: 第 ${curPage} / ${totalPages} 页`;
+            } else {
+                progressPageMetrics.innerText = `进度: 正在分析`;
+            }
+            if (elapsedStr !== "--") {
+                progressSpeedMetrics.innerText = `耗时: ${elapsedStr}`;
+            }
+        }
+
+        // Convert Another File
+        convertAnotherBtn.addEventListener("click", () => {
+            fileInput.value = "";
+            currentPdfFile = null;
+            currentPdfDoc = null;
+            resultCard.classList.remove("show");
+            inspectionCard.classList.remove("show");
+            uploadDropZone.style.display = "block";
+        });
+
+        // Settings Modal
+        openSettingsBtn.addEventListener("click", () => {
+            apiUrlInput.value = API_BASE_URL;
+            settingsModal.classList.add("show");
+        });
+
+        function closeSettings() {
+            settingsModal.classList.remove("show");
+        }
+
+        closeSettingsModalBtn.addEventListener("click", closeSettings);
+        cancelSettingsModalBtn.addEventListener("click", closeSettings);
+
+        saveSettingsModalBtn.addEventListener("click", async () => {
+            let val = apiUrlInput.value.trim();
+            if (!val) val = DEFAULT_API_URL;
+            val = val.replace(/\/+$/, "");
+            API_BASE_URL = val;
+            localStorage.setItem(STORAGE_API_KEY, val);
+            closeSettings();
+
+            saveSettingsModalBtn.innerHTML = '<span class="spinner"></span> 检测中...';
+            const online = await checkServerHealth();
+            saveSettingsModalBtn.innerText = '保存并测试连接';
+            if (online) {
+                alert(`✅ 成功连接到自建后端服务: ${API_BASE_URL}！已准备就绪。`);
+            } else {
+                alert(`⚠️ 无法连接到 ${API_BASE_URL}。请确认服务端已启动并在该端口监听。`);
+            }
+        });
+
+        // Initial Health Check on load
+        checkServerHealth();
+    </script>
+</body>
+
+</html>

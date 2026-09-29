@@ -1,6 +1,5 @@
 fastapi>=0.110.0
 uvicorn[standard]>=0.28.0
-yt-dlp>=2024.08.06
 pymupdf>=1.24.0
 python-pptx>=1.0.0
 python-multipart>=0.0.9
