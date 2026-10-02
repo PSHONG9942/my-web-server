@@ -1181,6 +1181,30 @@
             return fetch(url, options);
         }
 
+        // Seamless file download directly in-page without cross-origin redirect
+        async function triggerDirectDownload(fileUrl, filename) {
+            try {
+                progressStatusText.innerText = "🚀 正在打包传输文件到浏览器，请稍候...";
+                progressSpinner.style.display = "inline-block";
+                const res = await apiFetch(fileUrl);
+                if (!res.ok) throw new Error("下载请求失败 (HTTP " + res.status + ")");
+                const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                const tempAnchor = document.createElement("a");
+                tempAnchor.href = blobUrl;
+                tempAnchor.download = filename || "download";
+                document.body.appendChild(tempAnchor);
+                tempAnchor.click();
+                document.body.removeChild(tempAnchor);
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+                progressSpinner.style.display = "none";
+                progressStatusText.innerText = "🎉 文件已直接保存到您的电脑！";
+            } catch (err) {
+                console.error("无缝下载异常，降级处理:", err);
+                window.open(fileUrl, "_blank");
+            }
+        }
+
         // Check Backend Status
         async function checkBackendStatus() {
             try {
@@ -1453,16 +1477,15 @@
 
                         // Setup file download link
                         const fileUrl = `${API_BASE_URL}/api/tasks/${taskId}/file`;
-                        manualSaveBtn.href = fileUrl;
                         finishedAction.classList.add("show");
 
-                        // Auto-trigger browser download
-                        const tempAnchor = document.createElement("a");
-                        tempAnchor.href = fileUrl;
-                        tempAnchor.download = task.filename || "download";
-                        document.body.appendChild(tempAnchor);
-                        tempAnchor.click();
-                        document.body.removeChild(tempAnchor);
+                        manualSaveBtn.onclick = (e) => {
+                            e.preventDefault();
+                            triggerDirectDownload(fileUrl, task.filename);
+                        };
+
+                        // Seamless auto-download via apiFetch (avoids cross-origin redirect to ngrok)
+                        triggerDirectDownload(fileUrl, task.filename);
 
                     } else if (task.status === "error") {
                         clearInterval(activePollingTimer);
