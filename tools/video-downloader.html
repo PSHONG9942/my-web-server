@@ -1070,9 +1070,9 @@
             </div>
             <div class="modal-body">
                 <label for="apiUrlInput">后端 API 基础地址 (Base URL)：</label>
-                <input type="text" id="apiUrlInput" class="modal-input" placeholder="https://car-skirts-loaded-beauty.trycloudflare.com">
+                <input type="text" id="apiUrlInput" class="modal-input" placeholder="https://swimming-easiness-strewn.ngrok-free.dev">
                 <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px;">
-                    默认线上地址为 <code>https://car-skirts-loaded-beauty.trycloudflare.com</code>。如需切换为本地测试或其他服务器，请修改并保存。
+                    默认线上地址为 <code>https://swimming-easiness-strewn.ngrok-free.dev</code>。如需切换为本地测试或其他服务器，请修改并保存。
                 </p>
             </div>
             <div class="modal-footer">
@@ -1085,10 +1085,10 @@
     <script>
         // Default API configuration
         const STORAGE_KEY = "ytdlp_api_base_url";
-        const DEFAULT_API_URL = "https://car-skirts-loaded-beauty.trycloudflare.com";
+        const DEFAULT_API_URL = "https://swimming-easiness-strewn.ngrok-free.dev";
         let storedUrl = localStorage.getItem(STORAGE_KEY);
-        // Automatically migrate if no storage or old temporary URL / localhost
-        if (!storedUrl || storedUrl.includes("localhost") || storedUrl.includes("127.0.0.1") || storedUrl.includes("rat-senior") || storedUrl.includes("birmingham-bumper")) {
+        // Automatically migrate if no storage or old temporary URL / trycloudflare / localhost
+        if (!storedUrl || storedUrl.includes("localhost") || storedUrl.includes("127.0.0.1") || storedUrl.includes("trycloudflare.com") || storedUrl.includes("rat-senior") || storedUrl.includes("birmingham-bumper") || storedUrl.includes("car-skirts")) {
             storedUrl = DEFAULT_API_URL;
             localStorage.setItem(STORAGE_KEY, DEFAULT_API_URL);
         }
