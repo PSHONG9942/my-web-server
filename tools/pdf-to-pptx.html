@@ -1333,12 +1333,22 @@
             return arr.length > 0 ? arr : Array.from({ length: totalPages }, (_, i) => i + 1);
         }
 
+        // Helper to bypass ngrok free domain interception warning
+        function apiFetch(url, options = {}) {
+            options = { ...options };
+            options.headers = {
+                ...(options.headers || {}),
+                "ngrok-skip-browser-warning": "true"
+            };
+            return fetch(url, options);
+        }
+
         // Check Backend Server Status
         async function checkServerHealth() {
             try {
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 2500);
-                const res = await fetch(`${API_BASE_URL}/api/pdf/status`, { signal: controller.signal });
+                const res = await apiFetch(`${API_BASE_URL}/api/pdf/status`, { signal: controller.signal });
                 clearTimeout(timeoutId);
                 if (res.ok) {
                     serverStateChip.innerText = "在线";
@@ -1350,7 +1360,7 @@
                 try {
                     const c2 = new AbortController();
                     const t2 = setTimeout(() => c2.abort(), 2000);
-                    const r2 = await fetch(`${API_BASE_URL}/api/status`, { signal: c2.signal });
+                    const r2 = await apiFetch(`${API_BASE_URL}/api/status`, { signal: c2.signal });
                     clearTimeout(t2);
                     if (r2.ok) {
                         serverStateChip.innerText = "在线";
@@ -1695,7 +1705,7 @@
             formData.append("page_range", pageRangeInput.value.trim() || "all");
 
             try {
-                const res = await fetch(`${API_BASE_URL}/api/pdf/convert`, {
+                const res = await apiFetch(`${API_BASE_URL}/api/pdf/convert`, {
                     method: "POST",
                     body: formData
                 });
@@ -1732,7 +1742,7 @@
             const startTime = Date.now();
             const pollTimer = setInterval(async () => {
                 try {
-                    const res = await fetch(`${API_BASE_URL}/api/pdf/tasks/${taskId}`);
+                    const res = await apiFetch(`${API_BASE_URL}/api/pdf/tasks/${taskId}`);
                     if (!res.ok) return;
 
                     const task = await res.json();
