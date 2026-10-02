@@ -4,6 +4,8 @@ import time
 import uuid
 import threading
 import asyncio
+import zipfile
+import re
 from typing import Optional, Dict, Any
 from pathlib import Path
 from urllib.parse import quote
@@ -78,9 +80,16 @@ class DownloadRequest(BaseModel):
     url: str
     format_type: str = "video"  # "video" or "audio"
     quality: str = "best"       # "best", "1080p", "720p", "480p", "360p", "320k", "192k"
+    title: Optional[str] = None
+    single_only: bool = False
 
-def get_cache_key(url: str, format_type: str, quality: str) -> str:
-    return f"{format_type.strip().lower()}_{quality.strip().lower()}_{url.strip()}"
+def sanitize_filename(name: str) -> str:
+    cleaned = re.sub(r'[\\/*?:"<>|]', '_', name).strip()
+    cleaned = cleaned.strip(". ")
+    return cleaned[:150] if cleaned else "media"
+
+def get_cache_key(url: str, format_type: str, quality: str, single_only: bool = False) -> str:
+    return f"{format_type.strip().lower()}_{quality.strip().lower()}_{single_only}_{url.strip()}"
 
 def format_duration(seconds: Optional[int]) -> str:
     if not seconds:
@@ -164,7 +173,7 @@ async def extract_info(req: InfoRequest):
         "quiet": True,
         "no_warnings": True,
         "skip_download": True,
-        "extract_flat": False,
+        "extract_flat": "in_playlist",
         "socket_timeout": 20,
     }
 
@@ -180,65 +189,144 @@ async def extract_info(req: InfoRequest):
     if not info:
         raise HTTPException(status_code=404, detail="无法获取视频信息")
 
-    # Extract available video resolutions
-    available_resolutions = set()
-    has_audio = False
-    formats = info.get("formats", [])
-    for f in formats:
-        h = f.get("height")
-        if h:
-            available_resolutions.add(h)
-        if f.get("acodec") and f.get("acodec") != "none":
-            has_audio = True
+    is_playlist = info.get("_type") == "playlist" or bool(info.get("entries"))
 
-    sorted_res = sorted(list(available_resolutions), reverse=True)
+    if is_playlist:
+        entries = list(info.get("entries") or [])
+        playlist_count = len(entries)
+        title = info.get("title") or "播放列表"
+        thumbnail = info.get("thumbnail")
+        if not thumbnail and entries:
+            first_entry = entries[0]
+            if isinstance(first_entry, dict):
+                thumbnail = first_entry.get("thumbnail")
+                if not thumbnail and first_entry.get("thumbnails"):
+                    thumbnail = first_entry["thumbnails"][-1].get("url")
 
-    return {
-        "id": info.get("id"),
-        "title": info.get("title", "未知标题"),
-        "thumbnail": info.get("thumbnail"),
-        "duration": info.get("duration"),
-        "duration_formatted": format_duration(info.get("duration")),
-        "uploader": info.get("uploader") or info.get("channel") or "未知作者",
-        "uploader_url": info.get("uploader_url"),
-        "view_count": info.get("view_count"),
-        "webpage_url": info.get("webpage_url", req.url),
-        "available_resolutions": sorted_res,
-        "has_audio": has_audio,
-    }
+        uploader = info.get("uploader") or info.get("channel") or "未知作者"
+        duration_formatted = f"播放列表 · 共 {playlist_count} 个内容" if playlist_count else "播放列表"
 
-def run_download_task(task_id: str, url: str, format_type: str, quality: str, cache_key: str, client_ip: str = "unknown"):
+        return {
+            "id": info.get("id"),
+            "title": title,
+            "thumbnail": thumbnail,
+            "duration": None,
+            "duration_formatted": duration_formatted,
+            "uploader": uploader,
+            "uploader_url": info.get("uploader_url"),
+            "view_count": info.get("view_count"),
+            "webpage_url": info.get("webpage_url", req.url),
+            "available_resolutions": [1080, 720, 480, 360],
+            "has_audio": True,
+            "is_playlist": True,
+            "playlist_count": playlist_count,
+        }
+    else:
+        # Extract available video resolutions for single video
+        available_resolutions = set()
+        has_audio = False
+        formats = info.get("formats", [])
+        for f in formats:
+            h = f.get("height")
+            if h:
+                available_resolutions.add(h)
+            if f.get("acodec") and f.get("acodec") != "none":
+                has_audio = True
+
+        sorted_res = sorted(list(available_resolutions), reverse=True)
+
+        return {
+            "id": info.get("id"),
+            "title": info.get("title", "未知标题"),
+            "thumbnail": info.get("thumbnail"),
+            "duration": info.get("duration"),
+            "duration_formatted": format_duration(info.get("duration")),
+            "uploader": info.get("uploader") or info.get("channel") or "未知作者",
+            "uploader_url": info.get("uploader_url"),
+            "view_count": info.get("view_count"),
+            "webpage_url": info.get("webpage_url", req.url),
+            "available_resolutions": sorted_res,
+            "has_audio": has_audio,
+            "is_playlist": False,
+            "playlist_count": 1,
+        }
+
+def run_download_task(
+    task_id: str,
+    url: str,
+    format_type: str,
+    quality: str,
+    cache_key: str,
+    title_hint: Optional[str] = None,
+    single_only: bool = False,
+    client_ip: str = "unknown"
+):
     task_dir = DOWNLOADS_DIR / task_id
     task_dir.mkdir(parents=True, exist_ok=True)
 
-    outtmpl = str(task_dir / "%(title).200B.%(ext)s")
+    outtmpl = str(task_dir / "%(playlist_index&{:02d} - |)s%(title).200B.%(ext)s")
+    detected_playlist_title = [title_hint]
 
     def progress_hook(d):
-        if d.get("status") == "downloading":
-            total_bytes = d.get("total_bytes") or d.get("total_bytes_estimate") or 0
-            downloaded = d.get("downloaded_bytes", 0)
-            percent = (downloaded / total_bytes * 100) if total_bytes > 0 else 0
-            
-            speed = d.get("speed")
-            speed_str = f"{speed / (1024 * 1024):.2f} MB/s" if speed else "--"
-            
-            eta = d.get("eta")
-            eta_str = f"{eta}s" if eta is not None else "--"
+        info = d.get("info_dict", {})
+        status = d.get("status")
+
+        pl_title = info.get("playlist_title")
+        if pl_title and not detected_playlist_title[0]:
+            detected_playlist_title[0] = pl_title
+
+        pl_idx = info.get("playlist_index")
+        n_entries = info.get("n_entries") or info.get("playlist_count")
+        item_title = info.get("title") or ""
+
+        speed = d.get("speed")
+        speed_str = f"{speed / (1024 * 1024):.2f} MB/s" if speed else "--"
+        eta = d.get("eta")
+        eta_str = f"{eta}s" if eta is not None else "--"
+        downloaded = d.get("downloaded_bytes", 0)
+        total_bytes = d.get("total_bytes") or d.get("total_bytes_estimate") or 0
+
+        is_pl = bool(n_entries and n_entries > 1)
+
+        if status == "downloading":
+            item_percent = (downloaded / total_bytes * 100) if total_bytes > 0 else 0
+            if is_pl and pl_idx:
+                overall_percent = ((pl_idx - 1) + (item_percent / 100.0)) / n_entries * 100.0
+                stage_str = f"正在下载 ({pl_idx}/{n_entries}): {item_title[:35]}"
+            else:
+                overall_percent = item_percent
+                stage_str = f"正在下载: {item_title[:35]}" if item_title else "正在下载流数据..."
 
             tasks[task_id].update({
                 "status": "downloading",
-                "progress": round(percent, 1),
+                "progress": round(min(99.0, max(0.0, overall_percent)), 1),
                 "speed": speed_str,
                 "eta": eta_str,
                 "downloaded_bytes": downloaded,
-                "total_bytes": total_bytes
+                "total_bytes": total_bytes,
+                "stage": stage_str,
+                "current_item": pl_idx or 1,
+                "total_items": n_entries or 1,
+                "is_playlist": is_pl
             })
-        elif d.get("status") == "finished":
+
+        elif status == "finished":
+            if is_pl and pl_idx:
+                overall_percent = (pl_idx / n_entries) * 100.0
+                stage_str = f"正在转码/合并 ({pl_idx}/{n_entries}): {item_title[:35]}"
+            else:
+                overall_percent = 99.0
+                stage_str = "正在转码及合并音视频轨 (ffmpeg)..."
+
             tasks[task_id].update({
                 "status": "processing",
-                "progress": 99.0,
+                "progress": round(min(99.0, max(0.0, overall_percent)), 1),
                 "speed": "--",
-                "eta": "--"
+                "eta": "--",
+                "stage": stage_str,
+                "current_item": pl_idx or 1,
+                "total_items": n_entries or 1,
+                "is_playlist": is_pl
             })
 
     ydl_opts: Dict[str, Any] = {
@@ -247,7 +335,12 @@ def run_download_task(task_id: str, url: str, format_type: str, quality: str, ca
         "quiet": True,
         "no_warnings": True,
         "socket_timeout": 30,
+        "ignoreerrors": "only_download",
+        "max_downloads": 100,
     }
+
+    if single_only:
+        ydl_opts["noplaylist"] = True
 
     if format_type == "audio":
         bitrate = "320" if quality == "320k" else "192"
@@ -282,30 +375,81 @@ def run_download_task(task_id: str, url: str, format_type: str, quality: str, ca
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
 
-        # Locate finished file
+        # Locate finished files
         files = list(task_dir.iterdir())
-        target_files = [f for f in files if not f.name.endswith(".part") and not f.name.endswith(".ytdl")]
+        target_files = [
+            f for f in files 
+            if f.is_file() 
+            and not f.name.endswith(".part") 
+            and not f.name.endswith(".ytdl") 
+            and not f.name.endswith(".temp")
+        ]
         if not target_files:
             raise Exception("下载完成但未找到生成的文件")
 
-        final_file = target_files[0]
-        file_size = final_file.stat().st_size
-        tasks[task_id].update({
-            "status": "completed",
-            "progress": 100.0,
-            "filename": final_file.name,
-            "file_size": file_size,
-            "filepath": str(final_file)
-        })
-        # Register in smart cache
-        cache_store[cache_key] = task_id
-        # Record audit log
-        log_audit_event(url, final_file.name, format_type, quality, file_size, client_ip)
+        if len(target_files) == 1:
+            final_file = target_files[0]
+            file_size = final_file.stat().st_size
+            tasks[task_id].update({
+                "status": "completed",
+                "progress": 100.0,
+                "filename": final_file.name,
+                "file_size": file_size,
+                "filepath": str(final_file),
+                "stage": "下载完成！",
+                "is_playlist": False,
+                "file_count": 1
+            })
+            cache_store[cache_key] = task_id
+            log_audit_event(url, final_file.name, format_type, quality, file_size, client_ip)
+        else:
+            tasks[task_id].update({
+                "status": "processing",
+                "progress": 99.5,
+                "stage": f"正在将 {len(target_files)} 个影音文件打包为 ZIP 压缩包..."
+            })
+
+            raw_title = detected_playlist_title[0] or "playlist"
+            safe_title = sanitize_filename(raw_title) or f"playlist_{task_id[:8]}"
+            zip_filename = f"{safe_title}.zip"
+            zip_filepath = task_dir / zip_filename
+
+            if zip_filepath in target_files:
+                target_files.remove(zip_filepath)
+
+            sorted_files = sorted(target_files, key=lambda f: f.name)
+
+            with zipfile.ZipFile(zip_filepath, "w", compression=zipfile.ZIP_DEFLATED) as zipf:
+                for f in sorted_files:
+                    zipf.write(f, arcname=f.name)
+
+            # Remove loose files to save disk space
+            for f in sorted_files:
+                try:
+                    f.unlink()
+                except Exception:
+                    pass
+
+            final_file = zip_filepath
+            file_size = final_file.stat().st_size
+            tasks[task_id].update({
+                "status": "completed",
+                "progress": 100.0,
+                "filename": zip_filename,
+                "file_size": file_size,
+                "filepath": str(final_file),
+                "stage": f"播放列表打包完成！共 {len(sorted_files)} 个文件",
+                "is_playlist": True,
+                "file_count": len(sorted_files)
+            })
+            cache_store[cache_key] = task_id
+            log_audit_event(url, f"[播放列表打包] {zip_filename} ({len(sorted_files)} 个文件)", format_type, quality, file_size, client_ip)
 
     except Exception as e:
         tasks[task_id].update({
             "status": "error",
-            "error": str(e)
+            "error": str(e),
+            "stage": f"下载失败: {str(e)[:100]}"
         })
         log_audit_event(url, f"下载失败: {str(e)[:100]}", format_type, quality, 0, f"{client_ip} (Error)")
 
@@ -323,7 +467,7 @@ async def start_download(req: DownloadRequest, request: Request):
         or (request.client.host if request.client else "unknown")
     )
 
-    cache_key = get_cache_key(req.url, req.format_type, req.quality)
+    cache_key = get_cache_key(req.url, req.format_type, req.quality, req.single_only)
 
     # 1. Smart Cache check: If identical download was completed recently and file exists, return immediately!
     cached_task_id = cache_store.get(cache_key)
@@ -336,7 +480,6 @@ async def start_download(req: DownloadRequest, request: Request):
                     fp.parent.touch(exist_ok=True)
                 except Exception:
                     pass
-                # Record cache hit in audit log
                 log_audit_event(req.url.strip(), cached_task.get("filename", "已缓存文件"), req.format_type, req.quality, cached_task.get("file_size", 0), f"{client_ip} (Cache-Hit)")
                 return {"task_id": cached_task_id, "cached": True}
 
@@ -348,17 +491,21 @@ async def start_download(req: DownloadRequest, request: Request):
         "progress": 0.0,
         "speed": "--",
         "eta": "--",
+        "stage": "正在创建任务...",
         "filename": None,
         "file_size": 0,
         "filepath": None,
         "error": None,
+        "is_playlist": False,
+        "current_item": 1,
+        "total_items": 1,
         "created_at": time.time()
     }
 
     # Start download task in background thread
     threading.Thread(
         target=run_download_task,
-        args=(task_id, req.url.strip(), req.format_type, req.quality, cache_key, client_ip),
+        args=(task_id, req.url.strip(), req.format_type, req.quality, cache_key, req.title, req.single_only, client_ip),
         daemon=True
     ).start()
 
@@ -543,6 +690,11 @@ async def get_task_status(task_id: str):
         "progress": task["progress"],
         "speed": task["speed"],
         "eta": task["eta"],
+        "stage": task.get("stage"),
+        "current_item": task.get("current_item", 1),
+        "total_items": task.get("total_items", 1),
+        "is_playlist": task.get("is_playlist", False),
+        "file_count": task.get("file_count", 1),
         "filename": task.get("filename"),
         "file_size": task.get("file_size", 0),
         "error": task.get("error")
