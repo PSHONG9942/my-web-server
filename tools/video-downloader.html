@@ -1171,10 +1171,20 @@
             }
         }
 
+        // Helper to bypass ngrok free domain interception warning
+        function apiFetch(url, options = {}) {
+            options = { ...options };
+            options.headers = {
+                ...(options.headers || {}),
+                "ngrok-skip-browser-warning": "true"
+            };
+            return fetch(url, options);
+        }
+
         // Check Backend Status
         async function checkBackendStatus() {
             try {
-                const res = await fetch(`${API_BASE_URL}/api/status`, { method: "GET" });
+                const res = await apiFetch(`${API_BASE_URL}/api/status`, { method: "GET" });
                 if (res.ok) {
                     const data = await res.json();
                     statusBadge.className = "status-badge online";
@@ -1248,7 +1258,7 @@
             progressCard.classList.remove("show");
 
             try {
-                const res = await fetch(`${API_BASE_URL}/api/info`, {
+                const res = await apiFetch(`${API_BASE_URL}/api/info`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ url: url })
@@ -1351,7 +1361,7 @@
             finishedAction.classList.remove("show");
 
             try {
-                const res = await fetch(`${API_BASE_URL}/api/download`, {
+                const res = await apiFetch(`${API_BASE_URL}/api/download`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1392,7 +1402,7 @@
 
             activePollingTimer = setInterval(async () => {
                 try {
-                    const res = await fetch(`${API_BASE_URL}/api/tasks/${taskId}`);
+                    const res = await apiFetch(`${API_BASE_URL}/api/tasks/${taskId}`);
                     if (!res.ok) return;
 
                     const task = await res.json();
