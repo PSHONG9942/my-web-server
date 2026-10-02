@@ -1178,7 +1178,8 @@
                 if (res.ok) {
                     const data = await res.json();
                     statusBadge.className = "status-badge online";
-                    statusText.innerText = `服务正常 (v${data.yt_dlp_version})`;
+                    const cookieInfo = data.has_cookies ? " · 🍪 Cookies已生效" : "";
+                    statusText.innerText = `服务正常 (v${data.yt_dlp_version}${cookieInfo})`;
                     offlineHelper.classList.remove("show");
                     return true;
                 } else {

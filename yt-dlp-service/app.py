@@ -72,6 +72,23 @@ cache_store: Dict[str, str] = {}  # cache_key -> task_id
 # Retention policies: 30 minutes safety buffer & 5GB quota
 CACHE_TTL_SECONDS = 1800  # 30 minutes
 MAX_STORAGE_BYTES = 5 * 1024 * 1024 * 1024  # 5 GB
+COOKIES_FILE = BASE_DIR / "cookies.txt"
+
+class YtDlpCustomLogger:
+    """Captures yt-dlp warnings and errors for diagnostics and reporting."""
+    def __init__(self):
+        self.errors = []
+        self.warnings = []
+
+    def debug(self, msg):
+        pass
+
+    def warning(self, msg):
+        self.warnings.append(str(msg))
+
+    def error(self, msg):
+        self.errors.append(str(msg))
+
 
 class InfoRequest(BaseModel):
     url: str
@@ -158,6 +175,7 @@ async def get_status():
         "yt_dlp_version": yt_dlp.version.__version__,
         "ffmpeg_available": ffmpeg_path is not None,
         "ffmpeg_path": ffmpeg_path or "Not found",
+        "has_cookies": COOKIES_FILE.exists(),
         "cache_count": len(cache_store),
         "timestamp": time.time()
     }
@@ -169,13 +187,22 @@ async def extract_info(req: InfoRequest):
 
     cleanup_old_files()
 
-    ydl_opts = {
+    ydl_opts: Dict[str, Any] = {
         "quiet": True,
         "no_warnings": True,
         "skip_download": True,
         "extract_flat": "in_playlist",
         "socket_timeout": 20,
     }
+
+    if COOKIES_FILE.exists():
+        ydl_opts["cookiefile"] = str(COOKIES_FILE)
+    else:
+        ydl_opts["extractor_args"] = {
+            "youtube": {
+                "player_client": ["visionos"]
+            }
+        }
 
     def _extract():
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -329,18 +356,30 @@ def run_download_task(
                 "is_playlist": is_pl
             })
 
+    ytdl_logger = YtDlpCustomLogger()
+
     ydl_opts: Dict[str, Any] = {
         "outtmpl": outtmpl,
         "progress_hooks": [progress_hook],
+        "logger": ytdl_logger,
         "quiet": True,
-        "no_warnings": True,
         "socket_timeout": 30,
         "ignoreerrors": "only_download",
         "max_downloads": 100,
     }
 
+    if COOKIES_FILE.exists():
+        ydl_opts["cookiefile"] = str(COOKIES_FILE)
+    else:
+        ydl_opts["extractor_args"] = {
+            "youtube": {
+                "player_client": ["visionos"]
+            }
+        }
+
     if single_only:
         ydl_opts["noplaylist"] = True
+        ydl_opts["playlist_items"] = "1"
 
     if format_type == "audio":
         bitrate = "320" if quality == "320k" else "192"
@@ -385,6 +424,13 @@ def run_download_task(
             and not f.name.endswith(".temp")
         ]
         if not target_files:
+            if ytdl_logger.errors:
+                clean_errors = []
+                for err in ytdl_logger.errors:
+                    clean_err = re.sub(r"^ERROR:\s*(\[[^\]]+\]\s*)?", "", str(err)).strip()
+                    if clean_err and clean_err not in clean_errors:
+                        clean_errors.append(clean_err)
+                raise Exception(" | ".join(clean_errors[:2]) if clean_errors else "未能成功下载任何影音文件")
             raise Exception("下载完成但未找到生成的文件")
 
         if len(target_files) == 1:
