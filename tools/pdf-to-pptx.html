@@ -1343,6 +1343,26 @@
             return fetch(url, options);
         }
 
+        // Seamless file download directly in-page without cross-origin redirect
+        async function triggerDirectDownload(fileUrl, filename) {
+            try {
+                const res = await apiFetch(fileUrl);
+                if (!res.ok) throw new Error("下载请求失败 (HTTP " + res.status + ")");
+                const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                const tempAnchor = document.createElement("a");
+                tempAnchor.href = blobUrl;
+                tempAnchor.download = filename || "presentation.pptx";
+                document.body.appendChild(tempAnchor);
+                tempAnchor.click();
+                document.body.removeChild(tempAnchor);
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+            } catch (err) {
+                console.error("无缝下载异常，降级处理:", err);
+                window.open(fileUrl, "_blank");
+            }
+        }
+
         // Check Backend Server Status
         async function checkServerHealth() {
             try {
@@ -1770,16 +1790,13 @@
                         resPptxSize.innerText = formatBytes(task.file_size);
                         successDetailText.innerText = `自建服务器高速完成转换！PPTX 文件大小: ${formatBytes(task.file_size)}。`;
 
-                        downloadPptxActionBtn.href = fileUrl;
-                        downloadPptxActionBtn.download = outFilename;
+                        downloadPptxActionBtn.onclick = (e) => {
+                            e.preventDefault();
+                            triggerDirectDownload(fileUrl, outFilename);
+                        };
 
-                        // Auto trigger download
-                        const tempAnchor = document.createElement("a");
-                        tempAnchor.href = fileUrl;
-                        tempAnchor.download = outFilename;
-                        document.body.appendChild(tempAnchor);
-                        tempAnchor.click();
-                        document.body.removeChild(tempAnchor);
+                        // Auto trigger seamless download
+                        triggerDirectDownload(fileUrl, outFilename);
 
                     } else if (task.status === "error") {
                         clearInterval(pollTimer);
