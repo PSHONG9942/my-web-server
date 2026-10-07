@@ -1,0 +1,7 @@
+# Cloudflare Pages Custom HTTP Headers
+
+/tools/ai-agent*
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: credentialless
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
