@@ -1036,7 +1036,7 @@
                     <span class="status-dot"></span>
                     <span id="statusText">正在连接 Agent 引擎...</span>
                 </div>
-                <button id="openSettingsBtn" class="settings-btn" title="配置 Cloudflare Tunnel 后端地址与 API 密钥">
+                <button id="openSettingsBtn" class="settings-btn" title="配置后端服务器地址与 API 密钥">
                     ⚙️ 引擎配置
                 </button>
             </div>
@@ -1068,7 +1068,8 @@
                         <div class="dropzone-text">点击或拖拽文件到此处</div>
                         <div class="dropzone-hint">支持 MP4 录屏, MP3/M4A 录音, PDF, PPTX (建议 100MB 内)</div>
                         <div style="margin-top: 8px; font-size: 0.76rem; color: #38bdf8; line-height: 1.4;">
-                            💡 <b>录屏体积过大（如数 GB）？</b><br>直接拖入桌面上的 <b>一键提取超大录屏音频.bat</b>，5 秒转为 30MB 纯音频即可秒传！
+                            💡 <b>录屏体积过大（如数 GB）？</b><br>
+                            公文仅需声音！推荐使用手机录音/剪映导出纯音频（约 30MB 即可秒传），或 <a href="javascript:void(0)" onclick="downloadHelperBat()" style="color:#fde047;text-decoration:underline;font-weight:600;">点击此处下载极速音频提取脚本</a>！
                         </div>
                         <input type="file" id="fileInput" class="file-input" accept=".mp4,.mp3,.m4a,.pdf,.pptx">
                     </div>
@@ -1220,19 +1221,19 @@
             </div>
 
             <div class="form-group">
-                <label for="apiUrlInput">后端服务地址 (默认端口 8502)</label>
-                <input type="text" id="apiUrlInput" placeholder="例如: http://127.0.0.1:8502 或 https://xxxx.trycloudflare.com">
+                <label for="apiUrlInput">后端服务地址 (默认连接专属 ngrok 隧道)</label>
+                <input type="text" id="apiUrlInput" placeholder="例如: https://swimming-easiness-strewn.ngrok-free.dev">
                 <div class="form-hint">
-                    💡 <b>端口区分提示</b>：AI-Agent 公文助理服务的默认端口是 <code>8502</code>（影音下载助手是 <code>8503</code>）。<br>
-                    • <b>本机运行</b>：填入 <code>http://127.0.0.1:8502</code><br>
-                    • <b>Linux Mint / 远程服务器</b>：填入 <code>cloudflared tunnel --url http://localhost:8502</code> 生成的公网地址。
+                    💡 <b>连接说明</b>：系统已为您默认配置并连接至 Linux Mint 上的专属 ngrok 永久隧道。<br>
+                    • <b>公网隧道地址</b>：<code>https://swimming-easiness-strewn.ngrok-free.dev</code><br>
+                    • <b>本地开发模式</b>：<code>http://127.0.0.1:8502</code>
                 </div>
             </div>
 
             <div class="form-group" style="background: rgba(14, 165, 233, 0.08); padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(14, 165, 233, 0.25);">
                 <div style="font-size: 0.8rem; color: #bae6fd; line-height: 1.5;">
                     🚀 <b>超大会议录屏极速处理建议</b>：<br>
-                    若会议视频文件多达几 GB，请先使用桌面上的 <code>一键提取超大录屏音频.bat</code>，5 秒即可无损提取出 ~30MB 高清纯音频，上传速度提升 200 倍且免除任何网络通道阻断！
+                    若会议视频多达数 GB，会议公文生成仅需要声音，建议先提取为 ~30MB 高清纯音频（MP3/M4A），上传速度提升 200 倍且免除任何网络阻断！
                 </div>
             </div>
 
@@ -1417,19 +1418,18 @@
         }
 
         function handleFileUpload(file) {
-            // Check size (100MB max for Cloudflare tunnel HTTP requests)
+            // Check size (100MB max for network tunnel HTTP requests)
             const maxBytes = 100 * 1024 * 1024;
             if (file.size > maxBytes) {
                 const sizeStr = formatBytes(file.size);
                 const advice = `⚠️ 检测到待上传文件体积达【${sizeStr}】！\n\n` +
-                    `【为什么无法直接网络上传？】\n` +
-                    `1. 公网隧道（Cloudflare Tunnel / ngrok）单次请求有 100MB 上传限制。\n` +
+                    `【为什么超大视频无法直接网络上传？】\n` +
+                    `1. 公网隧道单次请求有 100MB 传输上限。\n` +
                     `2. 数 GB 的大视频网络上传耗时长且极易中途网络断开。\n\n` +
                     `【⚡ 秒级极速解决方案】\n` +
                     `AI 公文助理撰写 Minit Curai 仅需要清晰的会议发言声音：\n` +
-                    `👉 请直接将该视频拖入电脑桌面上的【一键提取超大录屏音频.bat】！\n` +
-                    `👉 5~10 秒内即可无损提取为约 25MB~35MB 的轻量 MP3！\n` +
-                    `👉 提取后将该 MP3 音频拖入此处，几秒即可极速上传并生成完整公文！`;
+                    `👉 1. 推荐上传会议纯音频 (MP3/M4A/WAV)，或使用手机录音/剪映导出纯音频（仅 ~30MB），几秒即可极速秒传！\n` +
+                    `👉 2. 亦可在素材箱下方点击下载【一键提取音频工具】提取纯音频后秒传！`;
                 alert(advice);
                 return;
             }
@@ -1479,7 +1479,7 @@
 
             xhr.onerror = () => {
                 uploadProgress.classList.remove("active");
-                alert(`网络异常，无法上传文件至服务器 (${API_BASE_URL})。\n\n请确认：\n1. AI-Agent 后端服务已启动 (端口 8502)\n2. Cloudflare Tunnel / ngrok 处于在线状态`);
+                alert(`网络异常，无法上传文件至服务器 (${API_BASE_URL})。\n\n请确认：\n1. AI-Agent 后端服务已启动 (端口 8502)\n2. ngrok 守护服务处于在线状态`);
             };
 
             const formData = new FormData();
@@ -1679,7 +1679,7 @@
 
             } catch (err) {
                 if (currentThoughtCard) currentThoughtCard.querySelector(".spinner")?.remove();
-                contentTextDiv.innerHTML = `<span style="color:var(--danger)">❌ 连接异常: ${err.message}。请确认 Linux Mint 后端服务正常运行且 Cloudflare Tunnel 处于连通状态。</span>`;
+                contentTextDiv.innerHTML = `<span style="color:var(--danger)">❌ 连接异常: ${err.message}。请确认 Linux Mint 后端服务正常运行且 ngrok 隧道处于连通状态。</span>`;
             } finally {
                 isGenerating = false;
                 sendBtn.disabled = false;
@@ -1862,7 +1862,7 @@
                 if (engine === "server") {
                     // 检查公网隧道 100MB 限制
                     if (selectedCompressFile.size > 100 * 1024 * 1024 && !API_BASE_URL.includes("localhost") && !API_BASE_URL.includes("127.0.0.1")) {
-                        alert(`⚠️ 您当前连接的是远程公网隧道 (${API_BASE_URL})。\n\n由于 Cloudflare 隧道有 100MB 单次上传限制，无法直接上传 ${formatBytes(selectedCompressFile.size)} 的巨型视频。\n\n【极速解决方案】：\n请在电脑本地直接将该视频拖入桌面上的【一键提取超大录屏音频.bat】，5 秒即可提取为 ~30MB 轻量音频，提取后拖入【会议素材箱】即可秒传！`);
+                        alert(`⚠️ 您当前连接的是远程服务器 (${API_BASE_URL})。\n\n由于公网隧道单次请求有 100MB 传输上限，无法直接通过网络上传 ${formatBytes(selectedCompressFile.size)} 的巨型视频。\n\n【极速解决方案】：\n1. 会议纪要与公文仅需语音，推荐使用手机录音或通过剪映等工具导出纯音频 (MP3/M4A，体积仅 ~30MB) 即可秒传！\n2. 亦可在素材箱下方点击下载【一键提取音频工具】提取纯音频后秒传！`);
                         startCompressBtn.disabled = false;
                         compressProgress.classList.remove("active");
                         return;
@@ -1936,7 +1936,7 @@
 
                     // 2. 检查大文件限制 (WASM 内存上限通常为 2GB，JS ArrayBuffer 无法装载数 GB 文件)
                     if (selectedCompressFile.size > 150 * 1024 * 1024) {
-                        alert(`⚠️ 该视频文件体积为 ${formatBytes(selectedCompressFile.size)}，已超出浏览器网页内存承受上限（WebAssembly 仅适合 100MB 以内轻量视频）。\n\n【极速推荐】：\n👉 请使用电脑桌面上的【一键提取超大录屏音频.bat】（5 秒完成，瞬间获得 ~30MB 高清纯音频）！\n👉 或切换为【⚡ 服务器极速引擎】由服务器多核 FFmpeg 进行极速转码！`);
+                        alert(`⚠️ 该视频文件体积为 ${formatBytes(selectedCompressFile.size)}，已超出浏览器网页内存承受上限（WebAssembly 仅适合 150MB 以内轻量视频）。\n\n【针对超大视频的极速解决方案】：\n👉 1. 会议纪要仅需发言声音，建议直接上传会议纯音频 (MP3/M4A，体积仅 ~30MB，可直接秒传)！\n👉 2. 亦可在素材箱下方点击下载【一键提取音频工具】提取纯音频后秒传！`);
                         engineServer.checked = true;
                         secretRow.classList.add("show");
                         startCompressBtn.querySelector("span").innerText = "⚡ 开始服务器原生极速处理";
@@ -2090,6 +2090,20 @@
                 applyToAgentBtn.innerText = "🚀 一键填入素材箱并写公文";
             }
         });
+
+        // Helper script downloader for other users
+        function downloadHelperBat() {
+            const bat = `@echo off\r\nchcp 65001 > nul\r\ntitle 教师专属录屏极速提取纯音频工具\r\necho ========================================================\r\necho  教师会议录屏极速提取音频工具 (提取后仅 ~30MB 秒传素材箱)\r\necho ========================================================\r\nif "%~1"=="" (\r\n    echo 请将超大录屏视频直接拖拽到本 bat 图标上！\r\n    pause\r\n    exit /b\r\n)\r\necho 正在提取音频，请稍候...\r\nffmpeg -y -i "%~1" -vn -ar 16000 -ac 1 -ab 64k "%~dpn1_纯音频.mp3"\r\necho.\r\necho ========================================================\r\necho  提取完成！纯音频已保存在视频同目录下：\r\necho  "%~dpn1_纯音频.mp3"\r\necho  直接将该 mp3 拖入网页【会议素材箱】即可秒传写公文！\r\necho ========================================================\r\npause\r\n`;
+            const blob = new Blob([bat], { type: "text/plain;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "一键提取超大录屏音频.bat";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
 
         // Init Check
         checkBackendStatus();
