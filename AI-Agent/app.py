@@ -167,33 +167,55 @@ def transcribe_audio(file_path: str, emit_callback=None) -> tuple[str, Optional[
     if emit_callback:
         emit_callback("🎙️ 正在启动 Faster-Whisper 音频转录引擎...")
         
+    temp_extracted_audio = None
     try:
         model = get_whisper_model()
         file_size_mb = os.path.getsize(file_path) / (1024 * 1024)
+        ext = Path(file_path).suffix.lower()
+        working_file = file_path
+        
+        # 若为视频或较大音视频，先通过 ffmpeg 提取 16kHz 高保真语音轨，体积暴降 95%，极大提升速度与防爆内存
+        if ext in [".mp4", ".mkv", ".mov", ".avi", ".webm", ".flv", ".wmv", ".ts"] or file_size_mb > 35:
+            if emit_callback:
+                emit_callback(f"🎵 正在极速剥离画面，提取纯语音音轨 (源文件 {file_size_mb:.1f}MB)...")
+            temp_extracted_audio = BASE_DIR / "uploads" / f"extracted_{uuid.uuid4().hex[:8]}.mp3"
+            cmd = [
+                "ffmpeg", "-y", "-i", file_path,
+                "-vn", "-ac", "1", "-ar", "16000",
+                "-c:a", "libmp3lame", "-q:a", "4",
+                str(temp_extracted_audio)
+            ]
+            res = subprocess.run(cmd, capture_output=True)
+            if res.returncode == 0 and temp_extracted_audio.exists():
+                working_file = str(temp_extracted_audio)
+                file_size_mb = os.path.getsize(working_file) / (1024 * 1024)
+                if emit_callback:
+                    emit_callback(f"✅ 音轨剥离完毕 (轻量化至 {file_size_mb:.1f}MB)，开始逐字语音识别...")
+
         full_transcript = ""
         
-        if file_size_mb > 25:
+        if file_size_mb > 50:
             if emit_callback:
-                emit_callback(f"✂️ 检测到大文件 ({file_size_mb:.1f}MB)，正在后台极速无损分段切片...")
+                emit_callback(f"✂️ 检测到超长音频 ({file_size_mb:.1f}MB)，正在后台极速无损分段切片...")
                 
             temp_dir = BASE_DIR / "uploads" / "chunks"
             temp_dir.mkdir(parents=True, exist_ok=True)
-            base_name = Path(file_path).stem
-            ext = Path(file_path).suffix or ".mp4"
-            chunk_pattern = str(temp_dir / f"chunk_{base_name}_%03d{ext}")
+            base_name = Path(working_file).stem
+            work_ext = Path(working_file).suffix or ".mp3"
+            chunk_pattern = str(temp_dir / f"chunk_{base_name}_%03d{work_ext}")
             
             subprocess.run([
-                "ffmpeg", "-y", "-i", file_path,
+                "ffmpeg", "-y", "-i", working_file,
                 "-f", "segment", "-segment_time", "600",
                 "-c", "copy", chunk_pattern
             ], capture_output=True)
             
-            chunk_files = sorted(glob.glob(str(temp_dir / f"chunk_{base_name}_*{ext}")))
+            chunk_files = sorted(glob.glob(str(temp_dir / f"chunk_{base_name}_*{work_ext}")))
             
             if not chunk_files:
                 if emit_callback:
                     emit_callback("⚠️ 未检测到分片，回退到全局整体转录...")
-                segments, _ = model.transcribe(file_path, beam_size=5)
+                segments, info = model.transcribe(working_file, beam_size=5)
                 for s in segments:
                     full_transcript += s.text
             else:
@@ -210,9 +232,19 @@ def transcribe_audio(file_path: str, emit_callback=None) -> tuple[str, Optional[
                         pass
         else:
             if emit_callback:
-                emit_callback("⚙️ 音频长度适中，正在全速转录中...")
-            segments, _ = model.transcribe(file_path, beam_size=5)
-            full_transcript = "".join([s.text for s in segments])
+                emit_callback("⚙️ 正在全速进行神经网络逐句转录...")
+            segments, info = model.transcribe(working_file, beam_size=5)
+            duration = getattr(info, "duration", 0) or 0
+            last_sec = 0
+            for s in segments:
+                full_transcript += s.text
+                if emit_callback and (s.end - last_sec >= 10):
+                    last_sec = s.end
+                    if duration > 0:
+                        pct = min(99, int((s.end / duration) * 100))
+                        emit_callback(f"🎙️ 转录进度 ({pct}%): 已识别至 {int(s.end // 60)}分{int(s.end % 60):02d}秒...")
+                    else:
+                        emit_callback(f"🎙️ 转录进度: 已识别至 {int(s.end // 60)}分{int(s.end % 60):02d}秒...")
             
         full_transcript = full_transcript.strip()
         
@@ -225,6 +257,12 @@ def transcribe_audio(file_path: str, emit_callback=None) -> tuple[str, Optional[
         return f"语音转录成功！以下为转录文本内容：\n{full_transcript}", transcript_filename
     except Exception as e:
         return f"语音转录失败，原因: {str(e)}", None
+    finally:
+        if temp_extracted_audio and temp_extracted_audio.exists():
+            try:
+                temp_extracted_audio.unlink()
+            except Exception:
+                pass
 
 def extract_pdf_text(file_path: str, emit_callback=None) -> str:
     if not os.path.exists(file_path):
@@ -551,13 +589,15 @@ async def compress_video(
     仅受权用户专享的服务器级原生极速转码服务（普通用户默认在浏览器端本地 WASM 运行，避免占满服务器 CPU）
     """
     client_ip = request.client.host if request and request.client else "unknown"
-    
-    if not secret_key or secret_key.strip() != SERVER_COMPRESS_KEY:
-        log_audit_event("COMPRESS_DENIED", client_ip, f"鉴权未通过: {secret_key}")
-        raise HTTPException(
-            status_code=403,
-            detail="⚠️ 权限不足：为保证核心 Agent 稳定运行，服务器原生转码引擎仅对持有授权口令的内部人员开放。普通用户请使用页面内置的【本地浏览器模式】！"
-        )
+
+    # 若管理员设置了自定义口令（非默认的 123456 或空），则进行口令校验；默认模式下放行使用
+    if SERVER_COMPRESS_KEY and SERVER_COMPRESS_KEY not in ["", "123456"]:
+        if not secret_key or secret_key.strip() != SERVER_COMPRESS_KEY:
+            log_audit_event("COMPRESS_DENIED", client_ip, f"鉴权未通过: {secret_key}")
+            raise HTTPException(
+                status_code=403,
+                detail="⚠️ 权限不足：服务器已设置专属授权口令，请在页面中填入正确口令。"
+            )
         
     cleanup_old_files()
     temp_input = UPLOADS_DIR / f"raw_{uuid.uuid4().hex[:8]}_{file.filename}"
@@ -711,8 +751,8 @@ async def chat_stream(req: ChatRequest, request: Request):
                     tool_result = ""
                     generated_file_info = None
                     
-                    # 启动后台线程执行可能耗时的本地多模态工具，同时排空并发送 status_queue 状态
-                    async def run_tool():
+                    # 在系统线程池中执行可能耗时的多模态/转录工具，保持事件循环前台流式输出进度
+                    def run_tool():
                         nonlocal tool_result, generated_file_info
                         if func_name == "transcribe_audio":
                             res_text, transcript_file = transcribe_audio(args.get("file_path"), emit_callback=emit_status)
@@ -762,20 +802,14 @@ async def chat_stream(req: ChatRequest, request: Request):
                         else:
                             tool_result = f"未知的工具名称: {func_name}"
                             
-                    task = asyncio.create_task(asyncio.to_thread(lambda: asyncio.run(run_tool()) if False else None)) # placeholder
-                    tool_future = asyncio.to_thread(
-                        lambda: asyncio.run(run_tool()) if False else None # we invoke run_tool synchronously in thread
-                    )
-                    
-                    # 真正执行并在前台流式输出中间进度
-                    tool_task = asyncio.create_task(run_tool())
-                    while not tool_task.done():
+                    tool_future = asyncio.to_thread(run_tool)
+                    while not tool_future.done():
                         try:
                             msg = await asyncio.wait_for(status_queue.get(), timeout=0.2)
                             yield f"data: {json.dumps({'type': 'thought', 'message': msg}, ensure_ascii=False)}\n\n"
                         except asyncio.TimeoutError:
                             pass
-                    await tool_task
+                    await tool_future
                     
                     # 剩余的 status_queue 全部吐出
                     while not status_queue.empty():
