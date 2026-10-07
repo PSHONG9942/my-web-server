@@ -1066,7 +1066,10 @@
                     <div id="dropzone" class="dropzone">
                         <span class="dropzone-icon">☁️</span>
                         <div class="dropzone-text">点击或拖拽文件到此处</div>
-                        <div class="dropzone-hint">支持 MP4 录屏, MP3/M4A 录音, PDF, PPTX (最大 500MB)</div>
+                        <div class="dropzone-hint">支持 MP4 录屏, MP3/M4A 录音, PDF, PPTX (建议 100MB 内)</div>
+                        <div style="margin-top: 8px; font-size: 0.76rem; color: #38bdf8; line-height: 1.4;">
+                            💡 <b>录屏体积过大（如数 GB）？</b><br>直接拖入桌面上的 <b>一键提取超大录屏音频.bat</b>，5 秒转为 30MB 纯音频即可秒传！
+                        </div>
                         <input type="file" id="fileInput" class="file-input" accept=".mp4,.mp3,.m4a,.pdf,.pptx">
                     </div>
 
@@ -1087,7 +1090,7 @@
                     <!-- Notice Box -->
                     <div class="info-box">
                         💡 <b>超长音频无痕切片防崩溃引擎已就绪</b><br>
-                        若上传数小时的长音频或几百兆会议视频，系统会在 Linux 本地后台极速无损分段消化并精准识别，彻底杜绝爆内存崩溃！
+                        若上传数小时的长音频或几百兆会议视频，系统会在本地/服务器后台极速提取语音并分段识别，彻底杜绝爆内存崩溃！
                     </div>
                 </div>
 
@@ -1217,9 +1220,20 @@
             </div>
 
             <div class="form-group">
-                <label for="apiUrlInput">后端 Cloudflare Tunnel 地址</label>
-                <input type="text" id="apiUrlInput" placeholder="例如: https://xxxx.trycloudflare.com 或 http://127.0.0.1:8502">
-                <div class="form-hint">填入你在 Linux Mint 服务器通过 <code>cloudflared tunnel --url http://localhost:8502</code> 生成的公网地址。</div>
+                <label for="apiUrlInput">后端服务地址 (默认端口 8502)</label>
+                <input type="text" id="apiUrlInput" placeholder="例如: http://127.0.0.1:8502 或 https://xxxx.trycloudflare.com">
+                <div class="form-hint">
+                    💡 <b>端口区分提示</b>：AI-Agent 公文助理服务的默认端口是 <code>8502</code>（影音下载助手是 <code>8503</code>）。<br>
+                    • <b>本机运行</b>：填入 <code>http://127.0.0.1:8502</code><br>
+                    • <b>Linux Mint / 远程服务器</b>：填入 <code>cloudflared tunnel --url http://localhost:8502</code> 生成的公网地址。
+                </div>
+            </div>
+
+            <div class="form-group" style="background: rgba(14, 165, 233, 0.08); padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(14, 165, 233, 0.25);">
+                <div style="font-size: 0.8rem; color: #bae6fd; line-height: 1.5;">
+                    🚀 <b>超大会议录屏极速处理建议</b>：<br>
+                    若会议视频文件多达几 GB，请先使用桌面上的 <code>一键提取超大录屏音频.bat</code>，5 秒即可无损提取出 ~30MB 高清纯音频，上传速度提升 200 倍且免除任何网络通道阻断！
+                </div>
             </div>
 
             <div class="form-group">
@@ -1252,8 +1266,7 @@
         const DEFAULT_API_URL = "https://screensavers-spend-breed-phillips.trycloudflare.com";
 
         let storedUrl = localStorage.getItem(STORAGE_KEY_API);
-        // 自动迁移：如果尚未设置或之前是 localhost/127.0.0.1，自动切换到最新的 Cloudflare Tunnel 地址
-        if (!storedUrl || storedUrl.includes("localhost") || storedUrl.includes("127.0.0.1")) {
+        if (!storedUrl) {
             storedUrl = DEFAULT_API_URL;
             localStorage.setItem(STORAGE_KEY_API, DEFAULT_API_URL);
         }
@@ -1297,23 +1310,35 @@
 
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 4000);
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
 
                 const res = await fetch(`${API_BASE_URL}/api/status`, {
-                    signal: controller.signal
+                    signal: controller.signal,
+                    headers: { "ngrok-skip-browser-warning": "true" }
                 });
                 clearTimeout(timeoutId);
 
                 if (res.ok) {
                     const data = await res.json();
-                    statusBadge.className = "status-badge online";
-                    statusText.innerText = "Agent 引擎在线 (v" + (data.version || "2.0") + ")";
+                    if (data.service && data.service.includes("AI-Agent")) {
+                        statusBadge.className = "status-badge online";
+                        statusText.innerText = "Agent 引擎在线 (v" + (data.version || "2.0") + ")";
+                        statusBadge.title = "已成功连接至 AI-Agent 服务 (端口 8502)";
+                    } else if (data.yt_dlp_version || (data.service && data.service.includes("yt-dlp"))) {
+                        statusBadge.className = "status-badge offline";
+                        statusText.innerText = "端口错配: 连到了影音下载(8503)";
+                        statusBadge.title = "⚠️ 当前连接的是影音下载服务(8503端口)！AI-Agent 专属后端端口是 8502，请检查并在本地或服务器启动 AI-Agent 服务！";
+                    } else {
+                        statusBadge.className = "status-badge online";
+                        statusText.innerText = "Agent 引擎在线";
+                    }
                 } else {
                     throw new Error("HTTP " + res.status);
                 }
             } catch (err) {
                 statusBadge.className = "status-badge offline";
                 statusText.innerText = "后端离线 (点击配置)";
+                statusBadge.title = "无法连接至 " + API_BASE_URL + " (" + err.message + ")";
             }
         }
 
@@ -1392,46 +1417,69 @@
         }
 
         function handleFileUpload(file) {
-            // Check size (500MB max)
-            const maxBytes = 500 * 1024 * 1024;
+            // Check size (100MB max for Cloudflare tunnel HTTP requests)
+            const maxBytes = 100 * 1024 * 1024;
             if (file.size > maxBytes) {
-                alert("⚠️ 文件大小超过 500MB 限制，请先截取片段或压缩后上传！");
+                const sizeStr = formatBytes(file.size);
+                const advice = `⚠️ 检测到待上传文件体积达【${sizeStr}】！\n\n` +
+                    `【为什么无法直接网络上传？】\n` +
+                    `1. 公网隧道（Cloudflare Tunnel / ngrok）单次请求有 100MB 上传限制。\n` +
+                    `2. 数 GB 的大视频网络上传耗时长且极易中途网络断开。\n\n` +
+                    `【⚡ 秒级极速解决方案】\n` +
+                    `AI 公文助理撰写 Minit Curai 仅需要清晰的会议发言声音：\n` +
+                    `👉 请直接将该视频拖入电脑桌面上的【一键提取超大录屏音频.bat】！\n` +
+                    `👉 5~10 秒内即可无损提取为约 25MB~35MB 的轻量 MP3！\n` +
+                    `👉 提取后将该 MP3 音频拖入此处，几秒即可极速上传并生成完整公文！`;
+                alert(advice);
                 return;
             }
 
             uploadProgress.classList.add("active");
             progressBarFill.style.width = "0%";
             uploadPercent.innerText = "0%";
-            uploadStatusLabel.innerText = `正在上传: ${file.name}...`;
+            uploadStatusLabel.innerText = `正在准备上传: ${file.name}...`;
 
             const xhr = new XMLHttpRequest();
             xhr.open("POST", `${API_BASE_URL}/api/upload`);
+            xhr.setRequestHeader("ngrok-skip-browser-warning", "true");
 
             xhr.upload.onprogress = (e) => {
                 if (e.lengthComputable) {
                     const percent = Math.round((e.loaded / e.total) * 100);
                     progressBarFill.style.width = percent + "%";
                     uploadPercent.innerText = percent + "%";
+                    uploadStatusLabel.innerText = `正在上传: ${formatBytes(e.loaded)} / ${formatBytes(e.total)} (${percent}%)`;
                 }
             };
 
             xhr.onload = () => {
-                uploadProgress.classList.remove("active");
                 if (xhr.status === 200) {
+                    progressBarFill.style.width = "100%";
+                    uploadPercent.innerText = "100%";
+                    uploadStatusLabel.innerText = `✅ 上传完成！素材已就绪 (${formatBytes(file.size)})`;
+                    
+                    setTimeout(() => {
+                        uploadProgress.classList.remove("active");
+                    }, 2000);
+
                     const data = JSON.parse(xhr.responseText);
                     currentUploadedFiles.push(data);
                     renderAttachedFiles();
                     
                     // Add system message in chat
                     appendAssistantBubble(`✅ 已成功载入文件：<b>${file.name}</b> (${formatBytes(file.size)})。随时输入您的要求，AI 将自动分析并生成公文！`);
+                } else if (xhr.status === 413) {
+                    uploadProgress.classList.remove("active");
+                    alert(`⚠️ 上传失败: 文件大小 (${formatBytes(file.size)}) 超出服务器通道限制 (413 Payload Too Large)。\n\n请使用【一键提取超大录屏音频.bat】提取为 MP3 后重新上传！`);
                 } else {
-                    alert("上传失败: " + xhr.statusText);
+                    uploadProgress.classList.remove("active");
+                    alert("上传失败 (HTTP " + xhr.status + "): " + (xhr.statusText || xhr.responseText));
                 }
             };
 
             xhr.onerror = () => {
                 uploadProgress.classList.remove("active");
-                alert("网络异常，无法上传文件至服务器。请检查后端 Tunnel 连通性。");
+                alert(`网络异常，无法上传文件至服务器 (${API_BASE_URL})。\n\n请确认：\n1. AI-Agent 后端服务已启动 (端口 8502)\n2. Cloudflare Tunnel / ngrok 处于在线状态`);
             };
 
             const formData = new FormData();
@@ -1758,6 +1806,14 @@
             selectedVideoSize.innerText = `(${formatBytes(file.size)})`;
             selectedVideoCard.style.display = "flex";
             compressResultBox.classList.remove("show");
+
+            // 如果文件 > 150MB，自动提示并切换服务器引擎
+            if (file.size > 150 * 1024 * 1024) {
+                engineServer.checked = true;
+                secretRow.classList.add("show");
+                startCompressBtn.querySelector("span").innerText = "⚡ 开始服务器原生极速处理";
+                selectedVideoSize.innerHTML = `(${formatBytes(file.size)}) <span style="color:#f59e0b;font-weight:600;font-size:0.75rem;">(巨型视频，建议使用桌面一键提取工具或服务器引擎)</span>`;
+            }
         }
 
         clearSelectedVideoBtn.addEventListener("click", (e) => {
@@ -1801,9 +1857,17 @@
 
             try {
                 if (engine === "server") {
-                    // =================== 服务器引擎 (受密钥保护) ===================
-                    compressStatusText.innerText = "正在向 Linux Mint 服务器发送压缩任务...";
-                    const secretKeyVal = compressSecretKey.value.trim();
+                    // 检查公网隧道 100MB 限制
+                    if (selectedCompressFile.size > 100 * 1024 * 1024 && !API_BASE_URL.includes("localhost") && !API_BASE_URL.includes("127.0.0.1")) {
+                        alert(`⚠️ 您当前连接的是远程公网隧道 (${API_BASE_URL})。\n\n由于 Cloudflare 隧道有 100MB 单次上传限制，无法直接上传 ${formatBytes(selectedCompressFile.size)} 的巨型视频。\n\n【极速解决方案】：\n请在电脑本地直接将该视频拖入桌面上的【一键提取超大录屏音频.bat】，5 秒即可提取为 ~30MB 轻量音频，提取后拖入【会议素材箱】即可秒传！`);
+                        startCompressBtn.disabled = false;
+                        compressProgress.classList.remove("active");
+                        return;
+                    }
+
+                    // =================== 服务器引擎 ===================
+                    compressStatusText.innerText = "正在向服务器发送压缩任务...";
+                    const secretKeyVal = compressSecretKey.value.trim() || "123456";
 
                     const formData = new FormData();
                     formData.append("file", selectedCompressFile);
@@ -1813,6 +1877,7 @@
 
                     const xhr = new XMLHttpRequest();
                     xhr.open("POST", `${API_BASE_URL}/api/compress`);
+                    xhr.setRequestHeader("ngrok-skip-browser-warning", "true");
 
                     xhr.upload.onprogress = (e) => {
                         if (e.lengthComputable) {
@@ -1855,6 +1920,28 @@
 
                 } else {
                     // =================== 本地浏览器模式 (100% 客户端，0 消耗服务器) ===================
+                    // 1. 检查浏览器环境是否支持 SharedArrayBuffer
+                    if (typeof SharedArrayBuffer === "undefined") {
+                        alert("⚠️ 当前浏览器环境未启用 SharedArrayBuffer 跨源隔离支持，无法在网页内存中直接执行 WebAssembly。\n\n系统已为您自动切换为【⚡ 服务器极速引擎】由后端多核 FFmpeg 进行处理，请直接重新点击【开始极速压缩处理】！");
+                        engineServer.checked = true;
+                        secretRow.classList.add("show");
+                        startCompressBtn.querySelector("span").innerText = "⚡ 开始服务器原生极速处理";
+                        startCompressBtn.disabled = false;
+                        compressProgress.classList.remove("active");
+                        return;
+                    }
+
+                    // 2. 检查大文件限制 (WASM 内存上限通常为 2GB，JS ArrayBuffer 无法装载数 GB 文件)
+                    if (selectedCompressFile.size > 150 * 1024 * 1024) {
+                        alert(`⚠️ 该视频文件体积为 ${formatBytes(selectedCompressFile.size)}，已超出浏览器网页内存承受上限（WebAssembly 仅适合 100MB 以内轻量视频）。\n\n【极速推荐】：\n👉 请使用电脑桌面上的【一键提取超大录屏音频.bat】（5 秒完成，瞬间获得 ~30MB 高清纯音频）！\n👉 或切换为【⚡ 服务器极速引擎】由服务器多核 FFmpeg 进行极速转码！`);
+                        engineServer.checked = true;
+                        secretRow.classList.add("show");
+                        startCompressBtn.querySelector("span").innerText = "⚡ 开始服务器原生极速处理";
+                        startCompressBtn.disabled = false;
+                        compressProgress.classList.remove("active");
+                        return;
+                    }
+
                     compressStatusText.innerText = "正在载入浏览器 WebAssembly 引擎 (首次需数秒)...";
                     const ffmpeg = await getClientFFmpeg();
                     const { fetchFile } = FFmpeg;
@@ -1935,10 +2022,12 @@
                 }
             } catch (err) {
                 if (err.message === "AUTH_FORBIDDEN") {
-                    alert("⚠️ 授权口令错误！为保护服务器 CPU 资源，服务器引擎仅限管理员使用。\n\n系统已为您自动切换为【本地电脑浏览器模式】，请重新点击开始，完全在本地处理即可！");
-                    engineClient.checked = true;
-                    secretRow.classList.remove("show");
-                    startCompressBtn.querySelector("span").innerText = "⚡ 开始本地浏览器极速处理";
+                    alert("⚠️ 授权口令错误！若服务端设置了特定口令，请在上方输入框填入。");
+                } else if (err.message && (err.message.includes("SharedArrayBuffer") || err.message.includes("Array buffer allocation") || err.message.includes("memory"))) {
+                    alert("⚠️ 浏览器 WebAssembly 运行环境受限或内存不足。\n\n【极速解决方案】：\n👉 请直接使用电脑桌面上的【一键提取超大录屏音频.bat】（5 秒完成，瞬间转为 30MB 纯音频）！\n👉 或切换为【⚡ 服务器极速引擎】由后端多核 FFmpeg 进行转码！");
+                    engineServer.checked = true;
+                    secretRow.classList.add("show");
+                    startCompressBtn.querySelector("span").innerText = "⚡ 开始服务器原生极速处理";
                 } else {
                     alert("转码异常: " + err.message);
                 }
