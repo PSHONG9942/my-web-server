@@ -256,6 +256,39 @@ async def proxy_ai_upload(request: Request):
         raise HTTPException(status_code=500, detail=f"代理 AI-Agent 上传异常: {str(e)}")
 
 
+@app.post("/api/upload_chunk")
+async def proxy_ai_upload_chunk(request: Request):
+    """Proxy chunked large file uploads to AI-Agent (port 8502)."""
+    client_ip = request.client.host if request and request.client else "unknown"
+    headers = dict(request.headers)
+    headers.pop("host", None)
+    headers.pop("content-length", None)
+    headers["x-forwarded-for"] = client_ip
+
+    try:
+        async with httpx.AsyncClient(base_url=AI_AGENT_BACKEND_URL, timeout=httpx.Timeout(600.0, connect=10.0)) as client:
+            req = client.build_request(
+                "POST",
+                "/api/upload_chunk",
+                content=request.stream(),
+                headers=headers,
+                params=request.query_params
+            )
+            resp = await client.send(req)
+            return Response(
+                content=resp.content,
+                status_code=resp.status_code,
+                headers={"Content-Type": resp.headers.get("content-type", "application/json")}
+            )
+    except httpx.ConnectError:
+        raise HTTPException(
+            status_code=503, 
+            detail="AI-Agent 服务 (端口 8502) 未启动或正在重启中。请检查 sudo systemctl status ai-agent"
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"代理大文件切片上传异常: {str(e)}")
+
+
 @app.post("/api/compress")
 async def proxy_ai_compress(request: Request):
     """Proxy video/audio compression stream to AI-Agent (port 8502)."""

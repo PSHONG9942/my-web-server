@@ -45,63 +45,48 @@ chmod +x deploy_linux.sh
 
 ---
 
-### 第三步：将 Linux Mint 的 8502 端口映射到公网
+### 第三步：永久固定公网隧道地址 (ngrok 专属网关)
 
-网页端（如 `sjkcabm.pages.dev`）需要一个带有 HTTPS 的公网地址才能访问你的 Linux Mint 机器。你可以任选以下两种方式之一：
+系统已配置单一永久固定公网隧道，免除每次重启需重新配置的烦恼：
+- **统一公网网关地址**：`https://swimming-easiness-strewn.ngrok-free.dev`
+- **后台 systemd 服务**：`ngrok.service` 开机自动守护，自动将请求分发至：
+  - `8502`: AI-Agent 智能公文服务（包含多模态视觉与 Whisper）
+  - `8503`: 视频下载助手服务
+  - `8505`: PDF 结构化转 PPTX 服务
 
-#### 方案 A：Cloudflare Tunnel（强烈推荐 · 免费稳定 · 无弹窗警告）
-在 Linux Mint 终端中运行：
-```bash
-cloudflared tunnel --url http://localhost:8502
-```
-终端会输出如下格式的公网 HTTPS 地址：
-```text
-https://xxxx-xxxx-xxxx.trycloudflare.com
-```
-
-> **后台常驻运行技巧**：
-> ```bash
-> nohup cloudflared tunnel --url http://localhost:8502 > /tmp/ai-agent-tunnel.log 2>&1 &
-> # 查看生成的公网网址：
-> grep -o 'https://.*\.trycloudflare\.com' /tmp/ai-agent-tunnel.log
-> ```
-
----
-
-#### 方案 B：ngrok
-若你习惯使用 ngrok，**必须转发 8502 端口**（切勿转发为 8503）：
-```bash
-ngrok http 8502
-```
-运行后会得到形如：
-```text
-https://your-domain.ngrok-free.dev
-```
+#### 常用服务运维命令：
+- **查看各服务状态**：
+  ```bash
+  sudo systemctl status ai-agent --no-pager
+  sudo systemctl status yt-dlp-service --no-pager
+  sudo systemctl status ngrok --no-pager
+  ```
+- **更新 AI-Agent 代码后重启**：
+  ```bash
+  sudo systemctl restart ai-agent
+  ```
 
 ---
 
-### 第四步：在网页端配置并开始使用
+### 第四步：在网页端使用
 
-1. 打开浏览器，访问前端网页：
+1. 打开浏览器访问：
    **`https://sjkcabm.pages.dev/tools/ai_agent`**（或本地 `tools/ai-agent.html`）。
-2. 点击右上角 **⚙️ 引擎配置**（或点击红色状态球）：
-   - 在【后端服务地址】中，粘贴上面步骤获取的公网地址：
-     - 若用 Cloudflare Tunnel：`https://xxxx.trycloudflare.com`
-     - 若用 ngrok：`https://xxxx.ngrok-free.dev`
-     - 若电脑与 Linux Mint 在同一家庭/校园局域网：亦可直接填 `http://192.168.x.x:8502`
-   - （可选）填入 Nvidia NIM API Key。
-   - 点击 **保存配置**。
-3. 观察右上角状态：
-   - 绿色常亮：显示 **`🟢 Agent 引擎在线 (v2.0.0)`** 即代表对接完全成功！
+2. 网页已默认配置连接至 `https://swimming-easiness-strewn.ngrok-free.dev`，开箱即用。
+3. 状态栏显示 **`🟢 Agent 引擎在线 (v2.0.0)`** 即代表对接成功。
 
 ---
 
-## 📹 关于 6.75 GB 超大录屏在网页中处理的最佳姿势
+## 📹 关于数 GB 超大会议录屏在网页中的处理
 
-公网穿透服务（Cloudflare Tunnel / ngrok 免费版）对单次 HTTP 请求有 **100MB 的硬性体积上限**，因此数 GB 的原始视频无法直接通过公网通道上传。
+针对教师日常长达数小时、体积多达数 GB（如 6.75 GB）的录屏视频，网页端现已深度集成两大核心能力：
 
-**最佳且最快的工作流程（仅需 10 秒）**：
-1. 在本地电脑双击桌面上的 **【一键提取超大录屏音频.bat】**，将 6.75 GB 视频直接拖入图标。
-2. 5 ~ 10 秒内，本地 FFmpeg 会无损提炼出 **~30MB** 的高清纯语音 MP3 文件。
-3. 将此 30MB MP3 拖入网页的【📁 会议素材箱】，**2 秒极速上传到 Linux Mint 服务器**！
-4. Linux Mint 上的 Faster-Whisper 多核引擎将全自动转录、AI 提炼议程，一键排版导出标准的 **Kertas Minit Curai** 官函 Word 文档！
+### 方案 A：🚀 服务器端高速分片直传（零门槛 · 全自动）
+- **100% 网页内完成**：无需安装任何客户端软件或运行批处理脚本！
+- **自动分片流传输**：拖入任意体积的大视频（哪怕 10GB+），网页自动切分为 10MB 分片流式上传，实时显示传输百分比、速率与剩余时间，100% 突破网络隧道请求体限制与超时问题。
+- **服务器原生处理**：上传完毕后，Linux 服务器的原生多核 GPU/CPU 自动提取语音、分析 PPT 幻灯片，一键生成 Minit Curai 公文。
+
+### 方案 B：🗜️ 像 compress.lol 一样纯浏览器本地处理（0 消耗流量）
+- 在网页左侧切换至 **【🗜️ 压缩工坊 (compress.lol)】**。
+- **纯浏览器本地环境**：无需安装任何额外软件或配置环境，直接利用浏览器本地计算能力，秒级提取出仅数十兆的纯音频 MP3。
+- 提取完成后，点击 **【一键填入素材箱并写公文】** 即可秒级开启 AI 公文生成！

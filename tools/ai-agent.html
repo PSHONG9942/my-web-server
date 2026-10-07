@@ -1066,10 +1066,9 @@
                     <div id="dropzone" class="dropzone">
                         <span class="dropzone-icon">☁️</span>
                         <div class="dropzone-text">点击或拖拽文件到此处</div>
-                        <div class="dropzone-hint">支持 MP4 录屏, MP3/M4A 录音, PDF, PPTX (建议 100MB 内)</div>
-                        <div style="margin-top: 8px; font-size: 0.76rem; color: #38bdf8; line-height: 1.4;">
-                            💡 <b>录屏体积过大（如数 GB）？</b><br>
-                            公文仅需声音！推荐使用手机录音/剪映导出纯音频（约 30MB 即可秒传），或 <a href="javascript:void(0)" onclick="downloadHelperBat()" style="color:#fde047;text-decoration:underline;font-weight:600;">点击此处下载极速音频提取脚本</a>！
+                        <div class="dropzone-hint">支持 MP4 录屏、MP3/M4A 录音、PDF、PPTX（全面支持数 GB 超大文件分片极速直传）</div>
+                        <div style="margin-top: 8px; font-size: 0.78rem; color: #38bdf8; line-height: 1.4;">
+                            🚀 <b>超大录屏极速处理双引擎</b>：直接拖入即可启用<b>高速分片流式直传</b>至服务器；亦可在上方切换【🗜️ 压缩工坊】像 compress.lol 一样<b>纯本地秒提音频</b>！
                         </div>
                         <input type="file" id="fileInput" class="file-input" accept=".mp4,.mp3,.m4a,.pdf,.pptx">
                     </div>
@@ -1418,22 +1417,16 @@
         }
 
         function handleFileUpload(file) {
-            // Check size (100MB max for network tunnel HTTP requests)
-            const maxBytes = 100 * 1024 * 1024;
-            if (file.size > maxBytes) {
-                const sizeStr = formatBytes(file.size);
-                const advice = `⚠️ 检测到待上传文件体积达【${sizeStr}】！\n\n` +
-                    `【为什么超大视频无法直接网络上传？】\n` +
-                    `1. 公网隧道单次请求有 100MB 传输上限。\n` +
-                    `2. 数 GB 的大视频网络上传耗时长且极易中途网络断开。\n\n` +
-                    `【⚡ 秒级极速解决方案】\n` +
-                    `AI 公文助理撰写 Minit Curai 仅需要清晰的会议发言声音：\n` +
-                    `👉 1. 推荐上传会议纯音频 (MP3/M4A/WAV)，或使用手机录音/剪映导出纯音频（仅 ~30MB），几秒即可极速秒传！\n` +
-                    `👉 2. 亦可在素材箱下方点击下载【一键提取音频工具】提取纯音频后秒传！`;
-                alert(advice);
-                return;
+            // 如果文件小于 25MB，走单次快速直传
+            if (file.size <= 25 * 1024 * 1024) {
+                uploadSmallFile(file);
+            } else {
+                // 如果文件大于 25MB (如几百 MB 甚至数 GB 视频)，全自动启用高速分片流式上传，100% 突破网络限制
+                handleChunkedFileUpload(file);
             }
+        }
 
+        function uploadSmallFile(file) {
             uploadProgress.classList.add("active");
             progressBarFill.style.width = "0%";
             uploadPercent.innerText = "0%";
@@ -1465,12 +1458,7 @@
                     const data = JSON.parse(xhr.responseText);
                     currentUploadedFiles.push(data);
                     renderAttachedFiles();
-                    
-                    // Add system message in chat
                     appendAssistantBubble(`✅ 已成功载入文件：<b>${file.name}</b> (${formatBytes(file.size)})。随时输入您的要求，AI 将自动分析并生成公文！`);
-                } else if (xhr.status === 413) {
-                    uploadProgress.classList.remove("active");
-                    alert(`⚠️ 上传失败: 文件大小 (${formatBytes(file.size)}) 超出服务器通道限制 (413 Payload Too Large)。\n\n请使用【一键提取超大录屏音频.bat】提取为 MP3 后重新上传！`);
                 } else {
                     uploadProgress.classList.remove("active");
                     alert("上传失败 (HTTP " + xhr.status + "): " + (xhr.statusText || xhr.responseText));
@@ -1479,12 +1467,103 @@
 
             xhr.onerror = () => {
                 uploadProgress.classList.remove("active");
-                alert(`网络异常，无法上传文件至服务器 (${API_BASE_URL})。\n\n请确认：\n1. AI-Agent 后端服务已启动 (端口 8502)\n2. ngrok 守护服务处于在线状态`);
+                alert(`网络异常，无法上传文件至服务器 (${API_BASE_URL})。请确认后端服务与隧道在线。`);
             };
 
             const formData = new FormData();
             formData.append("file", file);
             xhr.send(formData);
+        }
+
+        async function handleChunkedFileUpload(file) {
+            const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB 每片，稳妥穿透任何网关与隧道
+            const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+            const uploadId = "up_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
+            
+            uploadProgress.classList.add("active");
+            progressBarFill.style.width = "0%";
+            uploadPercent.innerText = "0%";
+            uploadStatusLabel.innerText = `🚀 正在启动大文件分片流式上传 (共 ${totalChunks} 片，总大小 ${formatBytes(file.size)})...`;
+            
+            let uploadedBytes = 0;
+            const startTime = Date.now();
+            
+            for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+                const start = chunkIndex * CHUNK_SIZE;
+                const end = Math.min(file.size, start + CHUNK_SIZE);
+                const chunkBlob = file.slice(start, end);
+                const chunkBytes = end - start;
+                
+                let success = false;
+                let lastErr = null;
+                
+                // 每个分片允许自动重试 3 次，防止微小网络抖动
+                for (let attempt = 1; attempt <= 3; attempt++) {
+                    try {
+                        const formData = new FormData();
+                        formData.append("upload_id", uploadId);
+                        formData.append("chunk_index", chunkIndex);
+                        formData.append("total_chunks", totalChunks);
+                        formData.append("filename", file.name);
+                        formData.append("chunk", chunkBlob, file.name);
+                        
+                        const res = await fetch(`${API_BASE_URL}/api/upload_chunk`, {
+                            method: "POST",
+                            headers: {
+                                "ngrok-skip-browser-warning": "true"
+                            },
+                            body: formData
+                        });
+                        
+                        if (!res.ok) {
+                            throw new Error(`HTTP ${res.status}: ${await res.text()}`);
+                        }
+                        
+                        const data = await res.json();
+                        uploadedBytes += chunkBytes;
+                        
+                        // 计算实时进度与传输速度
+                        const pct = Math.min(100, Math.round((uploadedBytes / file.size) * 100));
+                        progressBarFill.style.width = pct + "%";
+                        uploadPercent.innerText = pct + "%";
+                        
+                        const elapsedSec = (Date.now() - startTime) / 1000;
+                        const speedBps = elapsedSec > 0 ? uploadedBytes / elapsedSec : 0;
+                        const speedStr = formatBytes(speedBps) + "/s";
+                        const remainingSec = speedBps > 0 ? Math.ceil((file.size - uploadedBytes) / speedBps) : 0;
+                        const remainingStr = remainingSec > 60 ? `${Math.ceil(remainingSec / 60)} 分钟` : `${remainingSec} 秒`;
+                        
+                        uploadStatusLabel.innerText = `正在分片直传: ${chunkIndex + 1}/${totalChunks} 片 (${pct}%) | 速度: ${speedStr} | 预计剩余: ${remainingStr}`;
+                        
+                        if (data.status === "completed") {
+                            progressBarFill.style.width = "100%";
+                            uploadPercent.innerText = "100%";
+                            uploadStatusLabel.innerText = `🎉 超大素材上传并合并成功！(${formatBytes(data.file_size)})`;
+                            
+                            setTimeout(() => {
+                                uploadProgress.classList.remove("active");
+                            }, 2000);
+                            
+                            currentUploadedFiles.push(data);
+                            renderAttachedFiles();
+                            appendAssistantBubble(`✅ 超大文件已成功分片上传至服务器：<b>${data.filename}</b> (${formatBytes(data.file_size)})。随时输入您的要求，AI 将自动分析视频与提取公文！`);
+                        }
+                        
+                        success = true;
+                        break;
+                    } catch (err) {
+                        lastErr = err;
+                        console.warn(`分片 ${chunkIndex} 第 ${attempt} 次失败，正在重试...`, err);
+                        await new Promise(r => setTimeout(r, 1000 * attempt));
+                    }
+                }
+                
+                if (!success) {
+                    uploadProgress.classList.remove("active");
+                    alert(`⚠️ 分片上传中断 (第 ${chunkIndex + 1}/${totalChunks} 片): ${lastErr?.message || "网络异常"}\n\n请检查网络连接后重试。`);
+                    return;
+                }
+            }
         }
 
         function renderAttachedFiles() {
@@ -1827,7 +1906,7 @@
             compressResultBox.classList.remove("show");
         });
 
-        // Lazy-loaded client-side FFmpeg instance
+        // Lazy-loaded client-side FFmpeg instance (支持单线程 core-st 免 SharedArrayBuffer)
         let ffmpegInstance = null;
         async function getClientFFmpeg() {
             if (!window.FFmpeg) {
@@ -1835,9 +1914,14 @@
             }
             if (!ffmpegInstance) {
                 const { createFFmpeg } = FFmpeg;
+                // 检测是否支持 SharedArrayBuffer，若不支持则自动降级到单线程无需 SharedArrayBuffer 的 @ffmpeg/core-st
+                const useSt = typeof SharedArrayBuffer === "undefined";
+                const coreUrl = useSt 
+                    ? 'https://cdn.jsdelivr.net/npm/@ffmpeg/core-st@0.11.1/dist/ffmpeg-core.js'
+                    : 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js';
                 ffmpegInstance = createFFmpeg({
                     log: false,
-                    corePath: 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js'
+                    corePath: coreUrl
                 });
                 await ffmpegInstance.load();
             }
@@ -1851,7 +1935,7 @@
                 return;
             }
 
-            const engine = document.querySelector('input[name="compressEngine"]:checked').value;
+            let engine = document.querySelector('input[name="compressEngine"]:checked').value;
             startCompressBtn.disabled = true;
             compressProgress.classList.add("active");
             compressResultBox.classList.remove("show");
@@ -1859,51 +1943,82 @@
             compressPercent.innerText = "10%";
 
             try {
-                if (engine === "server") {
-                    // 检查公网隧道 100MB 限制
-                    if (selectedCompressFile.size > 100 * 1024 * 1024 && !API_BASE_URL.includes("localhost") && !API_BASE_URL.includes("127.0.0.1")) {
-                        alert(`⚠️ 您当前连接的是远程服务器 (${API_BASE_URL})。\n\n由于公网隧道单次请求有 100MB 传输上限，无法直接通过网络上传 ${formatBytes(selectedCompressFile.size)} 的巨型视频。\n\n【极速解决方案】：\n1. 会议纪要与公文仅需语音，推荐使用手机录音或通过剪映等工具导出纯音频 (MP3/M4A，体积仅 ~30MB) 即可秒传！\n2. 亦可在素材箱下方点击下载【一键提取音频工具】提取纯音频后秒传！`);
-                        startCompressBtn.disabled = false;
-                        compressProgress.classList.remove("active");
-                        return;
-                    }
+                // 如果文件过大 (> 150MB)，纯前端浏览器 WebAssembly 内存装不下，自动透明使用服务器多核处理
+                if (engine === "client" && selectedCompressFile.size > 150 * 1024 * 1024) {
+                    compressStatusText.innerText = "超大视频自动启用服务器原生多核引擎加速...";
+                    engine = "server";
+                    engineServer.checked = true;
+                }
 
-                    // =================== 服务器引擎 ===================
-                    compressStatusText.innerText = "正在向服务器发送压缩任务...";
+                if (engine === "server") {
+                    // =================== 服务器引擎 (支持任意体积超大视频) ===================
+                    compressStatusText.innerText = "正在准备向服务器发送任务...";
                     const secretKeyVal = compressSecretKey.value.trim() || "123456";
 
-                    const formData = new FormData();
-                    formData.append("file", selectedCompressFile);
-                    formData.append("target_size_mb", selectedTargetMode === "audio_only" ? "0" : selectedTargetMode);
-                    formData.append("mode", selectedTargetMode === "audio_only" ? "audio_only" : "target_size");
-                    formData.append("secret_key", secretKeyVal);
-
-                    const xhr = new XMLHttpRequest();
-                    xhr.open("POST", `${API_BASE_URL}/api/compress`);
-                    xhr.setRequestHeader("ngrok-skip-browser-warning", "true");
-
-                    xhr.upload.onprogress = (e) => {
-                        if (e.lengthComputable) {
-                            const pct = Math.round((e.loaded / e.total) * 70);
+                    let savedPath = null;
+                    // 如果文件 > 25MB，使用分片流式上传
+                    if (selectedCompressFile.size > 25 * 1024 * 1024) {
+                        compressStatusText.innerText = "正在通过安全分片流直传服务器...";
+                        const CHUNK_SIZE = 10 * 1024 * 1024;
+                        const totalChunks = Math.ceil(selectedCompressFile.size / CHUNK_SIZE);
+                        const uploadId = "comp_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
+                        
+                        for (let cIdx = 0; cIdx < totalChunks; cIdx++) {
+                            const cStart = cIdx * CHUNK_SIZE;
+                            const cEnd = Math.min(selectedCompressFile.size, cStart + CHUNK_SIZE);
+                            const cBlob = selectedCompressFile.slice(cStart, cEnd);
+                            
+                            const chunkFormData = new FormData();
+                            chunkFormData.append("upload_id", uploadId);
+                            chunkFormData.append("chunk_index", cIdx);
+                            chunkFormData.append("total_chunks", totalChunks);
+                            chunkFormData.append("filename", selectedCompressFile.name);
+                            chunkFormData.append("chunk", cBlob, selectedCompressFile.name);
+                            
+                            const cRes = await fetch(`${API_BASE_URL}/api/upload_chunk`, {
+                                method: "POST",
+                                headers: { "ngrok-skip-browser-warning": "true" },
+                                body: chunkFormData
+                            });
+                            if (!cRes.ok) throw new Error("分片上传失败: " + await cRes.text());
+                            const cData = await cRes.json();
+                            
+                            const pct = Math.round(((cIdx + 1) / totalChunks) * 60);
                             compressBarFill.style.width = `${pct}%`;
                             compressPercent.innerText = `${pct}%`;
-                            compressStatusText.innerText = `正在上传视频至服务器并转码 (${pct}%)...`;
-                        }
-                    };
-
-                    const result = await new Promise((resolve, reject) => {
-                        xhr.onload = () => {
-                            if (xhr.status === 200) {
-                                resolve(JSON.parse(xhr.responseText));
-                            } else if (xhr.status === 403) {
-                                reject(new Error("AUTH_FORBIDDEN"));
-                            } else {
-                                reject(new Error(xhr.responseText || "服务器转码失败"));
+                            compressStatusText.innerText = `正在分片上传至服务器 (${cIdx + 1}/${totalChunks} 片)...`;
+                            
+                            if (cData.status === "completed") {
+                                savedPath = cData.saved_path;
                             }
-                        };
-                        xhr.onerror = () => reject(new Error("网络异常，无法连接到服务器"));
-                        xhr.send(formData);
+                        }
+                    }
+
+                    // 调用转码接口
+                    compressStatusText.innerText = "服务器原生 FFmpeg 正在进行硬件转码，请稍候...";
+                    compressBarFill.style.width = "75%";
+                    compressPercent.innerText = "75%";
+
+                    const compressFormData = new FormData();
+                    if (savedPath) {
+                        compressFormData.append("saved_path", savedPath);
+                        compressFormData.append("filename", selectedCompressFile.name);
+                    } else {
+                        compressFormData.append("file", selectedCompressFile);
+                    }
+                    compressFormData.append("target_size_mb", selectedTargetMode === "audio_only" ? "0" : selectedTargetMode);
+                    compressFormData.append("mode", selectedTargetMode === "audio_only" ? "audio_only" : "target_size");
+                    compressFormData.append("secret_key", secretKeyVal);
+
+                    const res = await fetch(`${API_BASE_URL}/api/compress`, {
+                        method: "POST",
+                        headers: { "ngrok-skip-browser-warning": "true" },
+                        body: compressFormData
                     });
+
+                    if (res.status === 403) throw new Error("AUTH_FORBIDDEN");
+                    if (!res.ok) throw new Error("服务器转码失败: " + await res.text());
+                    const result = await res.json();
 
                     compressBarFill.style.width = "100%";
                     compressPercent.innerText = "100%";
@@ -1923,28 +2038,6 @@
 
                 } else {
                     // =================== 本地浏览器模式 (100% 客户端，0 消耗服务器) ===================
-                    // 1. 检查浏览器环境是否支持 SharedArrayBuffer
-                    if (typeof SharedArrayBuffer === "undefined") {
-                        alert("⚠️ 当前浏览器环境未启用 SharedArrayBuffer 跨源隔离支持，无法在网页内存中直接执行 WebAssembly。\n\n系统已为您自动切换为【⚡ 服务器极速引擎】由后端多核 FFmpeg 进行处理，请直接重新点击【开始极速压缩处理】！");
-                        engineServer.checked = true;
-                        secretRow.classList.add("show");
-                        startCompressBtn.querySelector("span").innerText = "⚡ 开始服务器原生极速处理";
-                        startCompressBtn.disabled = false;
-                        compressProgress.classList.remove("active");
-                        return;
-                    }
-
-                    // 2. 检查大文件限制 (WASM 内存上限通常为 2GB，JS ArrayBuffer 无法装载数 GB 文件)
-                    if (selectedCompressFile.size > 150 * 1024 * 1024) {
-                        alert(`⚠️ 该视频文件体积为 ${formatBytes(selectedCompressFile.size)}，已超出浏览器网页内存承受上限（WebAssembly 仅适合 150MB 以内轻量视频）。\n\n【针对超大视频的极速解决方案】：\n👉 1. 会议纪要仅需发言声音，建议直接上传会议纯音频 (MP3/M4A，体积仅 ~30MB，可直接秒传)！\n👉 2. 亦可在素材箱下方点击下载【一键提取音频工具】提取纯音频后秒传！`);
-                        engineServer.checked = true;
-                        secretRow.classList.add("show");
-                        startCompressBtn.querySelector("span").innerText = "⚡ 开始服务器原生极速处理";
-                        startCompressBtn.disabled = false;
-                        compressProgress.classList.remove("active");
-                        return;
-                    }
-
                     compressStatusText.innerText = "正在载入浏览器 WebAssembly 引擎 (首次需数秒)...";
                     const ffmpeg = await getClientFFmpeg();
                     const { fetchFile } = FFmpeg;
@@ -2026,11 +2119,6 @@
             } catch (err) {
                 if (err.message === "AUTH_FORBIDDEN") {
                     alert("⚠️ 授权口令错误！若服务端设置了特定口令，请在上方输入框填入。");
-                } else if (err.message && (err.message.includes("SharedArrayBuffer") || err.message.includes("Array buffer allocation") || err.message.includes("memory"))) {
-                    alert("⚠️ 浏览器 WebAssembly 运行环境受限或内存不足。\n\n【极速解决方案】：\n👉 请直接使用电脑桌面上的【一键提取超大录屏音频.bat】（5 秒完成，瞬间转为 30MB 纯音频）！\n👉 或切换为【⚡ 服务器极速引擎】由后端多核 FFmpeg 进行转码！");
-                    engineServer.checked = true;
-                    secretRow.classList.add("show");
-                    startCompressBtn.querySelector("span").innerText = "⚡ 开始服务器原生极速处理";
                 } else {
                     alert("转码异常: " + err.message);
                 }
@@ -2082,7 +2170,7 @@
                 renderAttachedFiles();
 
                 tabFilesBtn.click();
-                appendAssistantBubble(`🎉 已成功将压缩后的轻量素材【<b>${lastCompressedResult.filename}</b>】放入素材箱！体积仅 <b>${formatBytes(lastCompressedResult.compressedSize)}</b>，AI 可极速分析并生成 Minit Curai！`);
+                appendAssistantBubble(`🎉 已成功将处理后的轻量素材【<b>${lastCompressedResult.filename}</b>】放入素材箱！体积仅 <b>${formatBytes(lastCompressedResult.compressedSize)}</b>，AI 可极速分析并生成 Minit Curai！`);
             } catch (e) {
                 alert("载入素材箱失败: " + e.message);
             } finally {
@@ -2090,20 +2178,6 @@
                 applyToAgentBtn.innerText = "🚀 一键填入素材箱并写公文";
             }
         });
-
-        // Helper script downloader for other users
-        function downloadHelperBat() {
-            const bat = `@echo off\r\nchcp 65001 > nul\r\ntitle 教师专属录屏极速提取纯音频工具\r\n\r\necho ========================================================\r\necho  教师会议录屏极速提取音频工具 (提取后仅 ~30MB 秒传素材箱)\r\necho ========================================================\r\n\r\nset "INPUT_FILE=%~1"\r\nif "%INPUT_FILE%"=="" (\r\n    echo.\r\n    echo [使用说明] 请将数 GB 的会议录屏视频直接拖拽到本批处理图标上！\r\n    echo.\r\n    pause\r\n    exit /b\r\n)\r\n\r\nset "INPUT_FILE=%INPUT_FILE:"=%"\r\nset "OUTPUT_MP3=%~dpn1_纯音频.mp3"\r\n\r\nset "FFMPEG_BIN="\r\nwhere ffmpeg >nul 2>&1 && set "FFMPEG_BIN=ffmpeg"\r\nif not defined FFMPEG_BIN (\r\n    if exist "%~dp0ffmpeg.exe" set "FFMPEG_BIN=%~dp0ffmpeg.exe"\r\n    if exist "C:\\ffmpeg\\bin\\ffmpeg.exe" set "FFMPEG_BIN=C:\\ffmpeg\\bin\\ffmpeg.exe"\r\n    if exist "%ProgramFiles%\\ffmpeg\\bin\\ffmpeg.exe" set "FFMPEG_BIN=%ProgramFiles%\\ffmpeg\\bin\\ffmpeg.exe"\r\n    for /d %%D in ("%LOCALAPPDATA%\\Microsoft\\WinGet\\Packages\\yt-dlp.FFmpeg*") do (for /r "%%D" %%F in (ffmpeg.exe) do (if exist "%%F" set "FFMPEG_BIN=%%F"))\r\n    for /d %%D in ("%LOCALAPPDATA%\\Microsoft\\WinGet\\Packages\\Gyan.FFmpeg*") do (for /r "%%D" %%F in (ffmpeg.exe) do (if exist "%%F" set "FFMPEG_BIN=%%F"))\r\n)\r\n\r\nif not defined FFMPEG_BIN (\r\n    echo.\r\n    echo ⚠️ 正在检测转码组件... 系统中暂未安装 FFmpeg。\r\n    where winget >nul 2>&1\r\n    if %errorlevel% equ 0 (\r\n        echo 正在通过 Windows 包管理器为您一键安装转码组件 (仅需首次执行一次)...\r\n        winget install yt-dlp.FFmpeg --accept-package-agreements --accept-source-agreements\r\n        where ffmpeg >nul 2>&1 && set "FFMPEG_BIN=ffmpeg"\r\n    )\r\n)\r\n\r\nif not defined FFMPEG_BIN (\r\n    echo.\r\n    echo ========================================================\r\n    echo  ❌ 提取未开始：当前电脑尚未安装 FFmpeg 视频转码组件。\r\n    echo ========================================================\r\n    echo  【极速替代解决方案】：\r\n    echo  1. 用电脑上的【剪映 (CapCut)】打开该视频，点击右上角【导出】-> 勾选【仅导出音频 (MP3)】；\r\n    echo  2. 或在电脑终端 (PowerShell) 中输入: winget install yt-dlp.FFmpeg 一键安装；\r\n    echo  3. 导出获得 ~30MB 的 MP3 纯音频后，直接拖入网页【会议素材箱】即可秒传写公文！\r\n    echo ========================================================\r\n    echo.\r\n    pause\r\n    exit /b 1\r\n)\r\n\r\necho.\r\necho 正在极速提纯音频（去除 99%% 无用画面），请稍候...\r\n"%FFMPEG_BIN%" -y -i "%INPUT_FILE%" -vn -ar 16000 -ac 1 -ab 64k "%OUTPUT_MP3%"\r\n\r\nif exist "%OUTPUT_MP3%" (\r\n    echo.\r\n    echo ========================================================\r\n    echo  🎉 提取成功！纯音频已生成：\r\n    echo  "%OUTPUT_MP3%"\r\n    echo.\r\n    echo  💡 请直接将该 MP3 拖入网页【会议素材箱】即可秒传写公文！\r\n    echo ========================================================\r\n) else (\r\n    echo.\r\n    echo ========================================================\r\n    echo  ❌ 提取异常，未能生成音频文件。请检查源视频是否损坏或被占用。\r\n    echo ========================================================\r\n)\r\necho.\r\npause\r\n`;
-            const blob = new Blob([bat], { type: "text/plain;charset=utf-8" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "一键提取超大录屏音频.bat";
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
 
         // Init Check
         checkBackendStatus();

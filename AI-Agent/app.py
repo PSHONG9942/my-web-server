@@ -555,6 +555,69 @@ async def upload_file(file: UploadFile = File(...), request: Request = None):
         "file_size": file_size
     }
 
+@app.post("/api/upload_chunk")
+async def upload_chunk(
+    upload_id: str = Form(...),
+    chunk_index: int = Form(...),
+    total_chunks: int = Form(...),
+    filename: str = Form(...),
+    chunk: UploadFile = File(...),
+    request: Request = None
+):
+    """
+    接收超大文件切片并存入临时目录，最后一块上传完毕后自动流式合并为完整文件。
+    彻底解除公网隧道或单次 HTTP 上传限制，支持数 GB 甚至数十 GB 视频秒级分片平稳直传。
+    """
+    cleanup_old_files()
+    client_ip = request.client.host if request and request.client else "unknown"
+    
+    # 过滤文件名与 ID 特殊字符
+    safe_clean_name = re.sub(r'[\\/*?:"<>|]', '_', filename).strip()
+    safe_upload_id = re.sub(r'[^a-zA-Z0-9_-]', '', upload_id)
+    temp_dir = UPLOADS_DIR / f"temp_{safe_upload_id}"
+    temp_dir.mkdir(parents=True, exist_ok=True)
+    
+    chunk_file = temp_dir / f"{chunk_index}.part"
+    with open(chunk_file, "wb") as f:
+        shutil.copyfileobj(chunk.file, f)
+        
+    # 检查是否所有分片均已就绪
+    parts = list(temp_dir.glob("*.part"))
+    if len(parts) >= total_chunks:
+        # 合并所有分片
+        safe_name = f"{uuid.uuid4().hex[:8]}_{safe_clean_name}"
+        final_path = UPLOADS_DIR / safe_name
+        
+        with open(final_path, "wb") as outfile:
+            for idx in range(total_chunks):
+                p_file = temp_dir / f"{idx}.part"
+                if p_file.exists():
+                    with open(p_file, "rb") as pf:
+                        shutil.copyfileobj(pf, outfile)
+                        
+        # 清理临时切片目录
+        try:
+            shutil.rmtree(temp_dir)
+        except Exception:
+            pass
+            
+        file_size = os.path.getsize(final_path)
+        log_audit_event("UPLOAD_LARGE_FILE_MERGED", client_ip, f"大文件分片合并成功: {safe_clean_name} | 共 {total_chunks} 片 | 体积: {file_size / (1024*1024):.2f}MB")
+        
+        return {
+            "status": "completed",
+            "filename": safe_clean_name,
+            "saved_path": str(final_path),
+            "file_size": file_size
+        }
+        
+    return {
+        "status": "chunk_saved",
+        "chunk_index": chunk_index,
+        "total_chunks": total_chunks,
+        "progress": round((len(parts) / total_chunks) * 100, 1)
+    }
+
 def get_video_duration(video_path: str) -> float:
     try:
         cmd = [
@@ -579,14 +642,16 @@ def get_video_duration(video_path: str) -> float:
 
 @app.post("/api/compress")
 async def compress_video(
-    file: UploadFile = File(...),
+    file: Optional[UploadFile] = File(None),
+    saved_path: Optional[str] = Form(None),
+    filename: Optional[str] = Form(None),
     target_size_mb: float = Form(25.0),
     mode: str = Form("target_size"),
     secret_key: Optional[str] = Form(""),
     request: Request = None
 ):
     """
-    仅受权用户专享的服务器级原生极速转码服务（普通用户默认在浏览器端本地 WASM 运行，避免占满服务器 CPU）
+    仅受权用户专享的服务器级原生极速转码服务（支持直接上传或大文件分片合并后的 saved_path）
     """
     client_ip = request.client.host if request and request.client else "unknown"
 
@@ -600,15 +665,25 @@ async def compress_video(
             )
         
     cleanup_old_files()
-    temp_input = UPLOADS_DIR / f"raw_{uuid.uuid4().hex[:8]}_{file.filename}"
-    with open(temp_input, "wb") as f:
-        shutil.copyfileobj(file.file, f)
+    
+    is_temp = False
+    if saved_path and os.path.exists(saved_path):
+        temp_input = Path(saved_path)
+        orig_name = filename or temp_input.name
+    elif file is not None:
+        temp_input = UPLOADS_DIR / f"raw_{uuid.uuid4().hex[:8]}_{file.filename}"
+        with open(temp_input, "wb") as f:
+            shutil.copyfileobj(file.file, f)
+        orig_name = file.filename
+        is_temp = True
+    else:
+        raise HTTPException(status_code=400, detail="缺少输入文件或 saved_path")
         
     original_size = os.path.getsize(temp_input)
     
     try:
         if mode == "audio_only":
-            out_filename = f"audio_{uuid.uuid4().hex[:6]}_{Path(file.filename).stem}.mp3"
+            out_filename = f"audio_{uuid.uuid4().hex[:6]}_{Path(orig_name).stem}.mp3"
             out_path = OUTPUTS_DIR / out_filename
             cmd = [
                 "ffmpeg", "-y", "-i", str(temp_input),
@@ -617,7 +692,7 @@ async def compress_video(
             ]
             subprocess.run(cmd, capture_output=True, check=True)
         else:
-            out_filename = f"comp_{uuid.uuid4().hex[:6]}_{Path(file.filename).stem}.mp4"
+            out_filename = f"comp_{uuid.uuid4().hex[:6]}_{Path(orig_name).stem}.mp4"
             out_path = OUTPUTS_DIR / out_filename
             
             duration = get_video_duration(str(temp_input))
@@ -645,7 +720,8 @@ async def compress_video(
         saved_percent = max(0.0, (original_size - compressed_size) / original_size * 100)
         
         try:
-            temp_input.unlink()
+            if is_temp and temp_input.exists():
+                temp_input.unlink()
         except Exception:
             pass
             
