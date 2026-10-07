@@ -1263,10 +1263,10 @@
         const STORAGE_KEY_API = "ai_agent_api_url";
         const STORAGE_KEY_TOKEN = "ai_agent_api_key";
         const STORAGE_KEY_MODEL = "ai_agent_model";
-        const DEFAULT_API_URL = "https://screensavers-spend-breed-phillips.trycloudflare.com";
+        const DEFAULT_API_URL = "https://swimming-easiness-strewn.ngrok-free.dev";
 
         let storedUrl = localStorage.getItem(STORAGE_KEY_API);
-        if (!storedUrl) {
+        if (!storedUrl || storedUrl.includes("trycloudflare.com") || storedUrl.includes("screensavers") || storedUrl.includes("rat-senior") || storedUrl.includes("birmingham") || storedUrl.includes("car-skirts")) {
             storedUrl = DEFAULT_API_URL;
             localStorage.setItem(STORAGE_KEY_API, DEFAULT_API_URL);
         }
@@ -1593,7 +1593,10 @@
 
                 const res = await fetch(`${API_BASE_URL}/api/chat`, {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "ngrok-skip-browser-warning": "true"
+                    },
                     body: JSON.stringify(payload)
                 });
 
@@ -2059,6 +2062,9 @@
 
                     const uploadRes = await fetch(`${API_BASE_URL}/api/upload`, {
                         method: "POST",
+                        headers: {
+                            "ngrok-skip-browser-warning": "true"
+                        },
                         body: formData
                     });
 

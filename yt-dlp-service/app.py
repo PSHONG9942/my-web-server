@@ -12,8 +12,12 @@ from urllib.parse import quote
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks, Request, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse, Response
 from pydantic import BaseModel
+import httpx
+
+AI_AGENT_BACKEND_URL = os.environ.get("AI_AGENT_BACKEND_URL", "http://127.0.0.1:8502")
+PDF_SERVICE_BACKEND_URL = os.environ.get("PDF_SERVICE_BACKEND_URL", "http://127.0.0.1:8505")
 
 import yt_dlp
 try:
@@ -169,16 +173,217 @@ def cleanup_old_files():
 
 @app.get("/api/status")
 async def get_status():
+    """Composite status endpoint supporting AI-Agent (8502), yt-dlp (8503), and PDF-Service (8505)."""
     ffmpeg_path = shutil.which("ffmpeg")
+
+    # Check AI-Agent status (8502)
+    ai_online = False
+    ai_version = "2.0.0"
+    try:
+        async with httpx.AsyncClient(base_url=AI_AGENT_BACKEND_URL, timeout=1.5) as client:
+            resp = await client.get("/api/status")
+            if resp.status_code == 200:
+                ai_online = True
+                d = resp.json()
+                ai_version = d.get("version", "2.0.0")
+    except Exception:
+        ai_online = False
+
+    # Check PDF-Service status (8505)
+    pdf_online = False
+    try:
+        async with httpx.AsyncClient(base_url=PDF_SERVICE_BACKEND_URL, timeout=1.5) as client:
+            resp = await client.get("/api/pdf/status")
+            if resp.status_code == 200:
+                pdf_online = True
+    except Exception:
+        pdf_online = pymupdf is not None
+
     return {
         "status": "online",
+        "service": "AI-Agent Multi-Modal Backend & Gateway",
+        "version": ai_version,
         "yt_dlp_version": yt_dlp.version.__version__,
         "ffmpeg_available": ffmpeg_path is not None,
         "ffmpeg_path": ffmpeg_path or "Not found",
         "has_cookies": COOKIES_FILE.exists(),
+        "has_pymupdf": pymupdf is not None or pdf_online,
+        "has_pptx": pptx is not None or pdf_online,
         "cache_count": len(cache_store),
+        "gateway_services": {
+            "ai_agent_8502": "online" if ai_online else "offline",
+            "yt_dlp_8503": "online",
+            "pdf_service_8505": "online" if pdf_online else "offline"
+        },
         "timestamp": time.time()
     }
+
+
+# =========================================================================
+# AI-Agent Reverse Proxy Routes (Forwarding to http://127.0.0.1:8502)
+# =========================================================================
+
+@app.post("/api/upload")
+async def proxy_ai_upload(request: Request):
+    """Proxy file upload stream to AI-Agent (port 8502) without memory buffering."""
+    client_ip = request.client.host if request and request.client else "unknown"
+    headers = dict(request.headers)
+    headers.pop("host", None)
+    headers.pop("content-length", None)
+    headers["x-forwarded-for"] = client_ip
+
+    try:
+        async with httpx.AsyncClient(base_url=AI_AGENT_BACKEND_URL, timeout=httpx.Timeout(1800.0, connect=10.0)) as client:
+            req = client.build_request(
+                "POST",
+                "/api/upload",
+                content=request.stream(),
+                headers=headers,
+                params=request.query_params
+            )
+            resp = await client.send(req)
+            return Response(
+                content=resp.content,
+                status_code=resp.status_code,
+                headers=dict(resp.headers)
+            )
+    except httpx.ConnectError:
+        raise HTTPException(
+            status_code=503, 
+            detail="AI-Agent 服务 (端口 8502) 未启动或正在重启中。请检查 sudo systemctl status ai-agent"
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"代理 AI-Agent 上传异常: {str(e)}")
+
+
+@app.post("/api/compress")
+async def proxy_ai_compress(request: Request):
+    """Proxy video/audio compression stream to AI-Agent (port 8502)."""
+    client_ip = request.client.host if request and request.client else "unknown"
+    headers = dict(request.headers)
+    headers.pop("host", None)
+    headers.pop("content-length", None)
+    headers["x-forwarded-for"] = client_ip
+
+    try:
+        async with httpx.AsyncClient(base_url=AI_AGENT_BACKEND_URL, timeout=httpx.Timeout(1800.0, connect=10.0)) as client:
+            req = client.build_request(
+                "POST",
+                "/api/compress",
+                content=request.stream(),
+                headers=headers,
+                params=request.query_params
+            )
+            resp = await client.send(req)
+            return Response(
+                content=resp.content,
+                status_code=resp.status_code,
+                headers={"Content-Type": resp.headers.get("content-type", "application/json")}
+            )
+    except httpx.ConnectError:
+        raise HTTPException(
+            status_code=503, 
+            detail="AI-Agent 服务 (端口 8502) 未启动或正在重启中。请检查 sudo systemctl status ai-agent"
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"代理 AI-Agent 压缩异常: {str(e)}")
+
+
+@app.post("/api/chat")
+async def proxy_ai_chat(request: Request):
+    """Proxy AI conversation and SSE streaming thoughts/tokens to AI-Agent (port 8502)."""
+    headers = dict(request.headers)
+    headers.pop("host", None)
+    headers.pop("content-length", None)
+    
+    body = await request.body()
+    
+    client = httpx.AsyncClient(base_url=AI_AGENT_BACKEND_URL, timeout=httpx.Timeout(3600.0, connect=10.0))
+    try:
+        req = client.build_request("POST", "/api/chat", content=body, headers=headers)
+        resp = await client.send(req, stream=True)
+        
+        async def event_stream():
+            try:
+                async for chunk in resp.aiter_bytes():
+                    yield chunk
+            finally:
+                await resp.aclose()
+                await client.aclose()
+                
+        return StreamingResponse(
+            event_stream(),
+            status_code=resp.status_code,
+            headers={
+                "Content-Type": resp.headers.get("content-type", "text/event-stream; charset=utf-8"),
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no"
+            }
+        )
+    except httpx.ConnectError:
+        await client.aclose()
+        raise HTTPException(
+            status_code=503, 
+            detail="AI-Agent 服务 (端口 8502) 未启动或正在重启中。请检查 sudo systemctl status ai-agent"
+        )
+    except Exception as e:
+        await client.aclose()
+        raise HTTPException(status_code=500, detail=f"代理 AI-Agent 对话异常: {str(e)}")
+
+
+@app.get("/api/download/{filename}")
+async def proxy_ai_download(filename: str, request: Request):
+    """Proxy generated Word documents / transcripts download from AI-Agent (port 8502)."""
+    try:
+        client = httpx.AsyncClient(base_url=AI_AGENT_BACKEND_URL, timeout=httpx.Timeout(600.0, connect=10.0))
+        req = client.build_request("GET", f"/api/download/{filename}")
+        resp = await client.send(req, stream=True)
+        if resp.status_code != 200:
+            content = await resp.aread()
+            await resp.aclose()
+            await client.aclose()
+            return Response(content=content, status_code=resp.status_code)
+            
+        async def file_stream():
+            try:
+                async for chunk in resp.aiter_bytes():
+                    yield chunk
+            finally:
+                await resp.aclose()
+                await client.aclose()
+
+        return StreamingResponse(
+            file_stream(),
+            status_code=resp.status_code,
+            headers={
+                "Content-Disposition": resp.headers.get("content-disposition", f'attachment; filename="{filename}"'),
+                "Content-Type": resp.headers.get("content-type", "application/octet-stream")
+            }
+        )
+    except httpx.ConnectError:
+        raise HTTPException(
+            status_code=503, 
+            detail="AI-Agent 服务 (端口 8502) 未启动或正在重启中。请检查 sudo systemctl status ai-agent"
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"下载文件异常: {str(e)}")
+
+
+@app.get("/api/admin/logs")
+async def proxy_ai_admin_logs(request: Request, limit: int = 50):
+    """Proxy admin access logs from AI-Agent."""
+    try:
+        async with httpx.AsyncClient(base_url=AI_AGENT_BACKEND_URL, timeout=10.0) as client:
+            resp = await client.get("/api/admin/logs", params={"limit": limit})
+            return Response(
+                content=resp.content, 
+                status_code=resp.status_code, 
+                headers={"Content-Type": "application/json"}
+            )
+    except Exception as e:
+        return {"logs": [f"无法连接到 AI-Agent (8502): {str(e)}"]}
+
 
 @app.post("/api/info")
 async def extract_info(req: InfoRequest):
@@ -716,12 +921,50 @@ async def start_pdf_conversion(
 @app.get("/api/pdf/tasks/{task_id}")
 async def get_pdf_task_status(task_id: str):
     """Alias for task status."""
+    task = tasks.get(task_id)
+    if not task:
+        # Check if 8505 has this task
+        try:
+            async with httpx.AsyncClient(base_url=PDF_SERVICE_BACKEND_URL, timeout=3.0) as client:
+                resp = await client.get(f"/api/pdf/tasks/{task_id}")
+                if resp.status_code == 200:
+                    return resp.json()
+        except Exception:
+            pass
     return await get_task_status(task_id)
 
 
 @app.get("/api/pdf/tasks/{task_id}/file")
 async def get_pdf_task_file(task_id: str):
     """Alias for task file download."""
+    task = tasks.get(task_id)
+    if not task or not task.get("filepath"):
+        # Check if 8505 has this file
+        try:
+            client = httpx.AsyncClient(base_url=PDF_SERVICE_BACKEND_URL, timeout=httpx.Timeout(600.0, connect=5.0))
+            req = client.build_request("GET", f"/api/pdf/tasks/{task_id}/file")
+            resp = await client.send(req, stream=True)
+            if resp.status_code == 200:
+                async def file_stream():
+                    try:
+                        async for chunk in resp.aiter_bytes():
+                            yield chunk
+                    finally:
+                        await resp.aclose()
+                        await client.aclose()
+                return StreamingResponse(
+                    file_stream(),
+                    status_code=200,
+                    headers={
+                        "Content-Disposition": resp.headers.get("content-disposition", f'attachment; filename="converted_{task_id}.pptx"'),
+                        "Content-Type": resp.headers.get("content-type", "application/vnd.openxmlformats-officedocument.presentationml.presentation")
+                    }
+                )
+            else:
+                await resp.aclose()
+                await client.aclose()
+        except Exception:
+            pass
     return await download_file(task_id)
 
 
