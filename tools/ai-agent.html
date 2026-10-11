@@ -1220,11 +1220,11 @@
             </div>
 
             <div class="form-group">
-                <label for="apiUrlInput">后端服务地址 (默认连接专属 ngrok 隧道)</label>
-                <input type="text" id="apiUrlInput" placeholder="例如: https://swimming-easiness-strewn.ngrok-free.dev">
+                <label for="apiUrlInput">后端服务地址 (默认连接专属 Tailscale 隧道)</label>
+                <input type="text" id="apiUrlInput" placeholder="例如: https://pshong-nitro-an515-52.tail6ae6c3.ts.net:10000">
                 <div class="form-hint">
-                    💡 <b>连接说明</b>：系统已为您默认配置并连接至 Linux Mint 上的专属 ngrok 永久隧道。<br>
-                    • <b>公网隧道地址</b>：<code>https://swimming-easiness-strewn.ngrok-free.dev</code><br>
+                    💡 <b>连接说明</b>：系统已为您默认配置并连接至 Linux Mint 上的专属 Tailscale 永久隧道。<br>
+                    • <b>公网隧道地址</b>：<code>https://pshong-nitro-an515-52.tail6ae6c3.ts.net:10000</code><br>
                     • <b>本地开发模式</b>：<code>http://127.0.0.1:8502</code>
                 </div>
             </div>
@@ -1263,10 +1263,10 @@
         const STORAGE_KEY_API = "ai_agent_api_url";
         const STORAGE_KEY_TOKEN = "ai_agent_api_key";
         const STORAGE_KEY_MODEL = "ai_agent_model";
-        const DEFAULT_API_URL = "https://swimming-easiness-strewn.ngrok-free.dev";
+        const DEFAULT_API_URL = "https://pshong-nitro-an515-52.tail6ae6c3.ts.net:10000";
 
         let storedUrl = localStorage.getItem(STORAGE_KEY_API);
-        if (!storedUrl || storedUrl.includes("trycloudflare.com") || storedUrl.includes("screensavers") || storedUrl.includes("rat-senior") || storedUrl.includes("birmingham") || storedUrl.includes("car-skirts")) {
+        if (!storedUrl || storedUrl.includes("ngrok") || storedUrl.includes("trycloudflare.com") || storedUrl.includes("screensavers") || storedUrl.includes("rat-senior") || storedUrl.includes("birmingham") || storedUrl.includes("car-skirts")) {
             storedUrl = DEFAULT_API_URL;
             localStorage.setItem(STORAGE_KEY_API, DEFAULT_API_URL);
         }
@@ -1758,7 +1758,7 @@
 
             } catch (err) {
                 if (currentThoughtCard) currentThoughtCard.querySelector(".spinner")?.remove();
-                contentTextDiv.innerHTML = `<span style="color:var(--danger)">❌ 连接异常: ${err.message}。请确认 Linux Mint 后端服务正常运行且 ngrok 隧道处于连通状态。</span>`;
+                contentTextDiv.innerHTML = `<span style="color:var(--danger)">❌ 连接异常: ${err.message}。请确认 Linux Mint 后端服务正常运行且 Tailscale 隧道处于连通状态。</span>`;
             } finally {
                 isGenerating = false;
                 sendBtn.disabled = false;
