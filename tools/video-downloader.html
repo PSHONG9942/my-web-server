@@ -923,7 +923,7 @@
                 <h4>⚠️ 尚未连接到本地或远程后端服务</h4>
                 <ul>
                     <li><b>如果在电脑本地使用：</b>请打开项目目录下的 <code>yt-dlp-service</code> 文件夹，双击运行 <code>start_windows.bat</code> 启动后端服务。</li>
-                    <li><b>如果已部署在 Linux 服务器：</b>请点击右上角 <b>⚙️ API 设置</b>，将接口地址修改为你的服务器地址（如 <code>http://your-server-ip:8503</code> 或 ngrok 域名）。</li>
+                    <li><b>如果已部署在 Linux 服务器：</b>请点击右上角 <b>⚙️ API 设置</b>，将接口地址修改为你的服务器地址（如 <code>http://your-server-ip:8503</code> 或 Tailscale 域名）。</li>
                     <li><b>确保依赖完整：</b>需安装 Python 3.10+ 及 ffmpeg。</li>
                 </ul>
             </div>
@@ -1070,9 +1070,9 @@
             </div>
             <div class="modal-body">
                 <label for="apiUrlInput">后端 API 基础地址 (Base URL)：</label>
-                <input type="text" id="apiUrlInput" class="modal-input" placeholder="https://swimming-easiness-strewn.ngrok-free.dev">
+                <input type="text" id="apiUrlInput" class="modal-input" placeholder="https://pshong-nitro-an515-52.tail6ae6c3.ts.net:10000">
                 <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px;">
-                    默认线上地址为 <code>https://swimming-easiness-strewn.ngrok-free.dev</code>。如需切换为本地测试或其他服务器，请修改并保存。
+                    默认线上地址为 <code>https://pshong-nitro-an515-52.tail6ae6c3.ts.net:10000</code>。如需切换为本地测试或其他服务器，请修改并保存。
                 </p>
             </div>
             <div class="modal-footer">
@@ -1085,10 +1085,10 @@
     <script>
         // Default API configuration
         const STORAGE_KEY = "ytdlp_api_base_url";
-        const DEFAULT_API_URL = "https://swimming-easiness-strewn.ngrok-free.dev";
+        const DEFAULT_API_URL = "https://pshong-nitro-an515-52.tail6ae6c3.ts.net:10000";
         let storedUrl = localStorage.getItem(STORAGE_KEY);
-        // Automatically migrate if no storage or old temporary URL / trycloudflare / localhost
-        if (!storedUrl || storedUrl.includes("localhost") || storedUrl.includes("127.0.0.1") || storedUrl.includes("trycloudflare.com") || storedUrl.includes("rat-senior") || storedUrl.includes("birmingham-bumper") || storedUrl.includes("car-skirts")) {
+        // Automatically migrate if no storage or old temporary URL / ngrok / trycloudflare / localhost
+        if (!storedUrl || storedUrl.includes("ngrok") || storedUrl.includes("localhost") || storedUrl.includes("127.0.0.1") || storedUrl.includes("trycloudflare.com") || storedUrl.includes("rat-senior") || storedUrl.includes("birmingham-bumper") || storedUrl.includes("car-skirts")) {
             storedUrl = DEFAULT_API_URL;
             localStorage.setItem(STORAGE_KEY, DEFAULT_API_URL);
         }
