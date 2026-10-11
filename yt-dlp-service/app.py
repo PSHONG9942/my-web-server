@@ -291,6 +291,18 @@ async def clean_downloader_cache():
     }
 
 
+@app.post("/api/cookies/clear")
+async def clear_cookies():
+    """Removes cookies.txt if the session was burned or flagged by YouTube."""
+    if COOKIES_FILE.exists():
+        try:
+            COOKIES_FILE.unlink()
+            return {"success": True, "message": "已清除服务器旧 Cookies，已自动切换为原生移动端免登通道"}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+    return {"success": True, "message": "Cookies 文件当前不存在，已处于免登通道"}
+
+
 
 # =========================================================================
 # AI-Agent Reverse Proxy Routes (Forwarding to http://127.0.0.1:8502)
@@ -506,21 +518,35 @@ async def extract_info(req: InfoRequest):
         "socket_timeout": 20,
     }
 
-    if COOKIES_FILE.exists():
-        ydl_opts["cookiefile"] = str(COOKIES_FILE)
-    else:
-        ydl_opts["extractor_args"] = {
-            "youtube": {
-                "player_client": ["visionos"]
+    def _extract(use_cookies: bool = True):
+        opts = dict(ydl_opts)
+        if use_cookies and COOKIES_FILE.exists():
+            opts["cookiefile"] = str(COOKIES_FILE)
+            opts["extractor_args"] = {
+                "youtube": {
+                    "player_client": ["android", "ios", "web"]
+                }
             }
-        }
-
-    def _extract():
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        else:
+            opts["extractor_args"] = {
+                "youtube": {
+                    "player_client": ["android", "ios"]
+                }
+            }
+        with yt_dlp.YoutubeDL(opts) as ydl:
             return ydl.extract_info(req.url.strip(), download=False)
 
     try:
-        info = await asyncio.to_thread(_extract)
+        try:
+            info = await asyncio.to_thread(_extract, True)
+        except Exception as first_err:
+            err_str = str(first_err).lower()
+            if "bot" in err_str or "sign in" in err_str or "cookies" in err_str:
+                # Triggered YouTube bot challenge on web cookies, automatically fallback to mobile client without cookies
+                print(f"[Bot/Cookie Bypass] YouTube bot challenge triggered: {first_err}. Retrying with mobile clients (android, ios)...")
+                info = await asyncio.to_thread(_extract, False)
+            else:
+                raise first_err
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"解析失败: {str(e)}")
 
@@ -691,14 +717,13 @@ def run_download_task(
         "max_sleep_interval": 2,
     }
 
+    ydl_opts["extractor_args"] = {
+        "youtube": {
+            "player_client": ["android", "ios", "web"]
+        }
+    }
     if COOKIES_FILE.exists():
         ydl_opts["cookiefile"] = str(COOKIES_FILE)
-    else:
-        ydl_opts["extractor_args"] = {
-            "youtube": {
-                "player_client": ["visionos"]
-            }
-        }
 
     if single_only:
         ydl_opts["noplaylist"] = True
@@ -749,6 +774,32 @@ def run_download_task(
             and not f.name.endswith(".ytdl") 
             and not f.name.endswith(".temp")
         ]
+
+        # Automatic fallback: If download failed and bot verification was triggered, retry with mobile client
+        if not target_files:
+            has_bot_err = any("bot" in str(e).lower() or "sign in" in str(e).lower() for e in ytdl_logger.errors)
+            if has_bot_err:
+                tasks[task_id]["stage"] = "检测到 YouTube 人机验证拦截，正在自动切换移动端免登通道重试..."
+                fb_opts = dict(ydl_opts)
+                fb_opts.pop("cookiefile", None)
+                fb_opts["extractor_args"] = {
+                    "youtube": {
+                        "player_client": ["android", "ios"]
+                    }
+                }
+                with yt_dlp.YoutubeDL(fb_opts) as ydl_fb:
+                    try:
+                        ydl_fb.download([url])
+                    except yt_dlp.utils.MaxDownloadsReached:
+                        pass
+                files = list(task_dir.iterdir())
+                target_files = [
+                    f for f in files 
+                    if f.is_file() 
+                    and not f.name.endswith(".part") 
+                    and not f.name.endswith(".ytdl") 
+                    and not f.name.endswith(".temp")
+                ]
         # Extract diagnostic errors
         clean_errors = []
         for err in ytdl_logger.errors:
