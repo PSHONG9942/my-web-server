@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import base64
 import time
 import shutil
@@ -568,55 +569,59 @@ async def upload_chunk(
     接收超大文件切片并存入临时目录，最后一块上传完毕后自动流式合并为完整文件。
     彻底解除公网隧道或单次 HTTP 上传限制，支持数 GB 甚至数十 GB 视频秒级分片平稳直传。
     """
-    cleanup_old_files()
-    client_ip = request.client.host if request and request.client else "unknown"
-    
-    # 过滤文件名与 ID 特殊字符
-    safe_clean_name = re.sub(r'[\\/*?:"<>|]', '_', filename).strip()
-    safe_upload_id = re.sub(r'[^a-zA-Z0-9_-]', '', upload_id)
-    temp_dir = UPLOADS_DIR / f"temp_{safe_upload_id}"
-    temp_dir.mkdir(parents=True, exist_ok=True)
-    
-    chunk_file = temp_dir / f"{chunk_index}.part"
-    with open(chunk_file, "wb") as f:
-        shutil.copyfileobj(chunk.file, f)
+    try:
+        cleanup_old_files()
+        client_ip = request.client.host if request and request.client else "unknown"
         
-    # 检查是否所有分片均已就绪
-    parts = list(temp_dir.glob("*.part"))
-    if len(parts) >= total_chunks:
-        # 合并所有分片
-        safe_name = f"{uuid.uuid4().hex[:8]}_{safe_clean_name}"
-        final_path = UPLOADS_DIR / safe_name
+        # 过滤文件名与 ID 特殊字符
+        safe_clean_name = re.sub(r'[\\/*?:"<>|]', '_', filename).strip()
+        safe_upload_id = re.sub(r'[^a-zA-Z0-9_-]', '', upload_id)
+        temp_dir = UPLOADS_DIR / f"temp_{safe_upload_id}"
+        temp_dir.mkdir(parents=True, exist_ok=True)
         
-        with open(final_path, "wb") as outfile:
-            for idx in range(total_chunks):
-                p_file = temp_dir / f"{idx}.part"
-                if p_file.exists():
-                    with open(p_file, "rb") as pf:
-                        shutil.copyfileobj(pf, outfile)
-                        
-        # 清理临时切片目录
-        try:
-            shutil.rmtree(temp_dir)
-        except Exception:
-            pass
+        chunk_file = temp_dir / f"{chunk_index}.part"
+        with open(chunk_file, "wb") as f:
+            shutil.copyfileobj(chunk.file, f)
             
-        file_size = os.path.getsize(final_path)
-        log_audit_event("UPLOAD_LARGE_FILE_MERGED", client_ip, f"大文件分片合并成功: {safe_clean_name} | 共 {total_chunks} 片 | 体积: {file_size / (1024*1024):.2f}MB")
-        
+        # 检查是否所有分片均已就绪
+        parts = list(temp_dir.glob("*.part"))
+        if len(parts) >= total_chunks:
+            # 合并所有分片
+            safe_name = f"{uuid.uuid4().hex[:8]}_{safe_clean_name}"
+            final_path = UPLOADS_DIR / safe_name
+            
+            with open(final_path, "wb") as outfile:
+                for idx in range(total_chunks):
+                    p_file = temp_dir / f"{idx}.part"
+                    if p_file.exists():
+                        with open(p_file, "rb") as pf:
+                            shutil.copyfileobj(pf, outfile)
+                            
+            # 清理临时切片目录
+            try:
+                shutil.rmtree(temp_dir)
+            except Exception:
+                pass
+                
+            file_size = os.path.getsize(final_path)
+            log_audit_event("UPLOAD_LARGE_FILE_MERGED", client_ip, f"大文件分片合并成功: {safe_clean_name} | 共 {total_chunks} 片 | 体积: {file_size / (1024*1024):.2f}MB")
+            
+            return {
+                "status": "completed",
+                "filename": safe_clean_name,
+                "saved_path": str(final_path),
+                "file_size": file_size
+            }
+            
         return {
-            "status": "completed",
-            "filename": safe_clean_name,
-            "saved_path": str(final_path),
-            "file_size": file_size
+            "status": "chunk_saved",
+            "chunk_index": chunk_index,
+            "total_chunks": total_chunks,
+            "progress": round((len(parts) / total_chunks) * 100, 1)
         }
-        
-    return {
-        "status": "chunk_saved",
-        "chunk_index": chunk_index,
-        "total_chunks": total_chunks,
-        "progress": round((len(parts) / total_chunks) * 100, 1)
-    }
+    except Exception as e:
+        print(f"[upload_chunk error] {e}")
+        raise HTTPException(status_code=500, detail=f"分片写入失败: {str(e)}")
 
 def get_video_duration(video_path: str) -> float:
     try:
