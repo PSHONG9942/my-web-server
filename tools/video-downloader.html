@@ -1071,9 +1071,10 @@
             <div class="modal-body">
                 <label for="apiUrlInput">后端 API 基础地址 (Base URL)：</label>
                 <input type="text" id="apiUrlInput" class="modal-input" placeholder="https://pshong-nitro-an515-52.tail6ae6c3.ts.net:10000">
-                <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px;">
-                    默认线上地址为 <code>https://pshong-nitro-an515-52.tail6ae6c3.ts.net:10000</code>。如需切换为本地测试或其他服务器，请修改并保存。
-                </p>
+                <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.82rem; color: var(--text-muted);">🍪 服务器 Cookies 管理：</span>
+                    <button type="button" id="clearCookiesBtn" style="padding: 4px 10px; font-size: 0.78rem; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; border-radius: 6px; cursor: pointer; transition: all 0.2s;">清空服务器旧 Cookies</button>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn-modal-cancel" id="cancelSettingsBtn">取消</button>
@@ -1517,6 +1518,26 @@
 
         closeSettingsBtn.addEventListener("click", closeSettings);
         cancelSettingsBtn.addEventListener("click", closeSettings);
+
+        const clearCookiesBtn = document.getElementById("clearCookiesBtn");
+        if (clearCookiesBtn) {
+            clearCookiesBtn.addEventListener("click", async () => {
+                if (!confirm("确定要清空服务器上的旧 Cookies 文件吗？清空后将自动启用移动端免登录协议通道。")) return;
+                try {
+                    clearCookiesBtn.disabled = true;
+                    clearCookiesBtn.textContent = "正在清理...";
+                    const res = await apiFetch(`${API_BASE_URL}/api/cookies/clear`, { method: "POST" });
+                    const data = await res.json();
+                    alert(data.message || "已成功清空旧 Cookies！");
+                    checkBackendStatus();
+                } catch (e) {
+                    alert("清理失败: " + e.message);
+                } finally {
+                    clearCookiesBtn.disabled = false;
+                    clearCookiesBtn.textContent = "清空服务器旧 Cookies";
+                }
+            });
+        }
 
         saveSettingsBtn.addEventListener("click", () => {
             let val = apiUrlInput.value.trim();
