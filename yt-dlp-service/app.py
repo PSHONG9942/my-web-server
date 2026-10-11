@@ -73,9 +73,9 @@ tasks: Dict[str, Dict[str, Any]] = {}
 cache_store: Dict[str, str] = {}  # cache_key -> task_id
 
 
-# Retention policies: 30 minutes safety buffer & 5GB quota
+# Retention policies: 30 minutes safety buffer & 50GB quota
 CACHE_TTL_SECONDS = 1800  # 30 minutes
-MAX_STORAGE_BYTES = 5 * 1024 * 1024 * 1024  # 5 GB
+MAX_STORAGE_BYTES = 50 * 1024 * 1024 * 1024  # 50 GB
 COOKIES_FILE = BASE_DIR / "cookies.txt"
 
 class YtDlpCustomLogger:
@@ -131,11 +131,11 @@ def get_dir_size(path: Path) -> int:
         pass
     return total
 
-def cleanup_old_files():
+def cleanup_old_files(force_free: bool = False):
     """
     Cleans up files:
     1. Purges tasks older than 30 minutes.
-    2. Enforces LRU quota if downloads folder exceeds 5GB.
+    2. Enforces LRU quota if downloads folder exceeds 50GB or physical free space is under 5GB.
     """
     try:
         now = time.time()
@@ -144,15 +144,24 @@ def cleanup_old_files():
             if item.is_dir() and (now - item.stat().st_mtime > CACHE_TTL_SECONDS):
                 shutil.rmtree(item, ignore_errors=True)
 
-        # 2. Enforce total storage cap (LRU: remove oldest if > 5GB)
+        # 2. Enforce storage quota & disk free space
         total_size = get_dir_size(DOWNLOADS_DIR)
-        if total_size > MAX_STORAGE_BYTES:
+        try:
+            _, _, free_bytes = shutil.disk_usage(DOWNLOADS_DIR)
+        except Exception:
+            free_bytes = 10 * 1024 * 1024 * 1024
+
+        if total_size > MAX_STORAGE_BYTES or free_bytes < (5 * 1024 * 1024 * 1024) or force_free:
             dirs = [d for d in DOWNLOADS_DIR.iterdir() if d.is_dir()]
             dirs.sort(key=lambda d: d.stat().st_mtime)  # Oldest first
             for d in dirs:
                 shutil.rmtree(d, ignore_errors=True)
                 total_size = get_dir_size(DOWNLOADS_DIR)
-                if total_size <= (MAX_STORAGE_BYTES * 0.6):  # Reduced to 60%
+                try:
+                    _, _, free_bytes = shutil.disk_usage(DOWNLOADS_DIR)
+                except Exception:
+                    free_bytes = 10 * 1024 * 1024 * 1024
+                if total_size <= (MAX_STORAGE_BYTES * 0.5) and free_bytes >= (8 * 1024 * 1024 * 1024):
                     break
 
         # 3. Clean up in-memory task records
@@ -199,6 +208,14 @@ async def get_status():
     except Exception:
         pdf_online = pymupdf is not None
 
+    try:
+        total_d, _, free_d = shutil.disk_usage(DOWNLOADS_DIR)
+        disk_total_gb = round(total_d / (1024**3), 2)
+        disk_free_gb = round(free_d / (1024**3), 2)
+    except Exception:
+        disk_total_gb = 0.0
+        disk_free_gb = 0.0
+
     return {
         "status": "online",
         "service": "AI-Agent Multi-Modal Backend & Gateway",
@@ -210,6 +227,8 @@ async def get_status():
         "has_pymupdf": pymupdf is not None or pdf_online,
         "has_pptx": pptx is not None or pdf_online,
         "cache_count": len(cache_store),
+        "disk_free_gb": disk_free_gb,
+        "disk_total_gb": disk_total_gb,
         "gateway_services": {
             "ai_agent_8502": "online" if ai_online else "offline",
             "yt_dlp_8503": "online",
@@ -217,6 +236,60 @@ async def get_status():
         },
         "timestamp": time.time()
     }
+
+
+@app.get("/api/downloader/diagnostics")
+async def get_downloader_diagnostics():
+    """Provides server storage info, disk usage, active folders and recent download logs."""
+    try:
+        total, used, free = shutil.disk_usage(DOWNLOADS_DIR)
+        recent_logs = []
+        if AUDIT_LOG_FILE.exists():
+            with open(AUDIT_LOG_FILE, "r", encoding="utf-8", errors="replace") as f:
+                lines = f.readlines()
+                recent_logs = [line.strip() for line in lines[-50:]]
+        
+        task_folders = []
+        for item in DOWNLOADS_DIR.iterdir():
+            if item.is_dir():
+                task_folders.append({
+                    "name": item.name,
+                    "file_count": len(list(item.iterdir())),
+                    "size_mb": round(get_dir_size(item) / (1024 * 1024), 2),
+                    "age_minutes": round((time.time() - item.stat().st_mtime) / 60, 1)
+                })
+
+        return {
+            "status": "online",
+            "disk_total_gb": round(total / (1024**3), 2),
+            "disk_free_gb": round(free / (1024**3), 2),
+            "downloads_dir_mb": round(get_dir_size(DOWNLOADS_DIR) / (1024**2), 2),
+            "folder_count": len(task_folders),
+            "task_folders": task_folders,
+            "recent_logs": recent_logs,
+            "has_cookies": COOKIES_FILE.exists(),
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@app.post("/api/downloader/clean")
+async def clean_downloader_cache():
+    """Cleans up all cached/orphaned download folders to reclaim disk space."""
+    freed_bytes = 0
+    count = 0
+    for item in DOWNLOADS_DIR.iterdir():
+        if item.is_dir():
+            freed_bytes += get_dir_size(item)
+            shutil.rmtree(item, ignore_errors=True)
+            count += 1
+    return {
+        "success": True, 
+        "cleaned_folders": count, 
+        "freed_mb": round(freed_bytes / (1024 * 1024), 2),
+        "disk_free_gb": round(shutil.disk_usage(DOWNLOADS_DIR).free / (1024**3), 2)
+    }
+
 
 
 # =========================================================================
@@ -529,8 +602,17 @@ def run_download_task(
     task_dir = DOWNLOADS_DIR / task_id
     task_dir.mkdir(parents=True, exist_ok=True)
 
+    # Ensure at least 3GB free space before downloading
+    try:
+        _, _, free_space = shutil.disk_usage(DOWNLOADS_DIR)
+        if free_space < 3 * 1024 * 1024 * 1024:
+            cleanup_old_files(force_free=True)
+    except Exception:
+        pass
+
     outtmpl = str(task_dir / "%(playlist_index&{:02d} - |)s%(title).200B.%(ext)s")
     detected_playlist_title = [title_hint]
+    detected_playlist_total = [None]
 
     def progress_hook(d):
         info = d.get("info_dict", {})
@@ -542,6 +624,8 @@ def run_download_task(
 
         pl_idx = info.get("playlist_index")
         n_entries = info.get("n_entries") or info.get("playlist_count")
+        if n_entries and not detected_playlist_total[0]:
+            detected_playlist_total[0] = n_entries
         item_title = info.get("title") or ""
 
         speed = d.get("speed")
@@ -603,7 +687,8 @@ def run_download_task(
         "quiet": True,
         "socket_timeout": 30,
         "ignoreerrors": "only_download",
-        "max_downloads": 100,
+        "sleep_interval": 1,
+        "max_sleep_interval": 2,
     }
 
     if COOKIES_FILE.exists():
@@ -650,7 +735,10 @@ def run_download_task(
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([url])
+            try:
+                ydl.download([url])
+            except yt_dlp.utils.MaxDownloadsReached:
+                pass
 
         # Locate finished files
         files = list(task_dir.iterdir())
@@ -661,15 +749,16 @@ def run_download_task(
             and not f.name.endswith(".ytdl") 
             and not f.name.endswith(".temp")
         ]
+        # Extract diagnostic errors
+        clean_errors = []
+        for err in ytdl_logger.errors:
+            clean_err = re.sub(r"^ERROR:\s*(\[[^\]]+\]\s*)?", "", str(err)).strip()
+            if clean_err and clean_err not in clean_errors:
+                clean_errors.append(clean_err)
+        error_summary = " | ".join(clean_errors[:2]) if clean_errors else ""
+
         if not target_files:
-            if ytdl_logger.errors:
-                clean_errors = []
-                for err in ytdl_logger.errors:
-                    clean_err = re.sub(r"^ERROR:\s*(\[[^\]]+\]\s*)?", "", str(err)).strip()
-                    if clean_err and clean_err not in clean_errors:
-                        clean_errors.append(clean_err)
-                raise Exception(" | ".join(clean_errors[:2]) if clean_errors else "未能成功下载任何影音文件")
-            raise Exception("下载完成但未找到生成的文件")
+            raise Exception(f"未能成功下载任何影音文件: {error_summary}" if error_summary else "下载完成但未找到生成的文件")
 
         if len(target_files) == 1:
             final_file = target_files[0]
@@ -714,6 +803,14 @@ def run_download_task(
                 except Exception:
                     pass
 
+            total_expected = detected_playlist_total[0] or len(sorted_files)
+            skipped_count = max(0, total_expected - len(sorted_files))
+
+            if skipped_count > 0 and clean_errors:
+                stage_desc = f"播放列表部分完成：成功 {len(sorted_files)} 部，跳过 {skipped_count} 部失败项 (原因: {error_summary})"
+            else:
+                stage_desc = f"播放列表打包完成！共 {len(sorted_files)} 个文件"
+
             final_file = zip_filepath
             file_size = final_file.stat().st_size
             tasks[task_id].update({
@@ -722,12 +819,14 @@ def run_download_task(
                 "filename": zip_filename,
                 "file_size": file_size,
                 "filepath": str(final_file),
-                "stage": f"播放列表打包完成！共 {len(sorted_files)} 个文件",
+                "stage": stage_desc,
                 "is_playlist": True,
-                "file_count": len(sorted_files)
+                "file_count": len(sorted_files),
+                "skipped_count": skipped_count,
+                "skipped_reason": error_summary
             })
             cache_store[cache_key] = task_id
-            log_audit_event(url, f"[播放列表打包] {zip_filename} ({len(sorted_files)} 个文件)", format_type, quality, file_size, client_ip)
+            log_audit_event(url, f"[播放列表打包] {zip_filename} ({len(sorted_files)} 个文件，跳过 {skipped_count} 个)", format_type, quality, file_size, client_ip)
 
     except Exception as e:
         tasks[task_id].update({
@@ -1017,6 +1116,8 @@ async def get_task_status(task_id: str):
         "total_items": task.get("total_items", 1),
         "is_playlist": task.get("is_playlist", False),
         "file_count": task.get("file_count", 1),
+        "skipped_count": task.get("skipped_count", 0),
+        "skipped_reason": task.get("skipped_reason"),
         "filename": task.get("filename"),
         "file_size": task.get("file_size", 0),
         "error": task.get("error")
