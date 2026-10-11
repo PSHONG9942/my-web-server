@@ -45,11 +45,12 @@ chmod +x deploy_linux.sh
 
 ---
 
-### 第三步：永久固定公网隧道地址 (ngrok 专属网关)
+### 第三步：永久固定公网隧道地址 (Tailscale 专属网关)
 
-系统已配置单一永久固定公网隧道，免除每次重启需重新配置的烦恼：
-- **统一公网网关地址**：`https://swimming-easiness-strewn.ngrok-free.dev`
-- **后台 systemd 服务**：`ngrok.service` 开机自动守护，自动将请求分发至：
+系统已配置单一永久固定隧道，免除每次重启需重新配置的烦恼：
+- **统一公网网关地址**：`https://pshong-nitro-an515-52.tail6ae6c3.ts.net:10000`
+- **局域网/Tailnet 直连**：`http://100.126.25.46:8503`
+- **后台服务分发**：自动将请求分发至：
   - `8502`: AI-Agent 智能公文服务（包含多模态视觉与 Whisper）
   - `8503`: 视频下载助手服务
   - `8505`: PDF 结构化转 PPTX 服务
@@ -59,7 +60,7 @@ chmod +x deploy_linux.sh
   ```bash
   sudo systemctl status ai-agent --no-pager
   sudo systemctl status yt-dlp-service --no-pager
-  sudo systemctl status ngrok --no-pager
+  tailscale funnel status
   ```
 - **更新 AI-Agent 代码后重启**：
   ```bash
@@ -72,7 +73,7 @@ chmod +x deploy_linux.sh
 
 1. 打开浏览器访问：
    **`https://sjkcabm.pages.dev/tools/ai_agent`**（或本地 `tools/ai-agent.html`）。
-2. 网页已默认配置连接至 `https://swimming-easiness-strewn.ngrok-free.dev`，开箱即用。
+2. 网页已默认配置连接至 `https://pshong-nitro-an515-52.tail6ae6c3.ts.net:10000`，开箱即用。
 3. 状态栏显示 **`🟢 Agent 引擎在线 (v2.0.0)`** 即代表对接成功。
 
 ---
