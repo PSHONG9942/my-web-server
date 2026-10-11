@@ -1,7 +1,8 @@
 # PDF to PPTX 高清转换微服务
 
 ## 🌐 当前线上 API 网址
-- **ngrok 永久固定公网地址**：`https://swimming-easiness-strewn.ngrok-free.dev`
+- **Tailscale 永久固定公网地址**：`https://pshong-nitro-an515-52.tail6ae6c3.ts.net:10000`
+- **Tailnet 局域网直连地址**：`http://100.126.25.46:8503`
 - **本地回环地址**：`http://127.0.0.1:8505` (独立微服务) / `http://127.0.0.1:8503` (综合服务)
 
 - **前端工具页面**：[tools/pdf-to-pptx.html](../tools/pdf-to-pptx.html) 已默认配置该公网地址，访问网页直接连通自建后端算力。
