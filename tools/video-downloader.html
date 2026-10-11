@@ -1462,8 +1462,13 @@
                         startDownloadBtn.disabled = false;
 
                         if (task.is_playlist && task.file_count > 1) {
-                            progressStatusText.innerText = `🎉 播放列表已全部完成并打包为 ZIP！(共 ${task.file_count} 个文件)`;
-                            manualSaveBtn.innerHTML = `💾 点击直接保存 ZIP 压缩包 (${task.file_count} 首/部)`;
+                            if (task.skipped_count && task.skipped_count > 0) {
+                                progressStatusText.innerText = `⚠️ 播放列表部分完成：已打包 ${task.file_count} 个文件，跳过 ${task.skipped_count} 个失败项 (原因: ${task.skipped_reason || "磁盘空间不足或限制"})`;
+                                manualSaveBtn.innerHTML = `💾 点击直接保存 ZIP 压缩包 (已含 ${task.file_count} 首/部)`;
+                            } else {
+                                progressStatusText.innerText = `🎉 播放列表已全部完成并打包为 ZIP！(共 ${task.file_count} 个文件)`;
+                                manualSaveBtn.innerHTML = `💾 点击直接保存 ZIP 压缩包 (${task.file_count} 首/部)`;
+                            }
                         } else {
                             progressStatusText.innerText = `🎉 下载完成！`;
                             manualSaveBtn.innerHTML = `💾 点击直接保存文件到电脑`;
