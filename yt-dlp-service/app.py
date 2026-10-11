@@ -516,35 +516,36 @@ async def extract_info(req: InfoRequest):
         "skip_download": True,
         "extract_flat": "in_playlist",
         "socket_timeout": 20,
+        "source_address": "0.0.0.0",
     }
 
-    def _extract(use_cookies: bool = True):
+    def _extract(use_cookies: bool = True, client: str = "android"):
         opts = dict(ydl_opts)
+        opts["extractor_args"] = {
+            "youtube": {
+                "player_client": [client],
+                "player_skip": ["webpage", "configs"]
+            }
+        }
         if use_cookies and COOKIES_FILE.exists():
             opts["cookiefile"] = str(COOKIES_FILE)
-            opts["extractor_args"] = {
-                "youtube": {
-                    "player_client": ["android", "ios", "web"]
-                }
-            }
-        else:
-            opts["extractor_args"] = {
-                "youtube": {
-                    "player_client": ["android", "ios"]
-                }
-            }
+            opts["extractor_args"]["youtube"]["player_client"] = [client, "ios", "web"]
         with yt_dlp.YoutubeDL(opts) as ydl:
             return ydl.extract_info(req.url.strip(), download=False)
 
     try:
         try:
-            info = await asyncio.to_thread(_extract, True)
+            info = await asyncio.to_thread(_extract, True, "android")
         except Exception as first_err:
             err_str = str(first_err).lower()
-            if "bot" in err_str or "sign in" in err_str or "cookies" in err_str:
+            if "bot" in err_str or "sign in" in err_str or "cookies" in err_str or "format" in err_str:
                 # Triggered YouTube bot challenge on web cookies, automatically fallback to mobile client without cookies
-                print(f"[Bot/Cookie Bypass] YouTube bot challenge triggered: {first_err}. Retrying with mobile clients (android, ios)...")
-                info = await asyncio.to_thread(_extract, False)
+                print(f"[Bot/Cookie Bypass] YouTube bot challenge triggered: {first_err}. Retrying with android client without cookies...")
+                try:
+                    info = await asyncio.to_thread(_extract, False, "android")
+                except Exception as second_err:
+                    print(f"[Fallback 2] Android client failed: {second_err}. Retrying with tv_embedded...")
+                    info = await asyncio.to_thread(_extract, False, "tv_embedded")
             else:
                 raise first_err
     except Exception as e:
@@ -717,9 +718,11 @@ def run_download_task(
         "max_sleep_interval": 2,
     }
 
+    ydl_opts["source_address"] = "0.0.0.0"
     ydl_opts["extractor_args"] = {
         "youtube": {
-            "player_client": ["android", "ios", "web"]
+            "player_client": ["android", "ios", "web"],
+            "player_skip": ["webpage", "configs"]
         }
     }
     if COOKIES_FILE.exists():
@@ -784,7 +787,8 @@ def run_download_task(
                 fb_opts.pop("cookiefile", None)
                 fb_opts["extractor_args"] = {
                     "youtube": {
-                        "player_client": ["android", "ios"]
+                        "player_client": ["android"],
+                        "player_skip": ["webpage", "configs"]
                     }
                 }
                 with yt_dlp.YoutubeDL(fb_opts) as ydl_fb:
