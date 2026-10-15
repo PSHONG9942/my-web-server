@@ -1,0 +1,2215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生字笔顺课件生成器 (PPTX) - 华小老师专属数字化备课神器</title>
+    <meta name="description" content="专为马来西亚华小老师打造的生字课件神器。输入汉字词语，自动匹配拼音、部首、笔画，生成高清笔顺动态GIF并一键直出可编辑的 PowerPoint (PPTX) 幻灯片，大幅提升备课教学效率！">
+    <link rel="icon" href="../images/logo.png" type="image/png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+
+    <!-- Local & CDN fallback scripts -->
+    <script src="js/hanzi-writer.min.js"></script>
+    <script>
+        if (typeof HanziWriter === 'undefined') {
+            document.write('<script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"><\/script>');
+        }
+    </script>
+
+    <script src="js/gif.js"></script>
+    <script>
+        if (typeof GIF === 'undefined') {
+            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"><\/script>');
+        }
+    </script>
+
+    <script src="js/pptxgen.bundle.js"></script>
+    <script>
+        if (typeof PptxGenJS === 'undefined') {
+            document.write('<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"><\/script>');
+        }
+    </script>
+
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-hover: #0284c7;
+            --primary-glow: rgba(14, 165, 233, 0.35);
+            --accent: #8b5cf6;
+            --accent-glow: rgba(139, 92, 246, 0.3);
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.3);
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-base: #0b0f19;
+            --bg-card: rgba(17, 24, 39, 0.85);
+            --bg-card-hover: rgba(30, 41, 59, 0.9);
+            --bg-input: rgba(15, 23, 42, 0.9);
+            --border-card: rgba(255, 255, 255, 0.1);
+            --border-glow: rgba(14, 165, 233, 0.45);
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --text-muted: #64748b;
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 8px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-base);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.16) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.16) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        /* Top Nav */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1560px;
+            margin: 0 auto 18px;
+            width: 100%;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-sub);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-card);
+            transition: var(--transition);
+        }
+
+        .back-link:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+            transform: translateX(-3px);
+        }
+
+        .badge-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 13px;
+            font-weight: 500;
+            background: rgba(16, 185, 129, 0.12);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-status .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #34d399;
+            box-shadow: 0 0 8px #34d399;
+            animation: pulseDot 2s infinite;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.85); }
+        }
+
+        /* Hero */
+        .hero-section {
+            text-align: center;
+            max-width: 1100px;
+            margin: 0 auto 20px;
+        }
+
+        .hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.12);
+            padding: 4px 14px;
+            border-radius: 9999px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(56, 189, 248, 0.25);
+        }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 1.25;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #ffffff 30%, #38bdf8 70%, #818cf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-desc {
+            color: var(--text-sub);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Main Workspace Grid */
+        .workspace {
+            display: grid;
+            grid-template-columns: 430px 1fr;
+            gap: 24px;
+            max-width: 1560px;
+            margin: 0 auto;
+            width: 100%;
+            align-items: start;
+        }
+
+        /* Glass Panel */
+        .glass-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-lg);
+            padding: 22px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-sub);
+            margin-bottom: 6px;
+        }
+
+        .form-label span.req {
+            color: #f43f5e;
+            margin-left: 2px;
+        }
+
+        .input-text, select.input-select, textarea.input-textarea {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-sm);
+            padding: 9px 12px;
+            color: var(--text-main);
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .input-text:focus, select.input-select:focus, textarea.input-textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+            background: rgba(15, 23, 42, 1);
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        /* Column count stepper */
+        .cols-stepper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stepper-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border-card);
+            color: var(--text-main);
+            width: 32px;
+            height: 34px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .stepper-btn:hover:not(:disabled) {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .stepper-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .stepper-val {
+            min-width: 44px;
+            text-align: center;
+            font-size: 15px;
+            font-weight: 700;
+            color: #38bdf8;
+        }
+
+        /* Speed Slider Control */
+        .speed-slider-box {
+            background: var(--bg-input);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-card);
+        }
+
+        .speed-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .speed-slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.15);
+            outline: none;
+            cursor: pointer;
+            accent-color: #0ea5e9;
+        }
+
+        .speed-quick-buttons {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .speed-quick-btn {
+            flex: 1;
+            padding: 3px 6px;
+            font-size: 11px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-sub);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .speed-quick-btn:hover, .speed-quick-btn.active {
+            color: #38bdf8;
+            border-color: #38bdf8;
+            background: rgba(56, 189, 248, 0.14);
+        }
+
+        /* Preset Pills */
+        .preset-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .pill-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-sub);
+            padding: 3px 9px;
+            font-size: 12px;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .pill-btn:hover {
+            color: #38bdf8;
+            border-color: #38bdf8;
+            background: rgba(56, 189, 248, 0.12);
+        }
+
+        /* Color Chips */
+        .color-chips {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+
+        .color-chip {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: var(--transition);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        .color-chip:hover {
+            transform: scale(1.15);
+        }
+
+        .color-chip.active {
+            border-color: #ffffff;
+            box-shadow: 0 0 10px #ffffff;
+            transform: scale(1.15);
+        }
+
+        /* Slide Preview Canvas */
+        .preview-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            position: relative;
+        }
+
+        .preview-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 4px;
+        }
+
+        .preview-meta-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text-sub);
+        }
+
+        .preview-badge {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        /* 16:9 Realistic PPT Slide */
+        .slide-frame-container {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            position: relative;
+            background-color: #FFFFFF;
+            color: #000000;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+            padding: 2.2% 3.5% 2.8%;
+        }
+
+        /* Fullscreen styles for Smartboard */
+        .slide-frame-container:fullscreen,
+        .slide-frame-container:-webkit-full-screen,
+        .slide-frame-container.is-fullscreen,
+        .slide-frame-container.is-web-fullscreen {
+            width: 100vw !important;
+            height: 100vh !important;
+            border-radius: 0 !important;
+            border: none !important;
+            padding: 2vh 3.5vw !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            background-color: #FFFFFF !important;
+        }
+
+        .slide-frame-container.is-web-fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            z-index: 999999 !important;
+        }
+
+        /* Fullscreen Floating Smartboard Bar */
+        .fullscreen-toolbar {
+            position: fixed;
+            top: 20px;
+            right: 25px;
+            z-index: 9999999;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            padding: 10px 18px;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6);
+            animation: fadeInToolbar 0.3s ease;
+        }
+
+        @keyframes fadeInToolbar {
+            from { opacity: 0; transform: translateY(-12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-frame-container:fullscreen .fullscreen-toolbar,
+        .slide-frame-container:-webkit-full-screen .fullscreen-toolbar,
+        .slide-frame-container.is-fullscreen .fullscreen-toolbar,
+        .slide-frame-container.is-web-fullscreen .fullscreen-toolbar {
+            display: flex !important;
+        }
+
+        .fs-btn {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 9px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            user-select: none;
+        }
+
+        .fs-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .fs-btn-exit {
+            background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+            border-color: #f87171 !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            padding: 9px 20px !important;
+            font-size: 15px !important;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.5) !important;
+        }
+
+        .fs-btn-exit:hover, .fs-btn-exit:active {
+            background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+            transform: scale(1.08) !important;
+        }
+
+        .fs-page-badge {
+            color: #38bdf8;
+            font-weight: bold;
+            font-size: 14px;
+            padding: 0 4px;
+        }
+
+        /* Slide Header: Weekday (Left), Title (Center), Date (Right) */
+        .slide-header-bar {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 2%;
+            font-family: 'KaiTi', '楷体', 'STKaiti', serif;
+        }
+
+        .header-weekday {
+            text-align: left;
+            font-size: clamp(20px, 2.7vw, 36px);
+            font-weight: bold;
+            letter-spacing: 0.06em;
+            color: inherit;
+        }
+
+        .header-title {
+            text-align: center;
+            font-size: clamp(22px, 3.1vw, 42px);
+            font-weight: bold;
+            letter-spacing: 0.08em;
+            color: inherit;
+            white-space: nowrap;
+        }
+
+        .header-date {
+            text-align: right;
+            font-size: clamp(20px, 2.7vw, 36px);
+            font-weight: bold;
+            letter-spacing: 0.04em;
+            font-family: Arial, sans-serif;
+            color: inherit;
+        }
+
+        /* 5-Row x N-Col Table Container */
+        .table-grid-wrapper {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid #222222;
+            background: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            position: relative;
+        }
+
+        /* Grid Rows */
+        .table-row {
+            display: flex;
+            width: 100%;
+            border-bottom: 1.5px solid #333333;
+        }
+
+        .table-row:last-child {
+            border-bottom: none;
+        }
+
+        .table-row-hanzi {
+            height: 25.5%;
+        }
+
+        .table-row-pinyin {
+            height: 14%;
+        }
+
+        .table-row-strokes {
+            height: 14%;
+        }
+
+        .table-row-radical {
+            height: 21%;
+        }
+
+        .table-row-practice {
+            height: 25.5%;
+        }
+
+        /* Cells */
+        .table-cell {
+            flex: 1;
+            border-right: 1.5px solid #333333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background: #ffffff;
+        }
+
+        .table-cell:last-child {
+            border-right: none;
+        }
+
+        /* True Square Tianzige Box */
+        .tianzi-square-box {
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
+            aspect-ratio: 1 / 1;
+            position: relative;
+            margin: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tianzi-line-h {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 0;
+            border-top: 1.5px dashed rgba(160, 160, 160, 0.85);
+            transform: translateY(-50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .tianzi-line-v {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 0;
+            height: 100%;
+            border-left: 1.5px dashed rgba(160, 160, 160, 0.85);
+            transform: translateX(-50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .mizi-line-1 {
+            position: absolute;
+            width: 141.4%;
+            height: 0;
+            top: 0;
+            left: -20.7%;
+            transform: rotate(45deg);
+            transform-origin: center;
+            border-top: 1.5px dashed rgba(190, 190, 190, 0.7);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .mizi-line-2 {
+            position: absolute;
+            width: 141.4%;
+            height: 0;
+            bottom: 0;
+            left: -20.7%;
+            transform: rotate(-45deg);
+            transform-origin: center;
+            border-top: 1.5px dashed rgba(190, 190, 190, 0.7);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Inside Writer Div */
+        .cell-writer-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .cell-writer-container svg {
+            display: block;
+            margin: auto;
+        }
+
+        /* Text Cells */
+        .cell-text {
+            font-size: clamp(14px, 1.9vw, 28px);
+            font-weight: bold;
+            color: #111827;
+            text-align: center;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: text;
+            padding: 2px 4px;
+            transition: var(--transition);
+        }
+
+        .cell-text:hover {
+            background: rgba(14, 165, 233, 0.1);
+        }
+
+        .cell-text-pinyin {
+            font-family: Arial, sans-serif;
+            font-weight: 700;
+        }
+
+        .cell-text-strokes {
+            font-family: Arial, sans-serif;
+            font-weight: 700;
+        }
+
+        .cell-text-radical {
+            font-family: 'KaiTi', '楷体', serif;
+            font-size: clamp(18px, 2.3vw, 34px);
+        }
+
+        /* Action Buttons Area */
+        .action-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            outline: none;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            color: #ffffff;
+            box-shadow: 0 4px 14px var(--primary-glow);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px var(--primary-glow);
+        }
+
+        .btn-accent {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #ffffff;
+            box-shadow: 0 4px 14px var(--success-glow);
+        }
+
+        .btn-accent:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+            border: 1px solid var(--border-card);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Slide Pagination Controls */
+        .pagination-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 6px;
+        }
+
+        .page-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border-card);
+            color: var(--text-main);
+            padding: 6px 16px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 13px;
+            transition: var(--transition);
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .page-indicator {
+            font-size: 14px;
+            font-weight: 700;
+            color: #38bdf8;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-box {
+            background: #111827;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 520px;
+            padding: 30px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+            text-align: center;
+            position: relative;
+        }
+
+        .modal-icon {
+            font-size: 44px;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .modal-desc {
+            font-size: 13px;
+            color: var(--text-sub);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .progress-track {
+            background: rgba(255, 255, 255, 0.1);
+            height: 10px;
+            border-radius: 9999px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #0ea5e9, #10b981);
+            border-radius: 9999px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-step-text {
+            font-size: 13px;
+            font-weight: 500;
+            color: #38bdf8;
+            margin-bottom: 6px;
+        }
+
+        .edit-tip-banner {
+            background: rgba(14, 165, 233, 0.1);
+            border: 1px dashed rgba(14, 165, 233, 0.35);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            font-size: 12px;
+            color: #38bdf8;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <a href="../index.html" class="back-link">
+            <span>←</span> 返回华小老师数字教具主页
+        </a>
+        <div class="badge-status">
+            <span class="dot"></span>
+            <span id="dictStatusText">离线字典加载中...</span>
+        </div>
+    </nav>
+
+    <!-- Hero Header -->
+    <header class="hero-section">
+        <div class="hero-tag">✨ 华小教师专属 · 高效数字化课件工坊</div>
+        <h1 class="hero-title">生字笔顺课件生成器 (PPTX)</h1>
+        <p class="hero-desc">默认 5 行 9 列田字格课件排版，输入生字词语自动以空格分列，笔顺动图无限循环书写，一键直出标准 PowerPoint 课件！</p>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="workspace">
+
+        <!-- Left Configuration Workspace -->
+        <section class="glass-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span>⚙️</span> 课件参数与排版设置
+                </div>
+            </div>
+
+            <!-- Vocabulary Input with space separation -->
+            <div class="form-group">
+                <div class="form-label">
+                    <span>生字词语输入（空格分列） <span class="req">*</span></span>
+                    <span style="font-size: 12px; color: var(--text-muted);">词语间空格将保留空列</span>
+                </div>
+                <textarea id="hanziInput" class="input-textarea" rows="3" placeholder="输入生字词语，以空格分列，如：青蛙 想 捉 荷叶 跳">青蛙 想 捉 荷叶 跳</textarea>
+                
+                <div class="preset-pills">
+                    <span style="font-size: 12px; color: var(--text-muted); align-self: center;">快捷范例：</span>
+                    <button class="pill-btn" onclick="setWord('青蛙 想 捉 荷叶 跳')">青蛙 想 捉 荷叶 跳</button>
+                    <button class="pill-btn" onclick="setWord('老少咸宜 欣欣向荣')">老少咸宜 欣欣向荣</button>
+                    <button class="pill-btn" onclick="setWord('春风化雨 润物无声')">春风化雨 润物无声</button>
+                    <button class="pill-btn" onclick="setWord('学无止境 勇往直前')">学无止境 勇往直前</button>
+                </div>
+            </div>
+
+            <!-- Column Count Setting -->
+            <div class="form-group">
+                <div class="form-label">
+                    <span>田字格列数设置</span>
+                    <span style="font-size: 12px; color: #38bdf8;">默认 9 列，可根据学生增减</span>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-input); padding: 8px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-card);">
+                    <span style="font-size: 14px; color: var(--text-main);">每页幻灯片列数：</span>
+                    <div class="cols-stepper">
+                        <button class="stepper-btn" onclick="adjustCols(-1)">−</button>
+                        <span class="stepper-val" id="colsValDisplay">9 列</span>
+                        <button class="stepper-btn" onclick="adjustCols(1)">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stroke Animation Speed Control -->
+            <div class="form-group">
+                <div class="form-label">
+                    <span>笔顺动画书写速度</span>
+                    <span style="font-size: 12px; color: #38bdf8;" id="speedValText">1.2x (标准)</span>
+                </div>
+                <div class="speed-slider-box">
+                    <div class="speed-header">
+                        <span style="color: var(--text-muted); font-size: 12px;">慢速观察 (0.5x)</span>
+                        <input type="range" id="speedSlider" class="speed-slider" min="0.5" max="2.5" step="0.1" value="1.2" oninput="handleSpeedChange(this.value)">
+                        <span style="color: var(--text-muted); font-size: 12px;">快速复习 (2.5x)</span>
+                    </div>
+                    <div class="speed-quick-buttons">
+                        <button type="button" class="speed-quick-btn" onclick="applyPresetSpeed(0.7)">0.7x 极缓</button>
+                        <button type="button" class="speed-quick-btn" onclick="applyPresetSpeed(0.9)">0.9x 较慢</button>
+                        <button type="button" class="speed-quick-btn active" id="speedBtn_1_2" onclick="applyPresetSpeed(1.2)">1.2x 标准</button>
+                        <button type="button" class="speed-quick-btn" onclick="applyPresetSpeed(1.6)">1.6x 较快</button>
+                        <button type="button" class="speed-quick-btn" onclick="applyPresetSpeed(2.0)">2.0x 极速</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide Title, Weekday & Date -->
+            <div class="form-group">
+                <div class="form-label">
+                    <span>课题与标题（显示在中间上方）</span>
+                </div>
+                <input type="text" id="lessonTitleInput" class="input-text" value="生字（22）" placeholder="如：生字（22）、生字新词">
+                <div class="preset-pills">
+                    <button class="pill-btn" onclick="setTitle('生字（22）')">生字（22）</button>
+                    <button class="pill-btn" onclick="setTitle('生字（23）')">生字（23）</button>
+                    <button class="pill-btn" onclick="setTitle('生字新词')">生字新词</button>
+                    <button class="pill-btn" onclick="setTitle('每日识字')">每日识字</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="input-row">
+                    <div>
+                        <div class="form-label"><span>星期（左侧上方）</span></div>
+                        <input type="text" id="weekdayInput" class="input-text" value="星期一" placeholder="如：星期一">
+                    </div>
+                    <div>
+                        <div class="form-label"><span>日期（右侧上方）</span></div>
+                        <input type="text" id="dateInput" class="input-text" value="17. 08. 2026" placeholder="如：17. 08. 2026">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid Style & Colors -->
+            <div class="form-group">
+                <div class="input-row">
+                    <div>
+                        <div class="form-label"><span>第一行网格类型</span></div>
+                        <select id="gridTypeSelect" class="input-select" onchange="updateGridType()">
+                            <option value="tianzi" selected>田字格 (四方定位)</option>
+                            <option value="mizi">米字格 (八方参考)</option>
+                            <option value="none">无格 (纯粹汉字)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <div class="form-label"><span>笔画主色</span></div>
+                        <div class="color-chips" id="strokeColorChips">
+                            <div class="color-chip active" style="background: #E53E3E;" onclick="setStrokeColor('#E53E3E', this)"></div>
+                            <div class="color-chip" style="background: #0284c7;" onclick="setStrokeColor('#0284c7', this)"></div>
+                            <div class="color-chip" style="background: #111827;" onclick="setStrokeColor('#111827', this)"></div>
+                            <div class="color-chip" style="background: #F59E0B;" onclick="setStrokeColor('#F59E0B', this)"></div>
+                            <div class="color-chip" style="background: #10B981;" onclick="setStrokeColor('#10B981', this)"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="form-label"><span>部首高亮区分色</span></div>
+                <div class="color-chips" id="radicalColorChips">
+                    <div class="color-chip active" style="background: #06b6d4;" onclick="setRadicalColor('#06b6d4', this)"></div>
+                    <div class="color-chip" style="background: #10B981;" onclick="setRadicalColor('#10B981', this)"></div>
+                    <div class="color-chip" style="background: #F59E0B;" onclick="setRadicalColor('#F59E0B', this)"></div>
+                    <div class="color-chip" style="background: #8b5cf6;" onclick="setRadicalColor('#8b5cf6', this)"></div>
+                    <div class="color-chip" style="background: #E53E3E;" onclick="setRadicalColor('#E53E3E', this)"></div>
+                </div>
+            </div>
+
+            <div class="edit-tip-banner">
+                <span>💡 提示：在右侧幻灯片中，点击拼音、笔画、部首即可直接修改！动图会自动无限循环书写。全屏模式下点击右上角红色按钮即可随手退出。</span>
+            </div>
+
+        </section>
+
+        <!-- Right Preview Canvas Workspace -->
+        <section class="preview-wrapper">
+            
+            <div class="preview-topbar">
+                <div class="preview-meta-info">
+                    <span class="preview-badge">16:9 Widescreen</span>
+                    <span>PowerPoint 教学课件实机画面预览 (5行 <span id="colsTagDisplay">9</span> 列)</span>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-secondary" style="padding: 6px 14px; font-size: 13px;" onclick="enterFullscreen()">
+                        <span>⛶</span> 全屏大屏投影
+                    </button>
+                </div>
+            </div>
+
+            <!-- Slide Frame Container (16:9) -->
+            <div id="slideFrame" class="slide-frame-container">
+                
+                <!-- Floating Smartboard Toolbar (Visible in Fullscreen for Touch Screens) -->
+                <div id="fullscreenToolbar" class="fullscreen-toolbar">
+                    <button class="fs-btn" id="fsPrevBtn" onclick="changeSlide(-1)">◀ 上一页</button>
+                    <span class="fs-page-badge" id="fsPageBadge">第 1 / 2 页</span>
+                    <button class="fs-btn" id="fsNextBtn" onclick="changeSlide(1)">下一页 ▶</button>
+                    <button class="fs-btn" id="fsSpeedBtn" onclick="cycleSpeed()" title="点击直接切换笔顺速度">⚡ 速度: <span id="fsSpeedText">1.2x</span></button>
+                    <button class="fs-btn" onclick="restartAllAnimations()">🔄 重播</button>
+                    <button class="fs-btn fs-btn-exit" onclick="exitFullscreen()">✕ 退出全屏</button>
+                </div>
+
+                <!-- Slide Header: Weekday (Left), Title (Center), Date (Right) -->
+                <div class="slide-header-bar">
+                    <div class="header-weekday" id="previewWeekday">星期一</div>
+                    <div class="header-title" id="previewTitle">生字（22）</div>
+                    <div class="header-date" id="previewDate">17. 08. 2026</div>
+                </div>
+
+                <!-- 5-Row x N-Col Table Grid -->
+                <div class="table-grid-wrapper" id="tableGridContainer">
+                    <!-- Rows & Cells will be rendered here dynamically -->
+                </div>
+
+            </div>
+
+            <!-- Slide Pagination Controls (For words exceeding column count) -->
+            <div class="pagination-bar" id="paginationBar">
+                <button class="page-btn" id="prevSlideBtn" onclick="changeSlide(-1)">◀ 上一页</button>
+                <span class="page-indicator" id="slideIndicator">第 1 页 / 共 2 页</span>
+                <button class="page-btn" id="nextSlideBtn" onclick="changeSlide(1)">下一页 ▶</button>
+            </div>
+
+            <!-- Action Bar -->
+            <div class="action-bar">
+                <button class="btn btn-primary" id="exportPptxBtn" onclick="startExportPPTX()" style="font-size: 16px; padding: 14px 28px;">
+                    <span>🚀</span> 一键生成并导出 PPTX 课件
+                </button>
+                <button class="btn btn-accent" onclick="downloadAllGifs()" style="font-size: 14px; padding: 12px 18px;">
+                    <span>📥</span> 单独打包下载笔顺 GIF
+                </button>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Export Progress Modal -->
+    <div class="modal-overlay" id="progressModal">
+        <div class="modal-box">
+            <div class="modal-icon">🪄</div>
+            <h3 class="modal-title" id="modalTitle">正在烘焙 5行9列 生字 PPTX 课件...</h3>
+            <p class="modal-desc" id="modalDesc">系统正在捕获汉字动态笔顺并排版 16:9 PowerPoint 演示文稿，请稍候片刻。</p>
+            
+            <div class="progress-step-text" id="progressStepText">正在准备汉字矢量骨架...</div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 14px;">
+                💡 导出的 PPTX 演示文稿在课室放映幻灯片 (按 F5) 时，汉字笔顺会自动持续循环书写。
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts Logic -->
+    <script>
+        // --- State Management ---
+        let hanziDict = {}; // 14,809 words
+        let numCols = 9; // Default 9 columns
+        let allSlidesCols = []; // array of slides, each slide has numCols cells
+        let currentSlideIndex = 0;
+        let gridType = 'tianzi'; // Default tianzi
+        let strokeColor = '#E53E3E'; // Red strokes
+        let radicalColor = '#06b6d4'; // Cyan radical (as in screenshot)
+        let currentSpeed = 1.2; // Speed multiplier
+        let activeWriters = {}; // key: `cellIndex` -> HanziWriter instance
+        let loopTimers = {};
+
+        // --- Init Date & Weekday ---
+        function initDateTime() {
+            const now = new Date();
+            const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            const weekday = weekdays[now.getDay()];
+            
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = now.getFullYear();
+            const dateStr = `${day}. ${month}. ${year}`;
+
+            document.getElementById('weekdayInput').value = weekday;
+            document.getElementById('dateInput').value = dateStr;
+
+            document.getElementById('previewWeekday').textContent = weekday;
+            document.getElementById('previewDate').textContent = dateStr;
+        }
+
+        // --- Load Dictionary ---
+        async function loadDictionary() {
+            const statusText = document.getElementById('dictStatusText');
+            try {
+                const res = await fetch('dict_hanzi.json');
+                if (res.ok) {
+                    hanziDict = await res.json();
+                    statusText.textContent = `📗 离线字典就绪 (${Object.keys(hanziDict).length.toLocaleString()} 字)`;
+                } else {
+                    throw new Error('Failed to load dict_hanzi.json');
+                }
+            } catch (err) {
+                console.warn('Fallback to word.json:', err);
+                try {
+                    const fallbackRes = await fetch('word.json');
+                    if (fallbackRes.ok) {
+                        const wordArr = await fallbackRes.json();
+                        wordArr.forEach(item => {
+                            if (item.word && item.word.length === 1) {
+                                let r = item.radicals || '无';
+                                if (item.more) {
+                                    const m = item.more.match(/部首\s+(.+?)\s+部首笔画/);
+                                    if (m && m[1]) r = m[1].trim();
+                                }
+                                hanziDict[item.word] = {
+                                    p: item.pinyin ? item.pinyin.split(' ')[0] : '无',
+                                    s: item.strokes || '无',
+                                    r: r
+                                };
+                            }
+                        });
+                        statusText.textContent = `📗 字典就绪 (${Object.keys(hanziDict).length.toLocaleString()} 字)`;
+                    }
+                } catch (e2) {
+                    statusText.textContent = `⚠️ 字典加载异常，已启用在线模式`;
+                }
+            }
+            parseAndRender();
+        }
+
+        // Lookup character info
+        function getCharData(char) {
+            if (hanziDict[char]) {
+                return {
+                    char: char,
+                    pinyin: hanziDict[char].p || '无',
+                    strokes: hanziDict[char].s || '无',
+                    radical: hanziDict[char].r || '无'
+                };
+            }
+            return {
+                char: char,
+                pinyin: 'wú',
+                strokes: '—',
+                radical: '—'
+            };
+        }
+
+        // --- Stepper for Columns ---
+        function adjustCols(delta) {
+            numCols = Math.max(4, Math.min(14, numCols + delta));
+            document.getElementById('colsValDisplay').textContent = `${numCols} 列`;
+            document.getElementById('colsTagDisplay').textContent = numCols;
+            currentSlideIndex = 0;
+            parseAndRender();
+        }
+
+        // --- Speed Controls ---
+        function handleSpeedChange(val) {
+            currentSpeed = parseFloat(val);
+            updateSpeedDisplay();
+            restartAllAnimations();
+        }
+
+        function applyPresetSpeed(val) {
+            currentSpeed = val;
+            document.getElementById('speedSlider').value = val;
+            updateSpeedDisplay();
+            restartAllAnimations();
+        }
+
+        function updateSpeedDisplay() {
+            let label = `${currentSpeed.toFixed(1)}x`;
+            if (currentSpeed <= 0.7) label += ' (极缓)';
+            else if (currentSpeed <= 0.9) label += ' (较慢)';
+            else if (currentSpeed <= 1.3) label += ' (标准)';
+            else if (currentSpeed <= 1.7) label += ' (较快)';
+            else label += ' (极速)';
+            document.getElementById('speedValText').textContent = label;
+
+            const fsSpeed = document.getElementById('fsSpeedText');
+            if (fsSpeed) {
+                fsSpeed.textContent = `${currentSpeed.toFixed(1)}x`;
+            }
+
+            document.querySelectorAll('.speed-quick-btn').forEach(btn => {
+                const bVal = parseFloat(btn.textContent);
+                if (Math.abs(bVal - currentSpeed) < 0.05) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        const speedCycleList = [0.7, 0.9, 1.2, 1.6, 2.0];
+        function cycleSpeed() {
+            let nextIdx = speedCycleList.findIndex(s => Math.abs(s - currentSpeed) < 0.05);
+            nextIdx = (nextIdx + 1) % speedCycleList.length;
+            applyPresetSpeed(speedCycleList[nextIdx]);
+        }
+
+        // --- Space-Separated Parsing into Slides ---
+        function parseInputIntoSlides(text, maxCols) {
+            const slides = [];
+            let currentSlide = [];
+
+            for (let i = 0; i < text.length; i++) {
+                const ch = text[i];
+
+                if (ch === '\n' || ch === '\r') {
+                    if (currentSlide.length > 0) {
+                        while (currentSlide.length < maxCols) {
+                            currentSlide.push({ type: 'empty' });
+                        }
+                        slides.push(currentSlide);
+                        currentSlide = [];
+                    }
+                    continue;
+                }
+
+                if (ch === ' ' || ch === '\t' || ch === '　') {
+                    if (currentSlide.length === 0) continue;
+                    if (currentSlide.length >= maxCols) {
+                        slides.push(currentSlide);
+                        currentSlide = [];
+                        continue;
+                    }
+                    currentSlide.push({ type: 'empty' });
+                } else {
+                    if (currentSlide.length >= maxCols) {
+                        slides.push(currentSlide);
+                        currentSlide = [];
+                    }
+                    currentSlide.push({ type: 'char', char: ch });
+                }
+            }
+
+            if (currentSlide.length > 0) {
+                while (currentSlide.length < maxCols) {
+                    currentSlide.push({ type: 'empty' });
+                }
+                slides.push(currentSlide);
+            }
+
+            if (slides.length === 0) {
+                slides.push(Array(maxCols).fill({ type: 'empty' }));
+            }
+
+            return slides;
+        }
+
+        // --- Parse & Render Main View ---
+        function parseAndRender() {
+            const rawText = document.getElementById('hanziInput').value;
+            allSlidesCols = parseInputIntoSlides(rawText, numCols);
+
+            if (currentSlideIndex >= allSlidesCols.length) {
+                currentSlideIndex = 0;
+            }
+
+            // Pagination Controls
+            const paginationBar = document.getElementById('paginationBar');
+            const totalSlides = allSlidesCols.length;
+            if (totalSlides > 1) {
+                paginationBar.style.display = 'flex';
+                document.getElementById('slideIndicator').textContent = `第 ${currentSlideIndex + 1} 页 / 共 ${totalSlides} 页`;
+                document.getElementById('fsPageBadge').textContent = `第 ${currentSlideIndex + 1} / ${totalSlides} 页`;
+                document.getElementById('prevSlideBtn').disabled = currentSlideIndex === 0;
+                document.getElementById('nextSlideBtn').disabled = currentSlideIndex === totalSlides - 1;
+                document.getElementById('fsPrevBtn').disabled = currentSlideIndex === 0;
+                document.getElementById('fsNextBtn').disabled = currentSlideIndex === totalSlides - 1;
+            } else {
+                paginationBar.style.display = 'none';
+                document.getElementById('fsPageBadge').textContent = `第 1 / 1 页`;
+                document.getElementById('fsPrevBtn').disabled = true;
+                document.getElementById('fsNextBtn').disabled = true;
+            }
+
+            renderCurrentSlideTable();
+        }
+
+        // Clean up loop timers and writers
+        function clearAllWriters() {
+            Object.values(loopTimers).forEach(t => clearTimeout(t));
+            loopTimers = {};
+            activeWriters = {};
+        }
+
+        // Render the 5-row table for current slide
+        function renderCurrentSlideTable() {
+            clearAllWriters();
+
+            const tableContainer = document.getElementById('tableGridContainer');
+            tableContainer.innerHTML = '';
+
+            const currentCols = allSlidesCols[currentSlideIndex] || Array(numCols).fill({ type: 'empty' });
+
+            // 1. Row 1: Hanzi / Animated GIF
+            const row1 = document.createElement('div');
+            row1.className = 'table-row table-row-hanzi';
+
+            // 2. Row 2: Pinyin
+            const row2 = document.createElement('div');
+            row2.className = 'table-row table-row-pinyin';
+
+            // 3. Row 3: Stroke Count
+            const row3 = document.createElement('div');
+            row3.className = 'table-row table-row-strokes';
+
+            // 4. Row 4: Radical
+            const row4 = document.createElement('div');
+            row4.className = 'table-row table-row-radical';
+
+            // 5. Row 5: Blank Practice Tianzige
+            const row5 = document.createElement('div');
+            row5.className = 'table-row table-row-practice';
+
+            for (let c = 0; c < numCols; c++) {
+                const cellData = currentCols[c] || { type: 'empty' };
+                const isChar = cellData.type === 'char';
+                const char = isChar ? cellData.char : '';
+                const info = isChar ? getCharData(char) : { pinyin: '', strokes: '', radical: '' };
+
+                // --- Cell 1: Hanzi Tianzige Box ---
+                const cell1 = document.createElement('div');
+                cell1.className = 'table-cell';
+
+                const squareBox1 = document.createElement('div');
+                squareBox1.className = 'tianzi-square-box';
+                squareBox1.id = `tianzi_box_${c}`;
+
+                if (gridType !== 'none') {
+                    const hLine = document.createElement('div');
+                    hLine.className = 'tianzi-line-h';
+                    const vLine = document.createElement('div');
+                    vLine.className = 'tianzi-line-v';
+                    squareBox1.appendChild(hLine);
+                    squareBox1.appendChild(vLine);
+
+                    if (gridType === 'mizi') {
+                        const m1 = document.createElement('div');
+                        m1.className = 'mizi-line-1';
+                        const m2 = document.createElement('div');
+                        m2.className = 'mizi-line-2';
+                        squareBox1.appendChild(m1);
+                        squareBox1.appendChild(m2);
+                    }
+                }
+
+                if (isChar) {
+                    const writerDiv = document.createElement('div');
+                    writerDiv.id = `writer_cell_${c}`;
+                    writerDiv.className = 'cell-writer-container';
+                    squareBox1.appendChild(writerDiv);
+
+                    // Initialize HanziWriter with square dimensions
+                    setTimeout(() => {
+                        initInfiniteLoopWriter(writerDiv.id, char, c);
+                    }, 30 * c);
+                }
+                cell1.appendChild(squareBox1);
+                row1.appendChild(cell1);
+
+                // --- Cell 2: Pinyin ---
+                const cell2 = document.createElement('div');
+                cell2.className = 'table-cell';
+                const pinyinText = document.createElement('div');
+                pinyinText.className = 'cell-text cell-text-pinyin';
+                pinyinText.contentEditable = isChar ? 'true' : 'false';
+                pinyinText.spellcheck = false;
+                pinyinText.textContent = info.pinyin;
+                pinyinText.id = `pinyin_val_${c}`;
+                pinyinText.title = isChar ? '点击可直接修改拼音' : '';
+                cell2.appendChild(pinyinText);
+                row2.appendChild(cell2);
+
+                // --- Cell 3: Strokes ---
+                const cell3 = document.createElement('div');
+                cell3.className = 'table-cell';
+                const strokeText = document.createElement('div');
+                strokeText.className = 'cell-text cell-text-strokes';
+                strokeText.contentEditable = isChar ? 'true' : 'false';
+                strokeText.spellcheck = false;
+                strokeText.textContent = info.strokes;
+                strokeText.id = `stroke_val_${c}`;
+                strokeText.title = isChar ? '点击可直接修改笔画数' : '';
+                cell3.appendChild(strokeText);
+                row3.appendChild(cell3);
+
+                // --- Cell 4: Radical ---
+                const cell4 = document.createElement('div');
+                cell4.className = 'table-cell';
+                const radicalText = document.createElement('div');
+                radicalText.className = 'cell-text cell-text-radical';
+                radicalText.contentEditable = isChar ? 'true' : 'false';
+                radicalText.spellcheck = false;
+                radicalText.textContent = info.radical;
+                radicalText.id = `radical_val_${c}`;
+                radicalText.title = isChar ? '点击可直接修改部首' : '';
+                cell4.appendChild(radicalText);
+                row4.appendChild(cell4);
+
+                // --- Cell 5: Practice Tianzige Box ---
+                const cell5 = document.createElement('div');
+                cell5.className = 'table-cell';
+                const squareBox5 = document.createElement('div');
+                squareBox5.className = 'tianzi-square-box';
+
+                if (gridType !== 'none') {
+                    const hLine5 = document.createElement('div');
+                    hLine5.className = 'tianzi-line-h';
+                    const vLine5 = document.createElement('div');
+                    vLine5.className = 'tianzi-line-v';
+                    squareBox5.appendChild(hLine5);
+                    squareBox5.appendChild(vLine5);
+
+                    if (gridType === 'mizi') {
+                        const m1_5 = document.createElement('div');
+                        m1_5.className = 'mizi-line-1';
+                        const m2_5 = document.createElement('div');
+                        m2_5.className = 'mizi-line-2';
+                        squareBox5.appendChild(m1_5);
+                        squareBox5.appendChild(m2_5);
+                    }
+                }
+                cell5.appendChild(squareBox5);
+                row5.appendChild(cell5);
+            }
+
+            tableContainer.appendChild(row1);
+            tableContainer.appendChild(row2);
+            tableContainer.appendChild(row3);
+            tableContainer.appendChild(row4);
+            tableContainer.appendChild(row5);
+        }
+
+        // --- Infinite Looping HanziWriter with Accurate Centering ---
+        function initInfiniteLoopWriter(elementId, char, colIdx) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            el.innerHTML = '';
+
+            const squareBox = document.getElementById(`tianzi_box_${colIdx}`);
+            const measuredSize = squareBox ? Math.floor(Math.min(squareBox.clientWidth, squareBox.clientHeight)) : 0;
+            const size = measuredSize > 20 ? measuredSize : (el.clientWidth || 110);
+            const padding = Math.round(size * 0.12);
+
+            try {
+                const writer = HanziWriter.create(el, char, {
+                    width: size,
+                    height: size,
+                    padding: padding,
+                    showOutline: true,
+                    strokeAnimationSpeed: currentSpeed,
+                    delayBetweenStrokes: Math.round(110 / currentSpeed),
+                    strokeColor: strokeColor,
+                    radicalColor: radicalColor,
+                    outlineColor: '#e2e8f0',
+                    showCharacter: false
+                });
+
+                function loopAnimation() {
+                    if (!activeWriters[colIdx]) return;
+                    writer.hideCharacter();
+                    writer.animateCharacter({
+                        onComplete: () => {
+                            // Infinite repeat: Pause for 1.8s so completed character stays visible, then loop again
+                            loopTimers[colIdx] = setTimeout(() => {
+                                loopAnimation();
+                            }, 1800);
+                        }
+                    });
+                }
+
+                activeWriters[colIdx] = writer;
+                loopAnimation();
+
+            } catch (err) {
+                console.error(`Error loading writer for ${char}:`, err);
+                el.textContent = char;
+                el.style.fontSize = `${Math.round(size * 0.7)}px`;
+                el.style.fontFamily = 'KaiTi';
+            }
+        }
+
+        function restartAllAnimations() {
+            clearAllWriters();
+            renderCurrentSlideTable();
+        }
+
+        function changeSlide(delta) {
+            currentSlideIndex += delta;
+            if (currentSlideIndex < 0) currentSlideIndex = 0;
+            if (currentSlideIndex >= allSlidesCols.length) currentSlideIndex = allSlidesCols.length - 1;
+            parseAndRender();
+        }
+
+        // Fullscreen Handling for Touchscreen Smartboard
+        function enterFullscreen() {
+            const frame = document.getElementById('slideFrame');
+            if (frame.requestFullscreen) {
+                frame.requestFullscreen().catch(err => {
+                    console.warn('Native requestFullscreen failed, using web-fullscreen:', err);
+                    enableWebFullscreenFallback();
+                });
+            } else if (frame.webkitRequestFullscreen) {
+                frame.webkitRequestFullscreen();
+            } else {
+                enableWebFullscreenFallback();
+            }
+        }
+
+        function exitFullscreen() {
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen().catch(() => {});
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+            }
+            disableWebFullscreenFallback();
+        }
+
+        function enableWebFullscreenFallback() {
+            const frame = document.getElementById('slideFrame');
+            frame.classList.add('is-web-fullscreen');
+            handleFullscreenChange();
+        }
+
+        function disableWebFullscreenFallback() {
+            const frame = document.getElementById('slideFrame');
+            if (frame) {
+                frame.classList.remove('is-web-fullscreen');
+                frame.classList.remove('is-fullscreen');
+            }
+            const toolbar = document.getElementById('fullscreenToolbar');
+            if (toolbar && !document.fullscreenElement && !document.webkitFullscreenElement) {
+                toolbar.style.display = 'none';
+            }
+            setTimeout(restartAllAnimations, 80);
+        }
+
+        // Handle fullscreen resize and re-center characters
+        function handleFullscreenChange() {
+            const frame = document.getElementById('slideFrame');
+            const toolbar = document.getElementById('fullscreenToolbar');
+            const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || (frame && frame.classList.contains('is-web-fullscreen')));
+
+            if (frame) {
+                if (isFs) {
+                    frame.classList.add('is-fullscreen');
+                    if (toolbar) toolbar.style.display = 'flex';
+                } else {
+                    frame.classList.remove('is-fullscreen');
+                    frame.classList.remove('is-web-fullscreen');
+                    if (toolbar) toolbar.style.display = 'none';
+                }
+            }
+
+            setTimeout(() => {
+                restartAllAnimations();
+            }, 80);
+        }
+
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' || e.key === 'Esc') {
+                exitFullscreen();
+            }
+        });
+        window.addEventListener('resize', () => {
+            clearTimeout(window._resizeTimer);
+            window._resizeTimer = setTimeout(restartAllAnimations, 150);
+        });
+
+        // Preset helpers
+        function setWord(text) {
+            document.getElementById('hanziInput').value = text;
+            currentSlideIndex = 0;
+            parseAndRender();
+        }
+
+        function setTitle(text) {
+            document.getElementById('lessonTitleInput').value = text;
+            document.getElementById('previewTitle').textContent = text;
+        }
+
+        function updateGridType() {
+            gridType = document.getElementById('gridTypeSelect').value;
+            renderCurrentSlideTable();
+        }
+
+        function setStrokeColor(hex, el) {
+            strokeColor = hex;
+            document.querySelectorAll('#strokeColorChips .color-chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            restartAllAnimations();
+        }
+
+        function setRadicalColor(hex, el) {
+            radicalColor = hex;
+            document.querySelectorAll('#radicalColorChips .color-chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            restartAllAnimations();
+        }
+
+        // --- Generate Blank Tianzige Data URL ---
+        function getBlankTianzigeImage(w = 300, h = 300) {
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, w, h);
+
+            if (gridType !== 'none') {
+                ctx.strokeStyle = '#94a3b8';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([7, 7]);
+
+                ctx.beginPath();
+                ctx.moveTo(w / 2, 0);
+                ctx.lineTo(w / 2, h);
+                ctx.moveTo(0, h / 2);
+                ctx.lineTo(w, h / 2);
+                ctx.stroke();
+
+                if (gridType === 'mizi') {
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0);
+                    ctx.lineTo(w, h);
+                    ctx.moveTo(w, 0);
+                    ctx.lineTo(0, h);
+                    ctx.stroke();
+                }
+            }
+
+            return canvas.toDataURL('image/png');
+        }
+
+        // --- Generate Animated Stroke GIF for PPTX ---
+        function generateStrokeGif(char, options = {}) {
+            return new Promise(async (resolve, reject) => {
+                const size = 300;
+                const speed = options.speed || currentSpeed;
+                const grid = options.gridType || gridType;
+                const sColor = options.strokeColor || strokeColor;
+                const rColor = options.radicalColor || radicalColor;
+                const padding = Math.round(size * 0.12);
+
+                const writerCanvas = document.createElement('canvas');
+                writerCanvas.width = size;
+                writerCanvas.height = size;
+
+                const compositeCanvas = document.createElement('canvas');
+                compositeCanvas.width = size;
+                compositeCanvas.height = size;
+                const compCtx = compositeCanvas.getContext('2d', { willReadFrequently: true });
+
+                function drawFrame() {
+                    compCtx.fillStyle = '#FFFFFF';
+                    compCtx.fillRect(0, 0, size, size);
+
+                    if (grid !== 'none') {
+                        compCtx.strokeStyle = '#94a3b8';
+                        compCtx.lineWidth = 2;
+                        compCtx.setLineDash([7, 7]);
+
+                        compCtx.beginPath();
+                        compCtx.moveTo(size / 2, 0);
+                        compCtx.lineTo(size / 2, size);
+                        compCtx.moveTo(0, size / 2);
+                        compCtx.lineTo(size, size / 2);
+                        compCtx.stroke();
+
+                        if (grid === 'mizi') {
+                            compCtx.beginPath();
+                            compCtx.moveTo(0, 0);
+                            compCtx.lineTo(size, size);
+                            compCtx.moveTo(size, 0);
+                            compCtx.lineTo(0, size);
+                            compCtx.stroke();
+                        }
+                        compCtx.setLineDash([]);
+                    }
+
+                    // Draw character exactly centered
+                    compCtx.drawImage(writerCanvas, 0, 0);
+                }
+
+                try {
+                    const writer = HanziWriter.create(writerCanvas, char, {
+                        width: size,
+                        height: size,
+                        padding: padding,
+                        showOutline: true,
+                        strokeAnimationSpeed: speed,
+                        delayBetweenStrokes: Math.round(110 / speed),
+                        renderer: 'canvas',
+                        strokeColor: sColor,
+                        radicalColor: rColor,
+                        outlineColor: '#E2E8F0'
+                    });
+
+                    await writer.getCharacterData();
+                    writer.hideCharacter();
+
+                    const gif = new GIF({
+                        workers: 2,
+                        quality: 10,
+                        workerScript: 'js/gif.worker.js',
+                        width: size,
+                        height: size,
+                        repeat: 0 // Infinite loop in PowerPoint!
+                    });
+
+                    let isRecording = true;
+                    let lastTime = performance.now();
+
+                    const captureLoop = (now) => {
+                        if (isRecording) {
+                            if (now - lastTime >= 50) {
+                                drawFrame();
+                                gif.addFrame(compositeCanvas, { delay: 50, copy: true });
+                                lastTime = now;
+                            }
+                            requestAnimationFrame(captureLoop);
+                        }
+                    };
+                    requestAnimationFrame(captureLoop);
+
+                    writer.animateCharacter({
+                        onComplete: () => {
+                            isRecording = false;
+                            drawFrame();
+                            // 1.5s freeze frame on complete character before repeat
+                            for (let i = 0; i < 15; i++) {
+                                gif.addFrame(compositeCanvas, { delay: 100, copy: true });
+                            }
+
+                            gif.on('finished', (blob) => {
+                                const reader = new FileReader();
+                                reader.onloadend = () => resolve(reader.result);
+                                reader.onerror = reject;
+                                reader.readAsDataURL(blob);
+                            });
+
+                            gif.render();
+                        }
+                    });
+
+                } catch (err) {
+                    console.warn(`Fallback to static KaiTi for ${char}:`, err);
+                    drawFrame();
+                    compCtx.font = `${size * 0.72}px 'KaiTi', '楷体', serif`;
+                    compCtx.fillStyle = sColor;
+                    compCtx.textAlign = 'center';
+                    compCtx.textBaseline = 'middle';
+                    compCtx.fillText(char, size / 2, size / 2);
+                    resolve(compositeCanvas.toDataURL('image/png'));
+                }
+            });
+        }
+
+        // --- PPTX Assembly & Export Pipeline ---
+        async function startExportPPTX() {
+            if (!allSlidesCols || allSlidesCols.length === 0) {
+                alert('请先输入生字词语！');
+                return;
+            }
+
+            const modal = document.getElementById('progressModal');
+            const progressFill = document.getElementById('progressFill');
+            const progressStepText = document.getElementById('progressStepText');
+            modal.classList.add('active');
+
+            const lessonTitle = document.getElementById('lessonTitleInput').value.trim() || '生字（22）';
+            const weekday = document.getElementById('weekdayInput').value.trim() || '星期一';
+            const dateStr = document.getElementById('dateInput').value.trim() || '17. 08. 2026';
+
+            // Extract all unique characters that need GIFs
+            const uniqueChars = new Set();
+            allSlidesCols.forEach(slideCols => {
+                slideCols.forEach(cell => {
+                    if (cell.type === 'char') {
+                        uniqueChars.add(cell.char);
+                    }
+                });
+            });
+
+            const charList = Array.from(uniqueChars);
+            const totalToRender = charList.length;
+            const gifCache = {};
+            const blankTianzigePng = getBlankTianzigeImage(300, 300);
+
+            try {
+                // Step 1: Render all character GIFs with chosen speed
+                for (let i = 0; i < totalToRender; i++) {
+                    const char = charList[i];
+                    const pct = Math.round(((i) / totalToRender) * 80);
+                    progressFill.style.width = `${pct}%`;
+                    progressStepText.textContent = `[${i + 1}/${totalToRender}] 正在渲染汉字【${char}】的循环笔顺动图 (速度 ${currentSpeed}x)...`;
+
+                    const gifBase64 = await generateStrokeGif(char, {
+                        speed: currentSpeed,
+                        gridType: gridType,
+                        strokeColor: strokeColor,
+                        radicalColor: radicalColor
+                    });
+
+                    gifCache[char] = gifBase64;
+                }
+
+                progressFill.style.width = '88%';
+                progressStepText.textContent = '正在封装 16:9 PowerPoint 演示文稿表格与图层...';
+
+                // Step 2: Initialize PptxGenJS
+                const pres = new PptxGenJS();
+                pres.defineLayout({ name: 'WIDE_16_9', width: 13.333, height: 7.5 });
+                pres.layout = 'WIDE_16_9';
+                pres.title = lessonTitle;
+
+                const cols = numCols;
+
+                // Slide Dimensions
+                const tableX = 1.0;
+                const tableY = 1.45;
+                const tableW = 11.333;
+                const colW = tableW / cols;
+                // 5 Row Heights: h1(Hanzi Square), h2(Pinyin), h3(Strokes), h4(Radical), h5(Practice Square)
+                const h1 = colW;
+                const h2 = 0.72;
+                const h3 = 0.72;
+                const h4 = 1.15;
+                const h5 = colW;
+
+                // Build each slide
+                for (let sIdx = 0; sIdx < allSlidesCols.length; sIdx++) {
+                    const slideCols = allSlidesCols[sIdx];
+                    const slide = pres.addSlide();
+                    slide.background = { color: 'FFFFFF' };
+
+                    // 1. Header: Weekday (Left), Title (Center), Date (Right)
+                    // Weekday (Left)
+                    slide.addText(weekday, {
+                        x: tableX, y: 0.45, w: 3.5, h: 0.75,
+                        fontSize: 32, bold: true,
+                        color: '000000',
+                        fontFace: 'KaiTi'
+                    });
+
+                    // Title (Center)
+                    slide.addText(lessonTitle, {
+                        x: 4.5, y: 0.45, w: 4.333, h: 0.75,
+                        fontSize: 36, bold: true, align: 'center',
+                        color: '000000',
+                        fontFace: 'KaiTi'
+                    });
+
+                    // Date (Right)
+                    slide.addText(dateStr, {
+                        x: 8.833, y: 0.45, w: 3.5, h: 0.75,
+                        fontSize: 32, bold: true, align: 'right',
+                        color: '000000',
+                        fontFace: 'Arial'
+                    });
+
+                    // 2. Prepare 5-row table data for native PowerPoint grid
+                    const row1Data = [];
+                    const row2Data = [];
+                    const row3Data = [];
+                    const row4Data = [];
+                    const row5Data = [];
+
+                    for (let c = 0; c < cols; c++) {
+                        const cell = slideCols[c] || { type: 'empty' };
+                        const isChar = cell.type === 'char';
+                        let pinyinVal = '', strokeVal = '', radicalVal = '';
+
+                        if (isChar) {
+                            if (sIdx === currentSlideIndex) {
+                                const pEl = document.getElementById(`pinyin_val_${c}`);
+                                const sEl = document.getElementById(`stroke_val_${c}`);
+                                const rEl = document.getElementById(`radical_val_${c}`);
+                                if (pEl) pinyinVal = pEl.textContent.trim();
+                                if (sEl) strokeVal = sEl.textContent.trim();
+                                if (rEl) radicalVal = rEl.textContent.trim();
+                            }
+                            if (!pinyinVal) {
+                                const info = getCharData(cell.char);
+                                pinyinVal = info.pinyin;
+                                strokeVal = info.strokes;
+                                radicalVal = info.radical;
+                            }
+                        }
+
+                        const borderStyle = { pt: 1.5, color: '000000' };
+
+                        row1Data.push({ text: '', options: { border: borderStyle, fill: { color: 'FFFFFF' } } });
+                        row2Data.push({
+                            text: pinyinVal,
+                            options: {
+                                fontSize: 24, bold: true, align: 'center', valign: 'middle',
+                                fontFace: 'Arial', color: '000000', border: borderStyle,
+                                fill: { color: 'FFFFFF' }
+                            }
+                        });
+                        row3Data.push({
+                            text: strokeVal,
+                            options: {
+                                fontSize: 24, bold: true, align: 'center', valign: 'middle',
+                                fontFace: 'Arial', color: '000000', border: borderStyle,
+                                fill: { color: 'FFFFFF' }
+                            }
+                        });
+                        row4Data.push({
+                            text: radicalVal,
+                            options: {
+                                fontSize: 28, bold: true, align: 'center', valign: 'middle',
+                                fontFace: 'KaiTi', color: '000000', border: borderStyle,
+                                fill: { color: 'FFFFFF' }
+                            }
+                        });
+                        row5Data.push({ text: '', options: { border: borderStyle, fill: { color: 'FFFFFF' } } });
+                    }
+
+                    // Add the native PowerPoint table
+                    slide.addTable([row1Data, row2Data, row3Data, row4Data, row5Data], {
+                        x: tableX,
+                        y: tableY,
+                        w: tableW,
+                        rowH: [h1, h2, h3, h4, h5],
+                        border: { pt: 1.5, color: '000000' }
+                    });
+
+                    // 3. Overlay Row 1 GIFs and Row 5 Blank Practice Grids perfectly matching cell bounds
+                    const row5Y = tableY + h1 + h2 + h3 + h4;
+                    const pad = 0.015;
+                    const boxSize = colW - 2 * pad;
+
+                    for (let c = 0; c < cols; c++) {
+                        const cell = slideCols[c] || { type: 'empty' };
+                        const cellX = tableX + c * colW;
+
+                        // Row 1 Image: Hanzi GIF or Blank Tianzige (centered square filling cell)
+                        if (cell.type === 'char' && gifCache[cell.char]) {
+                            slide.addImage({
+                                data: gifCache[cell.char],
+                                x: cellX + pad,
+                                y: tableY + pad,
+                                w: boxSize,
+                                h: boxSize
+                            });
+                        } else {
+                            slide.addImage({
+                                data: blankTianzigePng,
+                                x: cellX + pad,
+                                y: tableY + pad,
+                                w: boxSize,
+                                h: boxSize
+                            });
+                        }
+
+                        // Row 5 Image: Blank Practice Tianzige in every cell
+                        slide.addImage({
+                            data: blankTianzigePng,
+                            x: cellX + pad,
+                            y: row5Y + pad,
+                            w: boxSize,
+                            h: boxSize
+                        });
+                    }
+                }
+
+                progressFill.style.width = '96%';
+                progressStepText.textContent = '写入文件并触发下载...';
+
+                const outFileName = `${lessonTitle}.pptx`;
+                try {
+                    await pres.writeFile({ fileName: outFileName });
+                } catch (writeErr) {
+                    console.warn('pres.writeFile fallback to blob:', writeErr);
+                    const blob = await pres.write({ outputType: 'blob' });
+                    const blobUrl = URL.createObjectURL(blob);
+                    const dlLink = document.createElement('a');
+                    dlLink.href = blobUrl;
+                    dlLink.download = outFileName;
+                    document.body.appendChild(dlLink);
+                    dlLink.click();
+                    document.body.removeChild(dlLink);
+                }
+
+                progressFill.style.width = '100%';
+                progressStepText.textContent = '🎉 课件生成成功！已自动触发保存！';
+
+                setTimeout(() => {
+                    modal.classList.remove('active');
+                }, 1300);
+
+            } catch (err) {
+                console.error('Export PPTX Error:', err);
+                alert('导出 PPTX 失败: ' + err.message);
+                modal.classList.remove('active');
+            }
+        }
+
+        // --- Download GIFs separately ---
+        async function downloadAllGifs() {
+            const currentCols = allSlidesCols[currentSlideIndex] || [];
+            const chars = currentCols.filter(c => c.type === 'char').map(c => c.char);
+            if (chars.length === 0) {
+                alert('当前页没有汉字！');
+                return;
+            }
+
+            const modal = document.getElementById('progressModal');
+            const progressFill = document.getElementById('progressFill');
+            const progressStepText = document.getElementById('progressStepText');
+            modal.classList.add('active');
+
+            try {
+                for (let i = 0; i < chars.length; i++) {
+                    const char = chars[i];
+                    progressStepText.textContent = `正在生成【${char}】笔顺 GIF (${i + 1}/${chars.length})...`;
+                    progressFill.style.width = `${Math.round(((i + 1) / chars.length) * 100)}%`;
+
+                    const gifData = await generateStrokeGif(char, {
+                        speed: currentSpeed,
+                        gridType: gridType,
+                        strokeColor: strokeColor,
+                        radicalColor: radicalColor
+                    });
+
+                    const link = document.createElement('a');
+                    link.download = `生字笔顺_${char}.gif`;
+                    link.href = gifData;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    await new Promise(r => setTimeout(r, 300));
+                }
+
+                progressStepText.textContent = '🎉 全部笔顺 GIF 已下载完成！';
+                setTimeout(() => modal.classList.remove('active'), 1000);
+            } catch (e) {
+                alert('下载 GIF 失败: ' + e.message);
+                modal.classList.remove('active');
+            }
+        }
+
+        // --- Event Listeners ---
+        document.getElementById('hanziInput').addEventListener('input', () => {
+            currentSlideIndex = 0;
+            parseAndRender();
+        });
+
+        document.getElementById('lessonTitleInput').addEventListener('input', (e) => {
+            document.getElementById('previewTitle').textContent = e.target.value.trim() || '生字（22）';
+        });
+
+        document.getElementById('weekdayInput').addEventListener('input', (e) => {
+            document.getElementById('previewWeekday').textContent = e.target.value.trim() || '星期一';
+        });
+
+        document.getElementById('dateInput').addEventListener('input', (e) => {
+            document.getElementById('previewDate').textContent = e.target.value.trim() || '17. 08. 2026';
+        });
+
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            initDateTime();
+            loadDictionary();
+        });
+    </script>
+</body>
+
+</html>
