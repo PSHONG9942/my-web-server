@@ -1237,16 +1237,15 @@
             </div>
 
             <div class="form-group">
-                <label for="apiKeyInput">Nvidia NIM API Key (可选)</label>
-                <input type="password" id="apiKeyInput" placeholder="若 Linux 服务器已配置环境变量，此处可留空">
-                <div class="form-hint">自定义个人 API Key，享有独立调用额度。</div>
+                <label for="apiKeyInput">Nvidia NIM API Key</label>
+                <input type="password" id="apiKeyInput" placeholder="已预置官方默认密钥，也可填入个人专属 Key">
+                <div class="form-hint">已内置默认专用 API Key，您也可填入个人专属 Key 享有独立额度。</div>
             </div>
 
             <div class="form-group">
                 <label for="modelSelect">推理模型选择</label>
                 <select id="modelSelect">
                     <option value="meta/muse-glimmer-30b">meta/muse-glimmer-30b (默认推荐，公文生成专用)</option>
-                    <option value="meta/llama-3.1-70b-instruct">meta/llama-3.1-70b-instruct (强大逻辑分析)</option>
                     <option value="meta/llama-3.2-11b-vision-instruct">meta/llama-3.2-11b-vision-instruct (多模态视觉版)</option>
                 </select>
             </div>
@@ -1264,6 +1263,7 @@
         const STORAGE_KEY_TOKEN = "ai_agent_api_key";
         const STORAGE_KEY_MODEL = "ai_agent_model";
         const DEFAULT_API_URL = "https://pshong-nitro-an515-52.tail6ae6c3.ts.net:10000";
+        const DEFAULT_API_KEY = "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";
 
         let storedUrl = localStorage.getItem(STORAGE_KEY_API);
         if (!storedUrl || storedUrl.includes("ngrok") || storedUrl.includes("trycloudflare.com") || storedUrl.includes("screensavers") || storedUrl.includes("rat-senior") || storedUrl.includes("birmingham") || storedUrl.includes("car-skirts")) {
@@ -1271,7 +1271,12 @@
             localStorage.setItem(STORAGE_KEY_API, DEFAULT_API_URL);
         }
         let API_BASE_URL = storedUrl;
-        let API_KEY = localStorage.getItem(STORAGE_KEY_TOKEN) || "";
+        let storedToken = localStorage.getItem(STORAGE_KEY_TOKEN);
+        if (!storedToken || storedToken.trim() === "") {
+            storedToken = DEFAULT_API_KEY;
+            localStorage.setItem(STORAGE_KEY_TOKEN, DEFAULT_API_KEY);
+        }
+        let API_KEY = storedToken;
         let SELECTED_MODEL = localStorage.getItem(STORAGE_KEY_MODEL) || "meta/muse-glimmer-30b";
 
         // Current uploaded files list [{ filename, saved_path, file_size }]
@@ -1345,7 +1350,7 @@
         // Settings Modal Handlers
         openSettingsBtn.addEventListener("click", () => {
             apiUrlInput.value = API_BASE_URL;
-            apiKeyInput.value = API_KEY;
+            apiKeyInput.value = API_KEY || DEFAULT_API_KEY;
             modelSelect.value = SELECTED_MODEL;
             settingsModal.classList.add("show");
         });
@@ -1353,7 +1358,7 @@
         statusBadge.addEventListener("click", () => {
             if (statusBadge.classList.contains("offline")) {
                 apiUrlInput.value = API_BASE_URL;
-                apiKeyInput.value = API_KEY;
+                apiKeyInput.value = API_KEY || DEFAULT_API_KEY;
                 modelSelect.value = SELECTED_MODEL;
                 settingsModal.classList.add("show");
             }
@@ -1371,7 +1376,9 @@
             if (!val) val = DEFAULT_API_URL;
             val = val.replace(/\/+$/, ""); // remove trailing slash
             API_BASE_URL = val;
-            API_KEY = apiKeyInput.value.trim();
+            let keyVal = apiKeyInput.value.trim();
+            if (!keyVal) keyVal = DEFAULT_API_KEY;
+            API_KEY = keyVal;
             SELECTED_MODEL = modelSelect.value;
 
             localStorage.setItem(STORAGE_KEY_API, API_BASE_URL);
