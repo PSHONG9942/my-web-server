@@ -35,7 +35,7 @@ OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 AUDIT_LOG_FILE = LOGS_DIR / "agent_access.log"
 
-DEFAULT_API_KEY = os.environ.get("NVIDIA_API_KEY", "")
+DEFAULT_API_KEY = os.environ.get("NVIDIA_API_KEY", "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")
 DEFAULT_BASE_URL = "https://integrate.api.nvidia.com/v1"
 DEFAULT_MODEL = "meta/muse-glimmer-30b"
 SERVER_COMPRESS_KEY = os.environ.get("AGENT_SECRET_KEY", "123456")
@@ -883,14 +883,14 @@ async def chat_stream(req: ChatRequest, request: Request):
                         else:
                             tool_result = f"未知的工具名称: {func_name}"
                             
-                    tool_future = asyncio.to_thread(run_tool)
-                    while not tool_future.done():
+                    tool_task = asyncio.create_task(asyncio.to_thread(run_tool))
+                    while not tool_task.done():
                         try:
                             msg = await asyncio.wait_for(status_queue.get(), timeout=0.2)
                             yield f"data: {json.dumps({'type': 'thought', 'message': msg}, ensure_ascii=False)}\n\n"
                         except asyncio.TimeoutError:
                             pass
-                    await tool_future
+                    await tool_task
                     
                     # 剩余的 status_queue 全部吐出
                     while not status_queue.empty():
