@@ -14,7 +14,52 @@
     <link rel="stylesheet" href="css/cyberpunk.css">
     <link rel="stylesheet" href="css/responsive.css">
 
-
+    <style>
+        /* 界面排版与卡片优化 */
+        .feature-card {
+            padding: 24px 20px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+            min-height: 220px;
+        }
+        .feature-card h3 {
+            font-size: 1.15rem;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .feature-card p {
+            font-size: 0.92rem !important;
+            line-height: 1.6 !important;
+            color: #475569 !important;
+            margin-bottom: 16px !important;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .app-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 12px;
+            vertical-align: middle;
+            display: inline-block;
+            white-space: nowrap;
+        }
+        .card-links {
+            margin-top: auto;
+            width: 100%;
+        }
+        .card-links a {
+            font-size: 0.88rem;
+        }
+    </style>
 </head>
 
 <body>
@@ -33,7 +78,7 @@
                 <div class="gemini-bg"></div>
                 <div class="card-icon" style="position: relative; z-index: 2;">🤖</div>
                 <h3 class="gemini-title" style="position: relative; z-index: 2;">AI 创造营 & 画廊</h3>
-                <p style="position: relative; z-index: 2;">一句话让 AI 为你定制网页工具和游戏！还能浏览并体验全网师生的奇妙创意。</p>
+                <p style="position: relative; z-index: 2;">一句话让 AI 定制专属教学工具和游戏，还能浏览体验全网师生的奇妙创意。</p>
                 <div class="card-links" style="position: relative; z-index: 2;">
                     <a href="tools/ai-creator.html">✨ 开始创作</a>
                     <a href="creator-gallery.html">🖼️ 创意画廊</a>
@@ -43,10 +88,10 @@
             <div class="feature-card theme-indigo"
                 style="border: 1px solid rgba(14, 165, 233, 0.4); background: linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(139, 92, 246, 0.12));">
                 <div class="card-icon">🤖</div>
-                <h3 style="color: #38bdf8;">大马教师专属 AI 助理 <span
-                        style="font-size: 11px; background: linear-gradient(135deg, #0ea5e9, #8b5cf6); color: #fff; padding: 2px 7px; border-radius: 10px; vertical-align: middle; display: inline-block; white-space: nowrap;">全新升级</span>
+                <h3 style="color: #38bdf8;">大马教师专属 AI 助理 <span class="app-badge"
+                        style="background: linear-gradient(135deg, #0ea5e9, #8b5cf6); color: #fff;">全新升级</span>
                 </h3>
-                <p>上传会议录屏或音频，AI 自动切片识别语音并提取 PPT 重点，一键排版生成标准格式的 Minit Curai 官函公文！</p>
+                <p>上传会议录音或视频，AI 自动提取核心要点，一键生成规范的 Minit Curai 官函公文！</p>
                 <div class="card-links">
                     <a href="tools/ai-agent.html"
                         style="background: linear-gradient(135deg, #0ea5e9, #6366f1); color: #fff; font-weight: bold;">⚡
@@ -57,10 +102,10 @@
             <div class="feature-card theme-rose"
                 style="border: 1px solid rgba(244, 63, 94, 0.4); background: linear-gradient(135deg, rgba(244, 63, 94, 0.1), rgba(139, 92, 246, 0.1));">
                 <div class="card-icon">🎬</div>
-                <h3 style="color: #fb7185;">教学影音下载助手 <span
-                        style="font-size: 11px; background: linear-gradient(135deg, #f43f5e, #e11d48); color: #fff; padding: 2px 7px; border-radius: 10px; vertical-align: middle;">新工具</span>
+                <h3 style="color: #fb7185;">教学影音下载助手 <span class="app-badge"
+                        style="background: linear-gradient(135deg, #f43f5e, #e11d48); color: #fff;">新工具</span>
                 </h3>
-                <p>贴上视频网址，一键下载 YouTube、B站、TikTok 等平台的教学视频或提取 MP3 声音，方便存入 U 盘在课室离线播放！</p>
+                <p>输入视频网址，一键下载教学视频或提取 MP3 音频，存入 U 盘方便课室离线播放！</p>
                 <div class="card-links">
                     <a href="tools/video-downloader.html"
                         style="background: linear-gradient(135deg, #f43f5e, #be123c); color: #fff; font-weight: bold;">⚡
@@ -72,7 +117,7 @@
                 style="border: 1px solid rgba(14, 165, 233, 0.45); background: linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(16, 185, 129, 0.12));">
                 <div class="card-icon">📑</div>
                 <h3 style="color: #38bdf8;">PDF 转 PPTX 转换器</h3>
-                <p>一键将 PDF 课件或教材转为可编辑的 PowerPoint (PPT) 幻灯片，大文件也能轻松转换，备课修改省时又省力！</p>
+                <p>一键将 PDF 课件转为可编辑的 PPT 幻灯片，大文件也能极速转换，备课省时省力！</p>
                 <div class="card-links">
                     <a href="tools/pdf-to-pptx.html"
                         style="background: linear-gradient(135deg, #0ea5e9, #10b981); color: #fff; font-weight: bold;">⚡
@@ -80,14 +125,13 @@
                 </div>
             </div>
 
-
             <div class="feature-card theme-indigo"
                 style="border: 1px solid rgba(14, 165, 233, 0.45); background: linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(16, 185, 129, 0.12));">
                 <div class="card-icon">📽️</div>
-                <h3 style="color: #38bdf8;">生字笔顺 PPTX 课件生成器 <span
-                        style="font-size: 11px; background: linear-gradient(135deg, #0ea5e9, #10b981); color: #fff; padding: 2px 7px; border-radius: 10px; vertical-align: middle; display: inline-block; white-space: nowrap;">全新上线</span>
+                <h3 style="color: #38bdf8;">生字笔顺 PPTX 课件生成器 <span class="app-badge"
+                        style="background: linear-gradient(135deg, #0ea5e9, #10b981); color: #fff;">全新上线</span>
                 </h3>
-                <p>输入词语自动智能匹配拼音、笔画与部首，实时合成带笔顺动态 GIF，一键直出 16:9 标准 PowerPoint 教学幻灯片！</p>
+                <p>输入词语自动配齐拼音、部首与动态笔顺，一键直出 16:9 标准 PPT 课堂教学课件！</p>
                 <div class="card-links">
                     <a href="tools/hanzi-to-pptx.html"
                         style="background: linear-gradient(135deg, #0ea5e9, #10b981); color: #fff; font-weight: bold;">⚡
@@ -95,10 +139,38 @@
                 </div>
             </div>
 
+            <div class="feature-card theme-cyan"
+                style="border: 1px solid rgba(56, 189, 248, 0.45); background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(139, 92, 246, 0.12));">
+                <div class="card-icon">📝</div>
+                <h3 style="color: #38bdf8;">生字造句练习纸 & AI 互动评阅工坊 <span class="app-badge"
+                        style="background: linear-gradient(135deg, #0ea5e9, #8b5cf6); color: #fff;">全新双模式</span>
+                </h3>
+                <p>一键排版打印 A4 田字格造句练习纸；还支持学生在线看图造句、AI 智能批改与鼓励！</p>
+                <div class="card-links">
+                    <a href="tools/sentence-maker.html"
+                        style="background: linear-gradient(135deg, #0ea5e9, #8b5cf6); color: #fff; font-weight: bold;">⚡
+                        立即进入</a>
+                </div>
+            </div>
+
+            <div class="feature-card theme-purple"
+                style="border: 1px solid rgba(139, 92, 246, 0.45); background: linear-gradient(135deg, rgba(139, 92, 246, 0.14), rgba(14, 165, 233, 0.12));">
+                <div class="card-icon">🎨</div>
+                <h3 style="color: #c084fc;">AI 教学插画与涂色卡生成器 <span class="app-badge"
+                        style="background: linear-gradient(135deg, #8b5cf6, #0ea5e9); color: #fff;">新工具</span>
+                </h3>
+                <p>一句话秒速生成课文教学插画或黑白涂色卡，看图写话备课更轻松，还可一键送至造句纸！</p>
+                <div class="card-links">
+                    <a href="tools/image-generator.html"
+                        style="background: linear-gradient(135deg, #8b5cf6, #0ea5e9); color: #fff; font-weight: bold;">⚡
+                        立即生成插画</a>
+                </div>
+            </div>
+
             <div class="feature-card theme-blue">
                 <div class="card-icon">✍️</div>
                 <h3>习字簿生成器</h3>
-                <p>输入最多四字词语，系统自动生成田字格（字词、拼音、笔画数、部首）</p>
+                <p>输入字词自动生成标准习字帖，自带拼音、部首与笔画，支持一键打印。</p>
                 <div class="card-links">
                     <a href="tools/standard.html">标准版</a>
                     <a href="tools/grade1.html">一年级</a>
@@ -109,7 +181,7 @@
             <div class="feature-card theme-rose">
                 <div class="card-icon">🖌️</div>
                 <h3>趣味汉字笔顺</h3>
-                <p>轻松学写字，支持导出带颜色区分的汉字笔顺书写动画，让汉字学习更直观！</p>
+                <p>轻松学写字，支持导出带颜色区分的汉字笔顺书写动画，字形规律一目了然！</p>
                 <div class="card-links">
                     <a href="tools/chinese-stroke-generator/index.html">开始体验</a>
                 </div>
@@ -118,7 +190,7 @@
             <div class="feature-card theme-sky">
                 <div class="card-icon">🐍</div>
                 <h3>语文型贪食蛇</h3>
-                <p>控制小蛇寻找带有正确偏旁部首的汉字，充满挑战的识字小游戏！</p>
+                <p>控制小蛇寻找带有正确偏旁部首的汉字，边玩边学的趣味识字小游戏！</p>
                 <div class="card-links">
                     <a href="tools/radical-snake/index.html">开始挑战</a>
                 </div>
@@ -127,7 +199,7 @@
             <div class="feature-card theme-navy">
                 <div class="card-icon">📋</div>
                 <h3>点名簿生成器</h3>
-                <p>输入学生名单，系统将生成点名格供老师们点名。（可打印或下载成PDF）</p>
+                <p>输入学生名单，一键生成整洁点名表格，支持导出 PDF 方便打印。</p>
                 <div class="card-links">
                     <a href="tools/attendance/index.html">点击进入</a>
                 </div>
@@ -150,16 +222,17 @@
             <div class="feature-card theme-sky">
                 <div class="card-icon">🔤</div>
                 <h3>拼音大挑战</h3>
-                <p>趣味拼音小游戏，测试学生对声母、韵母及声调的掌握程度。</p>
+                <p>趣味拼音小游戏，检验学生对声母、韵母及声调的掌握程度。</p>
                 <div class="card-links">
                     <a href="tools/pinyin.html">开始挑战</a>
                 </div>
             </div>
 
+
             <div class="feature-card theme-purple">
                 <div class="card-icon">🔍</div>
                 <h3>拼音探秘</h3>
-                <p>输入句子，根据拼音字母提示猜出完整句子，趣味十足游戏！</p>
+                <p>根据拼音字母提示猜出完整句子，趣味闯关，锻炼拼音与阅读理解！</p>
                 <div class="card-links">
                     <a href="tools/pinyin_advanced.html">开始探秘</a>
                 </div>
@@ -168,7 +241,7 @@
             <div class="feature-card theme-steel">
                 <div class="card-icon">🔱</div>
                 <h3>拼音工坊</h3>
-                <p>你对汉语拼音了解多少？根据汉字，输入正确的汉语拼音</p>
+                <p>看汉字写拼音，快速测试声母、韵母与声调掌握度，夯实语文基础。</p>
                 <div class="card-links">
                     <a href="tools/pinyin_game.html">开始游戏</a>
                 </div>
@@ -177,7 +250,7 @@
             <div class="feature-card theme-green">
                 <div class="card-icon">💬</div>
                 <h3>AI 趣味造句</h3>
-                <p>输入词语，AI 老师帮你变出三个不同难度的句子！支持华语、国语和英语。</p>
+                <p>输入生词，AI 快速生成不同难度的三语例句（华语、国语、英语），辅助教学。</p>
                 <div class="card-links">
                     <a href="tools/ai-sentence.html">开始造句</a>
                 </div>
@@ -186,7 +259,7 @@
             <div class="feature-card theme-forest">
                 <div class="card-icon">📝</div>
                 <h3>AI 英语语法纠错</h3>
-                <p>智能检测句子语法错误，提供修改建议与解释，辅助英语教学。</p>
+                <p>智能检测句子语法错误，提供修改建议与解释，辅助英语写作与教学。</p>
                 <div class="card-links">
                     <a href="tools/grammar.html">开始检测</a>
                 </div>
@@ -195,7 +268,7 @@
             <div class="feature-card theme-teal">
                 <div class="card-icon">🧩</div>
                 <h3>AI 互动填词</h3>
-                <p>输入短句，一秒生成专属英文填词小游戏！内置极速生成和绘图引擎，在快乐中学习生词。</p>
+                <p>输入短句秒变英文填词小游戏与配套插图，在快乐互动中记牢生词！</p>
                 <div class="card-links">
                     <a href="tools/ai-cloze.html">开始体验</a>
                 </div>
@@ -204,16 +277,17 @@
             <div class="feature-card theme-orange">
                 <div class="card-icon">🪢</div>
                 <h3>HANGMAN大冒险</h3>
-                <p>趣味英语猜词游戏！支持中文与马来语翻译及例句，适合小学生积累词汇。</p>
+                <p>经典趣味英语猜词游戏，附带中文与马来语释义，适合小学生积累词汇。</p>
                 <div class="card-links">
                     <a href="tools/hangman/index.html">开始挑战</a>
                 </div>
             </div>
 
+
             <div class="feature-card theme-mint">
                 <div class="card-icon">🧮</div>
                 <h3>竖式解题助手</h3>
-                <p>输入算式，自动展示详细的竖式计算步骤。支持加减乘除，是批改作业的好帮手。</p>
+                <p>输入算式自动展示完整的竖式计算过程，支持加减乘除，作业讲解更直观。</p>
                 <div class="card-links">
                     <a href="tools/solver.html">开始解题</a>
                 </div>
@@ -222,7 +296,7 @@
             <div class="feature-card theme-olive">
                 <div class="card-icon">🔢</div>
                 <h3>G-MATH</h3>
-                <p>包含标准版、进阶版及联机对战模式的数学计算游戏。</p>
+                <p>趣味数学心算对战游戏，支持基础练习与多人联机对战，全面提升速算能力。</p>
                 <div class="card-links">
                     <a href="tools/g-math.html">选择版本</a>
                 </div>
@@ -231,7 +305,7 @@
             <div class="feature-card theme-purple">
                 <div class="card-icon">🔠</div>
                 <h3 style="font-family: Orbitron, sans-serif;">Scrabble</h3>
-                <p>原汁原味的经典英文拼字桌面游戏。内置官方字典校验，支持最高4人本地游玩，考验你的词汇储备！</p>
+                <p>经典英文拼字桌面游戏，内置官方词典校验，支持 1-4 人同屏对战比拼词汇！</p>
                 <div class="card-links">
                     <a href="tools/scrabble.html">开始游戏</a>
                 </div>
@@ -240,9 +314,7 @@
             <div class="feature-card theme-orange">
                 <div class="card-icon">📙</div>
                 <h3 style="font-family: Orbitron, sans-serif;">Sahibba</h3>
-                <p>经典马来文拼字游戏。<br><strong
-                        style="color: #fff; background-color: #d32f2f; padding: 3px 6px; border-radius: 4px; display: inline-block; margin-top: 5px; font-size: 0.9em; box-shadow: 0 2px 4px rgba(0,0,0,0.2); letter-spacing: 0.5px;">⚠️
-                        马来文字词还在更新，老师们如有少了任何字词，请反馈。</strong></p>
+                <p>经典马来文拼字桌游，锻炼国语词汇与构词能力。（词库持续扩充中）</p>
                 <div class="card-links">
                     <a href="tools/sahibba.html">开始游戏</a>
                 </div>
@@ -251,7 +323,7 @@
             <div class="feature-card theme-cyan">
                 <div class="card-icon">💰</div>
                 <h3>财富大作战</h3>
-                <p>当你拥有RM10,000启动资金，你会怎么让自己在12个月内成为富豪？</p>
+                <p>RM10,000 启动资金如何规划？在模拟经商中培养小学生的理财与决策思维！</p>
                 <div class="card-links">
                     <a href="https://gene-money-game.my.canva.site/">进入游戏</a>
                 </div>
@@ -260,7 +332,7 @@
             <div class="feature-card theme-lime">
                 <div class="card-icon">🎲</div>
                 <h3>Jutaria 模拟游戏</h3>
-                <p>基于马来西亚地图的经典大富翁游戏。支持 2-4 人本地对战，体验买地、收租乐趣。</p>
+                <p>经典大马地图大富翁，支持 2-4 人同屏对战，体验买地收租与投资乐趣！</p>
                 <div class="card-links">
                     <a href="tools/game.html">开始游戏</a>
                 </div>
@@ -269,7 +341,7 @@
             <div class="feature-card theme-gold">
                 <div class="card-icon">🇲🇾</div>
                 <h3 style="font-family: Orbitron, sans-serif;">Master Malaysia</h3>
-                <p>2008年马来西亚经典国情益智桌游！涵盖土地、人物、文化与遗产四大领域，支持2-4人本地对战、多语言与掷骰问答挑战。</p>
+                <p>经典大马国情益智大富翁！涵盖地理、历史与文化常识，支持多人同屏与多语言。</p>
                 <div class="card-links">
                     <a href="master-malaysia/dist/index.html">开始游戏</a>
                 </div>
@@ -278,7 +350,7 @@
             <div class="feature-card theme-rose">
                 <div class="card-icon">🧩</div>
                 <h3>Kirable 数字桌游</h3>
-                <p>极简几何风的拼算式游戏！支持单人挑战及带智能防作弊的 CPU 模式，锻炼逻辑组合能力。</p>
+                <p>数字与算式益智桌游，支持人机对战与单人挑战，锻炼数学思维与逻辑组合。</p>
                 <div class="card-links">
                     <a href="tools/kirable.html">开始游玩</a>
                 </div>
@@ -287,7 +359,7 @@
             <div class="feature-card theme-cyan">
                 <div class="card-icon">🏖️</div>
                 <h3>牛马退休日记</h3>
-                <p>距离光荣退休还有多久？输入日期，开启倒计时，每天摸鱼更有动力！</p>
+                <p>输入退休日期一键倒数，让忙碌的教学日常多一点轻松与趣味！</p>
                 <div class="card-links">
                     <a href="tools/pencen.html">查看倒计时</a>
                 </div>
@@ -296,7 +368,7 @@
             <div class="feature-card theme-red">
                 <div class="card-icon">⏱️</div>
                 <h3 style="font-family: Orbitron, sans-serif;">时空主宰极限秒表</h3>
-                <p>通用型精准计时系统，能够精确进行毫秒级分段统计与单圈表现分析等操作。</p>
+                <p>高精度多功能计时秒表，支持毫秒级分段与单圈统计，适合课堂活动与测试。</p>
                 <div class="card-links">
                     <a href="https://time-dominator.pages.dev/" target="_blank">启动时空仪</a>
                 </div>
@@ -305,7 +377,7 @@
             <div class="feature-card theme-sky">
                 <div class="card-icon">📖</div>
                 <h3>Diary Buddy 英文日记助手</h3>
-                <p>专属假期英文日记助手！通过引导与 AI 润色词汇，让孩子轻松完成一篇出色的英文日记。</p>
+                <p>互动式英文日记小助手，启发写作灵感并润色词句，帮孩子轻松完成日记！</p>
                 <div class="card-links">
                     <a href="diary-buddy/index.html">开始写日记</a>
                 </div>
@@ -314,7 +386,7 @@
             <div class="feature-card theme-purple">
                 <div class="card-icon">🧬</div>
                 <h3>3D 家族关系星系</h3>
-                <p>一个支持自然语言推导的超级亲戚计算器，并在浩瀚星空中为你构建出酷炫的 3D 全息家族网！自带本地存档和星际雷达探测定位。</p>
+                <p>智能推算复杂亲戚称谓，在星空中构建炫酷的 3D 家族关系网，生动直观！</p>
                 <div class="card-links">
                     <a href="family-tree-network/index.html">探索宇宙</a>
                 </div>
