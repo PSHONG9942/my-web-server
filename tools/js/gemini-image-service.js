@@ -112,7 +112,7 @@ class GeminiImageService {
      * 调用 Gemini 语言模型，带自动故障转移/降级池 (Failover Pool)
      * 若遇到 429 配额耗尽或网络错误，自动切换至下一个模型重试
      */
-    async callGeminiWithFailover(systemPrompt, userText, onModelSwitch = null) {
+    async callGeminiWithFailover(systemPrompt, userText, onModelSwitch = null, options = {}) {
         const apiKey = this.getApiKey();
         if (!apiKey) {
             throw new Error('未配置 API Key。请在右上角设置填入您的 Google AI Studio API Key。');
@@ -149,8 +149,8 @@ class GeminiImageService {
                             }
                         ],
                         generationConfig: {
-                            temperature: 0.65,
-                            maxOutputTokens: 350
+                            temperature: options.temperature !== undefined ? options.temperature : 0.65,
+                            maxOutputTokens: options.maxOutputTokens || 350
                         }
                     })
                 });
@@ -328,39 +328,67 @@ Strict Requirements:
 
     /**
      * Agent 1: 极速出题创意智能体 (Fast Prompt Creator Agent)
-     * 利用 Gemini 3.5 Flash Lite 极速（<1秒）生成简单、生动、符合华小学生水平的造句例句
+     * 利用 Gemini 3.5 Flash Lite 极速构思生动多变、极富儿童生活童趣的看图造句题目与绘本画面
      */
     async generateSentenceIdea(topicKeyword = '', onStatus = null) {
-        if (onStatus) onStatus('Agent 1 (极速创意助手) 正在构思生动造句题目...');
+        if (onStatus) onStatus('Agent 1 (极速创意助手) 正在构思生动多变的造句题目...');
 
+        // 覆盖华小 6 大生活领域的多元化随机创意灵感池 (彻底告别老套的小猴子与水果)
+        const CREATIVE_THEME_SEEDS = [
+            '校园生活（操场跳绳比赛、图书角读绘本、美术课画彩虹、科学课种豆苗、大扫除擦玻璃）',
+            '家庭温馨（帮妈妈包水饺、和爸爸洗汽车喷泡泡、阳台给向日葵浇水、弟弟搭乐高城堡、给刚回家的奶奶倒温水）',
+            '自然萌宠（小柯基在金黄落叶堆里打滚、池塘里两只小鸭子快活游泳、小松鼠在枝头藏松果、海滩上赤脚捡彩色贝壳）',
+            '四季户外（下雨天穿小黄雨靴踩水坑、微风中在绿草地放长尾巴风筝、夏夜在院子里看亮晶晶的萤火虫）',
+            '中华传统与节日（中秋节院子里提小兔子灯笼、端午节看龙舟比赛、新年穿新衣服向长辈拜年、元宵节猜灯谜）',
+            '科学与奇思妙想（戴着纸箱做的小小宇航员头盔在客厅探险、给毛绒小熊当小医生量体温、用放大镜观察小蜗牛爬树叶）'
+        ];
+
+        // 扩充至 20 句精选华小情境高品质保底题库 (涵盖各年级日常生活)
         const PRESETS = [
-            '可爱的小白兔在绿油油的草地上快乐地蹦蹦跳跳。',
-            '同学们在阳光明媚的操场上兴高采烈地踢足球。',
-            '小猫咪趴在温暖的窗台上舒服地晒太阳。',
-            '我和爸爸在美丽的公园里迎着微风开心地放风筝。',
-            '清晨的池塘边，两只小青蛙坐在荷叶上欢快地唱歌。',
-            '小红在明亮的教室里聚精会神地看童话书。',
-            '弟弟在宽敞的客厅里聚精会神地搭彩色积木。',
-            '小松鼠在高大的松树上机灵地采摘松果。',
-            '小鸟在绿树枝头欢快地唱着动听的歌。',
-            '妈妈在整洁的厨房里耐心地做美味的早餐。'
+            '下雨天，小明穿着黄色小雨靴在小水坑里欢快地踩水花。',
+            '美术课上，华华用五彩画笔在白纸上画出一道美丽的彩虹。',
+            '温暖的阳光下，圆滚滚的小花猫趴在窗台上舒服地晒太阳。',
+            '星期天早晨，我和爸爸在开满鲜花的公园里开心地放风筝。',
+            '清澈的池塘边，两只憨态可掬的小鸭子正排着队快活地游泳。',
+            '小红在整洁明亮的教室里聚精会神地阅读有趣的童话书。',
+            '活泼的弟弟坐在客厅的地毯上，兴致勃勃地拼搭高高的积木城堡。',
+            '大树枝头，机灵的小松鼠捧着一颗圆溜溜的松果香甜地吃着。',
+            '清晨的微风中，小丽在阳台上细心地给向日葵浇水。',
+            '厨房里，小强系着小围裙耐心地帮妈妈把洗好的青菜放进篮子里。',
+            '操场边，同学们在绿茵场上热火朝天地踢足球，欢呼声不断。',
+            '中秋节的夜晚，明明和小伙伴提着可爱的小兔子灯笼在院子里散步。',
+            '蔚蓝的海滩上，妹妹光着小脚丫兴奋地拾起一枚枚五颜六色的贝壳。',
+            '大扫除时，同学们分工合作把教室里的窗户擦得亮晶晶的。',
+            '小狗欢欢在铺满金黄落叶的草地上快活地打滚撒欢。',
+            '科学课上，老师带领同学们用小放大镜观察嫩绿树叶上的小蜗牛。',
+            '微风吹拂的河边，爷爷握着小孙子的手耐心地教他折彩色纸船。',
+            '音乐室里，同学们排列整齐，随着琴声唱起动听的儿歌。',
+            '书房里，姐姐端坐桌前专心致志地练习毛笔书法。',
+            '夜幕降临，院子里的草丛中闪烁着一只只提着绿色小灯笼的萤火虫。'
         ];
 
         try {
-            const systemPrompt = `You are a creative primary school Chinese teacher (马来西亚华小华文优秀教师).
-Generate ONE simple, vivid, age-appropriate sentence (8 to 22 Chinese characters) suitable for primary school students (Ages 7-10).
-The sentence must describe a concrete visual scene (people/animals doing an action in a setting), which can easily be drawn as a storybook illustration.
+            const systemPrompt = `你是一位极富童心、教学经验丰富的马来西亚华小特级华文教师。
+你的任务是为小学生看图造句生成 ONE 句简单、富有童趣、画面感极强的优秀单句（10到20个汉字）。
 
-Rules:
-1. Lively, positive, and educational.
-2. Natural grammar, standard Chinese vocabulary (符合KSSR标准华文).
-3. Output ONLY the single Chinese sentence. No pinyin, no explanations, no quotes, no numbering.`;
+【严苛要求】：
+1. 构图明确易画：必须具备【谁】+【在什么地方】+【做什么具体动作】+【细节/心情】，非常适合直接作为绘本插画情境。
+2. 彻底打破陈规：绝对严禁千篇一律的“小猴子吃水果/香蕉/苹果”或“小兔子吃胡萝卜”！必须展现丰富多元的儿童现实生活、萌宠、校园或大自然趣味画面。
+3. 语调充满童真童趣，用词规范标准（符合华小KSSR课程要求）。
+4. 绝对只输出这一句中文句子，严禁包含任何标点符号以外的多余解释、括号、拼音或引号。`;
 
-            const userPrompt = topicKeyword && topicKeyword.trim() 
-                ? `请围绕主题【${topicKeyword.trim()}】生成一个适合小学生看图造句的简单生动句子。`
-                : `请随机生成一个适合华小学生看图造句的趣味日常、动物或校园情境句子。`;
+            // 动态注入随机情境种子与主题清理
+            const cleanTopic = topicKeyword.replace(/[^\u4e00-\u9fa5a-zA-Z0-9\s]/g, '').trim();
+            const randomSeed = CREATIVE_THEME_SEEDS[Math.floor(Math.random() * CREATIVE_THEME_SEEDS.length)];
+            const userPrompt = cleanTopic
+                ? `请围绕主题【${cleanTopic}】生成一个适合小学生看图造句的生动画面句子。要求动作具体鲜活，富有真情实感与画面细节，严禁老套。`
+                : `请围绕【${randomSeed}】构思一个适合小学生看图造句的生动画面句子。务必生动可爱、富有画面感！`;
 
-            const result = await this.callGeminiWithFailover(systemPrompt, userPrompt);
+            const result = await this.callGeminiWithFailover(systemPrompt, userPrompt, null, {
+                temperature: 0.95, // 提高温度，确保每一次出题都独一无二、天马行空
+                maxOutputTokens: 120
+            });
+
             return {
                 sentence: result.text.replace(/["'“”]/g, '').trim(),
                 model: result.model
