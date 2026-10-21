@@ -1,0 +1,1077 @@
+/* ==========================================================================
+   SYNTAX FIGHTER: EXPEDITION EDITION
+   Reactive Turn-Based Combat Styles, AP Meters, Status Badges, QTE Rings
+   ========================================================================== */
+
+/* Character Selection Screen */
+.fighter-select-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.select-title-banner {
+  text-align: center;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid var(--neon-cyan);
+  border-radius: 8px;
+}
+
+.select-title-banner h2 {
+  font-family: var(--font-retro);
+  font-size: 16px;
+  color: var(--neon-yellow);
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 0px #000;
+}
+
+.select-roster-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+}
+
+.fighter-card-slot {
+  background: var(--bg-card);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.fighter-card-slot:hover {
+  transform: translateY(-4px) scale(1.02);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
+}
+
+.fighter-card-slot.selected {
+  border-color: var(--neon-yellow);
+  box-shadow: 0 0 20px rgba(255, 230, 0, 0.7);
+  background: rgba(255, 230, 0, 0.08);
+}
+
+.fighter-card-slot.cpu-selected {
+  border-color: var(--neon-pink);
+  box-shadow: 0 0 20px rgba(255, 0, 85, 0.7);
+}
+
+.fighter-avatar-icon {
+  font-size: 44px;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+}
+
+.fighter-slot-name {
+  font-family: var(--font-cyber);
+  font-size: 15px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.fighter-slot-title {
+  font-size: 11px;
+  color: #94a3b8;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* Fighter Detail Preview Panel */
+.fighter-preview-dock {
+  background: var(--bg-panel);
+  border: 1px solid rgba(0, 243, 255, 0.3);
+  border-radius: 12px;
+  padding: 18px 24px;
+  display: grid;
+  grid-template-columns: 280px 1fr auto;
+  gap: 24px;
+  align-items: center;
+}
+
+.dock-hero-info h3 {
+  font-family: var(--font-cyber);
+  font-size: 24px;
+  color: var(--neon-yellow);
+}
+
+.dock-hero-info p {
+  font-size: 13px;
+  color: #cbd5e1;
+  margin-top: 4px;
+}
+
+.dock-moves-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dock-moves-list h4 {
+  font-family: var(--font-cyber);
+  font-size: 12px;
+  color: var(--neon-cyan);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.dock-move-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dock-verb-chip {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 4px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dock-verb-name {
+  font-family: var(--font-cyber);
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.dock-verb-ipa {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.btn-start-fight {
+  font-family: var(--font-retro);
+  font-size: 14px;
+  padding: 16px 28px;
+  background: linear-gradient(135deg, var(--neon-pink), #a855f7);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: var(--glow-pink);
+  letter-spacing: 1px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-start-fight:hover {
+  transform: scale(1.05);
+  filter: brightness(1.2);
+}
+
+/* ==========================================================================
+   BATTLE ARENA SCREEN
+   ========================================================================== */
+.battle-arena-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+}
+
+/* Top Health & Timer Bar */
+.arena-top-hud {
+  display: grid;
+  grid-template-columns: 1fr 140px 1fr;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+}
+
+.health-meter-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.p2-meter {
+  align-items: flex-end;
+}
+
+.fighter-name-tag {
+  font-family: var(--font-cyber);
+  font-size: 16px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.health-bar-frame {
+  width: 100%;
+  height: 20px;
+  background: #1e202e;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.health-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff0055, #ffd700, #00ff66);
+  width: 100%;
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  z-index: 2;
+}
+
+.health-bar-ghost {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: #ef4444;
+  width: 100%;
+  transition: width 0.8s ease;
+  z-index: 1;
+}
+
+.p2-meter .health-bar-fill {
+  margin-left: auto;
+}
+
+.p2-meter .health-bar-ghost {
+  right: 0;
+  left: auto;
+}
+
+/* AP Pips Bar (Action Points - Expedition 33) */
+.ap-meter-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ap-label {
+  font-family: var(--font-retro);
+  font-size: 9px;
+  color: var(--neon-yellow);
+}
+
+.ap-pips-container {
+  display: flex;
+  gap: 4px;
+}
+
+.ap-pip {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #64748b;
+  transition: all 0.25s ease;
+}
+
+.ap-pip.filled {
+  background: linear-gradient(135deg, #ffd700, #ff9900);
+  border-color: #fff;
+  color: #000;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+  transform: scale(1.05);
+}
+
+/* Status Badges */
+.status-badges-strip {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  min-height: 20px;
+}
+
+.status-badge {
+  font-family: var(--font-cyber);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid #fff;
+  letter-spacing: 0.5px;
+  animation: pulseNeon 1.5s infinite alternate;
+}
+
+.badge-exposed { border-color: #f97316; color: #f97316; }
+.badge-bleeding { border-color: #ef4444; color: #ef4444; }
+.badge-stealth { border-color: #00f3ff; color: #00f3ff; }
+.badge-fortified { border-color: #eab308; color: #eab308; }
+.badge-frozen { border-color: #38bdf8; color: #38bdf8; }
+.badge-poisoned { border-color: #22c55e; color: #22c55e; }
+.badge-scorched { border-color: #ff3b00; color: #ff3b00; }
+.badge-shocked { border-color: #ffd700; color: #ffd700; }
+
+/* Turn Indicator Center */
+.turn-phase-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.turn-phase-pill {
+  font-family: var(--font-retro);
+  font-size: 10px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  background: rgba(0, 243, 255, 0.15);
+  border: 1px solid var(--neon-cyan);
+  color: var(--neon-cyan);
+  letter-spacing: 1px;
+}
+
+.turn-phase-pill.enemy-turn {
+  background: rgba(255, 0, 85, 0.15);
+  border-color: var(--neon-pink);
+  color: var(--neon-pink);
+  animation: pulseNeon 0.8s infinite alternate;
+}
+
+/* Center Battle Stage */
+.battle-stage {
+  height: 300px;
+  background: radial-gradient(circle at 50% 60%, rgba(30, 27, 75, 0.8), rgba(8, 9, 17, 0.95)),
+              linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+  background-size: 100% 100%, 20px 20px;
+  border: 2px solid rgba(0, 243, 255, 0.3);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 20px 80px 30px;
+}
+
+.stage-floor-grid {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 70px;
+  background: linear-gradient(transparent, rgba(0, 243, 255, 0.15));
+  border-top: 1px solid rgba(0, 243, 255, 0.3);
+  perspective: 200px;
+}
+
+/* Fighters on Stage */
+.fighter-sprite-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 5;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fighter-sprite-box.p1-side {
+  animation: fighterFloat 3s infinite ease-in-out;
+}
+
+.fighter-sprite-box.p2-side {
+  animation: fighterFloat 3.2s infinite ease-in-out reverse;
+  transform: scaleX(-1);
+}
+
+.fighter-giant-icon {
+  font-size: 96px;
+  filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.8));
+}
+
+.fighter-shadow {
+  width: 90px;
+  height: 16px;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.7), transparent 70%);
+  margin-top: -10px;
+}
+
+/* ==========================================================================
+   EXPEDITION 33: OFFENSIVE QTE (SYNTAX IMPACT RING)
+   ========================================================================== */
+.qte-overlay-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 220px;
+  height: 220px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  pointer-events: all;
+}
+
+.qte-overlay-container.active {
+  display: flex;
+}
+
+.qte-target-circle {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 4px solid var(--neon-yellow);
+  box-shadow: 0 0 20px rgba(255, 230, 0, 0.8);
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.qte-sweet-spot {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  position: absolute;
+  border: 2px dashed rgba(255, 255, 255, 0.8);
+}
+
+.qte-shrinking-ring {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 3px solid var(--neon-cyan);
+  box-shadow: 0 0 15px rgba(0, 243, 255, 0.8);
+  position: absolute;
+}
+
+.qte-prompt-text {
+  font-family: var(--font-retro);
+  font-size: 11px;
+  color: #fff;
+  text-shadow: 2px 2px 0px #000;
+  text-align: center;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   EXPEDITION 33: ACTIVE DEFENSE OVERLAY (DODGE vs PARRY)
+   ========================================================================== */
+.expedition-defense-panel {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 580px;
+  background: rgba(10, 12, 24, 0.95);
+  border: 2px solid var(--neon-pink);
+  border-radius: 12px;
+  padding: 14px 20px;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 0 30px rgba(255, 0, 85, 0.7);
+  z-index: 60;
+}
+
+.expedition-defense-panel.active {
+  display: flex;
+  animation: pulseNeon 0.6s infinite alternate;
+}
+
+.defense-cue-header {
+  font-family: var(--font-cyber);
+  font-size: 15px;
+  font-weight: 900;
+  color: #fff;
+  text-align: center;
+}
+
+.defense-cue-header u {
+  color: var(--neon-yellow);
+}
+
+.defense-meter-bar {
+  width: 100%;
+  height: 10px;
+  background: #1e202e;
+  border-radius: 5px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+}
+
+.defense-sweet-spot-zone {
+  position: absolute;
+  top: 0;
+  left: 70%;
+  width: 20%;
+  height: 100%;
+  background: rgba(255, 230, 0, 0.4);
+  border-left: 2px solid var(--neon-yellow);
+  border-right: 2px solid var(--neon-yellow);
+}
+
+.defense-meter-cursor {
+  position: absolute;
+  top: 0;
+  left: 0%;
+  width: 6px;
+  height: 100%;
+  background: #fff;
+  box-shadow: 0 0 10px #fff;
+}
+
+.defense-actions-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  justify-content: center;
+}
+
+.defense-action-btn {
+  font-family: var(--font-cyber);
+  font-size: 14px;
+  font-weight: 900;
+  padding: 10px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: all 0.15s ease;
+}
+
+.btn-dodge {
+  background: rgba(0, 243, 255, 0.15);
+  border: 2px solid var(--neon-cyan);
+  color: var(--neon-cyan);
+}
+
+.btn-dodge:hover {
+  background: var(--neon-cyan);
+  color: #000;
+  box-shadow: 0 0 15px rgba(0, 243, 255, 0.6);
+  transform: scale(1.05);
+}
+
+.btn-parry {
+  background: rgba(255, 230, 0, 0.15);
+  border: 2px solid var(--neon-yellow);
+  color: var(--neon-yellow);
+}
+
+.btn-parry:hover {
+  background: var(--neon-yellow);
+  color: #000;
+  box-shadow: 0 0 20px rgba(255, 230, 0, 0.8);
+  transform: scale(1.05);
+}
+
+.defense-subtext {
+  font-size: 10px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   BOTTOM CONTROLLER DOCK
+   ========================================================================== */
+.battle-controls-dock {
+  background: var(--bg-panel);
+  border: 2px solid var(--neon-cyan);
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: var(--glow-cyan);
+}
+
+.dock-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.active-sentence-display {
+  font-family: var(--font-cyber);
+  font-size: 15px;
+  color: var(--neon-yellow);
+  background: rgba(0, 0, 0, 0.5);
+  padding: 6px 16px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 230, 0, 0.3);
+  letter-spacing: 1px;
+}
+
+.btn-end-turn {
+  font-family: var(--font-retro);
+  font-size: 10px;
+  padding: 8px 14px;
+  background: rgba(255, 0, 85, 0.15);
+  border: 1px solid var(--neon-pink);
+  color: var(--neon-pink);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-end-turn:hover {
+  background: var(--neon-pink);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(255, 0, 85, 0.5);
+}
+
+.adverb-combo-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.adverb-strip-label {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.adverb-chip {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  color: #d8b4fe;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.adverb-chip:hover,
+.adverb-chip.selected {
+  background: var(--neon-purple);
+  color: #fff;
+  border-color: #fff;
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.6);
+}
+
+/* 5 Action Cards */
+.action-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+.action-verb-card {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(0, 243, 255, 0.3);
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.action-verb-card:hover {
+  border-color: var(--neon-cyan);
+  background: rgba(0, 243, 255, 0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+}
+
+.action-verb-card.finisher {
+  border-color: rgba(255, 0, 85, 0.5);
+}
+
+.action-verb-card.finisher:hover {
+  border-color: var(--neon-pink);
+  box-shadow: var(--glow-pink);
+}
+
+.action-verb-card.disabled {
+  opacity: 0.35;
+  pointer-events: none;
+  filter: grayscale(0.8);
+}
+
+.card-top-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.card-verb-title {
+  font-family: var(--font-cyber);
+  font-size: 14px;
+  font-weight: 900;
+  color: #fff;
+}
+
+.card-ap-badge {
+  font-family: var(--font-retro);
+  font-size: 8px;
+  padding: 2px 5px;
+  border-radius: 3px;
+  background: rgba(255, 215, 0, 0.2);
+  border: 1px solid var(--neon-yellow);
+  color: var(--neon-yellow);
+}
+
+.card-ipa-label {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.card-definition-text {
+  font-size: 11px;
+  color: #cbd5e1;
+  line-height: 1.3;
+}
+
+.card-synergy-hint {
+  font-size: 10px;
+  color: var(--neon-yellow);
+  font-weight: 700;
+  line-height: 1.25;
+  background: rgba(255, 230, 0, 0.08);
+  padding: 3px 5px;
+  border-radius: 4px;
+  border-left: 2px solid var(--neon-yellow);
+  margin-top: auto;
+}
+
+/* Combat Announcements & Popups */
+.combat-floating-text {
+  position: absolute;
+  font-family: var(--font-cyber);
+  font-weight: 900;
+  font-size: 26px;
+  text-shadow: 2px 2px 0px #000;
+  pointer-events: none;
+  animation: floatUpFade 1s ease-out forwards;
+  z-index: 70;
+}
+
+.combat-floating-text.damage { color: #ff3366; }
+.combat-floating-text.crit { color: var(--neon-yellow); font-size: 34px; }
+.combat-floating-text.parry { color: var(--neon-cyan); font-size: 30px; }
+.combat-floating-text.dodge { color: #38bdf8; }
+.combat-floating-text.heal { color: var(--neon-green); }
+
+/* KO Screen */
+.ko-screen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(10px);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeInView 0.4s ease;
+}
+
+.ko-screen-overlay.open {
+  display: flex;
+}
+
+.ko-banner-text {
+  font-family: var(--font-retro);
+  font-size: 56px;
+  color: var(--neon-pink);
+  text-shadow: 0 0 25px rgba(255, 0, 85, 0.9), 4px 4px 0px #000;
+  letter-spacing: 4px;
+  animation: pulseNeon 1s infinite alternate;
+}
+
+.ko-sub-banner {
+  font-family: var(--font-cyber);
+  font-size: 20px;
+  color: var(--neon-yellow);
+  letter-spacing: 2px;
+  margin-top: 10px;
+}
+
+.ko-debrief-card {
+  background: var(--bg-panel);
+  border: 2px solid var(--neon-cyan);
+  border-radius: 14px;
+  width: 90%;
+  max-width: 650px;
+  padding: 20px;
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ko-verbs-used-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+}
+
+.ko-verb-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ko-verb-chip strong {
+  font-family: var(--font-cyber);
+  color: var(--neon-cyan);
+  font-size: 13px;
+}
+
+.ko-verb-chip span {
+  font-size: 11px;
+  color: #cbd5e1;
+}
+
+.ko-actions-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+/* Keyframes */
+@keyframes fighterFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes fighterLunge {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(70px) scale(1.1); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes fighterHit {
+  0% { transform: translateX(0); filter: brightness(2) drop-shadow(0 0 20px red); }
+  25% { transform: translateX(-20px); }
+  50% { transform: translateX(15px); }
+  75% { transform: translateX(-10px); }
+  100% { transform: translateX(0); filter: none; }
+}
+
+@keyframes floatUpFade {
+  0% { opacity: 0; transform: translateY(10px) scale(0.8); }
+  20% { opacity: 1; transform: translateY(0) scale(1.1); }
+  100% { opacity: 0; transform: translateY(-40px) scale(1); }
+}
+
+@keyframes pulseNeon {
+  0% { box-shadow: 0 0 5px rgba(255, 0, 85, 0.4); }
+  100% { box-shadow: 0 0 20px rgba(255, 0, 85, 0.9); }
+}
+
+@keyframes fadeInView {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 900px) {
+  .select-roster-grid { grid-template-columns: repeat(3, 1fr); }
+  .action-cards-grid { grid-template-columns: repeat(2, 1fr); }
+  .fighter-preview-dock { grid-template-columns: 1fr; }
+}
+
+/* ==========================================================================
+   COMBAT FIELD GUIDE / HOW TO PLAY MODAL
+   ========================================================================== */
+.guide-modal-window {
+  background: var(--bg-panel);
+  border: 2px solid var(--neon-cyan);
+  border-radius: 16px;
+  box-shadow: var(--glow-cyan), 0 20px 60px rgba(0, 0, 0, 0.95);
+  width: 100%;
+  max-width: 820px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalScale 0.25s ease-out;
+}
+
+.guide-tabs-bar {
+  display: flex;
+  background: rgba(0, 0, 0, 0.6);
+  border-bottom: 1px solid rgba(0, 243, 255, 0.25);
+  overflow-x: auto;
+  padding: 6px 12px 0;
+  gap: 6px;
+}
+
+.guide-tab-btn {
+  font-family: var(--font-cyber);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 10px 16px;
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.guide-tab-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.guide-tab-btn.active {
+  color: var(--neon-cyan);
+  background: rgba(0, 243, 255, 0.12);
+  border-color: rgba(0, 243, 255, 0.4);
+  box-shadow: 0 -2px 10px rgba(0, 243, 255, 0.2);
+}
+
+.guide-step-body {
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.guide-step-pane {
+  display: none;
+  flex-direction: column;
+  gap: 16px;
+  animation: fadeInView 0.25s ease;
+}
+
+.guide-step-pane.active {
+  display: flex;
+}
+
+.guide-step-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.guide-step-num {
+  font-family: var(--font-retro);
+  font-size: 12px;
+  background: var(--neon-cyan);
+  color: #000;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.guide-step-title {
+  font-family: var(--font-cyber);
+  font-size: 20px;
+  color: #fff;
+  font-weight: 900;
+}
+
+.guide-card-visual {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.guide-annotated-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: center;
+}
+
+.guide-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.guide-pro-tip {
+  background: rgba(255, 230, 0, 0.1);
+  border-left: 3px solid var(--neon-yellow);
+  padding: 10px 14px;
+  border-radius: 0 8px 8px 0;
+  font-size: 13px;
+  color: #fef08a;
+  line-height: 1.4;
+}
+
+.guide-pro-tip strong {
+  color: var(--neon-yellow);
+}
+
+.guide-nav-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px;
+  background: rgba(0, 0, 0, 0.4);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Interactive Practice Drill Box */
+.practice-drill-box {
+  border: 2px dashed var(--neon-cyan);
+  background: rgba(0, 243, 255, 0.04);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.drill-result-feedback {
+  font-family: var(--font-cyber);
+  font-size: 18px;
+  font-weight: 900;
+  min-height: 26px;
+  letter-spacing: 1px;
+}
+

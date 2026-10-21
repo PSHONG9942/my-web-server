@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LEXI-CADE | English Cyber-Arcade Station</title>
+  <meta name="description" content="A highly competitive retro-futuristic English language arcade station where grammar, syntax, and vocabulary form the core game mechanics and combat physics.">
+  <link rel="icon" href="../../images/logo.png" type="image/png">
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="css/arcade-core.css">
+  <link rel="stylesheet" href="css/syntax-fighter.css">
+  
+  <style>
+    /* Inlined additions for turf war and minigame layouts */
+    .turf-grid-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: var(--bg-panel);
+      border: 2px solid var(--neon-cyan);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: var(--glow-cyan);
+    }
+    .turf-track {
+      display: grid;
+      grid-template-columns: repeat(11, 1fr);
+      gap: 6px;
+      height: 48px;
+    }
+    .turf-cell {
+      background: #1e202e;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+    .turf-cell.blue-owned {
+      background: linear-gradient(135deg, #00f3ff, #0066ff);
+      box-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+    }
+    .turf-cell.red-owned {
+      background: linear-gradient(135deg, #ff0055, #990033);
+      box-shadow: 0 0 10px rgba(255, 0, 85, 0.5);
+    }
+    .turf-cell.frontline-clash {
+      background: #fff;
+      box-shadow: 0 0 20px #fff;
+      animation: pulseNeon 0.5s infinite alternate;
+    }
+    .mini-game-card {
+      background: var(--bg-panel);
+      border: 2px solid var(--neon-pink);
+      border-radius: 14px;
+      padding: 28px;
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto;
+      box-shadow: var(--glow-pink);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Retro CRT Scanline Shader -->
+  <div class="crt-overlay" id="crtOverlay"></div>
+
+  <div class="arcade-master-container">
+
+    <!-- Top Cabinet Header -->
+    <header class="arcade-header">
+      <div class="marquee-brand">
+        <span class="marquee-logo-badge" id="btnInsertCoin" title="Click to Insert Token!">INSERT COIN</span>
+        <div class="arcade-title-group">
+          <h1>LEXI-CADE</h1>
+          <p>Competitive English Language Arcade Station</p>
+        </div>
+      </div>
+
+      <div class="arcade-status-deck">
+        <div class="status-pill token-pill" id="tokenDisplay" title="Arcade Tokens">
+          🪙 <span id="tokenCount">99</span> CREDITS
+        </div>
+        <div class="status-pill xp-pill" id="xpDisplay" title="Player Level">
+          ⭐ LV.<span id="playerLevel">1</span>
+        </div>
+        <div class="nav-buttons">
+          <button class="arcade-btn btn-yellow" id="btnOpenCodex">📖 Word Codex</button>
+          <button class="arcade-btn" id="btnToggleAudio">🔊 SFX ON</button>
+          <button class="arcade-btn" id="btnToggleCrt">📺 CRT</button>
+          <a href="../../index.html" class="arcade-btn btn-pink">🏠 Exit</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- ====================================================================
+         VIEW 1: ARCADE LOBBY (Cabinet Selector)
+         ==================================================================== -->
+    <section class="arcade-view active" id="viewLobby">
+      <div class="lobby-grid">
+
+        <!-- Cabinet 1: SYNTAX FIGHTER (Main Event) -->
+        <div class="cabinet-card featured">
+          <span class="cabinet-badge badge-hot">FEATURED 1v1</span>
+          <div class="cabinet-screen-preview" style="background: radial-gradient(circle, #2e0854, #080911);">
+            <div class="cabinet-hero-icon">⚔️</div>
+          </div>
+          <div class="cabinet-details">
+            <div class="cabinet-title-row">
+              <h3>SYNTAX FIGHTER</h3>
+              <span class="cabinet-players">1v1 / VS CPU</span>
+            </div>
+            <p class="cabinet-desc">
+              High-octane Street Fighter combat! Choose from 10 distinct arcade champions. Master 50 signature action verbs, chain adverb multipliers, and parry incoming attacks!
+            </p>
+            <div class="stealth-learning-tags">
+              <span class="learning-tag">50 Action Verbs</span>
+              <span class="learning-tag">Adverb Combos</span>
+              <span class="learning-tag">Reaction Parries</span>
+            </div>
+            <button class="cabinet-play-btn" id="btnLaunchSyntaxFighter">INSERT COIN & FIGHT</button>
+          </div>
+        </div>
+
+        <!-- Cabinet 2: WORD BLITZ: TURF WAR -->
+        <div class="cabinet-card">
+          <span class="cabinet-badge">COMPETITIVE</span>
+          <div class="cabinet-screen-preview" style="background: radial-gradient(circle, #083344, #080911);">
+            <div class="cabinet-hero-icon">🚩</div>
+          </div>
+          <div class="cabinet-details">
+            <div class="cabinet-title-row">
+              <h3>WORD BLITZ: TURF WAR</h3>
+              <span class="cabinet-players">REAL-TIME</span>
+            </div>
+            <p class="cabinet-desc">
+              Push the frontline against your rival in a dynamic territory battle. Rapidly fulfill collocations, synonyms, antonyms, and launch sabotage curses!
+            </p>
+            <div class="stealth-learning-tags">
+              <span class="learning-tag">Collocations</span>
+              <span class="learning-tag">Antonyms</span>
+              <span class="learning-tag">Sabotage Curses</span>
+            </div>
+            <button class="cabinet-play-btn" id="btnLaunchTurfWar">START TURF WAR</button>
+          </div>
+        </div>
+
+        <!-- Cabinet 3: PARTY MINI-GAMES -->
+        <div class="cabinet-card">
+          <span class="cabinet-badge badge-beta">PARTY HUB</span>
+          <div class="cabinet-screen-preview" style="background: radial-gradient(circle, #3b0724, #080911);">
+            <div class="cabinet-hero-icon">🎲</div>
+          </div>
+          <div class="cabinet-details">
+            <div class="cabinet-title-row">
+              <h3>PARTY MINI-GAMES</h3>
+              <span class="cabinet-players">MARIO PARTY STYLE</span>
+            </div>
+            <p class="cabinet-desc">
+              Fast, frantic micro-games using English as the physics engine: Tense Bomb Hot Potato, Preposition Obstacle Dash, and Antonym Tug-of-War!
+            </p>
+            <div class="stealth-learning-tags">
+              <span class="learning-tag">Irregular Tenses</span>
+              <span class="learning-tag">Prepositions</span>
+              <span class="learning-tag">Fast Reflexes</span>
+            </div>
+            <button class="cabinet-play-btn" id="btnLaunchMiniGames">ENTER MINI-GAMES</button>
+          </div>
+        </div>
+
+        <!-- Cabinet 4: LEXI-MON BATTLE -->
+        <div class="cabinet-card">
+          <span class="cabinet-badge">CARD DUEL</span>
+          <div class="cabinet-screen-preview" style="background: radial-gradient(circle, #1e1b4b, #080911);">
+            <div class="cabinet-hero-icon">🎴</div>
+          </div>
+          <div class="cabinet-details">
+            <div class="cabinet-title-row">
+              <h3>LEXI-MON BATTLE</h3>
+              <span class="cabinet-players">CARD ARENA</span>
+            </div>
+            <p class="cabinet-desc">
+              Pokémon TCG-style card battler. Play Root Word creatures (STRUCT, PORT, TRACT) and evolve them with Prefix & Suffix cards into devastating words!
+            </p>
+            <div class="stealth-learning-tags">
+              <span class="learning-tag">Greek/Latin Roots</span>
+              <span class="learning-tag">Prefix & Suffix Fusion</span>
+              <span class="learning-tag">Morphology</span>
+            </div>
+            <button class="cabinet-play-btn" id="btnLaunchLeximon">VIEW CARD DECK</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ====================================================================
+         VIEW 2: SYNTAX FIGHTER
+         ==================================================================== -->
+    <section class="arcade-view" id="viewSyntaxFighter">
+      
+      <!-- Back to Lobby Bar -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <button class="arcade-btn" id="btnBackToLobbyFromSF">◀ Return to Arcade Hub</button>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <button class="arcade-btn btn-yellow" id="btnOpenCombatGuide">📖 Combat Field Guide</button>
+          <span style="font-family: var(--font-retro); font-size: 11px; color: var(--neon-cyan);">EXPEDITION EDITION</span>
+        </div>
+      </div>
+
+      <!-- Character Select Sub-screen -->
+      <div class="fighter-select-screen active" id="sfSelectScreen">
+        <div class="select-title-banner">
+          <h2>SELECT YOUR FIGHTER (10 HEROES • 50 SIGNATURE VERBS)</h2>
+        </div>
+
+        <div class="select-roster-grid" id="sfRosterGrid">
+          <!-- Dynamically filled by JS -->
+        </div>
+
+        <div class="fighter-preview-dock">
+          <div class="dock-hero-info">
+            <h3 id="sfPreviewHeroName">KAGE</h3>
+            <p id="sfPreviewHeroTitle">The Cyber Ninja</p>
+            <p id="sfPreviewHeroBio" style="font-size: 12px; margin-top: 6px; color: #94a3b8;"></p>
+          </div>
+
+          <div class="dock-moves-list">
+            <h4>Signature Action Verbs</h4>
+            <div class="dock-move-tags" id="sfPreviewHeroMoves">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <button class="btn-start-fight" id="sfBtnStartFight">BATTLE CPU ⚔️</button>
+        </div>
+      </div>
+
+      <!-- Live Battle Arena Sub-screen -->
+      <div class="battle-arena-container" id="sfBattleScreen" style="display: none;">
+        
+        <!-- Top Health & AP Bar -->
+        <div class="arena-top-hud">
+          <div class="health-meter-box">
+            <div class="fighter-name-tag" id="sfP1NameTag">KAGE</div>
+            <div class="health-bar-frame">
+              <div class="health-bar-ghost" id="sfP1HealthGhost"></div>
+              <div class="health-bar-fill" id="sfP1HealthFill"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="health-num-text" id="sfP1HealthText">480 / 480 HP</span>
+              <div class="ap-meter-row">
+                <span class="ap-label">AP:</span>
+                <div class="ap-pips-container" id="sfP1ApPips"></div>
+              </div>
+            </div>
+            <div class="status-badges-strip" id="sfP1StatusStrip"></div>
+          </div>
+
+          <div class="turn-phase-banner">
+            <div class="turn-phase-pill" id="sfTurnPhasePill">PLAYER TURN</div>
+            <div class="arena-round-timer" id="sfRoundTimerText">99</div>
+          </div>
+
+          <div class="health-meter-box p2-meter">
+            <div class="fighter-name-tag" id="sfP2NameTag">AEGIS</div>
+            <div class="health-bar-frame">
+              <div class="health-bar-ghost" id="sfP2HealthGhost"></div>
+              <div class="health-bar-fill" id="sfP2HealthFill"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+              <div class="ap-meter-row">
+                <span class="ap-label">AP:</span>
+                <div class="ap-pips-container" id="sfP2ApPips"></div>
+              </div>
+              <span class="health-num-text" id="sfP2HealthText">620 / 620 HP</span>
+            </div>
+            <div class="status-badges-strip" id="sfP2StatusStrip" style="justify-content: flex-end;"></div>
+          </div>
+        </div>
+
+        <!-- Center Battle Stage -->
+        <div class="battle-stage" id="sfStageArena">
+          <div class="stage-floor-grid"></div>
+
+          <!-- P1 Fighter Sprite -->
+          <div class="fighter-sprite-box p1-side" id="sfP1SpriteBox">
+            <div class="fighter-giant-icon" id="sfP1SpriteIcon">🥷</div>
+            <div class="fighter-shadow"></div>
+          </div>
+
+          <!-- P2 Fighter Sprite -->
+          <div class="fighter-sprite-box p2-side" id="sfP2SpriteBox">
+            <div class="fighter-giant-icon" id="sfP2SpriteIcon">🛡️</div>
+            <div class="fighter-shadow"></div>
+          </div>
+
+          <!-- Expedition 33: Offensive QTE Ring (Syntax Impact) -->
+          <div class="qte-overlay-container" id="sfQteOverlay">
+            <div class="qte-shrinking-ring" id="sfQteRing"></div>
+            <div class="qte-target-circle">
+              <div class="qte-sweet-spot"></div>
+              <div class="qte-prompt-text">TIMING HIT!<br>[SPACE / CLICK]</div>
+            </div>
+          </div>
+
+          <!-- Expedition 33: Active Defense Panel (Enemy Turn) -->
+          <div class="expedition-defense-panel" id="sfDefensePanel">
+            <div class="defense-cue-header" id="sfDefenseCueText">⚠️ ENEMY WINDING UP ATTACK!</div>
+            <div class="defense-meter-bar">
+              <div class="defense-sweet-spot-zone" id="sfDefenseSweetZone"></div>
+              <div class="defense-meter-cursor" id="sfDefenseCursor"></div>
+            </div>
+            <div class="defense-actions-row">
+              <button class="defense-action-btn btn-dodge" id="sfBtnDodge">
+                <span>🛡️ DODGE [SPACE]</span>
+                <span class="defense-subtext">Safe Evasion (0 DMG)</span>
+              </button>
+              <button class="defense-action-btn btn-parry" id="sfBtnParry">
+                <span>⚔️ PARRY [KEY P]</span>
+                <span class="defense-subtext">Sweet Spot (+1 AP & Counter)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Controller Deck & Action Verbs -->
+        <div class="battle-controls-dock">
+          <div class="dock-header-row">
+            <div class="active-sentence-display" id="sfActiveSentence">
+              [P1] [CHOOSE ACTION] [P2]!
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <button class="arcade-btn btn-yellow" id="btnInGameGuide" style="padding: 6px 12px; font-size: 11px;">❓ Field Guide</button>
+              <button class="btn-end-turn" id="sfBtnEndTurn">END TURN ⏭️</button>
+            </div>
+          </div>
+
+          <div class="adverb-combo-strip" id="sfAdverbStrip">
+            <!-- Filled by JS -->
+          </div>
+
+          <!-- 5 Action Cards -->
+          <div class="action-cards-grid" id="sfActionCardsGrid">
+            <!-- Filled by JS -->
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ====================================================================
+         VIEW 3: WORD BLITZ TURF WAR
+         ==================================================================== -->
+    <section class="arcade-view" id="viewTurfWar">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <button class="arcade-btn" id="btnBackToLobbyFromTW">◀ Return to Arcade Hub</button>
+        <span style="font-family: var(--font-retro); font-size: 11px; color: var(--neon-cyan);">REAL-TIME TERRITORY WAR</span>
+      </div>
+
+      <div class="turf-grid-container" id="turfWarView">
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <h2 style="font-family: var(--font-cyber); color: var(--neon-cyan);">TURF WAR FRONT: PUSH THE LINE</h2>
+          <span style="font-family: var(--font-retro); color: var(--neon-yellow); font-size: 18px;" id="twTimerText">60s</span>
+        </div>
+
+        <!-- Frontline Track -->
+        <div class="turf-track" id="twTerritoryGrid"></div>
+
+        <div style="display: flex; justify-content: space-between; font-weight: 700;">
+          <span style="color: var(--neon-cyan);" id="twPlayerScore">50% TURF (YOU)</span>
+          <span style="color: var(--neon-pink);" id="twCpuScore">50% TURF (RIVAL)</span>
+        </div>
+
+        <div id="twSabotageBanner" style="display: none; background: rgba(255, 0, 85, 0.2); border: 1px solid var(--neon-pink); padding: 8px 14px; border-radius: 6px; color: #ff6699; font-weight: 700; text-align: center;"></div>
+
+        <!-- Active Constraint & Input -->
+        <div style="background: rgba(0, 0, 0, 0.6); padding: 18px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15); display: flex; flex-direction: column; gap: 12px;">
+          <div id="twPromptBox" style="font-size: 16px; font-weight: 700; color: #fff;">
+            Click START to initiate territory clash!
+          </div>
+
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="twOptionsRow"></div>
+
+          <div style="display: flex; gap: 10px;">
+            <input type="text" id="twTextInput" class="codex-search-input" placeholder="Type answer or click button..." style="flex: 1;">
+            <button class="arcade-btn btn-yellow" id="twBtnSubmit">SUBMIT</button>
+            <button class="arcade-btn btn-pink" id="twBtnStart">START CLASH</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ====================================================================
+         VIEW 4: PARTY MINI-GAMES
+         ==================================================================== -->
+    <section class="arcade-view" id="viewMiniGames">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <button class="arcade-btn" id="btnBackToLobbyFromMG">◀ Return to Arcade Hub</button>
+        <span style="font-family: var(--font-retro); font-size: 11px; color: var(--neon-pink);">MARIO PARTY ARCADE SUITE</span>
+      </div>
+
+      <div style="display: flex; gap: 12px; justify-content: center; margin-bottom: 20px;">
+        <button class="arcade-btn btn-pink" id="btnLaunchTenseBomb">💣 Tense Bomb (Hot Potato)</button>
+        <button class="arcade-btn btn-yellow" id="btnLaunchPrepDash">🏃 Preposition Dash</button>
+        <button class="arcade-btn" id="btnLaunchAntonymTug">🪢 Antonym Tug-of-War</button>
+      </div>
+
+      <div id="miniGameActiveArea">
+        <div class="mini-game-card">
+          <h2 style="font-family: var(--font-cyber); color: var(--neon-yellow);">SELECT A PARTY MINI-GAME</h2>
+          <p style="color: #cbd5e1; margin-top: 10px;">Fast 30-second games that turn irregular verbs, prepositions, and antonyms into competitive party physics!</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+
+  <!-- ====================================================================
+       POST-FIGHT KO MODAL
+       ==================================================================== -->
+  <div class="ko-screen-overlay" id="sfKoOverlay">
+    <div class="ko-banner-text" id="sfKoBannerText">K.O.!</div>
+    <div class="ko-sub-banner" id="sfKoSubBanner">VICTORY!</div>
+
+    <div class="ko-debrief-card">
+      <h3 style="font-family: var(--font-cyber); color: var(--neon-cyan); font-size: 16px;">
+        📖 BATTLE LEXICON DEBRIEFING (Words Mastered)
+      </h3>
+      <div class="ko-verbs-used-grid" id="sfKoVerbsList"></div>
+      
+      <div class="ko-actions-row">
+        <button class="arcade-btn btn-yellow" id="sfBtnKoRematch">⚔️ REMATCH</button>
+        <button class="arcade-btn btn-pink" id="sfBtnKoReturn">SELECT FIGHTER</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ====================================================================
+       MODAL: LEXICON CODEX (50 Mastered Words)
+       ==================================================================== -->
+  <div class="modal-backdrop" id="codexModal">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h2>📖 LEXICON CODEX (50 ACTION VERBS)</h2>
+        <button class="modal-close-btn" id="btnCloseCodex">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="codex-stats-banner">
+          <div>
+            <div class="codex-stat-num" id="statTotalWords">50</div>
+            <div class="codex-stat-label">Total Verbs</div>
+          </div>
+          <div>
+            <div class="codex-stat-num" id="statMasteredCount">0</div>
+            <div class="codex-stat-label">Mastered</div>
+          </div>
+          <div>
+            <div class="codex-stat-num" id="statTotalCredits">99</div>
+            <div class="codex-stat-label">Credits</div>
+          </div>
+        </div>
+
+        <input type="text" id="codexSearchInput" class="codex-search-input" placeholder="Search any verb, definition, or fighter...">
+
+        <div class="codex-cards-grid" id="codexCardsContainer">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL: COMBAT FIELD GUIDE (Step-by-Step Tutorial)
+       ==================================================================== -->
+  <div class="modal-backdrop" id="combatGuideModal">
+    <div class="guide-modal-window">
+      <div class="modal-header">
+        <h2 style="display: flex; align-items: center; gap: 8px;">
+          <span>⚔️</span> HOW TO PLAY: COMBAT FIELD GUIDE
+        </h2>
+        <button class="modal-close-btn" id="btnCloseGuide">&times;</button>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="guide-tabs-bar">
+        <button class="guide-tab-btn active" data-step="1">⚡ 1. AP & Turns</button>
+        <button class="guide-tab-btn" data-step="2">🔥 2. Word Combos</button>
+        <button class="guide-tab-btn" data-step="3">🎯 3. Syntax QTE</button>
+        <button class="guide-tab-btn" data-step="4">🛡️ 4. Dodge & Parry</button>
+        <button class="guide-tab-btn" data-step="5">🎮 5. Practice Gym</button>
+      </div>
+
+      <!-- Body / Steps -->
+      <div class="guide-step-body">
+        
+        <!-- STEP 1: AP & TURN FLOW -->
+        <div class="guide-step-pane active" id="guidePane1">
+          <div class="guide-step-header">
+            <span class="guide-step-num">STEP 1</span>
+            <span class="guide-step-title">Action Point (AP) Economy</span>
+          </div>
+          <p style="color: #cbd5e1; font-size: 14px; line-height: 1.5;">
+            In <b>Syntax Fighter: Expedition Edition</b>, you cannot button-mash attacks! You share an AP pool with strategic limits:
+          </p>
+          <div class="guide-card-visual">
+            <div style="display: flex; gap: 12px; align-items: center;">
+              <span style="font-family: var(--font-retro); font-size: 11px; color: var(--neon-yellow);">YOUR AP BAR:</span>
+              <div style="display: flex; gap: 6px;">
+                <div class="ap-pip filled" style="width: 24px; height: 24px; font-size: 14px;">⚡</div>
+                <div class="ap-pip filled" style="width: 24px; height: 24px; font-size: 14px;">⚡</div>
+                <div class="ap-pip filled" style="width: 24px; height: 24px; font-size: 14px;">⚡</div>
+                <div class="ap-pip" style="width: 24px; height: 24px; font-size: 14px;">⚡</div>
+              </div>
+            </div>
+            <div class="guide-annotated-box" style="margin-top: 8px;">
+              <div>
+                <b style="color: var(--neon-cyan);">[1 AP] Setup Actions</b>: Fast tactical verbs (e.g. <i>Ambush, Immobilize, Fortify</i>). Inflict status debuffs.
+              </div>
+              <div>
+                <b style="color: var(--neon-pink);">[3 AP] Lethal Finishers</b>: High-cost ultimate strikes (e.g. <i>Assassinate, Shatter, Obliterate</i>). Require combos to shine!
+              </div>
+            </div>
+          </div>
+          <div class="guide-pro-tip">
+            <strong>💡 PRO TIP:</strong> You start with 3 AP and replenish <b>+2 AP every turn</b> (up to max 4 AP). When your AP is 0, click <b>END TURN ⏭️</b> to hand initiative to the enemy.
+          </div>
+        </div>
+
+        <!-- STEP 2: WORD SYNERGIES -->
+        <div class="guide-step-pane" id="guidePane2">
+          <div class="guide-step-header">
+            <span class="guide-step-num">STEP 2</span>
+            <span class="guide-step-title">Read the Words: Setup ➔ Payoff</span>
+          </div>
+          <p style="color: #cbd5e1; font-size: 14px; line-height: 1.5;">
+            <b>Never blindly spam the highest number!</b> Finishers only deal baseline damage unless you first set up the linguistic synergy described in the card's golden hint!
+          </p>
+          <div class="guide-card-visual">
+            <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center; text-align: center;">
+              <div style="background: rgba(0,243,255,0.1); border: 1px solid var(--neon-cyan); padding: 10px; border-radius: 8px;">
+                <b style="color: var(--neon-cyan);">1. SETUP VERB</b><br>
+                <span>Cast <b>AMBUSH</b> (1 AP)</span><br>
+                <span class="guide-badge-pill" style="background: rgba(249,115,22,0.2); color: #f97316; margin-top: 4px;">🎯 Inflicts EXPOSED</span>
+              </div>
+              <div style="font-size: 24px; color: var(--neon-yellow);">➔</div>
+              <div style="background: rgba(255,0,85,0.1); border: 1px solid var(--neon-pink); padding: 10px; border-radius: 8px;">
+                <b style="color: var(--neon-pink);">2. LETHAL FINISHER</b><br>
+                <span>Cast <b>ASSASSINATE</b> (3 AP)</span><br>
+                <span style="color: var(--neon-yellow); font-weight: 900; font-size: 13px;">🔥 2.6x COMBO = 220+ DMG!</span>
+              </div>
+            </div>
+          </div>
+          <div class="guide-pro-tip">
+            <strong>💡 PRO TIP:</strong> Glacia freezes with <i>Immobilize</i> to 3x damage with <i>Shatter</i>. Toxin poisons with <i>Contaminate</i> to 100% lifesteal with <i>Siphon</i>. Always read the card definition!
+          </div>
+        </div>
+
+        <!-- STEP 3: OFFENSIVE QTE -->
+        <div class="guide-step-pane" id="guidePane3">
+          <div class="guide-step-header">
+            <span class="guide-step-num">STEP 3</span>
+            <span class="guide-step-title">Offensive Timing (Syntax Impact)</span>
+          </div>
+          <p style="color: #cbd5e1; font-size: 14px; line-height: 1.5;">
+            When you cast a verb, an Expedition 33-style <b>Syntax Timing Ring</b> appears on screen. Contracted timing determines your attack quality:
+          </p>
+          <div class="guide-card-visual" style="align-items: center;">
+            <div style="position: relative; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;">
+              <div style="position: absolute; width: 60px; height: 60px; border-radius: 50%; border: 3px solid var(--neon-yellow); box-shadow: 0 0 15px rgba(255,230,0,0.8);"></div>
+              <div style="position: absolute; width: 90px; height: 90px; border-radius: 50%; border: 2px dashed var(--neon-cyan); animation: pulseNeon 1s infinite alternate;"></div>
+              <span style="font-family: var(--font-retro); font-size: 9px; color: #fff;">SPACEBAR</span>
+            </div>
+            <div class="guide-annotated-box" style="width: 100%;">
+              <div><b style="color: var(--neon-yellow);">⚡ PERFECT SYNTAX</b>: Hit sweet spot ➔ <b>+50% Critical Damage</b> & <b>+1 AP REFUND</b>!</div>
+              <div><b style="color: #ef4444;">⚠️ FUMBLE</b>: Missed timing ➔ Attack deals only 50% damage.</div>
+            </div>
+          </div>
+          <div class="guide-pro-tip">
+            <strong>💡 PRO TIP:</strong> Press <b>[SPACEBAR]</b> or <b>Click</b> when the shrinking blue ring enters the golden center target!
+          </div>
+        </div>
+
+        <!-- STEP 4: ACTIVE DEFENSE -->
+        <div class="guide-step-pane" id="guidePane4">
+          <div class="guide-step-header">
+            <span class="guide-step-num">STEP 4</span>
+            <span class="guide-step-title">Active Defense: Dodge vs. Perfect Parry</span>
+          </div>
+          <p style="color: #cbd5e1; font-size: 14px; line-height: 1.5;">
+            During the enemy turn, combat is <b>NOT passive</b>! When the CPU winds up an attack, a sweeping meter appears with two active defensive options:
+          </p>
+          <div class="guide-card-visual">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+              <div style="border: 2px solid var(--neon-cyan); background: rgba(0,243,255,0.08); padding: 12px; border-radius: 8px;">
+                <h4 style="color: var(--neon-cyan); font-family: var(--font-cyber);">🛡️ DODGE [SPACEBAR]</h4>
+                <p style="font-size: 12px; margin-top: 4px; color: #cbd5e1;"><b>Safe Evasion (Wide window)</b></p>
+                <p style="font-size: 11px; color: #94a3b8; margin-top: 4px;">Leaps backward. Takes <b>0 DMG</b>, but deals 0 return damage.</p>
+              </div>
+              <div style="border: 2px solid var(--neon-yellow); background: rgba(255,230,0,0.08); padding: 12px; border-radius: 8px;">
+                <h4 style="color: var(--neon-yellow); font-family: var(--font-cyber);">⚔️ PARRY [KEY P]</h4>
+                <p style="font-size: 12px; margin-top: 4px; color: #cbd5e1;"><b>High Risk, High Reward (Sweet spot)</b></p>
+                <p style="font-size: 11px; color: #94a3b8; margin-top: 4px;">Negates all damage, grants <b>+1 AP</b>, and unleashes an immediate <b>COUNTER-STRIKE (50-80 DMG)</b>!</p>
+              </div>
+            </div>
+          </div>
+          <div class="guide-pro-tip">
+            <strong>💡 PRO TIP:</strong> If you're low on HP, use <b>DODGE</b> to stay safe. If you want to end the fight quickly, time a <b>PARRY</b> in the golden zone to counter-attack!
+          </div>
+        </div>
+
+        <!-- STEP 5: INTERACTIVE PRACTICE DRILL -->
+        <div class="guide-step-pane" id="guidePane5">
+          <div class="guide-step-header">
+            <span class="guide-step-num">STEP 5</span>
+            <span class="guide-step-title">Interactive Training Gym</span>
+          </div>
+          <p style="color: #cbd5e1; font-size: 14px;">
+            Test your timing and muscle memory right now with no risk:
+          </p>
+
+          <div class="practice-drill-box">
+            <div id="drillFeedbackText" class="drill-result-feedback" style="color: var(--neon-cyan);">
+              Ready to test? Choose a drill below!
+            </div>
+
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
+              <button class="arcade-btn btn-yellow" id="btnDrillQte">🎯 Test Offensive QTE</button>
+              <button class="arcade-btn btn-pink" id="btnDrillDefense">🛡️ Test Defense Parry/Dodge</button>
+            </div>
+
+            <!-- Mini visual practice area -->
+            <div id="drillPlayArea" style="width: 100%; height: 130px; background: rgba(0,0,0,0.6); border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+              <span id="drillPlaceholder" style="color: #64748b; font-size: 13px;">Click a button above to start drill.</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer navigation -->
+      <div class="guide-nav-footer">
+        <button class="arcade-btn" id="btnGuidePrev">◀ Previous</button>
+        <div style="font-size: 12px; color: #94a3b8;" id="guideStepCounter">Step 1 of 5</div>
+        <button class="arcade-btn btn-yellow" id="btnGuideNext">Next ▶</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- JavaScript Dependencies -->
+  <script src="data/fighters.js"></script>
+  <script src="js/audio-synth.js"></script>
+  <script src="js/arcade-storage.js"></script>
+  <script src="js/syntax-fighter.js"></script>
+  <script src="js/turf-war.js"></script>
+  <script src="js/minigames.js"></script>
+
+  <!-- Master Arcade Navigation & Coordinator -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Audio unlock on first user gesture
+      document.body.addEventListener("click", () => {
+        window.ARCADE_AUDIO.init();
+      }, { once: true });
+
+      // Coin Insert sound
+      const coinBtn = document.getElementById("btnInsertCoin");
+      const tokenCountElem = document.getElementById("tokenCount");
+      coinBtn.addEventListener("click", () => {
+        window.ARCADE_AUDIO.playCoin();
+        window.ARCADE_DATA.data.player.credits += 10;
+        window.ARCADE_DATA.save();
+        tokenCountElem.textContent = window.ARCADE_DATA.data.player.credits;
+      });
+
+      // Sound toggle
+      const btnToggleAudio = document.getElementById("btnToggleAudio");
+      btnToggleAudio.addEventListener("click", () => {
+        const isMuted = window.ARCADE_AUDIO.toggleMute();
+        btnToggleAudio.textContent = isMuted ? "🔇 SFX OFF" : "🔊 SFX ON";
+        if (!isMuted) window.ARCADE_AUDIO.playSelect();
+      });
+
+      // CRT Scanline toggle
+      const btnToggleCrt = document.getElementById("btnToggleCrt");
+      btnToggleCrt.addEventListener("click", () => {
+        window.ARCADE_AUDIO.playSelect();
+        document.body.classList.toggle("no-scanlines");
+      });
+
+      // Navigation views
+      const views = {
+        lobby: document.getElementById("viewLobby"),
+        syntaxFighter: document.getElementById("viewSyntaxFighter"),
+        turfWar: document.getElementById("viewTurfWar"),
+        miniGames: document.getElementById("viewMiniGames")
+      };
+
+      function switchView(viewName) {
+        window.ARCADE_AUDIO.playSelect();
+        for (let key in views) {
+          views[key].classList.remove("active");
+        }
+        if (views[viewName]) {
+          views[viewName].classList.add("active");
+        }
+      }
+
+      // Launch Buttons
+      document.getElementById("btnLaunchSyntaxFighter").addEventListener("click", () => {
+        window.ARCADE_AUDIO.playCoin();
+        switchView("syntaxFighter");
+        document.getElementById("sfSelectScreen").style.display = "flex";
+        document.getElementById("sfSelectScreen").classList.add("active");
+        document.getElementById("sfBattleScreen").style.display = "none";
+        document.getElementById("sfBattleScreen").classList.remove("active");
+      });
+
+      document.getElementById("btnLaunchTurfWar").addEventListener("click", () => {
+        window.ARCADE_AUDIO.playCoin();
+        switchView("turfWar");
+      });
+
+      document.getElementById("btnLaunchMiniGames").addEventListener("click", () => {
+        window.ARCADE_AUDIO.playCoin();
+        switchView("miniGames");
+      });
+
+      document.getElementById("btnLaunchLeximon").addEventListener("click", () => {
+        window.ARCADE_AUDIO.playSelect();
+        openCodexModal();
+      });
+
+      // Return to Lobby buttons
+      document.getElementById("btnBackToLobbyFromSF").addEventListener("click", () => switchView("lobby"));
+      document.getElementById("btnBackToLobbyFromTW").addEventListener("click", () => switchView("lobby"));
+      document.getElementById("btnBackToLobbyFromMG").addEventListener("click", () => switchView("lobby"));
+
+      // Initialize Games
+      const sfGame = new SyntaxFighterGame();
+      const twGame = new TurfWarGame();
+
+      // Codex Modal handling
+      const codexModal = document.getElementById("codexModal");
+      const btnOpenCodex = document.getElementById("btnOpenCodex");
+      const btnCloseCodex = document.getElementById("btnCloseCodex");
+      const codexSearchInput = document.getElementById("codexSearchInput");
+      const codexCardsContainer = document.getElementById("codexCardsContainer");
+
+      function openCodexModal() {
+        window.ARCADE_AUDIO.playSelect();
+        renderCodexCards("");
+        document.getElementById("statTotalCredits").textContent = window.ARCADE_DATA.data.player.credits;
+        document.getElementById("statMasteredCount").textContent = window.ARCADE_DATA.getMasteredCount();
+        codexModal.classList.add("open");
+      }
+
+      btnOpenCodex.addEventListener("click", openCodexModal);
+      btnCloseCodex.addEventListener("click", () => {
+        window.ARCADE_AUDIO.playBack();
+        codexModal.classList.remove("open");
+      });
+
+      codexSearchInput.addEventListener("input", (e) => {
+        renderCodexCards(e.target.value.toLowerCase().trim());
+      });
+
+      function renderCodexCards(filter) {
+        codexCardsContainer.innerHTML = "";
+        let count = 0;
+
+        FIGHTERS_DATA.forEach(f => {
+          f.moves.forEach(m => {
+            const matches = !filter || 
+              m.verb.toLowerCase().includes(filter) ||
+              m.definition.toLowerCase().includes(filter) ||
+              f.name.toLowerCase().includes(filter);
+
+            if (matches) {
+              count++;
+              const stats = window.ARCADE_DATA.getWordStats(m.verb);
+              const card = document.createElement("div");
+              card.className = "codex-word-card";
+
+              let badgeClass = "badge-learner";
+              if (stats.masteryLevel === "Master") badgeClass = "badge-master";
+              else if (stats.masteryLevel === "Adept") badgeClass = "badge-adept";
+
+              card.innerHTML = `
+                <div class="codex-word-top">
+                  <span class="codex-verb-name">${m.verb}</span>
+                  <span class="codex-verb-ipa">${m.ipa}</span>
+                  <span class="codex-verb-badge ${badgeClass}">${stats.masteryLevel}</span>
+                </div>
+                <div class="codex-verb-def">${m.definition}</div>
+                <div class="codex-verb-fighter">Hero: ${f.name} (${f.title}) • Used ${stats.timesUsed}x</div>
+              `;
+              codexCardsContainer.appendChild(card);
+            }
+          });
+        });
+
+        if (count === 0) {
+          codexCardsContainer.innerHTML = `<p style="color: #94a3b8; grid-column: 1/-1; text-align: center;">No action verbs found matching "${filter}".</p>`;
+        }
+      }
+
+      // Update Top HUD stats
+      document.getElementById("tokenCount").textContent = window.ARCADE_DATA.data.player.credits;
+      document.getElementById("playerLevel").textContent = window.ARCADE_DATA.data.player.level;
+    });
+  </script>
+</body>
+</html>

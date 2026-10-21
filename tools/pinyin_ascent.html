@@ -1,0 +1,1678 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="../images/logo.png" type="image/png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>跃音登天阁 - 汉字拼音竞技冲梯</title>
+    <!-- Google Fonts: 楷体/国风 + 现代数字英文字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Serif+SC:wght@600;900&family=Outfit:wght@500;700;900&display=swap" rel="stylesheet">
+    <!-- 引入 pinyin-pro 拼音库 -->
+    <script src="https://unpkg.com/pinyin-pro@3.19.2/dist/index.js"></script>
+
+    <style>
+        :root {
+            --bg-top: #1a1c2e;
+            --bg-mid: #2d325a;
+            --bg-bottom: #4f527a;
+            --gold: #f6d365;
+            --gold-glow: rgba(246, 211, 101, 0.4);
+            --jade: #00d2d3;
+            --cinnabar: #ff5252;
+            --wood: #f1ebd9;
+            --ink: #1e272e;
+            --paper-bg: rgba(255, 255, 255, 0.92);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Serif SC', serif;
+            background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 60%, var(--bg-bottom) 100%);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            color: #ffffff;
+            position: relative;
+        }
+
+        /* 东方浮云与群山背景画布 */
+        #sky-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* 顶部状态与进度栏 */
+        header {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 24px;
+            background: rgba(15, 17, 30, 0.65);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 6px 14px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .game-title {
+            font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', cursive;
+            font-size: 22px;
+            letter-spacing: 2px;
+            color: var(--gold);
+            text-shadow: 0 0 12px var(--gold-glow);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-center {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .progress-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 700;
+            color: #e0e0e0;
+        }
+
+        .progress-bar-wrap {
+            width: 100%;
+            height: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff7675, #fdcb6e, #00cec9);
+            border-radius: 10px;
+            transition: width 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 0 10px rgba(0, 206, 201, 0.7);
+        }
+
+        /* 幽灵影子进度标记 */
+        .ghost-marker {
+            position: absolute;
+            top: -2px;
+            width: 3px;
+            height: 14px;
+            background: #ffeaa7;
+            box-shadow: 0 0 6px #ffeaa7;
+            pointer-events: none;
+            transition: left 0.3s ease;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .badge-pill {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 700;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .sound-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        .sound-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* 主视口容器 */
+        main {
+            flex: 1;
+            position: relative;
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 游戏天梯舞台 */
+        #stage-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-bottom: 20px;
+        }
+
+        /* 浮石天梯阶梯组 */
+        .spire-camera {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            max-width: 600px;
+            height: 100%;
+            pointer-events: none;
+            transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* 浮石台阶样式 */
+        .stone-step {
+            position: absolute;
+            width: 180px;
+            height: 48px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(180deg, #f1ebd9 0%, #c8c0aa 100%);
+            border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.8);
+            border: 2px solid #e0d8c0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ink);
+            font-size: 15px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        .stone-step.current {
+            width: 240px;
+            height: 64px;
+            background: linear-gradient(180deg, #fffef9 0%, #ecdcb4 100%);
+            border: 3px solid var(--gold);
+            box-shadow: 0 0 35px var(--gold-glow), 0 15px 30px rgba(0, 0, 0, 0.45);
+        }
+
+        .stone-step.completed {
+            background: linear-gradient(180deg, #81ecec 0%, #00cec9 100%);
+            color: #fff;
+            border-color: #55efc4;
+            opacity: 0.65;
+            box-shadow: 0 5px 15px rgba(0, 206, 201, 0.3);
+        }
+
+        .stone-step.failed {
+            background: linear-gradient(180deg, #ff7675 0%, #d63031 100%) !important;
+            border-color: #fab1a0 !important;
+            animation: stoneCrumble 0.6s forwards;
+        }
+
+        @keyframes stoneCrumble {
+            0% { transform: translateX(-50%) rotate(0deg); }
+            20% { transform: translateX(-55%) rotate(-8deg); }
+            40% { transform: translateX(-45%) rotate(6deg); }
+            70% { transform: translateX(-50%) translateY(40px) rotate(15deg); opacity: 0.7; }
+            100% { transform: translateX(-50%) translateY(160px) rotate(30deg); opacity: 0; }
+        }
+
+        /* 小书童角色 */
+        .scholar-mascot {
+            position: absolute;
+            left: 50%;
+            width: 76px;
+            height: 84px;
+            transform: translate(-50%, -100%);
+            z-index: 15;
+            transition: all 0.32s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            pointer-events: none;
+            filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.35));
+        }
+
+        /* 角色影子 */
+        .scholar-shadow {
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 46px;
+            height: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 50%;
+            filter: blur(2px);
+        }
+
+        /* 历史虚影/影子对手 */
+        .ghost-mascot {
+            position: absolute;
+            left: calc(50% + 140px);
+            width: 60px;
+            height: 70px;
+            transform: translate(-50%, -100%);
+            z-index: 12;
+            opacity: 0.45;
+            filter: drop-shadow(0 0 8px #ffeaa7) brightness(1.3);
+            pointer-events: none;
+            transition: all 0.4s ease-out;
+        }
+
+        .ghost-label {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(253, 203, 110, 0.85);
+            color: #2d3436;
+            font-size: 10px;
+            font-weight: 900;
+            padding: 2px 6px;
+            border-radius: 10px;
+            white-space: nowrap;
+        }
+
+        /* 中央当前汉字展示卡片 (HUD) */
+        .target-card {
+            position: absolute;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--paper-bg);
+            padding: 16px 36px 12px;
+            border-radius: 28px;
+            border: 4px solid var(--gold);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.45), 0 0 25px var(--gold-glow);
+            animation: floatCard 3s ease-in-out infinite;
+        }
+
+        @keyframes floatCard {
+            0%, 100% { transform: translateX(-50%) translateY(0px); }
+            50% { transform: translateX(-50%) translateY(-6px); }
+        }
+
+        .target-char {
+            font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
+            font-size: 80px;
+            font-weight: 900;
+            color: var(--ink);
+            line-height: 1;
+            margin-bottom: 6px;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.12);
+        }
+
+        .target-hint {
+            font-size: 13px;
+            font-weight: 700;
+            color: #7f8c8d;
+            letter-spacing: 1px;
+        }
+
+        /* 连击 Combo 浮动显示 */
+        .combo-badge {
+            position: absolute;
+            right: 40px;
+            top: 40px;
+            z-index: 25;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            transform: scale(0.6);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        }
+
+        .combo-badge.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .combo-num {
+            font-size: 42px;
+            font-weight: 900;
+            color: var(--gold);
+            text-shadow: 0 0 15px rgba(246, 211, 101, 0.8);
+            line-height: 1;
+        }
+
+        .combo-text {
+            font-size: 14px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #ffeaa7;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        /* 底部交互操作区（4个选项卡） */
+        .controls-panel {
+            position: relative;
+            z-index: 20;
+            width: 100%;
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 10px 20px 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            width: 100%;
+        }
+
+        @media (min-width: 650px) {
+            .options-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .option-card {
+            background: rgba(255, 255, 255, 0.94);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            border-radius: 18px;
+            padding: 14px 10px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+            transition: all 0.15s cubic-bezier(0.2, 0, 0, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            border-color: var(--gold);
+            box-shadow: 0 12px 26px rgba(0, 0, 0, 0.35), 0 0 15px var(--gold-glow);
+            background: #ffffff;
+        }
+
+        .option-card:active {
+            transform: translateY(2px) scale(0.98);
+        }
+
+        .option-key {
+            position: absolute;
+            top: 6px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.08);
+            color: #636e72;
+            font-size: 11px;
+            font-weight: 900;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+
+        .option-pinyin {
+            font-size: 26px;
+            font-weight: 900;
+            color: var(--ink);
+            letter-spacing: 1px;
+        }
+
+        .option-card.correct {
+            background: linear-gradient(135deg, #00b894, #55efc4) !important;
+            border-color: #00cec9 !important;
+            transform: scale(1.05);
+        }
+
+        .option-card.correct .option-pinyin {
+            color: #ffffff;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .option-card.wrong {
+            background: linear-gradient(135deg, #d63031, #ff7675) !important;
+            border-color: #fab1a0 !important;
+            animation: shake 0.4s ease;
+        }
+
+        .option-card.wrong .option-pinyin {
+            color: #ffffff;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+        }
+
+        .controls-hint {
+            text-align: center;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+        }
+
+        /* 模态框 / 关卡菜单 / 结算弹窗 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(10, 12, 22, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.25s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-card {
+            background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
+            border: 2px solid var(--gold);
+            border-radius: 28px;
+            max-width: 520px;
+            width: 100%;
+            padding: 32px 28px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 30px var(--gold-glow);
+            position: relative;
+        }
+
+        .modal-icon {
+            font-size: 58px;
+            margin-bottom: 8px;
+            animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            70% { transform: scale(1.15); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-title {
+            font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
+            font-size: 32px;
+            color: var(--gold);
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .modal-desc {
+            font-size: 15px;
+            color: #dcdde1;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        /* 近失惋惜感核心弹窗 (Near-Miss) */
+        .near-miss-box {
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px dashed rgba(255, 255, 255, 0.25);
+            border-radius: 16px;
+            padding: 16px;
+            width: 100%;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .near-miss-percentage {
+            font-size: 28px;
+            font-weight: 900;
+            color: #ff7675;
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .near-miss-explain {
+            font-size: 14px;
+            color: #f5f6fa;
+            line-height: 1.5;
+        }
+
+        .modal-btn-group {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .btn-primary {
+            flex: 1;
+            background: linear-gradient(135deg, #fdcb6e, #f39c12);
+            color: #2c3e50;
+            font-size: 18px;
+            font-weight: 900;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(243, 156, 18, 0.4);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(243, 156, 18, 0.6);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+            padding: 14px 18px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.22);
+        }
+
+        /* 关卡选择列表 */
+        .stage-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            width: 100%;
+            max-height: 380px;
+            overflow-y: auto;
+            padding-right: 6px;
+            margin-bottom: 20px;
+        }
+
+        .stage-item {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            padding: 14px 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .stage-item:hover {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: var(--gold);
+            transform: translateX(4px);
+        }
+
+        .stage-info h4 {
+            font-size: 16px;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .stage-info p {
+            font-size: 12px;
+            color: #b2bec3;
+        }
+
+        .stage-stars {
+            color: var(--gold);
+            font-size: 14px;
+            font-weight: 900;
+        }
+
+        /* 自定义文本框输入 */
+        .custom-input-box {
+            width: 100%;
+            height: 100px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 12px;
+            color: #fff;
+            font-size: 16px;
+            font-family: inherit;
+            resize: none;
+            margin-bottom: 16px;
+            outline: none;
+        }
+
+        .custom-input-box:focus {
+            border-color: var(--gold);
+        }
+
+        /* 屏幕抖动效果 */
+        .screen-shake {
+            animation: screenShakeAnim 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+        }
+
+        @keyframes screenShakeAnim {
+            10%, 90% { transform: translate3d(-2px, -1px, 0); }
+            20%, 80% { transform: translate3d(3px, 2px, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, -2px, 0); }
+            40%, 60% { transform: translate3d(4px, 3px, 0); }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 背景云阁粒子画布 -->
+    <canvas id="sky-canvas"></canvas>
+
+    <!-- 顶部状态栏 -->
+    <header>
+        <div class="nav-left">
+            <a href="../index.html" class="back-btn" title="返回主页">
+                <span>◀</span> 主页
+            </a>
+            <div class="game-title">
+                <span>⛩️</span> 跃音登天阁
+            </div>
+        </div>
+
+        <div class="nav-center">
+            <div class="progress-header">
+                <span id="level-title-display">第一关：初试锋芒</span>
+                <span id="step-count-display">第 1 / 20 层 (5%)</span>
+            </div>
+            <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" id="progress-bar"></div>
+                <!-- 最佳影子标记 -->
+                <div class="ghost-marker" id="ghost-progress-marker" style="left: 0%;" title="历史最佳位置"></div>
+            </div>
+        </div>
+
+        <div class="nav-right">
+            <div class="badge-pill" id="rank-badge" title="当前排位等级">
+                <span>📜</span> <span id="rank-name">书童</span>
+            </div>
+            <button class="sound-btn" id="btn-sound" onclick="toggleAudio()" title="音效开关">🔊</button>
+            <button class="sound-btn" onclick="openStageMenu()" title="切换关卡">📑 选关</button>
+        </div>
+    </header>
+
+    <!-- 主游戏操作区 -->
+    <main id="main-viewport">
+        <!-- 天梯与书童舞台 -->
+        <div id="stage-container">
+            <!-- 摄像机：跟随台阶平滑上升 -->
+            <div class="spire-camera" id="spire-camera">
+                <!-- 动态生成的浮石阶梯 -->
+                <div id="stone-steps-group"></div>
+
+                <!-- 小书童角色 (SVG 矢量卡通) -->
+                <div class="scholar-mascot" id="scholar-mascot">
+                    <svg viewBox="0 0 100 110" width="100%" height="100%">
+                        <!-- 书童身体/长袍 -->
+                        <path d="M 30 55 C 30 45 70 45 70 55 L 75 90 C 75 95 25 95 25 90 Z" fill="#3498db" />
+                        <!-- 书童腰带 -->
+                        <rect x="28" y="68" width="44" height="6" rx="3" fill="#f1c40f" />
+                        <!-- 书童领口 -->
+                        <polygon points="40,55 50,68 60,55" fill="#ecf0f1" />
+                        <!-- 书童圆脸 -->
+                        <circle cx="50" cy="38" r="20" fill="#ffeaa7" />
+                        <!-- 书生巾发髻 -->
+                        <path d="M 35 28 C 35 12 65 12 65 28 Z" fill="#2c3e50" />
+                        <rect x="45" y="8" width="10" height="12" rx="2" fill="#2c3e50" />
+                        <circle cx="50" cy="8" r="5" fill="#e74c3c" />
+                        <!-- 飘带 -->
+                        <path d="M 60 14 Q 75 18 80 32" stroke="#e74c3c" stroke-width="4" fill="none" stroke-linecap="round" />
+                        <!-- 眼睛与微笑 -->
+                        <circle cx="43" cy="38" r="2.5" fill="#2d3436" />
+                        <circle cx="57" cy="38" r="2.5" fill="#2d3436" />
+                        <path d="M 45 44 Q 50 49 55 44" stroke="#d63031" stroke-width="2" fill="none" stroke-linecap="round" />
+                        <!-- 小手捧书 -->
+                        <rect x="36" y="62" width="28" height="18" rx="2" fill="#e67e22" />
+                        <line x1="50" y1="62" x2="50" y2="80" stroke="#fff" stroke-width="1.5" />
+                    </svg>
+                    <div class="scholar-shadow"></div>
+                </div>
+
+                <!-- 影子对手 (Ghost Rival) -->
+                <div class="ghost-mascot" id="ghost-mascot" style="display: none;">
+                    <div class="ghost-label">🌟 最佳影子</div>
+                    <svg viewBox="0 0 100 110" width="100%" height="100%">
+                        <path d="M 30 55 C 30 45 70 45 70 55 L 75 90 C 75 95 25 95 25 90 Z" fill="#ffeaa7" />
+                        <circle cx="50" cy="38" r="20" fill="#fff" />
+                        <path d="M 35 28 C 35 12 65 12 65 28 Z" fill="#ffeaa7" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 中央汉字目标卡片 -->
+            <div class="target-card" id="target-card">
+                <div class="target-char" id="target-char">学</div>
+                <div class="target-hint" id="target-hint">请选择正确的汉字拼音</div>
+            </div>
+
+            <!-- 连击 Combo 提示 -->
+            <div class="combo-badge" id="combo-badge">
+                <div class="combo-num" id="combo-num">5</div>
+                <div class="combo-text" id="combo-text">连击 · 行云流水</div>
+            </div>
+        </div>
+
+        <!-- 底部 4 个辨音选项卡 -->
+        <div class="controls-panel">
+            <div class="options-grid" id="options-grid">
+                <!-- 动态生成 4 个选项 -->
+            </div>
+            <div class="controls-hint">
+                💡 键盘按数字键 <b style="color:var(--gold)">[1] [2] [3] [4]</b> 或点击选项直冲云霄
+            </div>
+        </div>
+    </main>
+
+    <!-- 弹窗：近失惋惜感 / 跌落重试弹窗 (Near-Miss Retry) -->
+    <div class="modal-overlay" id="retry-modal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-icon">🍂</div>
+            <h3 class="modal-title" id="retry-title">失足跌落！</h3>
+            <p class="modal-desc" id="retry-subtitle">距离登顶天阁仅一步之遥！</p>
+
+            <div class="near-miss-box">
+                <div class="near-miss-percentage" id="retry-percent">95%</div>
+                <div class="near-miss-explain" id="retry-detail">
+                    目标字【晨】正确发音为 <b>chén</b>（前鼻音）。<br>
+                    你错选了 <b>chéng</b>（后鼻音），注意气流鼻腔共鸣的区别哦！
+                </div>
+            </div>
+
+            <div class="modal-btn-group">
+                <button class="btn-primary" id="btn-quick-retry" onclick="quickRestart()">
+                    ⚡ 0秒重战 (空格键)
+                </button>
+                <button class="btn-secondary" onclick="openStageMenu()">
+                    📑 选关
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗：登顶成功结算 (Victory) -->
+    <div class="modal-overlay" id="victory-modal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-icon">🏆</div>
+            <h3 class="modal-title">金榜题名 · 登顶云阁！</h3>
+            <p class="modal-desc" id="victory-desc">太卓越了！你成功攻克了全部阶梯！</p>
+
+            <div class="near-miss-box" style="text-align: center;">
+                <div style="font-size: 38px; font-weight: 900; color: var(--gold); margin-bottom: 6px;" id="victory-grade">
+                    SSS 冠绝天下
+                </div>
+                <div style="font-size: 15px; color: #ecf0f1;" id="victory-stats">
+                    连击数：20 / 耗时：18.5秒 / 准确率：100%
+                </div>
+            </div>
+
+            <div class="modal-btn-group">
+                <button class="btn-primary" onclick="nextStage()">
+                    🚀 进入下一关
+                </button>
+                <button class="btn-secondary" onclick="quickRestart()">
+                    🔄 挑战更高评分
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗：关卡选择与自定义生字 -->
+    <div class="modal-overlay" id="stage-modal" style="display: none;">
+        <div class="modal-card" style="max-width: 580px;">
+            <div class="modal-icon">📜</div>
+            <h3 class="modal-title">天梯考级门洞</h3>
+            <p class="modal-desc">挑选你想攻克的拼音难关，或导入课本生字进行特训！</p>
+
+            <div class="stage-grid" id="stage-list-container">
+                <!-- 动态填充关卡 -->
+            </div>
+
+            <!-- 自定义生字输入区域 -->
+            <div style="width: 100%; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 14px;">
+                <p style="font-size: 13px; color: var(--gold); margin-bottom: 8px; font-weight: 700;">
+                    ✏️ 家长/老师自定义题库（输入要特训的生字词）：
+                </p>
+                <textarea id="custom-text-input" class="custom-input-box" placeholder="例如：树木 森林 纸张 窗户 阳光 晨光 风筝"></textarea>
+                <div class="modal-btn-group">
+                    <button class="btn-primary" onclick="startCustomStage()">
+                        🎯 生成专属特训梯
+                    </button>
+                    <button class="btn-secondary" onclick="closeStageMenu()">
+                        关闭
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ==========================================================================
+           1. 游戏数据与关卡库配置 (专为小学生量身定制的易错专题)
+           ========================================================================== */
+        const STAGE_CONFIGS = [
+            {
+                id: 1,
+                title: "第一关：初试锋芒 (基础单韵母与常见字)",
+                desc: "掌握 a o e i u ü 基础拼读与规范四声",
+                chars: "爸妈我你他大天地水火木马白花草门山月日乐"
+            },
+            {
+                id: 2,
+                title: "第二关：平翘舌争锋 (z/c/s 与 zh/ch/sh 专项)",
+                desc: "小学生最高频失分点：舌尖平放与翘舌的严格辨析",
+                chars: "平山三树自志草早找春村知资十石四市纸"
+            },
+            {
+                id: 3,
+                title: "第三关：前后鼻音潮 (an/ang, en/eng, in/ing)",
+                desc: "鼻腔共鸣分辨：门(mén)与蒙(méng)，真(zhēn)与正(zhèng)",
+                chars: "真正风分民明林零春床门蒙生身心星金京"
+            },
+            {
+                id: 4,
+                title: "第四关：声调迷踪阵 (二声扬与三声拐弯攻坚)",
+                desc: "攻克二声扬起与三声降升的听辨混淆",
+                chars: "买卖雨鱼水睡手首火活女绿把拔马码古骨"
+            },
+            {
+                id: 5,
+                title: "第五关：文圣登天试炼 (综合易错字大挑战)",
+                desc: "全套易错字与平翘舌、鼻音混合高难度冲梯",
+                chars: "长乐行重朝数散盛漂便差转空降曲发藏角"
+            }
+        ];
+
+        /* ==========================================================================
+           2. Web Audio API 中国风五声音阶纯代码合成系统
+           ========================================================================== */
+        let audioCtx = null;
+        let isAudioMuted = false;
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // 国风五声音阶基频 (宫、商、角、徵、羽)
+        const PENTATONIC_FREQS = [
+            261.63, // C4 宫
+            293.66, // D4 商
+            329.63, // E4 角
+            392.00, // G4 徵
+            440.00, // A4 羽
+            523.25, // C5 宫
+            587.33, // D5 商
+            659.25, // E5 角
+            783.99, // G5 徵
+            880.00, // A5 羽
+            1046.50 // C6 宫
+        ];
+
+        // 演奏正确跃升古筝/编钟音符
+        function playStepSound(combo) {
+            if (isAudioMuted) return;
+            initAudio();
+            try {
+                const noteIndex = Math.min(combo, PENTATONIC_FREQS.length - 1);
+                const freq = PENTATONIC_FREQS[noteIndex];
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                // 三角波模拟古琴/编钟饱满明亮的泛音
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+                gain.gain.setValueAtTime(0.01, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.35, audioCtx.currentTime + 0.03);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.45);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.5);
+            } catch (e) { }
+        }
+
+        // 演奏失误跌落音效
+        function playFailSound() {
+            if (isAudioMuted) return;
+            initAudio();
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.35);
+
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.38);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.4);
+            } catch (e) { }
+        }
+
+        // 演奏金榜题名胜利乐曲
+        function playVictoryFanfare() {
+            if (isAudioMuted) return;
+            initAudio();
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((f, idx) => {
+                setTimeout(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(f, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.65);
+                }, idx * 120);
+            });
+        }
+
+        function toggleAudio() {
+            isAudioMuted = !isAudioMuted;
+            document.getElementById('btn-sound').innerText = isAudioMuted ? '🔇' : '🔊';
+        }
+
+        /* ==========================================================================
+           3. 智能出题与易错陷阱算法 (Smart Distractor Generator)
+           ========================================================================== */
+        // 平翘舌映射
+        const TONGUE_MAP = {
+            'z': 'zh', 'zh': 'z',
+            'c': 'ch', 'ch': 'c',
+            's': 'sh', 'sh': 's'
+        };
+
+        // 前后鼻音映射
+        const NASAL_MAP = {
+            'an': 'ang', 'ang': 'an',
+            'en': 'eng', 'eng': 'en',
+            'in': 'ing', 'ing': 'in',
+            'ian': 'iang', 'iang': 'ian',
+            'uan': 'uang', 'uang': 'uan'
+        };
+
+        // 边鼻音映射
+        const LN_MAP = { 'l': 'n', 'n': 'l' };
+
+        // 根据汉字与 pinyin-pro，智能生成 1 个正确拼音 + 3 个极具迷惑性的选项
+        function generateOptionsForChar(hanzi) {
+            if (!window.pinyinPro) {
+                return {
+                    correct: "hǎo",
+                    char: hanzi,
+                    options: ["hǎo", "hào", "háo", "hāo"],
+                    ruleHint: "请根据字义选择声调"
+                };
+            }
+
+            const { pinyin } = window.pinyinPro;
+
+            // 获取标准拼音信息
+            const allInfo = pinyin(hanzi, { type: 'all', toneType: 'num', v: true });
+            const item = Array.isArray(allInfo) ? allInfo[0] : allInfo;
+
+            const correctPinyin = pinyin(hanzi); // 如 "chén"
+            const initial = item.initial || "";  // 声母 如 "ch"
+            const final = (item.final || "").replace(/\d/g, ''); // 韵母 如 "en"
+            const tone = parseInt(item.num || 1); // 声调 如 2
+
+            const distractors = new Set();
+            let ruleHint = "基础声母韵母拼读";
+
+            // 陷阱 1：平翘舌互换 (例如 ch -> c)
+            if (TONGUE_MAP[initial]) {
+                const altInit = TONGUE_MAP[initial];
+                const trapPinyin = assemblePinyin(altInit, final, tone);
+                if (trapPinyin && trapPinyin !== correctPinyin) {
+                    distractors.add(trapPinyin);
+                    ruleHint = `注意平舌与翘舌的区别（${initial} vs ${altInit}）`;
+                }
+            }
+
+            // 陷阱 2：前后鼻音互换 (例如 en -> eng)
+            if (NASAL_MAP[final]) {
+                const altFinal = NASAL_MAP[final];
+                const trapPinyin = assemblePinyin(initial, altFinal, tone);
+                if (trapPinyin && trapPinyin !== correctPinyin) {
+                    distractors.add(trapPinyin);
+                    ruleHint = `注意前鼻音与后鼻音的区别（${final} vs ${altFinal}）`;
+                }
+            }
+
+            // 陷阱 3：边鼻音互换 (l <-> n)
+            if (LN_MAP[initial]) {
+                const altInit = LN_MAP[initial];
+                const trapPinyin = assemblePinyin(altInit, final, tone);
+                if (trapPinyin && trapPinyin !== correctPinyin) {
+                    distractors.add(trapPinyin);
+                }
+            }
+
+            // 陷阱 4：同声母同韵母，声调混淆 (如 二声 vs 三声，四声)
+            const alternateTones = [1, 2, 3, 4].filter(t => t !== tone);
+            for (let t of alternateTones) {
+                if (distractors.size >= 3) break;
+                const toneTrap = assemblePinyin(initial, final, t);
+                if (toneTrap && toneTrap !== correctPinyin) {
+                    distractors.add(toneTrap);
+                }
+            }
+
+            // 如果还是不够 3 个干扰项，从同音/临近字母补充
+            const fallbackTones = [2, 3, 1, 4];
+            for (let ft of fallbackTones) {
+                if (distractors.size >= 3) break;
+                const p = assemblePinyin(initial || 'b', final, ft);
+                if (p && p !== correctPinyin) distractors.add(p);
+            }
+
+            // 组合并随机打乱选项
+            const finalOptions = Array.from(distractors).slice(0, 3);
+            finalOptions.push(correctPinyin);
+            shuffleArray(finalOptions);
+
+            return {
+                char: hanzi,
+                correct: correctPinyin,
+                options: finalOptions,
+                ruleHint: ruleHint,
+                initial: initial,
+                final: final,
+                tone: tone
+            };
+        }
+
+        // 根据声母、韵母、音调，生成带调号的拼音字符串
+        function assemblePinyin(init, fin, toneNum) {
+            if (!fin) return "";
+            const toneMarks = {
+                'a': ['ā', 'á', 'ǎ', 'à'],
+                'o': ['ō', 'ó', 'ǒ', 'ò'],
+                'e': ['ē', 'é', 'ě', 'è'],
+                'i': ['ī', 'í', 'ǐ', 'ì'],
+                'u': ['ū', 'ú', 'ǔ', 'ù'],
+                'v': ['ǖ', 'ǘ', 'ǚ', 'ǜ'],
+                'ü': ['ǖ', 'ǘ', 'ǚ', 'ǜ']
+            };
+
+            let cleanFin = fin.replace('ü', 'v');
+            if (toneNum === 0 || toneNum > 4) {
+                return (init + cleanFin).replace('v', 'ü');
+            }
+
+            // 标调规则：有 a 先标 a，无 a 找 o e，i u 并列标在后
+            let targetChar = '';
+            if (cleanFin.includes('a')) targetChar = 'a';
+            else if (cleanFin.includes('o')) targetChar = 'o';
+            else if (cleanFin.includes('e')) targetChar = 'e';
+            else if (cleanFin.includes('ui')) targetChar = 'i';
+            else if (cleanFin.includes('iu')) targetChar = 'u';
+            else if (cleanFin.includes('i')) targetChar = 'i';
+            else if (cleanFin.includes('u')) targetChar = 'u';
+            else if (cleanFin.includes('v')) targetChar = 'v';
+
+            if (targetChar && toneMarks[targetChar]) {
+                const markedChar = toneMarks[targetChar][toneNum - 1];
+                cleanFin = cleanFin.replace(targetChar, markedChar);
+            }
+
+            return (init + cleanFin).replace('v', 'ü');
+        }
+
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+        }
+
+        /* ==========================================================================
+           4. 游戏主逻辑与状态控制
+           ========================================================================== */
+        let currentStageId = 1;
+        let stageQuestions = [];
+        let currentStepIndex = 0;
+        let comboCount = 0;
+        let maxCombo = 0;
+        let startTime = 0;
+        let isInputLocked = false;
+        let bestHistoryStep = 0; // 最佳影子高度
+
+        // 初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            initSkyCanvas();
+            loadStage(1);
+            setupKeyboard();
+            renderStageList();
+        });
+
+        // 加载关卡
+        function loadStage(stageId) {
+            currentStageId = stageId;
+            const stageConfig = STAGE_CONFIGS.find(s => s.id === stageId) || STAGE_CONFIGS[0];
+            document.getElementById('level-title-display').innerText = stageConfig.title;
+
+            // 获取历史最佳影子记录
+            bestHistoryStep = parseInt(localStorage.getItem(`pinyin_spire_best_${stageId}`) || '0');
+            updateGhostMarker();
+
+            // 生成题库
+            const charsArray = Array.from(stageConfig.chars);
+            shuffleArray(charsArray);
+            const targetChars = charsArray.slice(0, 20); // 固定 20 步为一阁
+
+            stageQuestions = targetChars.map(c => generateOptionsForChar(c));
+            resetRun();
+        }
+
+        // 重新开始当前局 (0秒秒开)
+        function resetRun() {
+            currentStepIndex = 0;
+            comboCount = 0;
+            maxCombo = 0;
+            isInputLocked = false;
+            startTime = Date.now();
+
+            hideModals();
+            renderSteps();
+            updateStepDisplay();
+            updateScholarPosition();
+        }
+
+        // 渲染浮石阶梯
+        function renderSteps() {
+            const container = document.getElementById('stone-steps-group');
+            container.innerHTML = '';
+
+            const total = stageQuestions.length;
+            for (let i = 0; i < total; i++) {
+                const step = document.createElement('div');
+                step.className = 'stone-step';
+                step.id = `stone-step-${i}`;
+
+                // 垂直排布：每阶相隔 75px
+                step.style.bottom = `${i * 75 + 30}px`;
+
+                // 左右微摆呈现国风灵动天梯
+                const offsetX = Math.sin(i * 0.9) * 45;
+                step.style.transform = `translateX(calc(-50% + ${offsetX}px))`;
+
+                step.innerHTML = `<span>第 ${i + 1} 阶</span>`;
+                container.appendChild(step);
+            }
+        }
+
+        // 更新当前台阶与题目
+        function updateStepDisplay() {
+            const total = stageQuestions.length;
+            const q = stageQuestions[currentStepIndex];
+            if (!q) return;
+
+            // 进度条
+            const percent = Math.round(((currentStepIndex) / total) * 100);
+            document.getElementById('progress-bar').style.width = `${percent}%`;
+            document.getElementById('step-count-display').innerText = `第 ${currentStepIndex + 1} / ${total} 层 (${percent}%)`;
+
+            // 中央目标汉字卡片
+            document.getElementById('target-char').innerText = q.char;
+            document.getElementById('target-hint').innerText = q.ruleHint || "请辨析正确拼音与声调";
+
+            // 更新阶梯外观
+            for (let i = 0; i < total; i++) {
+                const el = document.getElementById(`stone-step-${i}`);
+                if (!el) continue;
+                el.classList.remove('current', 'completed', 'failed');
+                if (i < currentStepIndex) {
+                    el.classList.add('completed');
+                } else if (i === currentStepIndex) {
+                    el.classList.add('current');
+                }
+            }
+
+            // 渲染 4 个选项卡
+            const grid = document.getElementById('options-grid');
+            grid.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                const card = document.createElement('div');
+                card.className = 'option-card';
+                card.id = `option-card-${idx}`;
+                card.onclick = () => handleSelectOption(opt, idx);
+
+                card.innerHTML = `
+                    <div class="option-key">${idx + 1}</div>
+                    <div class="option-pinyin">${opt}</div>
+                `;
+                grid.appendChild(card);
+            });
+
+            // 连击状态
+            const comboEl = document.getElementById('combo-badge');
+            if (comboCount >= 2) {
+                comboEl.classList.add('active');
+                document.getElementById('combo-num').innerText = comboCount;
+                const praiseText = comboCount >= 10 ? "绝顶登峰！" : (comboCount >= 5 ? "行云流水！" : "步步生莲！");
+                document.getElementById('combo-text').innerText = `连击 · ${praiseText}`;
+            } else {
+                comboEl.classList.remove('active');
+            }
+        }
+
+        // 小书童与摄像机位置平滑移动
+        function updateScholarPosition() {
+            const currentStepEl = document.getElementById(`stone-step-${currentStepIndex}`);
+            const mascot = document.getElementById('scholar-mascot');
+            const camera = document.getElementById('spire-camera');
+
+            if (currentStepEl) {
+                const bottomPx = currentStepIndex * 75 + 30;
+                const offsetX = Math.sin(currentStepIndex * 0.9) * 45;
+
+                mascot.style.bottom = `${bottomPx + 38}px`;
+                mascot.style.transform = `translate(calc(-50% + ${offsetX}px), 0)`;
+
+                // 摄像机镜头跟随向上平移（保持当前台阶在视觉中心偏下）
+                const cameraY = Math.max(0, (currentStepIndex - 1) * 75);
+                camera.style.transform = `translateY(${cameraY}px)`;
+            }
+
+            // 更新影子对手位置
+            updateGhostMascot();
+        }
+
+        // 更新历史影子位置
+        function updateGhostMascot() {
+            const ghost = document.getElementById('ghost-mascot');
+            if (bestHistoryStep > 0 && bestHistoryStep < stageQuestions.length) {
+                ghost.style.display = 'block';
+                const ghostBottom = bestHistoryStep * 75 + 30;
+                ghost.style.bottom = `${ghostBottom + 38}px`;
+            } else {
+                ghost.style.display = 'none';
+            }
+        }
+
+        function updateGhostMarker() {
+            const marker = document.getElementById('ghost-progress-marker');
+            if (bestHistoryStep > 0) {
+                const pct = Math.round((bestHistoryStep / 20) * 100);
+                marker.style.left = `${pct}%`;
+                marker.style.display = 'block';
+            } else {
+                marker.style.display = 'none';
+            }
+        }
+
+        // 玩家答题判定
+        function handleSelectOption(selectedPinyin, cardIndex) {
+            if (isInputLocked) return;
+
+            const q = stageQuestions[currentStepIndex];
+            if (!q) return;
+
+            const card = document.getElementById(`option-card-${cardIndex}`);
+
+            if (selectedPinyin === q.correct) {
+                // 回答正确！
+                isInputLocked = true;
+                comboCount++;
+                if (comboCount > maxCombo) maxCombo = comboCount;
+
+                if (card) card.classList.add('correct');
+                playStepSound(comboCount);
+
+                // 小书童向上跃迁动画
+                currentStepIndex++;
+
+                // 更新历史最佳记录
+                if (currentStepIndex > bestHistoryStep) {
+                    bestHistoryStep = currentStepIndex;
+                    localStorage.setItem(`pinyin_spire_best_${currentStageId}`, bestHistoryStep);
+                    updateGhostMarker();
+                }
+
+                // 检查是否登顶通关！
+                if (currentStepIndex >= stageQuestions.length) {
+                    setTimeout(() => {
+                        handleVictory();
+                    }, 400);
+                    return;
+                }
+
+                setTimeout(() => {
+                    updateStepDisplay();
+                    updateScholarPosition();
+                    isInputLocked = false;
+                }, 220);
+
+            } else {
+                // 回答错误！触发极度惋惜感的 Near-Miss 机制
+                isInputLocked = true;
+                if (card) card.classList.add('wrong');
+                playFailSound();
+
+                // 屏幕微震
+                document.body.classList.add('screen-shake');
+                setTimeout(() => document.body.classList.remove('screen-shake'), 400);
+
+                // 当前阶梯碎裂滑落
+                const stepEl = document.getElementById(`stone-step-${currentStepIndex}`);
+                if (stepEl) stepEl.classList.add('failed');
+
+                setTimeout(() => {
+                    showNearMissModal(q, selectedPinyin);
+                }, 480);
+            }
+        }
+
+        // 显示近失惋惜感弹窗
+        function showNearMissModal(q, wrongPinyin) {
+            const total = stageQuestions.length;
+            const percent = Math.round((currentStepIndex / total) * 100);
+
+            document.getElementById('retry-percent').innerText = `${percent}% (第 ${currentStepIndex} / ${total} 步)`;
+
+            const stepsLeft = total - currentStepIndex;
+            document.getElementById('retry-subtitle').innerText = `天赐之憾！仅差 ${stepsLeft} 级台阶即可登顶夺魁！`;
+
+            // 精准诊断失误原因
+            let reasonText = `目标字【${q.char}】的标准拼音是 <b>${q.correct}</b>。<br>你错选了 <b>${wrongPinyin}</b>。`;
+            if (q.ruleHint) {
+                reasonText += `<br><span style="color:var(--gold)">💡 提示秘笈：${q.ruleHint}！</span>`;
+            }
+
+            document.getElementById('retry-detail').innerHTML = reasonText;
+            document.getElementById('retry-modal').style.display = 'flex';
+        }
+
+        // 登顶胜利结算
+        function handleVictory() {
+            playVictoryFanfare();
+            const totalTime = ((Date.now() - startTime) / 1000).toFixed(1);
+
+            let grade = "SSS 绝顶圣手";
+            if (maxCombo < 20) grade = "S 状元及第";
+            if (maxCombo < 15) grade = "A 探花及第";
+
+            document.getElementById('victory-grade').innerText = grade;
+            document.getElementById('victory-stats').innerText = `用时：${totalTime} 秒 · 最高连击：${maxCombo} 连击 · 准确率：100%`;
+            document.getElementById('victory-modal').style.display = 'flex';
+
+            // 升级称号
+            updateRankBadge();
+        }
+
+        // 0.1秒秒速重开
+        function quickRestart() {
+            hideModals();
+            resetRun();
+        }
+
+        function nextStage() {
+            hideModals();
+            const nextId = (currentStageId % STAGE_CONFIGS.length) + 1;
+            loadStage(nextId);
+        }
+
+        function hideModals() {
+            document.getElementById('retry-modal').style.display = 'none';
+            document.getElementById('victory-modal').style.display = 'none';
+            document.getElementById('stage-modal').style.display = 'none';
+        }
+
+        // 键盘快捷键监听 (1-4 选选项，空格秒重开)
+        function setupKeyboard() {
+            window.addEventListener('keydown', (e) => {
+                if (e.code === 'Space') {
+                    // 如果正在重试弹窗，空格键秒重开
+                    const retryModal = document.getElementById('retry-modal');
+                    if (retryModal && retryModal.style.display !== 'none') {
+                        e.preventDefault();
+                        quickRestart();
+                        return;
+                    }
+                }
+
+                // 数字键 1, 2, 3, 4 或小键盘
+                const numKeyMap = {
+                    'Digit1': 0, 'Numpad1': 0,
+                    'Digit2': 1, 'Numpad2': 1,
+                    'Digit3': 2, 'Numpad3': 2,
+                    'Digit4': 3, 'Numpad4': 3
+                };
+
+                if (numKeyMap[e.code] !== undefined) {
+                    const idx = numKeyMap[e.code];
+                    const card = document.getElementById(`option-card-${idx}`);
+                    if (card) {
+                        card.click();
+                    }
+                }
+            });
+        }
+
+        /* ==========================================================================
+           5. 关卡菜单与自定义生字系统
+           ========================================================================== */
+        function openStageMenu() {
+            document.getElementById('stage-modal').style.display = 'flex';
+        }
+
+        function closeStageMenu() {
+            document.getElementById('stage-modal').style.display = 'none';
+        }
+
+        function renderStageList() {
+            const list = document.getElementById('stage-list-container');
+            list.innerHTML = '';
+
+            STAGE_CONFIGS.forEach(stage => {
+                const best = localStorage.getItem(`pinyin_spire_best_${stage.id}`) || '0';
+                const item = document.createElement('div');
+                item.className = 'stage-item';
+                item.onclick = () => {
+                    closeStageMenu();
+                    loadStage(stage.id);
+                };
+
+                item.innerHTML = `
+                    <div class="stage-info">
+                        <h4>${stage.title}</h4>
+                        <p>${stage.desc}</p>
+                    </div>
+                    <div class="stage-stars">
+                        ${best >= 20 ? '👑 已登顶' : (best > 0 ? `🏃 达第${best}阶` : '⭐ 待挑战')}
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        // 启动自定义生字梯
+        function startCustomStage() {
+            const text = document.getElementById('custom-text-input').value.trim();
+            if (!text) {
+                alert("请输入需要特训的汉字或生词！");
+                return;
+            }
+
+            // 过滤中文汉字
+            const hanziList = text.match(/[\u4e00-\u9fa5]/g);
+            if (!hanziList || hanziList.length === 0) {
+                alert("未检测到有效汉字，请输入中文生字！");
+                return;
+            }
+
+            // 去重并洗牌
+            const uniqueChars = Array.from(new Set(hanziList));
+            shuffleArray(uniqueChars);
+
+            // 扩充到 15~20 题
+            let finalChars = uniqueChars;
+            while (finalChars.length < 15) {
+                finalChars = finalChars.concat(uniqueChars);
+            }
+            finalChars = finalChars.slice(0, 20);
+
+            closeStageMenu();
+            document.getElementById('level-title-display').innerText = "自定义书院特训梯";
+            stageQuestions = finalChars.map(c => generateOptionsForChar(c));
+            bestHistoryStep = 0;
+            updateGhostMarker();
+            resetRun();
+        }
+
+        function updateRankBadge() {
+            const ranks = ["书童", "秀才", "举人", "贡士", "探花", "榜眼", "状元", "文圣"];
+            const currentRankIndex = Math.min(Math.floor(currentStageId * 1.5), ranks.length - 1);
+            document.getElementById('rank-name').innerText = ranks[currentRankIndex];
+        }
+
+        /* ==========================================================================
+           6. 背景云海粒子 Canvas 渲染
+           ========================================================================== */
+        function initSkyCanvas() {
+            const canvas = document.getElementById('sky-canvas');
+            const ctx = canvas.getContext('2d');
+
+            let w, h;
+            function resize() {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            // 漂浮的仙气与星点粒子
+            const particles = [];
+            for (let i = 0; i < 45; i++) {
+                particles.push({
+                    x: Math.random() * w,
+                    y: Math.random() * h,
+                    radius: Math.random() * 2 + 1,
+                    speedY: Math.random() * 0.4 + 0.15,
+                    opacity: Math.random() * 0.5 + 0.2
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, w, h);
+
+                // 绘制柔和星光浮尘
+                ctx.fillStyle = "#ffffff";
+                for (let p of particles) {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 234, 167, ${p.opacity})`;
+                    ctx.fill();
+
+                    p.y -= p.speedY;
+                    if (p.y < 0) {
+                        p.y = h;
+                        p.x = Math.random() * w;
+                    }
+                }
+
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+    </script>
+</body>
+
+</html>

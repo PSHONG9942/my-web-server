@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PixCross - Visual Picture Crossword Adventure</title>
+  <meta name="description" content="A modern, interactive picture crossword puzzle game where images are your clues! Featuring wildlife, world wonders, gourmet food, custom puzzle builder, and printable worksheets." />
+  <link rel="icon" href="assets/images/logo.jpg" type="image/jpeg" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Top App Navigation -->
+  <header class="app-header">
+    <div class="header-container">
+      <a href="#" class="logo-area" id="brand-link">
+        <img src="assets/images/logo.jpg" alt="PixCross Logo" class="app-logo" />
+        <div class="logo-text">
+          <h1>PixCross</h1>
+          <span class="tagline">Picture Crossword Game</span>
+        </div>
+      </a>
+
+      <div class="header-controls">
+        <div class="select-wrapper">
+          <select id="puzzle-select" class="puzzle-dropdown" title="Select Puzzle Level">
+            <!-- Populated dynamically -->
+          </select>
+          <span class="select-arrow">▼</span>
+        </div>
+
+        <div class="timer-box" title="Game Timer">
+          <span>⏱</span>
+          <span id="timer-display">00:00</span>
+        </div>
+
+        <button type="button" id="btn-pause" class="btn-header" title="Pause or Resume Timer">⏸ Pause</button>
+        <button type="button" id="btn-sound" class="btn-header" title="Toggle Sound">🔊 Sound</button>
+        <button type="button" id="btn-theme" class="btn-header" title="Toggle Theme">🌙 Dark</button>
+        <button type="button" id="btn-editor" class="btn-header" style="background: linear-gradient(135deg, #4f46e5 0%, #ec4899 100%); color: #fff; border:none;" title="Create Your Own Puzzle">🎨 Puzzle Creator</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Game Viewport -->
+  <main class="game-viewport">
+    
+    <!-- Left Column: Board Section -->
+    <section class="board-column">
+      <div class="game-card">
+        <!-- Quick Action Toolbar -->
+        <div class="toolbar">
+          <div class="toolbar-group">
+            <button type="button" id="btn-hint-letter" class="btn-tool" title="Reveal the currently selected letter">💡 Letter Hint</button>
+            <button type="button" id="btn-hint-word" class="btn-tool" title="Reveal the whole active word">✨ Word Hint</button>
+            <button type="button" id="btn-check-errors" class="btn-tool" title="Highlight any wrong letters">🔍 Check Errors</button>
+          </div>
+          <div class="toolbar-group">
+            <button type="button" id="btn-reset" class="btn-tool" title="Clear board">🔄 Reset</button>
+            <button type="button" id="btn-print" class="btn-tool" title="Print as Paper Worksheet">🖨️ Print</button>
+            <button type="button" id="btn-export" class="btn-tool" title="Export puzzle as JSON">📤 Export</button>
+            <button type="button" id="btn-import" class="btn-tool" title="Import puzzle JSON">📥 Import</button>
+            <input type="file" id="file-import-input" accept=".json" style="display:none;" />
+          </div>
+        </div>
+
+        <!-- Crossword Grid Viewport -->
+        <div class="grid-container" id="grid-container">
+          <!-- Rendered dynamically by crossword.js -->
+        </div>
+
+        <!-- On-Screen Touch Keyboard -->
+        <div class="virtual-keyboard" id="virtual-keyboard">
+          <!-- Rendered dynamically by app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Column: Clue Spotlight & Clue List -->
+    <aside class="clue-column">
+      
+      <!-- Clue Spotlight Card -->
+      <div class="game-card spotlight-card">
+        <div class="spotlight-layout">
+          <div class="spotlight-media-container">
+            <img id="clue-image" class="clue-img-main" src="assets/images/logo.jpg" alt="Active Clue" />
+            <button type="button" id="btn-inspect-image" class="btn-inspect" title="Enlarge Image">🔍 Full Photo</button>
+          </div>
+
+          <div class="spotlight-details">
+            <div class="spotlight-meta">
+              <div class="badge-row">
+                <span id="clue-number-badge" class="clue-badge badge-number">#1</span>
+                <span id="clue-direction-badge" class="clue-badge badge-across">ACROSS</span>
+                <span id="clue-length-badge" class="clue-badge badge-length">5 LETTERS</span>
+              </div>
+            </div>
+
+            <h2 id="clue-caption" class="clue-caption">Select any cell to view its picture clue</h2>
+
+            <!-- Text Hint Option -->
+            <div class="clue-hint-area">
+              <button type="button" id="btn-reveal-hint" class="btn-reveal-hint">💡 Need a hint? Reveal text clue</button>
+              <p id="clue-hint-text" class="clue-hint-text hidden"></p>
+            </div>
+
+            <!-- Educational Fun Fact (Revealed on solve) -->
+            <div id="clue-fact-box" class="clue-fact-box hidden">
+              <div class="fact-header">🌟 Fun Fact Unlocked!</div>
+              <p id="clue-fact-text" class="fact-text"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- All Clues List Drawer -->
+      <div class="game-card clue-list-card">
+        <div class="clue-list-tabs">
+          <button type="button" class="clue-tab tab-active" data-filter="all">All Clues</button>
+          <button type="button" class="clue-tab" data-filter="across">Across</button>
+          <button type="button" class="clue-tab" data-filter="down">Down</button>
+        </div>
+        <div class="clue-list-items" id="clue-list-container">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <!-- Canvas Confetti Overlay -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Victory Modal -->
+  <div id="victory-modal" class="modal-overlay hidden">
+    <div class="modal-content victory-card">
+      <div class="victory-trophy">🏆</div>
+      <h2 class="victory-title">Puzzle Completed!</h2>
+      <div id="victory-stars" class="victory-stars">★★★</div>
+      
+      <div class="victory-stats">
+        <div class="stat-item">
+          <span class="stat-label">Time Taken</span>
+          <span id="victory-time" class="stat-val">02:45</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Hints Used</span>
+          <span id="victory-hints" class="stat-val">0</span>
+        </div>
+      </div>
+
+      <div class="victory-actions">
+        <button type="button" id="btn-replay" class="btn-modal-action btn-modal-secondary">Replay</button>
+        <button type="button" id="btn-next-puzzle" class="btn-modal-action btn-modal-primary">Next Puzzle ➔</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image Lightbox Modal -->
+  <div id="lightbox-modal" class="modal-overlay hidden">
+    <div class="modal-content lightbox-content">
+      <button type="button" id="btn-close-lightbox" class="btn-close-modal" title="Close">✕</button>
+      <img id="lightbox-img" class="lightbox-img" src="" alt="Enlarged Clue Photo" />
+      <p id="lightbox-caption" class="lightbox-caption"></p>
+    </div>
+  </div>
+
+  <!-- Custom Puzzle Creator Modal -->
+  <div id="editor-modal" class="modal-overlay hidden">
+    <div class="modal-content modal-large">
+      <button type="button" id="btn-close-editor" class="btn-close-modal" title="Close">✕</button>
+      <h2 style="font-family:'Outfit', sans-serif; font-size:1.6rem; margin-bottom:6px;">🎨 Picture Crossword Creator</h2>
+      <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:14px;">
+        Add your own words and picture clues. PixCross will automatically assemble them into an intersecting crossword puzzle grid!
+      </p>
+
+      <div style="margin-bottom:14px;">
+        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Puzzle Title:</label>
+        <input type="text" id="custom-puzzle-title" value="My Picture Crossword" style="width:100%; padding:8px 12px; border-radius:8px; border:1px solid var(--cell-border); font-size:0.95rem; font-weight:700; margin-top:4px;" />
+      </div>
+
+      <div class="editor-list" id="editor-word-list">
+        <!-- Rendered dynamically by editor.js -->
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-top:16px;">
+        <button type="button" id="btn-add-word" class="btn-tool" style="font-weight:700;">➕ Add Another Word</button>
+        <button type="button" id="btn-generate-puzzle" class="btn-modal-action btn-modal-primary" style="padding:10px 20px;">🚀 Generate & Play Puzzle</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/puzzles.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/crossword.js"></script>
+  <script src="js/editor.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

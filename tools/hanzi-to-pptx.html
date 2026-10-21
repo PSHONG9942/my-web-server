@@ -664,6 +664,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
         }
 
         .tianzi-line-h {
@@ -692,12 +693,11 @@
 
         .mizi-line-1 {
             position: absolute;
-            width: 141.4%;
+            width: 141.42%;
             height: 0;
-            top: 0;
-            left: -20.7%;
-            transform: rotate(45deg);
-            transform-origin: center;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(45deg);
             border-top: 1.5px dashed rgba(190, 190, 190, 0.7);
             z-index: 1;
             pointer-events: none;
@@ -705,12 +705,11 @@
 
         .mizi-line-2 {
             position: absolute;
-            width: 141.4%;
+            width: 141.42%;
             height: 0;
-            bottom: 0;
-            left: -20.7%;
-            transform: rotate(-45deg);
-            transform-origin: center;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
             border-top: 1.5px dashed rgba(190, 190, 190, 0.7);
             z-index: 1;
             pointer-events: none;

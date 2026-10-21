@@ -762,9 +762,10 @@
                     <span>Google AI Studio API Key</span>
                     <button type="button" class="pill-btn" onclick="toggleApiKeyVisibility()" style="font-size: 11px;">👁️ 显示/隐藏</button>
                 </div>
-                <input type="password" id="modalApiKeyInput" class="input-text" style="font-family: monospace;">
-                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
-                    已默认加载您的专属 Key。密钥仅保存在您的本地浏览器中 (localStorage)。
+                <input type="password" id="modalApiKeyInput" class="input-text" style="font-family: monospace;" placeholder="在此粘贴您的个人 Google AI Studio API Key (选填)">
+                <div id="apiKeyStatusBadge" style="margin-top: 8px; font-size: 12px; padding: 7px 12px; border-radius: 6px; display: none;"></div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">
+                    💡 <b>开箱即用</b>：系统已内置免费共享高配额密钥（1,060+ 次/天），无需输入即可直接使用！若您拥有个人 Key，填入后将保存在本地浏览器并优先使用。
                 </div>
             </div>
 
@@ -961,7 +962,28 @@
         // --- API Modal & Diagnostics ---
         function openApiKeyModal() {
             const input = document.getElementById('modalApiKeyInput');
-            input.value = window.geminiImageService.getApiKey();
+            const badge = document.getElementById('apiKeyStatusBadge');
+            const hasCustom = window.geminiImageService && window.geminiImageService.hasCustomApiKey ? window.geminiImageService.hasCustomApiKey() : false;
+            
+            if (hasCustom) {
+                input.value = window.geminiImageService.getApiKey();
+                if (badge) {
+                    badge.style.display = 'block';
+                    badge.style.background = 'rgba(56, 189, 248, 0.12)';
+                    badge.style.color = '#38bdf8';
+                    badge.style.border = '1px solid rgba(56, 189, 248, 0.3)';
+                    badge.innerHTML = '👤 <b>个人独享 Key 生效中</b>：正在使用您保存在本地浏览器的私有密钥。如需恢复系统默认，清空输入框并保存即可。';
+                }
+            } else {
+                input.value = '';
+                if (badge) {
+                    badge.style.display = 'block';
+                    badge.style.background = 'rgba(16, 185, 129, 0.12)';
+                    badge.style.color = '#34d399';
+                    badge.style.border = '1px solid rgba(16, 185, 129, 0.3)';
+                    badge.innerHTML = '🟢 <b>系统内置共享 Key 已就绪</b>：开箱即用（1,060+ 次/天），无需配置即可直接体验全功能！';
+                }
+            }
             document.getElementById('apiKeyModal').style.display = 'flex';
         }
 
@@ -979,10 +1001,10 @@
             const key = input.value.trim();
             if (key) {
                 window.geminiImageService.setApiKey(key);
-                alert('API 密钥已成功保存在本地浏览器！');
+                alert('个人专属 API 密钥已保存在本地浏览器！');
             } else {
                 window.geminiImageService.resetApiKey();
-                alert('已恢复为默认 API 密钥。');
+                alert('已恢复为系统内置共享密钥（开箱即用）！');
             }
             closeApiKeyModal();
         }

@@ -228,12 +228,16 @@
                     <div style="display: flex; gap: 10px; align-items: center;">
                         <span style="font-size: 14px; color: #ccc;">🧠 模型:</span>
                         <select id="modelSelect" style="background: #2b2b36; color: #00d2ff; border: 1px solid rgba(0,210,255,0.3); padding: 5px 10px; border-radius: 5px; outline: none; cursor: pointer; font-size: 13px;">
-                            <option value="google/gemma-4-31b-it" selected>Gemma 4 31B (推荐)</option>
-                            <option value="meta/llama-3.3-70b-instruct">Llama 3.3 70B</option>
-                            <option value="deepseek-ai/deepseek-v4-pro">DeepSeek V4 Pro</option>
-                            <option value="deepseek-ai/deepseek-v4-flash">DeepSeek V4 Flash</option>
-                            <option value="mistralai/mistral-medium-3.5-128b">Mistral 128B</option>
+                            <option value="google/gemma-4-31b-it" selected>Google Gemma 4 31B (编程主力)</option>
+                            <option value="nvidia/nemotron-3.5-super-vl-120b-a12b">NVIDIA Nemotron 3.5 Super VL 120B</option>
+                            <option value="deepseek-ai/deepseek-v4.1-flash">DeepSeek V4.1 Flash (极速低延迟)</option>
+                            <option value="stepfun-ai/step-5-preview">StepFun Step 5 (1M上下文 MoE)</option>
+                            <option value="meta/muse-glimmer-30b">Meta Muse Glimmer 30B (思考链)</option>
+                            <option value="poolside/laguna-xs-2.1">Poolside Laguna XS 2.1 (工程专精)</option>
+                            <option value="meta/llama-3.3-70b-instruct">Meta Llama 3.3 70B (稳定基石)</option>
+                            <option value="openai/gpt-oss-20b">OpenAI GPT OSS 20B (轻量逻辑)</option>
                         </select>
+                        <a href="nim-models.html" target="_blank" title="查看所有可用 NIM 免费端点模型" style="color: #a3e635; text-decoration: none; font-size: 12px; border: 1px solid rgba(163, 230, 53, 0.4); padding: 3px 8px; border-radius: 4px; background: rgba(163, 230, 53, 0.1);">⚡ 模型池</a>
                     </div>
                     <button onclick="startNewChat()" style="background: rgba(255, 71, 87, 0.2); color: #ff4757; border: 1px solid rgba(255, 71, 87, 0.4); padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 13px;">➕ 新对话</button>
                 </div>
