@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 教学插画生成器 - 华小老师专属数字化备课神器</title>
+    <meta name="description" content="专为马来西亚华小老师打造的 AI 教学插画与涂色卡生成器。支持 Gemini 多模型智能聚合 (1060+ 次/天)，一键生成课文插图、看图写话配图、黑白学生涂色卡及教学课件配图！">
+    <link rel="icon" href="../images/logo.png" type="image/png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Gemini Multi-Model Pool & Image Service -->
+    <script src="js/gemini-image-service.js"></script>
+
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --primary-hover: #7c3aed;
+            --primary-glow: rgba(139, 92, 246, 0.4);
+            --accent: #0ea5e9;
+            --accent-glow: rgba(14, 165, 233, 0.35);
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.3);
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-base: #0b0f19;
+            --bg-card: rgba(17, 24, 39, 0.88);
+            --bg-card-hover: rgba(30, 41, 59, 0.95);
+            --bg-input: rgba(15, 23, 42, 0.9);
+            --border-card: rgba(255, 255, 255, 0.1);
+            --border-glow: rgba(139, 92, 246, 0.45);
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --text-muted: #64748b;
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 8px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(139, 92, 246, 0.18) 0%, transparent 40%),
+                radial-gradient(circle at 85% 25%, rgba(14, 165, 233, 0.16) 0%, transparent 45%),
+                radial-gradient(circle at 50% 85%, rgba(16, 185, 129, 0.12) 0%, transparent 50%),
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 36px 36px, 36px 36px;
+            color: var(--text-main);
+            font-family: 'Outfit', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            min-height: 100vh;
+            padding: 16px 24px 40px;
+        }
+
+        /* Top Nav */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1440px;
+            margin: 0 auto 20px;
+            padding: 10px 0;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-sub);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-card);
+            transition: var(--transition);
+        }
+
+        .back-link:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent);
+            transform: translateX(-3px);
+        }
+
+        .badge-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            border-radius: 9999px;
+            font-size: 13px;
+            font-weight: 500;
+            background: rgba(16, 185, 129, 0.12);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .badge-status:hover {
+            background: rgba(16, 185, 129, 0.2);
+            transform: scale(1.02);
+        }
+
+        .badge-status .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #34d399;
+            box-shadow: 0 0 8px #34d399;
+            animation: pulseDot 2s infinite;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.85); }
+        }
+
+        /* Hero */
+        .hero-section {
+            text-align: center;
+            max-width: 1000px;
+            margin: 0 auto 24px;
+        }
+
+        .hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: #c084fc;
+            background: rgba(139, 92, 246, 0.12);
+            padding: 4px 14px;
+            border-radius: 9999px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff 40%, #c084fc 80%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .hero-desc {
+            font-size: 15px;
+            color: var(--text-sub);
+            max-width: 760px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        /* Main Workspace Grid */
+        .workspace {
+            display: grid;
+            grid-template-columns: 460px 1fr;
+            gap: 24px;
+            max-width: 1440px;
+            margin: 0 auto;
+            align-items: flex-start;
+        }
+
+        /* Glass Panel */
+        .glass-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            position: relative;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .panel-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-sub);
+            margin-bottom: 6px;
+        }
+
+        .input-textarea {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            color: var(--text-main);
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 80px;
+            transition: var(--transition);
+            outline: none;
+            line-height: 1.5;
+        }
+
+        .input-textarea:focus, .input-text:focus, .input-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary-glow);
+            background: rgba(15, 23, 42, 0.98);
+        }
+
+        .input-text, .input-select {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            color: var(--text-main);
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        /* Preset Pills */
+        .preset-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .pill-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-sub);
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            user-select: none;
+        }
+
+        .pill-btn:hover {
+            background: rgba(139, 92, 246, 0.18);
+            border-color: rgba(139, 92, 246, 0.4);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        /* Aspect Ratio Cards */
+        .ratio-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .ratio-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-sm);
+            padding: 10px 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-sub);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .ratio-btn.active {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: var(--primary);
+            color: #ffffff;
+            font-weight: 600;
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.25);
+        }
+
+        .ratio-icon {
+            font-size: 16px;
+        }
+
+        /* Multi-Model Pool Info Box */
+        .model-pool-box {
+            background: linear-gradient(145deg, rgba(24, 30, 48, 0.8), rgba(15, 23, 42, 0.9));
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+
+        .model-tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .model-tag-item {
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #94a3b8;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .model-tag-item.active {
+            background: rgba(14, 165, 233, 0.2);
+            color: #38bdf8;
+            border-color: rgba(14, 165, 233, 0.45);
+            font-weight: 600;
+        }
+
+        /* Main Action Button */
+        .btn-generate {
+            width: 100%;
+            background: linear-gradient(135deg, #8b5cf6 0%, #0ea5e9 100%);
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 700;
+            padding: 14px;
+            border-radius: var(--radius-sm);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: var(--transition);
+            box-shadow: 0 4px 18px var(--primary-glow);
+        }
+
+        .btn-generate:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(139, 92, 246, 0.55);
+        }
+
+        .btn-generate:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Right Preview Section */
+        .preview-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .canvas-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 480px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            position: relative;
+        }
+
+        .image-display-frame {
+            max-width: 100%;
+            max-height: 480px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0f172a;
+            position: relative;
+        }
+
+        .image-display-frame img {
+            max-width: 100%;
+            max-height: 460px;
+            object-fit: contain;
+            display: block;
+            border-radius: 12px;
+        }
+
+        .empty-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: var(--text-muted);
+            padding: 40px;
+            text-align: center;
+        }
+
+        .empty-icon {
+            font-size: 56px;
+            opacity: 0.6;
+        }
+
+        .image-meta-bar {
+            width: 100%;
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .meta-prompt-text {
+            font-size: 13px;
+            color: var(--text-sub);
+            max-width: 580px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .action-button-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid var(--border-card);
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .btn-action:hover {
+            background: rgba(255, 255, 255, 0.16);
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .btn-action-primary {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            border: none;
+            box-shadow: 0 2px 10px var(--accent-glow);
+        }
+
+        .btn-action-primary:hover {
+            background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+        }
+
+        /* History Gallery */
+        .history-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+        }
+
+        .history-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 12px;
+        }
+
+        .history-item {
+            aspect-ratio: 1 / 1;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-card);
+            cursor: pointer;
+            position: relative;
+            background: #0f172a;
+            transition: var(--transition);
+        }
+
+        .history-item:hover {
+            transform: scale(1.04);
+            border-color: var(--primary);
+            box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
+        }
+
+        .history-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-box {
+            background: #111827;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 540px;
+            padding: 26px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+        }
+
+        @media (max-width: 1024px) {
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <a href="../index.html" class="back-link">
+            <span>←</span> 返回华小老师数字教具主页
+        </a>
+        <div class="badge-status" onclick="openApiKeyModal()" title="点击查看与配置 Google API 模型池">
+            <span class="dot"></span>
+            <span id="modelPoolStatusBadge">Gemini 多模型高可用池 (1060+ 次/天)</span>
+            <span>⚙️</span>
+        </div>
+    </nav>
+
+    <!-- Hero Header -->
+    <header class="hero-section">
+        <div class="hero-tag">✨ 智能双引擎 · 华小教学插画工坊</div>
+        <h1 class="hero-title">AI 教学插画与涂色卡生成器</h1>
+        <p class="hero-desc">聚合 5 款前沿 Gemini 模型组成容灾池 (1,060+ 次/天)，智能解析华文课文情境与生字词，一键直出课本绘本、黑白涂色卡与课件高清大图！</p>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="workspace">
+
+        <!-- Left Controls -->
+        <section class="glass-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span>🎨</span> 教学插画生成设置
+                </div>
+            </div>
+
+            <!-- Subject Input -->
+            <div class="form-group">
+                <div class="form-label">
+                    <span>插画主题 / 句子 / 词汇 <span style="color: #ef4444;">*</span></span>
+                    <span style="font-size: 11px; color: #38bdf8;">Gemini 智能提炼画面构图</span>
+                </div>
+                <textarea id="promptInput" class="input-textarea" placeholder="输入教学例句、成语或画面情境，如：弟弟在草地上快乐地玩耍。">弟弟在草地上快乐地玩耍。</textarea>
+                
+                <!-- Quick Educational Topic Pills -->
+                <div class="preset-pills">
+                    <span style="font-size: 11px; color: var(--text-muted); align-self: center;">常用教学情境：</span>
+                    <button type="button" class="pill-btn" onclick="setPrompt('弟弟在草地上快乐地玩耍。')">弟弟草地玩耍</button>
+                    <button type="button" class="pill-btn" onclick="setPrompt('小朋友在明亮的图书馆里安静看书。')">图书馆看书</button>
+                    <button type="button" class="pill-btn" onclick="setPrompt('春天来了，小燕子在枝头欢快地唱歌。')">小燕子迎春</button>
+                    <button type="button" class="pill-btn" onclick="setPrompt('两只憨态可掬的大熊猫在竹林里吃鲜嫩的竹笋。')">大熊猫吃竹子</button>
+                    <button type="button" class="pill-btn" onclick="setPrompt('中秋节全家人聚在庭院里赏月吃月饼。')">中秋节赏月</button>
+                    <button type="button" class="pill-btn" onclick="setPrompt('小学生礼貌地向老师鞠躬敬礼问好。')">尊师重道</button>
+                </div>
+            </div>
+
+            <!-- Style Selector -->
+            <div class="form-group">
+                <div class="form-label"><span>教学视觉风格</span></div>
+                <select id="styleSelect" class="input-select">
+                    <option value="textbook" selected>📚 华小课本绘本风 (色彩温润·最推荐)</option>
+                    <option value="coloring">🖍️ 黑白线描 / 涂色卡风 (让学生在纸上涂色)</option>
+                    <option value="watercolor">🎨 治愈水彩手绘风 (童趣通透)</option>
+                    <option value="clay3d">🧸 3D 萌系黏土风 (立体生动)</option>
+                    <option value="flatVector">🌟 极简扁平矢量风 (清晰直观)</option>
+                </select>
+            </div>
+
+            <!-- Aspect Ratio Selector -->
+            <div class="form-group">
+                <div class="form-label"><span>图片比例与尺寸</span></div>
+                <div class="ratio-grid" id="ratioGrid">
+                    <div class="ratio-btn active" data-ratio="1:1" data-w="600" data-h="600" onclick="selectRatio(this)">
+                        <span class="ratio-icon">⬛</span>
+                        <span>1:1 正方形</span>
+                        <span style="font-size: 10px; color: var(--text-muted);">造句/习字本</span>
+                    </div>
+                    <div class="ratio-btn" data-ratio="4:3" data-w="640" data-h="480" onclick="selectRatio(this)">
+                        <span class="ratio-icon">📺</span>
+                        <span>4:3 常用</span>
+                        <span style="font-size: 10px; color: var(--text-muted);">常规课件</span>
+                    </div>
+                    <div class="ratio-btn" data-ratio="16:9" data-w="768" data-h="432" onclick="selectRatio(this)">
+                        <span class="ratio-icon">🖥️</span>
+                        <span>16:9 宽屏</span>
+                        <span style="font-size: 10px; color: var(--text-muted);">PPT幻灯片</span>
+                    </div>
+                    <div class="ratio-btn" data-ratio="3:4" data-w="480" data-h="640" onclick="selectRatio(this)">
+                        <span class="ratio-icon">📱</span>
+                        <span>3:4 竖版</span>
+                        <span style="font-size: 10px; color: var(--text-muted);">字卡/手抄报</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Model Pool Box -->
+            <div class="model-pool-box">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 12px; font-weight: 600; color: #f8fafc;">Gemini 容灾多模型池状态：</span>
+                    <span style="font-size: 11px; color: #34d399; cursor: pointer;" onclick="openApiKeyModal()">⚙️ 管理密钥</span>
+                </div>
+                <div class="model-tag-list" id="activeModelTags">
+                    <span class="model-tag-item active" id="tag-gemini-3.5-flash-lite">⚡ 3.5 Flash Lite (500)</span>
+                    <span class="model-tag-item" id="tag-gemini-3.1-flash-lite">⚡ 3.1 Flash Lite (500)</span>
+                    <span class="model-tag-item" id="tag-gemini-3.6-flash">🌟 3.6 Flash (20)</span>
+                    <span class="model-tag-item" id="tag-gemini-3.8-flash">🌟 3.8 Flash (20)</span>
+                    <span class="model-tag-item" id="tag-gemini-3-flash-preview">🌟 3 Flash (20)</span>
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px; line-height: 1.4;">
+                    💡 提示：若当前模型配额达到 20 或 500 次/天限制，系统将<b>自动无缝顺延</b>至下一模型，确保教学不中断！
+                </div>
+            </div>
+
+            <!-- Generate Button -->
+            <button type="button" class="btn-generate" id="generateBtn" onclick="handleGenerate()">
+                <span>✨</span> 立即生成教学插画
+            </button>
+
+            <div id="statusMessage" style="font-size: 12px; color: #38bdf8; text-align: center; margin-top: 10px; min-height: 18px;"></div>
+        </section>
+
+        <!-- Right Preview Canvas -->
+        <section class="preview-container">
+            <div class="canvas-card">
+                <div class="image-display-frame" id="imageDisplayFrame">
+                    <div class="empty-placeholder" id="emptyPlaceholder">
+                        <div class="empty-icon">🖼️</div>
+                        <div style="font-size: 16px; font-weight: 600; color: var(--text-main);">等待生成教学插画</div>
+                        <div style="font-size: 13px;">在左侧输入情境句子或词语，点击「立即生成」即可获得高质量绘本插图</div>
+                    </div>
+                    <img id="mainImageDisplay" src="" alt="生成的插画" style="display: none;">
+                </div>
+
+                <!-- Meta and Actions -->
+                <div class="image-meta-bar" id="imageMetaBar" style="display: none;">
+                    <div>
+                        <div class="meta-prompt-text" id="metaPromptText" title="提示词"></div>
+                        <div style="font-size: 11px; color: #34d399; margin-top: 2px;" id="metaModelText"></div>
+                    </div>
+                    <div class="action-button-group">
+                        <button type="button" class="btn-action" onclick="copyImageToClipboard()" title="复制图片到剪贴板，可直接粘贴到微信/文档">
+                            <span>📋</span> 复制图片
+                        </button>
+                        <button type="button" class="btn-action" onclick="downloadMainImage()" title="下载高清原图到电脑">
+                            <span>💾</span> 保存图片
+                        </button>
+                        <a href="sentence-maker.html" id="sendToSentenceMakerBtn" class="btn-action btn-action-primary" title="带去造句练习纸中排版">
+                            <span>📝</span> 去做造句练习纸
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Gallery -->
+            <div class="history-card" id="historyCard" style="display: none;">
+                <div class="history-title">
+                    <span>🕒</span> 本次会话生成的作品画廊 (<span id="historyCount">0</span>)
+                </div>
+                <div class="history-grid" id="historyGrid"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Gemini API Key & Model Pool Health Modal -->
+    <div class="modal-overlay" id="apiKeyModal" style="display: none;">
+        <div class="modal-box">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                <h3 style="margin: 0; font-size: 18px; color: #ffffff; display: flex; align-items: center; gap: 8px;">
+                    <span>⚙️</span> Google Gemini API 与模型池设置
+                </h3>
+                <button type="button" class="pill-btn" onclick="closeApiKeyModal()" style="border-radius: 50%; width: 28px; height: 28px;">✕</button>
+            </div>
+
+            <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 14px; line-height: 1.5;">
+                系统聚合 5 款前沿 Gemini 模型构建<b>高可用容灾池</b>。总配额每天高达 <b>1,060+ 次</b>，即使单个模型返回 429 配额用尽，系统也会自动切换！
+            </p>
+
+            <div class="form-group" style="margin-bottom: 14px;">
+                <div class="form-label">
+                    <span>Google AI Studio API Key</span>
+                    <button type="button" class="pill-btn" onclick="toggleApiKeyVisibility()" style="font-size: 11px;">👁️ 显示/隐藏</button>
+                </div>
+                <input type="password" id="modalApiKeyInput" class="input-text" style="font-family: monospace;">
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+                    已默认加载您的专属 Key。密钥仅保存在您的本地浏览器中 (localStorage)。
+                </div>
+            </div>
+
+            <div style="background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(14, 165, 233, 0.25); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px;">
+                <div style="font-size: 12px; font-weight: bold; color: #38bdf8; margin-bottom: 4px;">
+                    💡 为什么 Nano Banana 图像模型显示 0/0？
+                </div>
+                <div style="font-size: 11px; color: var(--text-sub); line-height: 1.5;">
+                    Nano Banana 是 Google AI Studio 内部对直接出图模型（如 Imagen 3）的代号。在免费层（Free Tier）未绑定信用卡时额度统一设为 0/0。但 <b>Gemini 3.5 Flash Lite</b> 与 <b>3.1 Flash Lite</b> 每天分别享有 <b>500 次/天</b> 超高额度！通过“Gemini 视觉导演提炼 + 高清生图渲染”双引擎协同，完美实现完全免限额的超清教学插画！
+                </div>
+            </div>
+
+            <div style="margin-bottom: 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span style="font-size: 13px; font-weight: 600; color: #f8fafc;">模型池可用状态 (实时诊断)：</span>
+                    <button type="button" class="pill-btn" onclick="runModelDiagnostics()" id="diagBtn" style="font-size: 12px;">🩺 一键测试连通性</button>
+                </div>
+                <div id="modelHealthList" style="display: flex; flex-direction: column; gap: 6px; font-size: 12px;">
+                    <div style="color: var(--text-muted); padding: 8px; text-align: center; background: rgba(0,0,0,0.2); border-radius: 6px;">
+                        点击上方「一键测试连通性」可实时检测各模型响应速度与配额状态
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;">
+                <button type="button" class="btn-action" onclick="closeApiKeyModal()">取消</button>
+                <button type="button" class="btn-action btn-action-primary" onclick="saveApiKeyFromModal()">保存设置</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentWidth = 600;
+        let currentHeight = 600;
+        let isGenerating = false;
+        let historyList = [];
+
+        function setPrompt(text) {
+            document.getElementById('promptInput').value = text;
+        }
+
+        function selectRatio(el) {
+            document.querySelectorAll('#ratioGrid .ratio-btn').forEach(btn => btn.classList.remove('active'));
+            el.classList.add('active');
+            currentWidth = parseInt(el.dataset.w, 10);
+            currentHeight = parseInt(el.dataset.h, 10);
+        }
+
+        function setActiveModelBadge(modelId) {
+            document.querySelectorAll('#activeModelTags .model-tag-item').forEach(tag => {
+                tag.classList.remove('active');
+            });
+            const target = document.getElementById(`tag-${modelId}`);
+            if (target) target.classList.add('active');
+        }
+
+        async function handleGenerate() {
+            if (isGenerating) return;
+            const prompt = document.getElementById('promptInput').value.trim();
+            if (!prompt) {
+                alert('请先输入插画主题或句子！');
+                return;
+            }
+
+            const styleKey = document.getElementById('styleSelect').value;
+            const btn = document.getElementById('generateBtn');
+            const statusEl = document.getElementById('statusMessage');
+
+            isGenerating = true;
+            btn.disabled = true;
+            btn.innerHTML = '<span>⏳</span> 正在创作构图中...';
+            statusEl.textContent = 'Gemini 智能视觉导演正在解析生字语义与画面构图...';
+
+            try {
+                const result = await window.geminiImageService.generateIllustrationFromSentence(prompt, styleKey, {
+                    width: currentWidth,
+                    height: currentHeight,
+                    onStatus: (msg) => {
+                        statusEl.textContent = msg;
+                    },
+                    onModelSwitch: (info) => {
+                        statusEl.textContent = `[自动容灾] 切换至 ${info.switchedTo.name} 继续服务...`;
+                        setActiveModelBadge(info.switchedTo.id);
+                    }
+                });
+
+                // Display result
+                document.getElementById('emptyPlaceholder').style.display = 'none';
+                const mainImg = document.getElementById('mainImageDisplay');
+                mainImg.src = result.dataUrl;
+                mainImg.style.display = 'block';
+
+                document.getElementById('imageMetaBar').style.display = 'flex';
+                document.getElementById('metaPromptText').textContent = `主题：“${prompt}” · ${result.visualPrompt}`;
+                document.getElementById('metaModelText').textContent = `由 ${result.usedModel.name} 导演 · 高清渲染`;
+
+                // Update "去造句练习纸" link
+                const sentenceBtn = document.getElementById('sendToSentenceMakerBtn');
+                sentenceBtn.href = `sentence-maker.html?sentence=${encodeURIComponent(prompt)}`;
+
+                // Add to history
+                historyList.unshift({
+                    dataUrl: result.dataUrl,
+                    prompt: prompt,
+                    model: result.usedModel.name,
+                    time: new Date().toLocaleTimeString()
+                });
+                renderHistory();
+
+                setActiveModelBadge(result.usedModel.id);
+                statusEl.textContent = `✨ 生成成功！(由 ${result.usedModel.name} 提供智能推演)`;
+                setTimeout(() => {
+                    statusEl.textContent = '';
+                }, 4000);
+
+            } catch (err) {
+                console.error(err);
+                alert(`插画生成遇到问题: ${err.message}\n请点击右上角设置图标检查 API 密钥或网络连接。`);
+                statusEl.textContent = '❌ 生成出错，请重试';
+            } finally {
+                isGenerating = false;
+                btn.disabled = false;
+                btn.innerHTML = '<span>✨</span> 立即生成教学插画';
+            }
+        }
+
+        function renderHistory() {
+            if (historyList.length === 0) return;
+            document.getElementById('historyCard').style.display = 'block';
+            document.getElementById('historyCount').textContent = historyList.length;
+
+            const grid = document.getElementById('historyGrid');
+            grid.innerHTML = '';
+            historyList.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.title = `点击查看：${item.prompt}`;
+                div.innerHTML = `<img src="${item.dataUrl}" alt="历史记录">`;
+                div.onclick = () => {
+                    document.getElementById('mainImageDisplay').src = item.dataUrl;
+                    document.getElementById('metaPromptText').textContent = `主题：“${item.prompt}”`;
+                    document.getElementById('metaModelText').textContent = `由 ${item.model} 导演 · ${item.time}`;
+                    window.scrollTo({ top: 180, behavior: 'smooth' });
+                };
+                grid.appendChild(div);
+            });
+        }
+
+        async function copyImageToClipboard() {
+            const img = document.getElementById('mainImageDisplay');
+            if (!img.src) return;
+
+            try {
+                const res = await fetch(img.src);
+                const blob = await res.blob();
+                // Ensure png format for clipboard
+                const pngBlob = await convertBlobToPng(blob);
+                await navigator.clipboard.write([
+                    new ClipboardItem({ 'image/png': pngBlob })
+                ]);
+                alert('🎉 图片已成功复制到剪贴板！可以直接在微信、Word 或教学 PPT 中 Ctrl+V 粘贴！');
+            } catch (err) {
+                console.warn('Clipboard write failed:', err);
+                alert('复制到剪贴板受浏览器安全限制，建议点击「保存图片」下载到电脑！');
+            }
+        }
+
+        function convertBlobToPng(blob) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    canvas.toBlob(resolve, 'image/png');
+                };
+                img.src = URL.createObjectURL(blob);
+            });
+        }
+
+        function downloadMainImage() {
+            const img = document.getElementById('mainImageDisplay');
+            if (!img.src) return;
+            const a = document.createElement('a');
+            a.href = img.src;
+            a.download = `华小教学插画_${Date.now()}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // --- API Modal & Diagnostics ---
+        function openApiKeyModal() {
+            const input = document.getElementById('modalApiKeyInput');
+            input.value = window.geminiImageService.getApiKey();
+            document.getElementById('apiKeyModal').style.display = 'flex';
+        }
+
+        function closeApiKeyModal() {
+            document.getElementById('apiKeyModal').style.display = 'none';
+        }
+
+        function toggleApiKeyVisibility() {
+            const input = document.getElementById('modalApiKeyInput');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        function saveApiKeyFromModal() {
+            const input = document.getElementById('modalApiKeyInput');
+            const key = input.value.trim();
+            if (key) {
+                window.geminiImageService.setApiKey(key);
+                alert('API 密钥已成功保存在本地浏览器！');
+            } else {
+                window.geminiImageService.resetApiKey();
+                alert('已恢复为默认 API 密钥。');
+            }
+            closeApiKeyModal();
+        }
+
+        async function runModelDiagnostics() {
+            const btn = document.getElementById('diagBtn');
+            const list = document.getElementById('modelHealthList');
+            btn.disabled = true;
+            btn.textContent = '⏳ 测试中...';
+            list.innerHTML = '<div style="color: #38bdf8; text-align: center; padding: 10px;">正在并发向 5 个 Gemini 模型发送测试探针...</div>';
+
+            try {
+                const results = await window.geminiImageService.testAllModelsHealth();
+                list.innerHTML = '';
+                results.forEach(res => {
+                    const row = document.createElement('div');
+                    row.style.display = 'flex';
+                    row.style.alignItems = 'center';
+                    row.style.justifyContent = 'space-between';
+                    row.style.padding = '8px 12px';
+                    row.style.borderRadius = '6px';
+                    row.style.background = res.status === 'healthy' ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)';
+                    row.style.border = `1px solid ${res.status === 'healthy' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`;
+
+                    const statusIcon = res.status === 'healthy' ? '🟢' : (res.status === 'exhausted' ? '🟡' : '🔴');
+                    const badgeText = res.status === 'healthy' ? `${res.latency}ms · 在线 (${res.rpd} RPD)` : res.message;
+
+                    row.innerHTML = `
+                        <div style="font-weight: 600; color: ${res.status === 'healthy' ? '#34d399' : '#f87171'};">
+                            ${statusIcon} ${res.name}
+                        </div>
+                        <div style="font-size: 11px; color: ${res.status === 'healthy' ? '#94a3b8' : '#fca5a5'};">
+                            ${badgeText}
+                        </div>
+                    `;
+                    list.appendChild(row);
+                });
+            } catch (err) {
+                list.innerHTML = `<div style="color: #ef4444; padding: 8px;">诊断失败: ${err.message}</div>`;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🩺 重新测试连通性';
+            }
+        }
+    </script>
+</body>
+
+</html>

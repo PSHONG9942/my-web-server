@@ -1,0 +1,3868 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生字造句练习纸生成器 (PDF) - 华小老师专属数字化备课神器</title>
+    <meta name="description" content="专为马来西亚华小老师打造的生字造句练习纸生成器。根据列数自适应纯正方形田字格、米字格排版，首行汉字、次行拼音，下方学生造句书写，支持放大预览并一键直出高清 A4 PDF 打印文件！">
+    <link rel="icon" href="../images/logo.png" type="image/png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+
+    <!-- Pinyin-Pro CDN with local fallback support -->
+    <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.19.6/dist/index.js"></script>
+    <script>
+        if (typeof pinyinPro === 'undefined') {
+            document.write('<script src="https://unpkg.com/pinyin-pro@3.19.2/dist/index.js"><\/script>');
+        }
+    </script>
+
+    <!-- html2pdf.js for vector/raster A4 PDF direct download -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Gemini Multi-Model Pool & Image Service -->
+    <script src="js/gemini-image-service.js"></script>
+
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-hover: #0284c7;
+            --primary-glow: rgba(14, 165, 233, 0.35);
+            --accent: #8b5cf6;
+            --accent-glow: rgba(139, 92, 246, 0.3);
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.3);
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-base: #0b0f19;
+            --bg-card: rgba(17, 24, 39, 0.88);
+            --bg-card-hover: rgba(30, 41, 59, 0.95);
+            --bg-input: rgba(15, 23, 42, 0.9);
+            --border-card: rgba(255, 255, 255, 0.1);
+            --border-glow: rgba(14, 165, 233, 0.45);
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --text-muted: #64748b;
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 8px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+            /* Printable Sheet Settings */
+            --grid-line-color: #e11d48;
+            --grid-line-style: dashed;
+            --grid-line-width: 1px;
+            --hanzi-color: #111827;
+            --pinyin-color: #1e3a8a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-base);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.16) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.16) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        /* Top Nav */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1600px;
+            margin: 0 auto 18px;
+            width: 100%;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-sub);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-card);
+            transition: var(--transition);
+        }
+
+        .back-link:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+            transform: translateX(-3px);
+        }
+
+        .badge-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 13px;
+            font-weight: 500;
+            background: rgba(16, 185, 129, 0.12);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-status .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #34d399;
+            box-shadow: 0 0 8px #34d399;
+            animation: pulseDot 2s infinite;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.85); }
+        }
+
+        /* Hero */
+        .hero-section {
+            text-align: center;
+            max-width: 1100px;
+            margin: 0 auto 20px;
+        }
+
+        .hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.12);
+            padding: 4px 14px;
+            border-radius: 9999px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(56, 189, 248, 0.25);
+        }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 1.25;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #ffffff 30%, #38bdf8 70%, #818cf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-desc {
+            color: var(--text-sub);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Main Workspace */
+        .workspace {
+            display: grid;
+            grid-template-columns: 460px 1fr;
+            gap: 24px;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+            align-items: start;
+        }
+
+        /* Glass Panel */
+        .glass-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-lg);
+            padding: 22px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .collapsible-header {
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 600;
+            color: #38bdf8;
+            padding: 8px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            margin-top: 12px;
+        }
+
+        .collapsible-header:hover {
+            color: #7dd3fc;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-sub);
+            margin-bottom: 6px;
+        }
+
+        .form-label span.req {
+            color: #f43f5e;
+            margin-left: 2px;
+        }
+
+        .input-text, select.input-select, textarea.input-textarea {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-sm);
+            padding: 9px 12px;
+            color: var(--text-main);
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .input-text:focus, select.input-select:focus, textarea.input-textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+            background: rgba(15, 23, 42, 1);
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        /* Steppers */
+        .stepper-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-input);
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-card);
+        }
+
+        .cols-stepper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stepper-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border-card);
+            color: var(--text-main);
+            width: 32px;
+            height: 34px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .stepper-btn:hover:not(:disabled) {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .stepper-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .stepper-val {
+            min-width: 52px;
+            text-align: center;
+            font-size: 15px;
+            font-weight: 700;
+            color: #38bdf8;
+        }
+
+        /* Preset Pills */
+        .preset-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .pill-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-sub);
+            padding: 4px 10px;
+            font-size: 12px;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .pill-btn:hover {
+            color: #38bdf8;
+            border-color: #38bdf8;
+            background: rgba(56, 189, 248, 0.12);
+        }
+
+        /* Color Chips */
+        .color-chips {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+
+        .color-chip {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: var(--transition);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+            position: relative;
+        }
+
+        .color-chip:hover {
+            transform: scale(1.15);
+        }
+
+        .color-chip.active {
+            border-color: #ffffff;
+            box-shadow: 0 0 10px #ffffff;
+            transform: scale(1.15);
+        }
+
+        /* Preview Workspace */
+        .preview-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            position: relative;
+            min-width: 0;
+        }
+
+        .preview-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-md);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .preview-meta-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text-sub);
+        }
+
+        .preview-badge {
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        /* Zoom Toolbar */
+        .zoom-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(15, 23, 42, 0.85);
+            padding: 4px 8px;
+            border-radius: 8px;
+            border: 1px solid var(--border-card);
+        }
+
+        .zoom-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text-main);
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .zoom-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .zoom-display {
+            font-size: 12px;
+            font-weight: 700;
+            color: #38bdf8;
+            min-width: 48px;
+            text-align: center;
+        }
+
+        .zoom-text-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text-sub);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .zoom-text-btn:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Fullscreen Floating Smartboard Toolbar */
+        .fullscreen-toolbar {
+            position: fixed;
+            top: 20px;
+            right: 25px;
+            z-index: 99999999;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: rgba(15, 23, 42, 0.94);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 9px 18px;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.65);
+            animation: fadeInToolbar 0.3s ease;
+        }
+
+        @keyframes fadeInToolbar {
+            from { opacity: 0; transform: translateY(-12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fs-btn {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            user-select: none;
+        }
+
+        .fs-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .fs-btn-exit {
+            background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+            border-color: #f87171 !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            padding: 8px 18px !important;
+            font-size: 13px !important;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.5) !important;
+        }
+
+        .fs-btn-exit:hover, .fs-btn-exit:active {
+            background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+            transform: scale(1.05) !important;
+        }
+
+        .fs-zoom-badge {
+            color: #38bdf8;
+            font-weight: bold;
+            font-size: 13px;
+            padding: 0 4px;
+        }
+
+        /* Mode Switcher Tabs */
+        .mode-switch-tabs {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 9999px;
+            padding: 4px;
+            gap: 6px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .mode-tab-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            border-radius: 9999px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-sub);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            user-select: none;
+        }
+
+        .mode-tab-btn:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .mode-tab-btn.active {
+            color: #ffffff;
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            box-shadow: 0 4px 14px rgba(14, 165, 233, 0.4);
+        }
+
+        .mode-tab-btn.active.special {
+            background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+            box-shadow: 0 4px 16px rgba(139, 92, 246, 0.45);
+        }
+
+        .tab-badge {
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        .tab-badge.special {
+            background: #f59e0b;
+            color: #111827;
+            font-weight: 700;
+        }
+
+        /* Mode Views */
+        .mode-view {
+            display: none;
+            width: 100%;
+        }
+
+        .mode-view.active {
+            display: block;
+            animation: fadeInView 0.3s ease;
+        }
+
+        @keyframes fadeInView {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ======================================================== */
+        /* LIVELY, CUTE & PLAYFUL INTERACTIVE ARENA (看图造句乐园) */
+        /* ======================================================== */
+        
+        #viewInteractiveMode {
+            font-family: 'KaiTi', '楷体', 'STKaiti', 'Noto Serif SC', serif;
+            background: linear-gradient(180deg, #fffbf5 0%, #fff7ed 40%, #f4f8fe 100%);
+            color: #1e293b;
+            border-radius: 28px;
+            padding: 26px 24px 44px;
+            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.28), inset 0 2px 0 rgba(255, 255, 255, 0.9);
+            border: 3.5px solid #fed7aa;
+            position: relative;
+            margin: 0 auto 30px;
+            max-width: 1460px;
+            box-sizing: border-box;
+        }
+
+        /* Cheerful Header */
+        .kid-header-area {
+            text-align: center;
+            margin: 4px auto 22px;
+            max-width: 900px;
+        }
+
+        .kid-header-badge {
+            background: #ffedd5;
+            color: #ea580c;
+            border: 2px solid #fdba74;
+            border-radius: 9999px;
+            padding: 5px 18px;
+            font-size: 14px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 10px rgba(234, 88, 12, 0.15);
+            margin-bottom: 8px;
+            letter-spacing: 0.03em;
+        }
+
+        .kid-title {
+            font-family: 'KaiTi', '楷体', 'STKaiti', serif;
+            font-size: 34px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ea580c 0%, #ec4899 50%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 4px 0 8px;
+            letter-spacing: 0.04em;
+        }
+
+        .kid-desc {
+            font-family: 'KaiTi', '楷体', 'STKaiti', serif;
+            font-size: 16px;
+            color: #64748b;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* 3-Step Simple Bubbly Progress Bar */
+        .clean-steps-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 0 auto 24px;
+            max-width: 920px;
+            flex-wrap: wrap;
+        }
+
+        .clean-step-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 20px;
+            background: #ffffff;
+            border: 2.5px solid #fed7aa;
+            border-radius: 9999px;
+            font-family: 'KaiTi', '楷体', 'STKaiti', serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: #64748b;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .clean-step-pill.active {
+            background: linear-gradient(135deg, #ffedd5, #fef08a);
+            border-color: #f59e0b;
+            color: #b45309;
+            transform: scale(1.06);
+            box-shadow: 0 6px 18px rgba(245, 158, 11, 0.28);
+            animation: kidBouncePill 2s infinite ease-in-out;
+        }
+
+        .clean-step-pill.done {
+            background: #ecfdf5;
+            border-color: #10b981;
+            color: #047857;
+            box-shadow: 0 3px 8px rgba(16, 185, 129, 0.15);
+        }
+
+        @keyframes kidBouncePill {
+            0%, 100% { transform: scale(1.06); }
+            50% { transform: scale(1.09); box-shadow: 0 8px 22px rgba(245, 158, 11, 0.38); }
+        }
+
+        .clean-step-arrow {
+            color: #fdba74;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        /* Top Topic Card (Card 1: 选主题) */
+        .clean-topic-card {
+            background: #ffffff;
+            border: 2.5px solid #fed7aa;
+            border-radius: 24px;
+            padding: 22px 24px;
+            margin: 0 auto 24px;
+            max-width: 1400px;
+            box-shadow: 0 10px 25px rgba(249, 115, 22, 0.08);
+            box-sizing: border-box;
+        }
+
+        .kid-theme-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .kid-theme-btn {
+            border-radius: 9999px;
+            padding: 8px 18px;
+            font-family: 'KaiTi', '楷体', 'STKaiti', serif;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            user-select: none;
+            box-shadow: 0 3px 0 rgba(0, 0, 0, 0.06);
+            border-width: 2px;
+            border-style: solid;
+        }
+
+        .kid-theme-btn:nth-child(1) { background: #fff1f2; border-color: #fda4af; color: #e11d48; }
+        .kid-theme-btn:nth-child(2) { background: #fefce8; border-color: #fde047; color: #a16207; }
+        .kid-theme-btn:nth-child(3) { background: #f0fdf4; border-color: #86efac; color: #15803d; }
+        .kid-theme-btn:nth-child(4) { background: #f0f9ff; border-color: #7dd3fc; color: #0369a1; }
+        .kid-theme-btn:nth-child(5) { background: #faf5ff; border-color: #d8b4fe; color: #7e22ce; }
+
+        .kid-theme-btn.random {
+            background: linear-gradient(135deg, #fef3c7, #fed7aa);
+            border-color: #f97316;
+            color: #c2410c;
+        }
+
+        .kid-theme-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+        }
+
+        .kid-theme-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        .clean-topic-input-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .clean-topic-input-row .input-text {
+            flex: 1;
+            padding: 12px 20px;
+            font-family: 'KaiTi', '楷体', 'STKaiti', serif;
+            font-size: 16px;
+            border-radius: 9999px;
+            background: #fffdf9;
+            border: 2.5px solid #fed7aa;
+            color: #1e293b;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+            transition: var(--transition);
+        }
+
+        .clean-topic-input-row .input-text:focus {
+            outline: none;
+            border-color: #f97316;
+            box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.15);
+            background: #ffffff;
+        }
+
+        /* Clean & Cute Prompt Confirmation Banner */
+        .clean-prompt-banner {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef2f2 100%);
+            border: 2.5px dashed #f59e0b;
+            border-radius: 20px;
+            padding: 18px 22px;
+            margin-top: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            animation: fadeInView 0.3s ease;
+        }
+
+        .clean-prompt-banner-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: 'KaiTi', '楷体', 'STKaiti', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: #b45309;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .clean-prompt-textarea {
+            width: 100%;
+            min-height: 60px;
+            background: #ffffff;
+            border: 2px solid #fed7aa;
+            border-radius: 14px;
+            color: #1e293b;
+            font-family: 'KaiTi', '楷体', 'STKaiti', serif;
+            font-size: 17px;
+            padding: 12px 16px;
+            line-height: 1.6;
+            resize: vertical;
+            box-sizing: border-box;
+            transition: var(--transition);
+        }
+
+        .clean-prompt-textarea:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+        }
+
+        /* 2-Column Clean Studio Layout */
+        .clean-studio-grid {
+            display: grid;
+            grid-template-columns: 460px 1fr;
+            gap: 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 1100px) {
+            .clean-studio-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Picture Frame Card (Left Column) */
+        .clean-image-card {
+            background: #ffffff;
+            border: 2.5px solid #fed7aa;
+            border-radius: 24px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            box-shadow: 0 10px 25px rgba(249, 115, 22, 0.08);
+            box-sizing: border-box;
+        }
+
+        .clean-card-title-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .clean-card-title {
+            font-family: 'KaiTi', '楷体', 'STKaiti', serif;
+            font-size: 19px;
+            font-weight: 800;
+            color: #ea580c;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .image-canvas-wrapper {
+            width: 100%;
+            min-height: 320px;
+            background: #fffdfa;
+            border: 3px dashed #fed7aa;
+            border-radius: 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            padding: 12px;
+            box-sizing: border-box;
+            transition: var(--transition);
+        }
+
+        .image-canvas-wrapper.has-image {
+            border-style: solid;
+            border-color: #f97316;
+            background: #ffffff;
+        }
+
+        .stage-illustration-img {
+            max-height: 400px;
+            max-width: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+            transition: transform 0.25s ease;
+            cursor: zoom-in;
+            display: none;
+        }
+
+        .stage-illustration-img:hover {
+            transform: scale(1.02);
+        }
+
+        /* Observation Elements Bar */
+        .clean-observation-box {
+            background: #fefce8;
+            border: 2px solid #fef08a;
+            border-radius: 16px;
+            padding: 12px 16px;
+        }
+
+        .clean-obs-title {
+            font-family: 'KaiTi', '楷体', 'STKaiti', serif;
+            font-size: 15px;
+            font-weight: 800;
+            color: #a16207;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .rubric-elements-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .rubric-element-tag {
+            font-family: 'KaiTi', '楷体', 'STKaiti', serif;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 4px 14px;
+            border-radius: 9999px;
+            background: #ffffff;
+            color: #854d0e;
+            border: 1.5px solid #fde047;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+        }
+
+        .image-stage-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-stage-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 9999px;
+            font-family: 'KaiTi', '楷体', 'STKaiti', serif;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            user-select: none;
+            border-width: 2px;
+            border-style: solid;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+            outline: none;
+            text-decoration: none;
+        }
+
+        .btn-stage-action.btn-zoom {
+            background: #f0f9ff;
+            border-color: #7dd3fc;
+            color: #0284c7;
+        }
+
+        .btn-stage-action.btn-zoom:hover {
+            background: #e0f2fe;
+            border-color: #38bdf8;
+            color: #0369a1;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(14, 165, 233, 0.2);
+        }
+
+        .btn-stage-action.btn-save {
+            background: #f0fdf4;
+            border-color: #86efac;
+            color: #15803d;
+        }
+
+        .btn-stage-action.btn-save:hover {
+            background: #dcfce7;
+            border-color: #4ade80;
+            color: #166534;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-stage-action:active {
+            transform: translateY(0);
+        }
+
+        /* Scoped safety fix for any .btn-secondary inside #viewInteractiveMode */
+        #viewInteractiveMode .btn-secondary {
+            background: #ffffff;
+            color: #334155;
+            border: 2px solid #cbd5e1;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+        }
+
+        #viewInteractiveMode .btn-secondary:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+            color: #0f172a;
+        }
+
+        /* Student Writing Desk Card (Right Column) */
+        .clean-writing-card {
+            background: #ffffff;
+            border: 2.5px solid #fed7aa;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 10px 25px rgba(249, 115, 22, 0.08);
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        .clean-writing-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .student-textarea {
+            width: 100%;
+            min-height: 105px;
+            background: #fffdfa;
+            border: 2.5px solid #cbd5e1;
+            border-radius: 18px;
+            color: #1e293b;
+            font-family: 'KaiTi', '楷体', 'STKaiti', serif;
+            font-size: 19px;
+            padding: 16px 18px;
+            line-height: 1.8;
+            box-sizing: border-box;
+            transition: var(--transition);
+            resize: vertical;
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.03);
+        }
+
+        .student-textarea:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.16);
+            background: #ffffff;
+        }
+
+        .clean-samples-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .clean-sample-btn {
+            font-family: 'KaiTi', '楷体', 'STKaiti', serif;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .clean-sample-btn:hover {
+            background: #ede9fe;
+            border-color: #a78bfa;
+            color: #6d28d9;
+            transform: translateY(-2px);
+        }
+
+        /* Award Certificate Report Card (老师批改与小奖状) */
+        .clean-report-card {
+            background: linear-gradient(180deg, #ffffff 0%, #fffbf5 100%);
+            border: 3px solid #fcd34d;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 12px 30px rgba(245, 158, 11, 0.18);
+            animation: fadeInView 0.4s ease;
+            box-sizing: border-box;
+        }
+
+        .clean-report-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 14px;
+            border-bottom: 2px dashed #fde68a;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .clean-score-group {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+
+        .eval-score-val {
+            font-size: 44px;
+            font-weight: 900;
+            color: #f59e0b;
+            font-family: 'Outfit', 'KaiTi', sans-serif;
+            text-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+        }
+
+        .eval-score-stars {
+            font-size: 26px;
+            color: #f59e0b;
+            letter-spacing: 3px;
+        }
+
+        .eval-level-badge {
+            font-family: 'KaiTi', '楷体', 'STKaiti', serif;
+            font-size: 15px;
+            font-weight: 800;
+            padding: 6px 18px;
+            border-radius: 9999px;
+            background: linear-gradient(135deg, #f59e0b, #ea580c);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+        }
+
+        /* 4 Clean Dimension Chips */
+        .clean-dim-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .clean-dim-chip {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 9px 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+        }
+
+        .clean-dim-chip-header {
+            display: flex;
+            justify-content: space-between;
+            font-family: 'KaiTi', '楷体', 'STKaiti', serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .dim-bar-track {
+            height: 6px;
+            border-radius: 3px;
+            background: #f1f5f9;
+            overflow: hidden;
+        }
+
+        .dim-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, #10b981, #38bdf8);
+            transition: width 0.6s ease;
+        }
+
+        /* 2 Warm Feedback Cards */
+        .clean-feedback-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .feedback-card {
+            border-radius: 16px;
+            padding: 14px 18px;
+            font-size: 15px;
+            line-height: 1.6;
+            font-family: 'KaiTi', '楷体', 'STKaiti', serif;
+        }
+
+        .feedback-card.praise {
+            background: #fdf2f8;
+            border: 2px solid #fbcfe8;
+            color: #831843;
+        }
+
+        .feedback-card.critique {
+            background: #fefce8;
+            border: 2px solid #fef08a;
+            color: #713f12;
+        }
+
+        .feedback-card-title {
+            font-family: 'KaiTi', '楷体', 'STKaiti', serif;
+            font-weight: 800;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 15px;
+        }
+
+        .feedback-card.praise .feedback-card-title { color: #be185d; }
+        .feedback-card.critique .feedback-card-title { color: #a16207; }
+
+        /* Exemplar Sentence Box */
+        .exemplar-sentence-box {
+            background: linear-gradient(135deg, #f5f3ff, #eff6ff);
+            border: 2.5px dashed #a78bfa;
+            border-radius: 18px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+        }
+
+        .exemplar-title {
+            font-family: 'KaiTi', '楷体', 'STKaiti', serif;
+            font-size: 15px;
+            font-weight: 800;
+            color: #6d28d9;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .exemplar-text {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e1b4b;
+            font-family: 'KaiTi', '楷体', 'STKaiti', serif;
+            letter-spacing: 0.04em;
+            line-height: 1.7;
+        }
+
+        /* Worksheet Promo Box in Left Sidebar */
+        .worksheet-promo-box {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(139, 92, 246, 0.12));
+            border: 1px solid rgba(14, 165, 233, 0.3);
+            border-radius: var(--radius-md);
+            padding: 12px 14px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .worksheet-promo-box:hover {
+            border-color: #38bdf8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(14, 165, 233, 0.25);
+        }
+
+        /* Worksheet Illustration Area (On Realistic A4 Sheet) */
+        .worksheet-illustration-area {
+            margin: 0 auto 10px auto;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .worksheet-illustration-frame {
+            border: 1.5px dashed #64748b;
+            border-radius: 8px;
+            padding: 6px 14px;
+            background: #fbfbfb;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 95%;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .worksheet-illustration-frame img {
+            height: 110px;
+            max-width: 100%;
+            object-fit: contain;
+            border-radius: 4px;
+            display: block;
+        }
+
+        .worksheet-illustration-caption {
+            font-size: 12px;
+            color: #4b5563;
+            font-family: 'KaiTi', '楷体', 'STKaiti', serif;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        /* Preview Scroll Area Container */
+        .sheet-scroll-container {
+            width: 100%;
+            overflow: auto;
+            max-height: calc(100vh - 210px);
+            padding: 24px;
+            background: #182234;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-card);
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        /* Fullscreen styles for sheetScrollArea */
+        .sheet-scroll-container:fullscreen,
+        .sheet-scroll-container:-webkit-full-screen,
+        .sheet-scroll-container.is-fullscreen,
+        .sheet-scroll-container.is-web-fullscreen {
+            width: 100vw !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+            border-radius: 0 !important;
+            border: none !important;
+            margin: 0 !important;
+            padding: 60px 20px 30px 20px !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            z-index: 999999 !important;
+            background: #0b0f19 !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: flex-start !important;
+            overflow: auto !important;
+            box-shadow: none !important;
+        }
+
+        .sheet-scroll-container:fullscreen .fullscreen-toolbar,
+        .sheet-scroll-container:-webkit-full-screen .fullscreen-toolbar,
+        .sheet-scroll-container.is-fullscreen .fullscreen-toolbar,
+        .sheet-scroll-container.is-web-fullscreen .fullscreen-toolbar {
+            display: flex !important;
+        }
+
+        /* Printable A4 Paper (210mm x 297mm) */
+        .a4-page {
+            width: 210mm;
+            min-height: 297mm;
+            height: 297mm;
+            padding: 14mm 16mm 14mm 16mm;
+            background: #FFFFFF;
+            color: #111827;
+            box-sizing: border-box;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.5);
+            position: relative;
+            transform-origin: top center;
+            transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+            display: flex;
+            flex-direction: column;
+            user-select: text;
+        }
+
+        /* A4 Header Section */
+        .worksheet-header {
+            margin-bottom: 12px;
+            font-family: 'KaiTi', '楷体', 'STKaiti', serif;
+        }
+
+        .worksheet-title-row {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .worksheet-main-title {
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 0.15em;
+            color: #111827;
+            outline: none;
+            padding: 2px 8px;
+            display: inline-block;
+            border-radius: 4px;
+        }
+
+        .worksheet-main-title:hover {
+            background: rgba(14, 165, 233, 0.08);
+        }
+
+        .worksheet-meta-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #374151;
+            padding-bottom: 6px;
+            border-bottom: 1.5px solid #111827;
+            margin-bottom: 8px;
+        }
+
+        .meta-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .meta-field {
+            display: inline-block;
+            min-width: 60px;
+            border-bottom: 1px solid #94a3b8;
+            outline: none;
+            padding: 0 4px;
+        }
+
+        .worksheet-instruction {
+            font-size: 13px;
+            color: #4b5563;
+            font-style: normal;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            outline: none;
+            padding: 2px 4px;
+        }
+
+        .worksheet-instruction:hover {
+            background: rgba(14, 165, 233, 0.08);
+        }
+
+        /* Grid Table Container - Flex child filling available height */
+        .grid-table-wrapper {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .grid-table {
+            display: table;
+            border-collapse: collapse;
+            box-sizing: border-box;
+            border: 2px solid var(--grid-line-color);
+            background: #ffffff;
+            margin: 0 auto;
+        }
+
+        .grid-row {
+            display: table-row;
+            box-sizing: border-box;
+        }
+
+        /* Strict Square Grid Cell (1:1 Ratio) */
+        .grid-cell {
+            display: table-cell;
+            position: relative;
+            box-sizing: border-box;
+            border: 1px solid var(--grid-line-color);
+            vertical-align: middle;
+            text-align: center;
+            overflow: hidden;
+            padding: 0;
+            background: #ffffff;
+        }
+
+        /* Inner Square Box to ensure perfect 1:1 aspect-ratio */
+        .cell-square-box {
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 1 / 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        /* Tianzige Lines */
+        .line-h {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 0;
+            border-top: var(--grid-line-width) var(--grid-line-style) var(--grid-line-color);
+            transform: translateY(-50%);
+            pointer-events: none;
+            opacity: 0.75;
+            z-index: 1;
+        }
+
+        .line-v {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 0;
+            height: 100%;
+            border-left: var(--grid-line-width) var(--grid-line-style) var(--grid-line-color);
+            transform: translateX(-50%);
+            pointer-events: none;
+            opacity: 0.75;
+            z-index: 1;
+        }
+
+        /* Mizige Diagonal Lines (True Center 45° Diagonals Passing Exactly Through (50%, 50%)) */
+        .line-diag-1 {
+            position: absolute;
+            width: 141.42%;
+            height: 0;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(45deg);
+            border-top: var(--grid-line-width) var(--grid-line-style) var(--grid-line-color);
+            opacity: 0.65;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .line-diag-2 {
+            position: absolute;
+            width: 141.42%;
+            height: 0;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            border-top: var(--grid-line-width) var(--grid-line-style) var(--grid-line-color);
+            opacity: 0.65;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Huizige Inner Square */
+        .line-hui-inner {
+            position: absolute;
+            width: 60%;
+            height: 60%;
+            top: 20%;
+            left: 20%;
+            border: var(--grid-line-width) var(--grid-line-style) var(--grid-line-color);
+            opacity: 0.7;
+            pointer-events: none;
+            z-index: 1;
+            box-sizing: border-box;
+        }
+
+        /* Jiugongge 3x3 Lines */
+        .line-jg-h1 {
+            position: absolute;
+            top: 33.33%;
+            left: 0;
+            width: 100%;
+            height: 0;
+            border-top: var(--grid-line-width) var(--grid-line-style) var(--grid-line-color);
+            opacity: 0.65;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .line-jg-h2 {
+            position: absolute;
+            top: 66.66%;
+            left: 0;
+            width: 100%;
+            height: 0;
+            border-top: var(--grid-line-width) var(--grid-line-style) var(--grid-line-color);
+            opacity: 0.65;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .line-jg-v1 {
+            position: absolute;
+            left: 33.33%;
+            top: 0;
+            width: 0;
+            height: 100%;
+            border-left: var(--grid-line-width) var(--grid-line-style) var(--grid-line-color);
+            opacity: 0.65;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .line-jg-v2 {
+            position: absolute;
+            left: 66.66%;
+            top: 0;
+            width: 0;
+            height: 100%;
+            border-left: var(--grid-line-width) var(--grid-line-style) var(--grid-line-color);
+            opacity: 0.65;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Content Text (Hanzi & Pinyin) inside Cell */
+        .cell-content {
+            position: relative;
+            z-index: 3;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            outline: none;
+            cursor: text;
+            user-select: text;
+            transition: var(--transition);
+            box-sizing: border-box;
+        }
+
+        .cell-content:focus {
+            background: rgba(14, 165, 233, 0.18);
+        }
+
+        /* Row 1: Hanzi Characters */
+        .cell-hanzi {
+            font-family: 'KaiTi', '楷体', 'STKaiti', 'Noto Sans SC', serif;
+            color: var(--hanzi-color);
+            line-height: 1;
+        }
+
+        /* Traceable Grey Mode for Hanzi */
+        .cell-hanzi.trace-gray {
+            color: #cbd5e1 !important;
+            font-weight: 500;
+        }
+
+        /* Hollow Outline Mode for Hanzi */
+        .cell-hanzi.trace-hollow {
+            color: transparent !important;
+            -webkit-text-stroke: 1.2px #94a3b8;
+        }
+
+        /* Row 2: Pinyin */
+        .cell-pinyin {
+            font-family: Arial, 'Outfit', -apple-system, sans-serif;
+            color: var(--pinyin-color);
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            line-height: 1.1;
+        }
+
+        /* Punctuation Placement (Lower Left Quadrant) */
+        .cell-punctuation {
+            align-items: flex-end;
+            justify-content: flex-start;
+            padding-left: 20%;
+            padding-bottom: 20%;
+        }
+
+        /* Row Type Indicator (Optional Left Margin Tag) */
+        .row-tag {
+            position: absolute;
+            left: -22px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 10px;
+            font-weight: 600;
+            color: #94a3b8;
+            white-space: nowrap;
+            user-select: none;
+            pointer-events: none;
+            font-family: sans-serif;
+        }
+
+        /* Action Buttons Area */
+        .action-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            outline: none;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            color: #ffffff;
+            box-shadow: 0 4px 14px var(--primary-glow);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px var(--primary-glow);
+        }
+
+        .btn-accent {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #ffffff;
+            box-shadow: 0 4px 14px var(--success-glow);
+        }
+
+        .btn-accent:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+            border: 1px solid var(--border-card);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-box {
+            background: #111827;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+            text-align: center;
+        }
+
+        .modal-icon {
+            font-size: 44px;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .modal-desc {
+            font-size: 13px;
+            color: var(--text-sub);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .progress-track {
+            background: rgba(255, 255, 255, 0.1);
+            height: 10px;
+            border-radius: 9999px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #0ea5e9, #10b981);
+            border-radius: 9999px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-step-text {
+            font-size: 13px;
+            font-weight: 500;
+            color: #38bdf8;
+            margin-bottom: 6px;
+        }
+
+        .edit-tip-banner {
+            background: rgba(14, 165, 233, 0.1);
+            border: 1px dashed rgba(14, 165, 233, 0.35);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            font-size: 12px;
+            color: #38bdf8;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        /* Native Print CSS for 100% Vector Output */
+        @media print {
+            body {
+                background: none !important;
+                background-color: #ffffff !important;
+                color: #000000 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                display: block !important;
+            }
+
+            .top-nav,
+            .hero-section,
+            .glass-panel,
+            .preview-topbar,
+            .action-bar,
+            .modal-overlay,
+            .edit-tip-banner,
+            .row-tag {
+                display: none !important;
+            }
+
+            .workspace {
+                display: block !important;
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .preview-wrapper {
+                display: block !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .sheet-scroll-container {
+                padding: 0 !important;
+                margin: 0 !important;
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                overflow: visible !important;
+                max-height: none !important;
+                display: block !important;
+            }
+
+            .a4-page {
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 auto !important;
+                padding: 10mm 15mm !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                height: 100% !important;
+                min-height: auto !important;
+                transform: none !important;
+                page-break-after: avoid !important;
+                page-break-inside: avoid !important;
+            }
+
+            @page {
+                size: A4 portrait;
+                margin: 8mm;
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <a href="../index.html" class="back-link" title="返回数字化教具主页">
+                <span>←</span> 返回教具主页
+            </a>
+            <div class="badge-status">
+                <span class="dot"></span>
+                <span id="dictStatusText">拼音引擎就绪</span>
+            </div>
+        </div>
+
+        <!-- Mode Switcher Tabs (Dual Mode) -->
+        <div class="mode-switch-tabs">
+            <button type="button" class="mode-tab-btn active" id="tabWorksheetBtn" onclick="switchMainMode('worksheet')" title="专为备课打印打造的纯正方格标准练习纸">
+                <span style="font-size: 16px;">📄</span>
+                <span>标准练习纸排版</span>
+                <span class="tab-badge">默认主页</span>
+            </button>
+            <button type="button" class="mode-tab-btn" id="tabInteractiveBtn" onclick="switchMainMode('interactive')" title="4智能体协同：极速出题、画面绘制、统一量规、视觉多模态批阅">
+                <span style="font-size: 16px;">🤖</span>
+                <span>AI 互动看图造句</span>
+                <span class="tab-badge special">4智能体协同</span>
+            </button>
+        </div>
+
+        <!-- Right Side Utility Links -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <a href="image-generator.html" class="back-link" style="padding: 7px 12px; font-size: 13px;" title="打开独立的教学插图生成画室">
+                <span>🎨</span> 独立生图画室
+            </a>
+            <button type="button" class="back-link" style="padding: 7px 12px; font-size: 13px; cursor: pointer;" onclick="openApiKeyModal()" title="查看 5 款 Gemini 模型池健康状态与每日配额">
+                <span>⚙️</span> 多模型池 (1,060+ RPD)
+            </button>
+        </div>
+    </nav>
+
+    <!-- ======================================================== -->
+    <!-- PRIMARY INTERFACE: WORKSHEET MAKER (#viewWorksheetMode) -->
+    <!-- ======================================================== -->
+    <div id="viewWorksheetMode" class="mode-view active">
+
+        <!-- Hero Header -->
+        <header class="hero-section">
+        <div class="hero-tag">✨ 华小教师专属 · 高效数字化练习纸工坊</div>
+        <h1 class="hero-title">生字造句练习纸生成器 (PDF)</h1>
+        <p class="hero-desc">自适应纯正方格排版 · 第一行汉字 · 第二行拼音 · 下方学生书写造句 · 支持缩放与一键导出高清 A4 PDF 文件！</p>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="workspace">
+
+        <!-- Left Configuration Workspace -->
+        <section class="glass-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span>⚙️</span> 造句练习纸排版设置
+                </div>
+            </div>
+
+            <!-- Sentence Input -->
+            <div class="form-group">
+                <div class="form-label">
+                    <span>输入句子 / 例句 / 词语 <span class="req">*</span></span>
+                    <span style="font-size: 12px; color: #38bdf8;">第一行汉字，第二行拼音</span>
+                </div>
+                <textarea id="sentenceInput" class="input-textarea" rows="3" placeholder="输入例句或造句题目，如：弟弟在草地上快乐地玩耍。">弟弟在草地上快乐地玩耍。</textarea>
+                
+                <div class="preset-pills">
+                    <span style="font-size: 12px; color: var(--text-muted); align-self: center;">快捷范例：</span>
+                    <button class="pill-btn" onclick="setSentence('弟弟在草地上快乐地玩耍。')">弟弟在草地上快乐地玩耍。</button>
+                    <button class="pill-btn" onclick="setSentence('因为今天下雨，所以我没去公园。')">因为今天下雨，所以我没去公园。</button>
+                    <button class="pill-btn" onclick="setSentence('春风吹拂着大地，小草悄悄地探出了头。')">春风吹拂着大地，小草悄悄地探出了头。</button>
+                    <button class="pill-btn" onclick="setSentence('天上的白云有时像小羊，有时像棉花糖。')">天上的白云有时像小羊，有时像棉花糖。</button>
+                    <button class="pill-btn" onclick="setSentence('我们要养成早睡早起的好习惯。')">我们要养成早睡早起的好习惯。</button>
+                </div>
+            </div>
+
+            <!-- Column Count Stepper (Core Feature) -->
+            <div class="form-group">
+                <div class="form-label">
+                    <span>田字格列数设置</span>
+                    <span style="font-size: 12px; color: #38bdf8;" id="gridInfoBadge">10 列 · 纯正方格</span>
+                </div>
+                <div class="stepper-container">
+                    <span style="font-size: 14px; color: var(--text-main);">每行格子数 (列数)：</span>
+                    <div class="cols-stepper">
+                        <button class="stepper-btn" onclick="adjustCols(-1)">−</button>
+                        <span class="stepper-val" id="colsValDisplay">10 列</span>
+                        <button class="stepper-btn" onclick="adjustCols(1)">+</button>
+                    </div>
+                </div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">
+                    💡 提示：列数越多，单个正方形格子越小，A4页面能容纳的行数就会越多。
+                </div>
+            </div>
+
+            <!-- Dynamic Row Count & Auto-Fit -->
+            <div class="form-group">
+                <div class="form-label">
+                    <span>页面总行数</span>
+                    <span style="font-size: 12px; color: #34d399; cursor: pointer;" id="rowStatusBadge" onclick="resetAutoRows()" title="点击可恢复自动根据列数计算行数">自动根据列数适配 A4</span>
+                </div>
+                <div class="stepper-container">
+                    <span style="font-size: 14px; color: var(--text-main);">自适应总行数：</span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <button type="button" id="resetAutoRowsBtn" class="pill-btn" style="display: none; padding: 2px 8px; font-size: 11px;" onclick="resetAutoRows()">🔄 恢复自动</button>
+                        <div class="cols-stepper">
+                            <button class="stepper-btn" onclick="adjustRows(-1)">−</button>
+                            <span class="stepper-val" id="rowsValDisplay">13 行</span>
+                            <button class="stepper-btn" onclick="adjustRows(1)">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Practice Mode -->
+            <div class="form-group">
+                <div class="form-label"><span>造句排版模式</span></div>
+                <select id="layoutModeSelect" class="input-select" onchange="handleLayoutChange()">
+                    <option value="single" selected>单题示范：第1行汉字 + 第2行拼音 + 其余行学生作答</option>
+                    <option value="wrap">长句自动折行：汉字与拼音交替成对折行 + 后续行作答</option>
+                    <option value="multi">多题模式：每行句子各占 1行汉字+1行拼音+2行作答</option>
+                </select>
+            </div>
+
+            <!-- Grid Style & Colors -->
+            <div class="form-group">
+                <div class="input-row">
+                    <div>
+                        <div class="form-label"><span>背景格样式</span></div>
+                        <select id="gridTypeSelect" class="input-select" onchange="updateGridStyle()">
+                            <option value="tianzi" selected>田字格 (四方定位)</option>
+                            <option value="mizi">米字格 (八方参考)</option>
+                            <option value="huizi">回字格 (结构居中)</option>
+                            <option value="jiugong">九宫格 (九等分)</option>
+                            <option value="square">纯方格 (清爽口字)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <div class="form-label"><span>网格线条样式</span></div>
+                        <select id="lineStyleSelect" class="input-select" onchange="updateGridStyle()">
+                            <option value="dashed" selected>标准虚线</option>
+                            <option value="solid">细实线</option>
+                            <option value="dotted">点状虚线</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid Line Color -->
+            <div class="form-group">
+                <div class="form-label">
+                    <span>网格线条颜色</span>
+                    <span style="font-size: 12px; color: var(--text-muted);">经典红格 / 护眼绿 / 铅笔灰 / 纯黑</span>
+                </div>
+                <div class="color-chips" id="gridColorChips">
+                    <div class="color-chip active" style="background: #e11d48;" title="经典朱红" onclick="setGridColor('#e11d48', this)"></div>
+                    <div class="color-chip" style="background: #10b981;" title="护眼淡绿" onclick="setGridColor('#10b981', this)"></div>
+                    <div class="color-chip" style="background: #94a3b8;" title="商务淡灰" onclick="setGridColor('#94a3b8', this)"></div>
+                    <div class="color-chip" style="background: #374151;" title="经典墨黑" onclick="setGridColor('#374151', this)"></div>
+                    <div class="color-chip" style="background: #0284c7;" title="科技天蓝" onclick="setGridColor('#0284c7', this)"></div>
+                </div>
+            </div>
+
+            <!-- Font Styles & Options -->
+            <div class="form-group">
+                <div class="input-row">
+                    <div>
+                        <div class="form-label"><span>第一行汉字呈现</span></div>
+                        <select id="hanziStyleSelect" class="input-select" onchange="updateHanziStyle()">
+                            <option value="normal" selected>标准楷体 (教材实心黑)</option>
+                            <option value="trace-gray">浅灰描红 (临摹写字)</option>
+                            <option value="trace-hollow">空心双钩 (描红轮廓)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <div class="form-label"><span>第二行拼音格样式</span></div>
+                        <select id="pinyinGridSelect" class="input-select" onchange="updatePinyinGridStyle()">
+                            <option value="same" selected>与全页网格相同 (统一大方)</option>
+                            <option value="none">纯方格 (无内部虚线)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Worksheet Header Customization -->
+            <div class="collapsible-header" onclick="toggleHeaderOptions()">
+                <span>📝 自定义练习纸页眉与标题 (点击展开/折叠)</span>
+                <span id="headerToggleArrow">▼</span>
+            </div>
+            <div id="headerOptionsBox" style="display: block; margin-top: 10px;">
+                <div class="form-group">
+                    <div class="form-label"><span>练习纸主标题</span></div>
+                    <input type="text" id="sheetTitleInput" class="input-text" value="造句练习纸" oninput="updateSheetHeader()">
+                </div>
+                <div class="form-group">
+                    <div class="form-label"><span>题目要求与提示语</span></div>
+                    <input type="text" id="sheetPromptInput" class="input-text" value="要求：请阅读第一行的例句与拼音，并在田字格内规范写出你的造句。" oninput="updateSheetHeader()">
+                </div>
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-sub); cursor: pointer;">
+                        <input type="checkbox" id="showMetaCheckbox" checked onchange="updateSheetHeader()">
+                        <span>显示班级、姓名、日期、评分信息栏</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Interactive Studio Promo Banner -->
+            <div class="worksheet-promo-box" onclick="switchMainMode('interactive')" title="点击切换至【AI 互动看图造句】工坊">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 18px;">🤖</span>
+                        <span style="font-size: 13px; font-weight: 700; color: #38bdf8;">AI 互动看图造句工坊</span>
+                    </div>
+                    <span class="tab-badge special" style="font-size: 11px;">4 智能体协同 ➔</span>
+                </div>
+                <div style="font-size: 12px; color: var(--text-sub); margin-top: 6px; line-height: 1.5;">
+                    想要生动教学情境配图或让 AI 极速出题与 5 分制名师批改？点击切换至第二界面体验！
+                </div>
+            </div>
+
+            <!-- Optional: Illustration Toggle if an image is loaded onto worksheet -->
+            <div id="worksheetIllustToggleCard" style="display: none; margin-bottom: 16px; background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(14, 165, 233, 0.25); border-radius: var(--radius-sm); padding: 10px 12px;">
+                <label style="display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: #38bdf8; cursor: pointer;">
+                    <span>🖼️ 在右侧练习纸中显示情境插图</span>
+                    <input type="checkbox" id="showIllustOnSheetCheckbox" checked onchange="handleToggleIllustOnSheet()">
+                </label>
+                <div style="display: flex; gap: 8px; margin-top: 8px; justify-content: flex-end;">
+                    <button type="button" class="pill-btn" onclick="removeCurrentIllustration()" style="color: #ef4444; font-size: 11px;">🗑️ 移除插图</button>
+                    <button type="button" class="pill-btn" onclick="switchMainMode('interactive')" style="font-size: 11px;">🎨 换一张图</button>
+                </div>
+            </div>
+
+            <div class="edit-tip-banner">
+                <span>💡 提示：在右侧练习纸中，可直接点击修改标题、要求、任一汉字或拼音！所有格子均为纯正方形，所见即所得。</span>
+            </div>
+
+        </section>
+
+        <!-- Right Preview Canvas Workspace -->
+        <section class="preview-wrapper">
+
+            <!-- Top Preview Bar with Zoom and Info -->
+            <div class="preview-topbar">
+                <div class="preview-meta-info">
+                    <span class="preview-badge">📄 A4 竖向标准练习纸</span>
+                    <span id="previewSummaryText">10 列 × 13 行 · 纯正方格 (1:1)</span>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <!-- Zoom Controls -->
+                    <div class="zoom-toolbar">
+                        <button class="zoom-btn" onclick="adjustZoom(-0.1)" title="缩小 (Alt + -)">−</button>
+                        <span class="zoom-display" id="zoomDisplay">100%</span>
+                        <button class="zoom-btn" onclick="adjustZoom(0.1)" title="放大 (Alt + +)">+</button>
+                        <button class="zoom-text-btn" onclick="setZoom(1.0)">100%</button>
+                        <button class="zoom-text-btn" onclick="fitToWidth()">适应宽度</button>
+                        <button class="zoom-text-btn" onclick="fitToPage()">适应整页</button>
+                    </div>
+
+                    <!-- Fullscreen Button -->
+                    <button id="enterFullscreenBtn" class="btn btn-secondary" style="padding: 6px 14px; font-size: 13px;" onclick="enterFullscreen()" title="进入全屏大屏投影演示 (快捷键: F11 或点击)">
+                        <span>⛶</span> 全屏大屏预览
+                    </button>
+                </div>
+            </div>
+
+            <!-- Scroll Area for A4 Sheet -->
+            <div class="sheet-scroll-container" id="sheetScrollArea">
+                
+                <!-- Floating Smartboard Toolbar (Visible in Fullscreen) -->
+                <div id="fullscreenToolbar" class="fullscreen-toolbar">
+                    <button class="fs-btn" onclick="adjustZoom(-0.1)">➖ 缩小</button>
+                    <span class="fs-zoom-badge" id="fsZoomBadge">100%</span>
+                    <button class="fs-btn" onclick="adjustZoom(0.1)">➕ 放大</button>
+                    <button class="fs-btn" onclick="fitToPage()">📐 适应整页</button>
+                    <button class="fs-btn" onclick="fitToWidth()">↔️ 适应宽度</button>
+                    <button class="fs-btn" onclick="window.print()">🖨️ 打印/PDF</button>
+                    <button class="fs-btn fs-btn-exit" onclick="exitFullscreen()">✕ 退出全屏</button>
+                </div>
+
+                <!-- Realistic A4 Page (210mm x 297mm) -->
+                <div id="worksheetPage" class="a4-page">
+
+                    <!-- Worksheet Header -->
+                    <div class="worksheet-header" id="worksheetHeaderArea">
+                        <div class="worksheet-title-row">
+                            <span class="worksheet-main-title" id="previewSheetTitle" contenteditable="true" spellcheck="false" title="点击可直接修改标题">造句练习纸</span>
+                        </div>
+                        <div class="worksheet-meta-row" id="previewMetaRow">
+                            <span class="meta-item">班级：<span class="meta-field" contenteditable="true"></span></span>
+                            <span class="meta-item">姓名：<span class="meta-field" contenteditable="true"></span></span>
+                            <span class="meta-item">日期：<span class="meta-field" id="todayDateField" contenteditable="true"></span></span>
+                            <span class="meta-item">成绩：<span class="meta-field" contenteditable="true"></span></span>
+                        </div>
+                        <div class="worksheet-instruction" id="previewInstruction" contenteditable="true" spellcheck="false" title="点击可直接修改要求">
+                            要求：请阅读第一行的例句与拼音，并在田字格内规范写出你的造句。
+                        </div>
+                    </div>
+
+                    <!-- Worksheet Illustration Area (看图造句情境图) -->
+                    <div id="worksheetIllustrationArea" class="worksheet-illustration-area" style="display: none;">
+                        <div class="worksheet-illustration-frame">
+                            <img id="previewIllustrationImg" src="" alt="看图造句教学插画">
+                            <div class="worksheet-illustration-caption" id="previewIllustrationCaption" contenteditable="true" spellcheck="false" title="点击可修改插图说明">【看图造句】认真观察上方插图，在方格内写出你的句子</div>
+                        </div>
+                    </div>
+
+                    <!-- Pure Square Grid Table Wrapper -->
+                    <div class="grid-table-wrapper" id="gridWrapper">
+                        <!-- Dynamic Square Cells Table Generated by JS -->
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Action Bar -->
+            <div class="action-bar">
+                <button class="btn btn-primary" id="downloadPdfBtn" onclick="exportToPdf()" style="font-size: 16px; padding: 13px 26px;">
+                    <span>📥</span> 一键保存为 PDF 练习纸
+                </button>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-accent" onclick="window.print()" style="font-size: 14px; padding: 12px 20px;">
+                        <span>🖨️</span> 打印 / 另存为 PDF
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportToImage()" style="font-size: 14px; padding: 12px 18px;">
+                        <span>🖼️</span> 导出高清图片
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+    </div><!-- End of viewWorksheetMode (Primary) -->
+
+    <!-- ======================================================== -->
+    <!-- SECOND INTERFACE: CLEAN INTERACTIVE ARENA (#viewInteractiveMode) -->
+    <!-- ======================================================== -->
+    <div id="viewInteractiveMode" class="mode-view" style="display: none;">
+
+        <!-- Cheerful Header Area -->
+        <div class="kid-header-area">
+            <div class="kid-header-badge">🎒 华小快乐看图写话 · 创意造句大乐园 ✨</div>
+            <h1 class="kid-title">🎨 看图造句乐园</h1>
+            <p class="kid-desc">看生动图画 ➔ 开动脑筋写句子 ➔ 收集老师智慧小红星！</p>
+        </div>
+
+        <!-- 3-Step Simple Bubbly Progress Bar -->
+        <div class="clean-steps-bar">
+            <div class="clean-step-pill active" id="pillStep1">
+                <span>💡</span> 1. 选主题变图画
+            </div>
+            <span class="clean-step-arrow">➔</span>
+            <div class="clean-step-pill" id="pillStep2">
+                <span>✍️</span> 2. 认真写句子
+            </div>
+            <span class="clean-step-arrow">➔</span>
+            <div class="clean-step-pill" id="pillStep3">
+                <span>🌟</span> 3. 老师夸夸打分
+            </div>
+        </div>
+
+        <!-- Step 1: Topic Picker Card -->
+        <div class="clean-topic-card">
+            <!-- Theme Preset Buttons -->
+            <div class="kid-theme-pills">
+                <button type="button" class="kid-theme-btn" onclick="setAgent1Topic('🐰 萌宠动物与小猫小狗')">🐰 萌宠动物</button>
+                <button type="button" class="kid-theme-btn" onclick="setAgent1Topic('🏫 快乐校园与同学们')">🏫 快乐校园</button>
+                <button type="button" class="kid-theme-btn" onclick="setAgent1Topic('🌳 四季大自然与公园放风筝')">🌳 大自然与公园</button>
+                <button type="button" class="kid-theme-btn" onclick="setAgent1Topic('🎈 假期海滩与快乐玩耍')">🎈 趣味假日</button>
+                <button type="button" class="kid-theme-btn" onclick="setAgent1Topic('🍳 懂事体贴与帮妈妈做家务')">🍳 孝顺家务</button>
+                <button type="button" class="kid-theme-btn random" onclick="setAgent1Topic('')">🎲 随心抽题</button>
+            </div>
+
+            <!-- Custom Topic Input Row -->
+            <div class="clean-topic-input-row">
+                <input type="text" id="agent1TopicInput" class="input-text" placeholder="也可以输入你想画的内容，例如：在雨中撑伞上学、弟弟打篮球、小松鼠摘松果...">
+                <button type="button" class="btn btn-primary" id="btnAgent1Gen" onclick="handleAgent1Generate()" style="padding: 12px 26px; font-size: 16px; font-weight: 700; white-space: nowrap; border-radius: 9999px; font-family: 'KaiTi', '楷体', serif; background: linear-gradient(135deg, #f97316, #ea580c); box-shadow: 0 4px 0 #c2410c, 0 6px 16px rgba(249, 115, 22, 0.35); border: none;">
+                    <span>⚡</span> 变出题目！
+                </button>
+            </div>
+
+            <!-- Fast Status Text -->
+            <div id="agent1StatusText" style="display: none; font-size: 15px; color: #ea580c; margin-top: 12px; text-align: center; font-family: 'KaiTi', '楷体', serif; font-weight: 700;">
+                <span>⏳ 正在构思生动有趣的题目...</span>
+            </div>
+
+            <!-- Prompt Confirm Banner -->
+            <div class="clean-prompt-banner" id="agent1PromptConfirmBox" style="display: none;">
+                <div class="clean-prompt-banner-header">
+                    <span>💡 本题画面内容（读一读，也可以自由修改哦）：</span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 13px; color: #78350f;">画风：</span>
+                        <select id="agent2StyleSelect" class="input-select" style="padding: 5px 12px; font-size: 13px; border-radius: 9999px; border: 1.5px solid #fcd34d; background: #ffffff; color: #92400e; font-family: 'KaiTi', '楷体', serif; font-weight: 700;">
+                            <option value="textbook" selected>📚 华小课本绘本风</option>
+                            <option value="coloring">🖍️ 黑白线描涂色卡</option>
+                            <option value="watercolor">🎨 治愈水彩手绘风</option>
+                            <option value="clay3d">🧸 3D 萌系黏土风</option>
+                            <option value="flatVector">🌟 极简扁平矢量风</option>
+                        </select>
+                    </div>
+                </div>
+                <textarea id="agent1PromptText" class="clean-prompt-textarea" rows="2" placeholder="题目将出现在这里，您可以自由编辑..."></textarea>
+                <button type="button" class="btn btn-accent" id="btnConfirmPrompt" onclick="handleConfirmPromptAndGenerate()" style="width: 100%; padding: 13px; font-size: 17px; font-weight: 800; border-radius: 9999px; font-family: 'KaiTi', '楷体', serif; background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 0 #047857, 0 6px 18px rgba(16, 185, 129, 0.35); border: none;">
+                    <span>🎨</span> 确认画面，开始画画啦！
+                </button>
+            </div>
+        </div>
+
+        <!-- 2-Column Clean Studio Layout -->
+        <div class="clean-studio-grid">
+
+            <!-- Left Column: Picture Stage & Hints -->
+            <div class="clean-image-card">
+                <div class="clean-card-title-bar">
+                    <span class="clean-card-title">🖼️ 题目情境画画</span>
+                    <div class="image-stage-actions" id="stageImageActions" style="display: none;">
+                        <button type="button" class="btn-stage-action btn-zoom" onclick="openImageZoomModal()" title="放大查看高清插画">🔍 放大看</button>
+                        <button type="button" class="btn-stage-action btn-save" onclick="downloadInteractiveImage()" title="保存插画图片到电脑">💾 保存图画</button>
+                    </div>
+                </div>
+
+                <!-- Canvas Area -->
+                <div class="image-canvas-wrapper" id="stageImageWrapper">
+                    <!-- Placeholder when empty -->
+                    <div id="stageImagePlaceholder" style="text-align: center; padding: 42px 16px; color: #94a3b8;">
+                        <div style="font-size: 52px; margin-bottom: 12px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.06));">🎨</div>
+                        <div style="font-size: 18px; font-weight: 800; color: #475569; margin-bottom: 6px; font-family: 'KaiTi', '楷体', serif;">选一个喜欢的主题</div>
+                        <div style="font-size: 14px; color: #94a3b8; max-width: 320px; margin: 0 auto; line-height: 1.5; font-family: 'KaiTi', '楷体', serif;">
+                            轻轻点击上方的主题按钮，神奇的画笔马上为你画出专属插图！
+                        </div>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div id="stageImageLoading" style="display: none; text-align: center; padding: 42px 20px;">
+                        <div style="font-size: 38px; margin-bottom: 10px; animation: kidBouncePill 1.2s infinite ease-in-out;">🖌️</div>
+                        <div style="font-size: 17px; font-weight: 800; color: #ea580c; font-family: 'KaiTi', '楷体', serif; margin-bottom: 6px;" id="stageLoadingText">
+                            正在用心画画中，稍等一下下...
+                        </div>
+                        <div style="font-size: 13px; color: #94a3b8; font-family: 'KaiTi', '楷体', serif;">
+                            马上就好啦（约 2~4 秒）...
+                        </div>
+                    </div>
+
+                    <!-- Generated Image -->
+                    <img id="stageIllustrationImg" class="stage-illustration-img" src="" alt="教学插图" onclick="openImageZoomModal()" title="点击放大查看">
+                </div>
+
+                <!-- Observation Elements Box (populated by rubric) -->
+                <div id="rubricPlaceholder" style="display: none;"></div>
+                <div id="rubricContentBox" class="clean-observation-box" style="display: none;">
+                    <div class="clean-obs-title"><span>👀 观察小侦探：画里发现了什么？</span></div>
+                    <div class="rubric-elements-list" id="rubricElementsList">
+                        <!-- Populated by JS -->
+                    </div>
+                    <div id="rubricTeacherAdvice" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Right Column: Student Writing & Feedback -->
+            <div class="clean-writing-pane">
+
+                <!-- Writing Desk Card -->
+                <div class="clean-writing-card">
+                    <div class="clean-writing-header">
+                        <span style="font-size: 19px; font-weight: 800; color: #7c3aed; font-family: 'KaiTi', '楷体', serif; display: flex; align-items: center; gap: 6px;">✍️ 小作家写字台 ✏️</span>
+                        <span id="studentCharCount" style="font-size: 13px; color: #6d28d9; background: #ede9fe; border: 1.5px solid #ddd6fe; padding: 3px 12px; border-radius: 9999px; font-family: 'KaiTi', '楷体', serif; font-weight: 700;">已写 0 个字 📝</span>
+                    </div>
+
+                    <textarea id="studentSentenceInput" class="student-textarea" rows="3" placeholder="画里有谁？在什么地方？正在做什么？心情怎么样？快写下一句完整通顺的话吧..." oninput="updateStudentCharCount()"></textarea>
+
+                    <!-- Fast Samples -->
+                    <div class="clean-samples-bar">
+                        <span style="font-size: 13px; color: #64748b; font-family: 'KaiTi', '楷体', serif; font-weight: 700;">参考例子：</span>
+                        <button type="button" class="clean-sample-btn" onclick="fillStudentPromptSentence()" title="填入提示句作为基础">📝 填入提示句</button>
+                        <button type="button" class="clean-sample-btn" onclick="fillStudentSample('小猫咪在阳光下的草地上开心地玩毛线球。')">🐱 小猫咪</button>
+                        <button type="button" class="clean-sample-btn" onclick="fillStudentSample('小狗在绿油油的草坪上欢快地奔跑追逐蝴蝶。')">🐶 小黄狗</button>
+                        <button type="button" class="clean-sample-btn" onclick="fillStudentSample('同学们在宽阔的操场上兴高采烈地踢足球。')">⚽ 踢足球</button>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div style="margin-top: 16px;">
+                        <button type="button" class="btn btn-primary" id="btnSubmitStudentSentence" onclick="handleSubmitStudentSentence()" style="width: 100%; padding: 15px; font-size: 19px; font-weight: 800; border-radius: 9999px; font-family: 'KaiTi', '楷体', serif; background: linear-gradient(135deg, #8b5cf6, #ec4899); box-shadow: 0 5px 0 #6d28d9, 0 8px 22px rgba(139, 92, 246, 0.4); border: none; letter-spacing: 0.03em;">
+                            <span>🚀</span> 写好啦！让老师批改 🌟
+                        </button>
+                    </div>
+
+                    <!-- Status indicator -->
+                    <div id="evalStatusIndicator" style="display: none; align-items: center; justify-content: center; gap: 8px; margin-top: 14px; padding: 12px; background: #faf5ff; border: 2px dashed #d8b4fe; border-radius: 16px; font-size: 15px; color: #7e22ce; font-family: 'KaiTi', '楷体', serif; font-weight: 700;">
+                        <span style="font-size: 18px; animation: kidBouncePill 1.2s infinite ease-in-out;">👩‍🏫</span>
+                        <span id="evalStatusText">老师正在仔细看图，批改你的句子...</span>
+                    </div>
+                </div>
+
+                <!-- Evaluation Award Certificate Report Card -->
+                <div id="evalReportContainer" class="clean-report-card" style="display: none;">
+                    <!-- Score Header -->
+                    <div class="clean-report-header">
+                        <div class="clean-score-group">
+                            <span class="eval-score-val" id="reportScoreVal">5.0</span>
+                            <span style="font-size: 18px; color: #b45309; font-family: 'KaiTi', '楷体', serif; font-weight: 700;">/ 5 分</span>
+                            <span class="eval-score-stars" id="reportStars">★★★★★</span>
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                            <span class="eval-level-badge" id="reportLevelBadge">🌟 卓越小作家</span>
+                            <span style="font-size: 11px; color: var(--text-muted); display: none;" id="reportEvaluatorModel">AI 审阅</span>
+                        </div>
+                    </div>
+
+                    <!-- 4 Clean Dimension Chips -->
+                    <div class="clean-dim-grid">
+                        <div class="clean-dim-chip">
+                            <div class="clean-dim-chip-header">
+                                <span>🖼️ 画面契合</span>
+                                <span id="dimScoreImage" style="font-weight: 800; color: #059669;">5.0</span>
+                            </div>
+                            <div class="dim-bar-track">
+                                <div class="dim-bar-fill" id="dimFillImage" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                        <div class="clean-dim-chip">
+                            <div class="clean-dim-chip-header">
+                                <span>✍️ 语句完整</span>
+                                <span id="dimScoreGrammar" style="font-weight: 800; color: #0284c7;">4.5</span>
+                            </div>
+                            <div class="dim-bar-track">
+                                <div class="dim-bar-fill" id="dimFillGrammar" style="width: 90%;"></div>
+                            </div>
+                        </div>
+                        <div class="clean-dim-chip">
+                            <div class="clean-dim-chip-header">
+                                <span>✨ 词汇丰富</span>
+                                <span id="dimScoreVocab" style="font-weight: 800; color: #d97706;">4.5</span>
+                            </div>
+                            <div class="dim-bar-track">
+                                <div class="dim-bar-fill" id="dimFillVocab" style="width: 90%;"></div>
+                            </div>
+                        </div>
+                        <div class="clean-dim-chip">
+                            <div class="clean-dim-chip-header">
+                                <span>💡 逻辑通顺</span>
+                                <span id="dimScoreLogic" style="font-weight: 800; color: #7c3aed;">5.0</span>
+                            </div>
+                            <div class="dim-bar-track">
+                                <div class="dim-bar-fill" id="dimFillLogic" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2 Warm Feedback Cards -->
+                    <div class="clean-feedback-grid">
+                        <div class="feedback-card praise">
+                            <div class="feedback-card-title"><span>💖</span> 老师夸夸你</div>
+                            <div id="reportPraiseText">写得真棒！准确抓住了画面里的细节，语句很有画面感！</div>
+                        </div>
+                        <div class="feedback-card critique">
+                            <div class="feedback-card-title"><span>🔍</span> 还可以更棒哦</div>
+                            <div id="reportCritiqueText">注意检查结尾标点符号，如果能加上神态或动作就更精彩啦！</div>
+                        </div>
+                        <div class="feedback-card suggestion" style="display: none;">
+                            <div class="feedback-card-title"><span>💡</span> 贴士</div>
+                            <div id="reportSuggestionText"></div>
+                        </div>
+                    </div>
+
+                    <!-- Exemplar Sentence -->
+                    <div class="exemplar-sentence-box">
+                        <div class="exemplar-title"><span>🌟</span> 升级好句示范（读一读）：</div>
+                        <div class="exemplar-text" id="reportImprovedSentence">清晨的阳光洒在绿油油的草地上，小猫咪开心地玩着毛线球。</div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div style="display: flex; gap: 12px; margin-top: 18px; flex-wrap: wrap;">
+                        <button type="button" class="btn btn-accent" onclick="importInteractiveToWorksheet()" style="flex: 2; padding: 13px 24px; font-size: 16px; font-weight: 800; border-radius: 9999px; font-family: 'KaiTi', '楷体', serif; background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 0 #047857, 0 6px 18px rgba(16, 185, 129, 0.35); min-width: 200px; border: none;">
+                            <span>📥</span> 导入练习纸排版 (打印 A4 PDF)
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="resetStudentPractice()" style="flex: 1; padding: 13px 20px; font-size: 15px; font-weight: 700; border-radius: 9999px; font-family: 'KaiTi', '楷体', serif; background: #ffffff; border: 2px solid #cbd5e1; color: #475569; min-width: 120px;">
+                            <span>🔄</span> 再写一题
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    <!-- ======================================================== -->
+    <!-- END OF SECOND INTERFACE -->
+    <!-- ======================================================== -->
+
+    <!-- Fullscreen Image Zoom Modal -->
+    <div class="modal-overlay" id="imageZoomModal" style="display: none;" onclick="closeImageZoomModal()">
+        <div style="position: relative; max-width: 90vw; max-height: 90vh; text-align: center;" onclick="event.stopPropagation()">
+            <img id="zoomModalImg" src="" alt="插画放大预览" style="max-width: 100%; max-height: 82vh; border-radius: 12px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9); object-fit: contain; background: #ffffff;">
+            <div style="margin-top: 14px; display: flex; justify-content: center; gap: 14px;">
+                <button type="button" class="btn" onclick="closeImageZoomModal()" style="padding: 8px 22px; font-size: 14px; border-radius: 9999px; background: rgba(255, 255, 255, 0.2); color: #ffffff; border: 1.5px solid rgba(255, 255, 255, 0.4); font-family: 'KaiTi', '楷体', serif; font-weight: 700; cursor: pointer;">✕ 关闭</button>
+                <button type="button" class="btn" onclick="downloadInteractiveImage()" style="padding: 8px 22px; font-size: 14px; border-radius: 9999px; background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; border: none; font-family: 'KaiTi', '楷体', serif; font-weight: 700; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4); cursor: pointer;">💾 下载原图</button>
+            </div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="progressModal">
+        <div class="modal-box">
+            <div class="modal-icon">📄</div>
+            <h3 class="modal-title" id="modalTitle">正在生成高清 A4 PDF 练习纸...</h3>
+            <p class="modal-desc" id="modalDesc">系统正在精确校准纯正方格与文字排版，请稍候片刻。</p>
+            
+            <div class="progress-step-text" id="progressStepText">正在栅格化页面元素...</div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 14px;">
+                💡 生成完成后将自动开始下载。您也可以随时使用右下角「打印」按钮直接出纸！
+            </div>
+        </div>
+    </div>
+
+    <!-- Gemini API Key & Model Pool Health Modal -->
+    <div class="modal-overlay" id="apiKeyModal" style="display: none;">
+        <div class="modal-box" style="max-width: 560px; text-align: left;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                <h3 class="modal-title" style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                    <span>⚙️</span> Google Gemini API 与多模型池
+                </h3>
+                <button type="button" class="stepper-btn" onclick="closeApiKeyModal()" style="width: 28px; height: 28px; border-radius: 50%;">✕</button>
+            </div>
+            
+            <p class="modal-desc" style="margin-bottom: 14px;">
+                系统已聚合 5 款前沿 Gemini 模型组成<b>自动故障转移池</b>。总配额每天高达 <b>1,060+ 次</b>，即使某个模型达到速率限制 (429)，系统也会无缝自动切换！
+            </p>
+
+            <div class="form-group" style="margin-bottom: 14px;">
+                <div class="form-label">
+                    <span>Google AI Studio API Key</span>
+                    <button type="button" class="pill-btn" onclick="toggleApiKeyVisibility()" style="font-size: 11px;">👁️ 显示/隐藏</button>
+                </div>
+                <input type="password" id="modalApiKeyInput" class="input-text" style="font-family: monospace;" placeholder="AQ.Ab8RN...">
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+                    已默认加载您的专属 Key。API 密钥将安全保存在您的本地浏览器中 (localStorage)。
+                </div>
+            </div>
+
+            <div style="background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(14, 165, 233, 0.25); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px;">
+                <div style="font-size: 12px; font-weight: bold; color: #38bdf8; margin-bottom: 6px;">
+                    💡 为什么“Nano Banana”图像模型显示 0/0？
+                </div>
+                <div style="font-size: 11px; color: var(--text-sub); line-height: 1.5;">
+                    Nano Banana 是 Google AI Studio 内部对图像模型（如 Imagen 3 / Gemini Image）的代号。在免费层（Free Tier）未绑定信用卡结算时，Google 将其配额设为 0/0。但 <b>Gemini 3.5 Flash Lite</b> 和 <b>3.1 Flash Lite</b> 各有 <b>500 次/天</b>超高配额！我们通过“Gemini 视觉导演提炼 + 高清生图渲染”双引擎协同，完美实现免限额的高清教具配图！
+                </div>
+            </div>
+
+            <div style="margin-bottom: 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span style="font-size: 13px; font-weight: 600; color: #f8fafc;">模型池可用状态 (实时诊断)：</span>
+                    <button type="button" class="pill-btn" onclick="runModelDiagnostics()" id="diagBtn" style="font-size: 12px;">🩺 一键测试连通性</button>
+                </div>
+                <div id="modelHealthList" style="display: flex; flex-direction: column; gap: 6px; font-size: 12px;">
+                    <div style="color: var(--text-muted); padding: 8px; text-align: center; background: rgba(0,0,0,0.2); border-radius: 6px;">
+                        点击上方「一键测试连通性」可实时检测各模型响应速度与配额状态
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;">
+                <button type="button" class="btn btn-secondary" onclick="closeApiKeyModal()" style="padding: 8px 16px; font-size: 13px;">取消</button>
+                <button type="button" class="btn btn-primary" onclick="saveApiKeyFromModal()" style="padding: 8px 20px; font-size: 13px;">保存设置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts Logic -->
+    <script>
+        // --- State Management ---
+        let hanziDict = {}; // Offline dictionary (fallback for 14,809 words)
+        let numCols = 10; // Default 10 columns
+        let numRows = 13; // Dynamically calculated based on column count and square ratio
+        let isAutoRows = true;
+        let currentZoom = 1.0;
+        let gridType = 'tianzi'; // 'tianzi', 'mizi', 'huizi', 'jiugong', 'square'
+        let lineStyle = 'dashed'; // 'dashed', 'solid', 'dotted'
+        let gridColor = '#e11d48'; // Default calligraphy red
+        let hanziStyle = 'normal'; // 'normal', 'trace-gray', 'trace-hollow'
+        let pinyinGridStyle = 'same'; // 'same', 'none'
+        let layoutMode = 'single'; // 'single', 'wrap', 'multi'
+
+        // AI Illustration States
+        let currentIllustrationDataUrl = '';
+        let showIllustrationOnSheet = false;
+        let isGeneratingIllustration = false;
+
+        // Punctuation characters list
+        const punctuationSet = new Set(['，', '。', '！', '？', '、', '；', '：', '“', '”', '‘', '’', '（', '）', '《', '》', '……', '—', ',', '.', '!', '?', ';', ':']);
+
+        // --- Init Date ---
+        function initDate() {
+            const now = new Date();
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = now.getFullYear();
+            const dateField = document.getElementById('todayDateField');
+            if (dateField) {
+                dateField.textContent = `${year}.${month}.${day}`;
+            }
+        }
+
+        // --- Load Dictionary ---
+        async function loadDictionary() {
+            const statusText = document.getElementById('dictStatusText');
+            try {
+                const res = await fetch('dict_hanzi.json');
+                if (res.ok) {
+                    hanziDict = await res.json();
+                    statusText.textContent = `📗 智能拼音与字典就绪 (${Object.keys(hanziDict).length.toLocaleString()} 字)`;
+                } else {
+                    throw new Error('Failed to load dict_hanzi.json');
+                }
+            } catch (err) {
+                console.warn('Fallback to online pinyinPro:', err);
+                if (typeof pinyinPro !== 'undefined') {
+                    statusText.textContent = `✨ 智能拼音引擎已就绪`;
+                } else {
+                    statusText.textContent = `⚠️ 离线字典未找到，已启用内置轻量拼音`;
+                }
+            }
+            renderWorksheet();
+        }
+
+        // --- Pinyin Generator with Pinyin-Pro and Dict Fallback ---
+        function getSentencePinyinArray(text) {
+            const chars = Array.from(text);
+            const result = [];
+
+            // Attempt using pinyinPro for full sentence context
+            if (typeof pinyinPro !== 'undefined' && pinyinPro.pinyin) {
+                try {
+                    const pyArray = pinyinPro.pinyin(text, { type: 'array' });
+                    for (let i = 0; i < chars.length; i++) {
+                        const ch = chars[i];
+                        if (punctuationSet.has(ch) || /\s/.test(ch)) {
+                            result.push('');
+                        } else {
+                            result.push(pyArray[i] || getSingleCharPinyin(ch));
+                        }
+                    }
+                    return result;
+                } catch (e) {
+                    console.warn('pinyinPro failed, falling back to dict:', e);
+                }
+            }
+
+            // Fallback: character by character lookup
+            for (let i = 0; i < chars.length; i++) {
+                const ch = chars[i];
+                if (punctuationSet.has(ch) || /\s/.test(ch)) {
+                    result.push('');
+                } else {
+                    result.push(getSingleCharPinyin(ch));
+                }
+            }
+            return result;
+        }
+
+        function getSingleCharPinyin(char) {
+            if (hanziDict[char] && hanziDict[char].p) {
+                return hanziDict[char].p;
+            }
+            return '';
+        }
+
+
+
+        // --- Column & Row Math (Strict Square Rule) ---
+        // Printable grid width: 210mm - 32mm padding = 178mm
+        // Printable grid height: ~297mm - 24mm padding - 34mm header = ~239mm
+        function calculateAutoRows(cols) {
+            const printableWidthMm = 178;
+            const metaRow = document.getElementById('previewMetaRow');
+            const isMetaHidden = metaRow && metaRow.style.display === 'none';
+            const headerHeightMm = isMetaHidden ? 22 : 34;
+
+            // Check if illustration is shown on sheet
+            const illustArea = document.getElementById('worksheetIllustrationArea');
+            const illustHeightMm = (illustArea && illustArea.style.display !== 'none') ? 44 : 0;
+
+            const printableHeightMm = 297 - 24 - headerHeightMm - illustHeightMm - 8; // 8mm safety margin to avoid overflow
+            
+            const cellMm = printableWidthMm / Math.max(1, cols);
+            const maxRows = Math.floor(printableHeightMm / cellMm);
+            // Must have at least 2 rows
+            return Math.max(2, maxRows);
+        }
+
+        function resetAutoRows() {
+            isAutoRows = true;
+            const badge = document.getElementById('rowStatusBadge');
+            if (badge) {
+                badge.textContent = '自动根据列数适配 A4';
+                badge.style.color = '#34d399';
+            }
+            const resetBtn = document.getElementById('resetAutoRowsBtn');
+            if (resetBtn) resetBtn.style.display = 'none';
+
+            numRows = calculateAutoRows(numCols);
+            document.getElementById('rowsValDisplay').textContent = `${numRows} 行`;
+            renderWorksheet();
+        }
+
+        function adjustCols(delta) {
+            numCols = Math.max(6, Math.min(18, numCols + delta));
+            document.getElementById('colsValDisplay').textContent = `${numCols} 列`;
+            if (isAutoRows) {
+                numRows = calculateAutoRows(numCols);
+                document.getElementById('rowsValDisplay').textContent = `${numRows} 行`;
+            }
+            renderWorksheet();
+        }
+
+        function adjustRows(delta) {
+            isAutoRows = false;
+            numRows = Math.max(2, Math.min(30, numRows + delta));
+            document.getElementById('rowsValDisplay').textContent = `${numRows} 行`;
+            const badge = document.getElementById('rowStatusBadge');
+            if (badge) {
+                badge.textContent = '手动指定行数 (点击可恢复自动)';
+                badge.style.color = '#38bdf8';
+            }
+            const resetBtn = document.getElementById('resetAutoRowsBtn');
+            if (resetBtn) resetBtn.style.display = 'inline-block';
+            renderWorksheet();
+        }
+
+        // --- Render Worksheet (Strict Square Cells) ---
+        function renderWorksheet() {
+            const rawSentence = document.getElementById('sentenceInput').value.trim();
+            const gridContainer = document.getElementById('gridWrapper');
+            gridContainer.innerHTML = '';
+
+            // Update Summary
+            const cellSizePx = Math.floor(672 / numCols); // 672px is 178mm at 96 DPI
+            document.getElementById('gridInfoBadge').textContent = `${numCols} 列 · 约 ${(178 / numCols).toFixed(1)}mm 纯方格`;
+            document.getElementById('previewSummaryText').textContent = `${numCols} 列 × ${numRows} 行 · 纯正方格 (1:1)`;
+
+            // Parse text and pinyin
+            const chars = Array.from(rawSentence);
+            const pinyins = getSentencePinyinArray(rawSentence);
+
+            // Construct table
+            const table = document.createElement('div');
+            table.className = 'grid-table';
+
+            // Set grid styles into CSS variables
+            table.style.setProperty('--grid-line-color', gridColor);
+            table.style.setProperty('--grid-line-style', lineStyle);
+
+            // Calculate exact square dimension
+            // 178mm / numCols in percentage or fixed sizing
+            const cellSizePercent = (100 / numCols).toFixed(4);
+
+            // Create row data based on layout mode
+            const rowsData = buildRowsData(chars, pinyins, numCols, numRows, layoutMode);
+
+            for (let r = 0; r < numRows; r++) {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'grid-row';
+                rowDiv.dataset.rowIndex = r;
+
+                const rowConfig = rowsData[r] || { type: 'practice', cells: [] };
+
+                for (let c = 0; c < numCols; c++) {
+                    const cellDiv = document.createElement('div');
+                    cellDiv.className = 'grid-cell';
+                    cellDiv.style.width = `${cellSizePercent}%`;
+
+                    const squareBox = document.createElement('div');
+                    squareBox.className = 'cell-square-box';
+
+                    // Add Background Grid Lines
+                    const applyGrid = (rowConfig.type === 'pinyin' && pinyinGridStyle === 'none') ? 'square' : gridType;
+                    appendGridLines(squareBox, applyGrid);
+
+                    // Add Content
+                    const cellData = rowConfig.cells[c] || { text: '', isPunct: false };
+                    const contentDiv = document.createElement('div');
+                    contentDiv.className = 'cell-content';
+                    contentDiv.contentEditable = 'true';
+                    contentDiv.spellcheck = false;
+
+                    // Dynamic font size relative to cell size
+                    const baseFontSize = Math.max(12, Math.round(cellSizePx * 0.62));
+                    const pinyinFontSize = Math.max(9, Math.round(cellSizePx * 0.32));
+
+                    if (rowConfig.type === 'hanzi') {
+                        contentDiv.classList.add('cell-hanzi');
+                        if (hanziStyle === 'trace-gray') contentDiv.classList.add('trace-gray');
+                        if (hanziStyle === 'trace-hollow') contentDiv.classList.add('trace-hollow');
+                        
+                        if (cellData.isPunct) {
+                            contentDiv.classList.add('cell-punctuation');
+                        }
+                        contentDiv.style.fontSize = `${baseFontSize}px`;
+                        contentDiv.textContent = cellData.text;
+                    } else if (rowConfig.type === 'pinyin') {
+                        contentDiv.classList.add('cell-pinyin');
+                        contentDiv.style.fontSize = `${pinyinFontSize}px`;
+                        contentDiv.textContent = cellData.text;
+                    } else {
+                        // Empty practice cell for student
+                        contentDiv.textContent = '';
+                    }
+
+                    squareBox.appendChild(contentDiv);
+                    cellDiv.appendChild(squareBox);
+                    rowDiv.appendChild(cellDiv);
+                }
+
+                table.appendChild(rowDiv);
+            }
+
+            gridContainer.appendChild(table);
+        }
+
+        // Helper: Build Rows Structure
+        function buildRowsData(chars, pinyins, cols, totalRows, mode) {
+            const rows = [];
+
+            if (mode === 'single') {
+                if (chars.length <= cols) {
+                    // Fits in single row pair (Row 1: Hanzi, Row 2: Pinyin)
+                    const hanziCells = [];
+                    for (let i = 0; i < cols; i++) {
+                        const ch = chars[i] || '';
+                        hanziCells.push({ text: ch, isPunct: punctuationSet.has(ch) });
+                    }
+                    rows.push({ type: 'hanzi', cells: hanziCells });
+
+                    const pinyinCells = [];
+                    for (let i = 0; i < cols; i++) {
+                        const py = pinyins[i] || '';
+                        pinyinCells.push({ text: py, isPunct: false });
+                    }
+                    rows.push({ type: 'pinyin', cells: pinyinCells });
+
+                    for (let r = 2; r < totalRows; r++) {
+                        rows.push({ type: 'practice', cells: [] });
+                    }
+                } else {
+                    // Wrap across pairs of Hanzi + Pinyin rows, leaving remaining rows for student practice
+                    let charIdx = 0;
+                    while (charIdx < chars.length && rows.length < totalRows - 1) {
+                        const hanziCells = [];
+                        const pinyinCells = [];
+                        for (let c = 0; c < cols; c++) {
+                            if (charIdx + c < chars.length) {
+                                const ch = chars[charIdx + c];
+                                hanziCells.push({ text: ch, isPunct: punctuationSet.has(ch) });
+                                pinyinCells.push({ text: pinyins[charIdx + c] || '', isPunct: false });
+                            } else {
+                                hanziCells.push({ text: '', isPunct: false });
+                                pinyinCells.push({ text: '', isPunct: false });
+                            }
+                        }
+                        rows.push({ type: 'hanzi', cells: hanziCells });
+                        rows.push({ type: 'pinyin', cells: pinyinCells });
+                        charIdx += cols;
+                    }
+                    while (rows.length < totalRows) {
+                        rows.push({ type: 'practice', cells: [] });
+                    }
+                }
+            } else if (mode === 'wrap') {
+                // Long sentences wrapping across pairs of (Hanzi + Pinyin)
+                let charIdx = 0;
+                while (charIdx < chars.length && rows.length < totalRows - 1) {
+                    const hanziCells = [];
+                    const pinyinCells = [];
+                    for (let c = 0; c < cols; c++) {
+                        if (charIdx + c < chars.length) {
+                            const ch = chars[charIdx + c];
+                            hanziCells.push({ text: ch, isPunct: punctuationSet.has(ch) });
+                            pinyinCells.push({ text: pinyins[charIdx + c] || '', isPunct: false });
+                        } else {
+                            hanziCells.push({ text: '', isPunct: false });
+                            pinyinCells.push({ text: '', isPunct: false });
+                        }
+                    }
+                    rows.push({ type: 'hanzi', cells: hanziCells });
+                    rows.push({ type: 'pinyin', cells: pinyinCells });
+                    charIdx += cols;
+                }
+                while (rows.length < totalRows) {
+                    rows.push({ type: 'practice', cells: [] });
+                }
+
+            } else if (mode === 'multi') {
+                // Split input by newline
+                const lines = document.getElementById('sentenceInput').value.split('\n').filter(l => l.trim().length > 0);
+                lines.forEach(line => {
+                    if (rows.length >= totalRows) return;
+                    const lineChars = Array.from(line);
+                    const linePinyins = getSentencePinyinArray(line);
+
+                    const hCells = [];
+                    const pCells = [];
+                    for (let c = 0; c < cols; c++) {
+                        const ch = lineChars[c] || '';
+                        hCells.push({ text: ch, isPunct: punctuationSet.has(ch) });
+                        pCells.push({ text: linePinyins[c] || '', isPunct: false });
+                    }
+                    rows.push({ type: 'hanzi', cells: hCells });
+                    if (rows.length < totalRows) rows.push({ type: 'pinyin', cells: pCells });
+                    // Add 2 blank practice rows for student answer
+                    if (rows.length < totalRows) rows.push({ type: 'practice', cells: [] });
+                    if (rows.length < totalRows) rows.push({ type: 'practice', cells: [] });
+                });
+
+                while (rows.length < totalRows) {
+                    rows.push({ type: 'practice', cells: [] });
+                }
+            }
+
+            return rows;
+        }
+
+        // Helper: Append Grid Internal Lines
+        function appendGridLines(parent, type) {
+            if (type === 'square') return; // Clean border only
+
+            // Horizontal & Vertical Center Lines (Tianzige base)
+            const hLine = document.createElement('div');
+            hLine.className = 'line-h';
+            const vLine = document.createElement('div');
+            vLine.className = 'line-v';
+            parent.appendChild(hLine);
+            parent.appendChild(vLine);
+
+            if (type === 'mizi') {
+                const diag1 = document.createElement('div');
+                diag1.className = 'line-diag-1';
+                const diag2 = document.createElement('div');
+                diag2.className = 'line-diag-2';
+                parent.appendChild(diag1);
+                parent.appendChild(diag2);
+            } else if (type === 'huizi') {
+                const hui = document.createElement('div');
+                hui.className = 'line-hui-inner';
+                parent.appendChild(hui);
+            } else if (type === 'jiugong') {
+                // Remove center lines and add 3x3 lines
+                hLine.remove();
+                vLine.remove();
+                const jh1 = document.createElement('div'); jh1.className = 'line-jg-h1';
+                const jh2 = document.createElement('div'); jh2.className = 'line-jg-h2';
+                const jv1 = document.createElement('div'); jv1.className = 'line-jg-v1';
+                const jv2 = document.createElement('div'); jv2.className = 'line-jg-v2';
+                parent.appendChild(jh1);
+                parent.appendChild(jh2);
+                parent.appendChild(jv1);
+                parent.appendChild(jv2);
+            }
+        }
+
+        // --- Preset Sentence Button ---
+        function setSentence(str) {
+            document.getElementById('sentenceInput').value = str;
+            renderWorksheet();
+        }
+
+        // --- Grid Style / Color / Line Changes ---
+        function updateGridStyle() {
+            gridType = document.getElementById('gridTypeSelect').value;
+            lineStyle = document.getElementById('lineStyleSelect').value;
+            renderWorksheet();
+        }
+
+        function setGridColor(color, chipEl) {
+            gridColor = color;
+            document.querySelectorAll('#gridColorChips .color-chip').forEach(c => c.classList.remove('active'));
+            if (chipEl) chipEl.classList.add('active');
+            renderWorksheet();
+        }
+
+        function updateHanziStyle() {
+            hanziStyle = document.getElementById('hanziStyleSelect').value;
+            renderWorksheet();
+        }
+
+        function updatePinyinGridStyle() {
+            pinyinGridStyle = document.getElementById('pinyinGridSelect').value;
+            renderWorksheet();
+        }
+
+        function handleLayoutChange() {
+            layoutMode = document.getElementById('layoutModeSelect').value;
+            renderWorksheet();
+        }
+
+        // --- Sheet Header Updates ---
+        function updateSheetHeader() {
+            const title = document.getElementById('sheetTitleInput').value;
+            const prompt = document.getElementById('sheetPromptInput').value;
+            const showMeta = document.getElementById('showMetaCheckbox').checked;
+
+            document.getElementById('previewSheetTitle').textContent = title || '造句练习纸';
+            document.getElementById('previewInstruction').textContent = prompt;
+            document.getElementById('previewMetaRow').style.display = showMeta ? 'flex' : 'none';
+
+            if (isAutoRows) {
+                numRows = calculateAutoRows(numCols);
+                document.getElementById('rowsValDisplay').textContent = `${numRows} 行`;
+                renderWorksheet();
+            }
+        }
+
+        function toggleHeaderOptions() {
+            const box = document.getElementById('headerOptionsBox');
+            const arrow = document.getElementById('headerToggleArrow');
+            if (box.style.display === 'none') {
+                box.style.display = 'block';
+                arrow.textContent = '▼';
+            } else {
+                box.style.display = 'none';
+                arrow.textContent = '▶';
+            }
+        }
+
+        // --- Zoom In / Out / Fit Functions ---
+        function setZoom(val) {
+            currentZoom = Math.max(0.4, Math.min(2.0, val));
+            const sheet = document.getElementById('worksheetPage');
+            sheet.style.transform = `scale(${currentZoom})`;
+            const label = `${Math.round(currentZoom * 100)}%`;
+            document.getElementById('zoomDisplay').textContent = label;
+            const fsBadge = document.getElementById('fsZoomBadge');
+            if (fsBadge) fsBadge.textContent = label;
+        }
+
+        function adjustZoom(delta) {
+            setZoom(currentZoom + delta);
+        }
+
+        function fitToWidth() {
+            const container = document.getElementById('sheetScrollArea');
+            const availableWidth = container.clientWidth - 48; // padding
+            const sheetWidth = 794; // 210mm at 96 DPI
+            const newScale = availableWidth / sheetWidth;
+            setZoom(newScale);
+        }
+
+        function fitToPage() {
+            const container = document.getElementById('sheetScrollArea');
+            const availableHeight = container.clientHeight - 60;
+            const sheetHeight = 1123; // 297mm at 96 DPI
+            const newScale = availableHeight / sheetHeight;
+            setZoom(newScale);
+        }
+
+        // --- Fullscreen Presentation Mode ---
+        function enterFullscreen() {
+            const area = document.getElementById('sheetScrollArea');
+            if (area.requestFullscreen) {
+                area.requestFullscreen().catch(err => {
+                    console.warn('Native requestFullscreen failed, using web-fullscreen fallback:', err);
+                    enableWebFullscreenFallback();
+                });
+            } else if (area.webkitRequestFullscreen) {
+                area.webkitRequestFullscreen();
+            } else {
+                enableWebFullscreenFallback();
+            }
+        }
+
+        function exitFullscreen() {
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen().catch(() => {});
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+            }
+            disableWebFullscreenFallback();
+        }
+
+        function enableWebFullscreenFallback() {
+            const area = document.getElementById('sheetScrollArea');
+            if (area) {
+                area.classList.add('is-web-fullscreen');
+                handleFullscreenChange();
+            }
+        }
+
+        function disableWebFullscreenFallback() {
+            const area = document.getElementById('sheetScrollArea');
+            if (area) {
+                area.classList.remove('is-web-fullscreen');
+                area.classList.remove('is-fullscreen');
+            }
+            const toolbar = document.getElementById('fullscreenToolbar');
+            if (toolbar && !document.fullscreenElement && !document.webkitFullscreenElement) {
+                toolbar.style.display = 'none';
+            }
+            setTimeout(fitToWidth, 120);
+        }
+
+        function handleFullscreenChange() {
+            const area = document.getElementById('sheetScrollArea');
+            const toolbar = document.getElementById('fullscreenToolbar');
+            const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || (area && area.classList.contains('is-web-fullscreen')));
+
+            if (area) {
+                if (isFs) {
+                    area.classList.add('is-fullscreen');
+                    if (toolbar) toolbar.style.display = 'flex';
+                    setTimeout(fitToPage, 120);
+                } else {
+                    area.classList.remove('is-fullscreen');
+                    area.classList.remove('is-web-fullscreen');
+                    if (toolbar) toolbar.style.display = 'none';
+                    setTimeout(fitToWidth, 120);
+                }
+            }
+        }
+
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                exitFullscreen();
+            } else if (e.key === 'F11') {
+                e.preventDefault();
+                const area = document.getElementById('sheetScrollArea');
+                const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || (area && area.classList.contains('is-fullscreen')));
+                if (isFs) {
+                    exitFullscreen();
+                } else {
+                    enterFullscreen();
+                }
+            }
+        });
+
+        // --- Real-time Reactive Input Event Listeners ---
+        const sentenceEl = document.getElementById('sentenceInput');
+        ['input', 'change', 'keyup', 'paste'].forEach(evt => {
+            sentenceEl.addEventListener(evt, () => {
+                renderWorksheet();
+            });
+        });
+
+        // Two-way sync from preview edits to inputs
+        const previewTitleEl = document.getElementById('previewSheetTitle');
+        if (previewTitleEl) {
+            previewTitleEl.addEventListener('input', (e) => {
+                document.getElementById('sheetTitleInput').value = e.target.textContent;
+            });
+        }
+        const previewInstEl = document.getElementById('previewInstruction');
+        if (previewInstEl) {
+            previewInstEl.addEventListener('input', (e) => {
+                document.getElementById('sheetPromptInput').value = e.target.textContent;
+            });
+        }
+
+        // --- Export to PDF (Vector-crisp A4 Download) ---
+        async function exportToPdf() {
+            const modal = document.getElementById('progressModal');
+            const fill = document.getElementById('progressFill');
+            const stepText = document.getElementById('progressStepText');
+
+            modal.classList.add('active');
+            fill.style.width = '20%';
+            stepText.textContent = '准备高分辨率渲染环境...';
+
+            const sheet = document.getElementById('worksheetPage');
+            const title = (document.getElementById('previewSheetTitle').textContent || '造句练习纸').trim();
+            const dateStr = new Date().toISOString().slice(0, 10);
+            const fileName = `${title}-${dateStr}.pdf`;
+
+            // Reset zoom temporarily to ensure crisp 1:1 render
+            const originalTransform = sheet.style.transform;
+            sheet.style.transform = 'scale(1)';
+
+            await new Promise(r => setTimeout(r, 200));
+            fill.style.width = '60%';
+            stepText.textContent = '正在绘制矢量方格与拼音排版...';
+
+            const opt = {
+                margin: 0,
+                filename: fileName,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: {
+                    scale: 2.5,
+                    useCORS: true,
+                    letterRendering: true,
+                    logging: false
+                },
+                jsPDF: {
+                    unit: 'mm',
+                    format: 'a4',
+                    orientation: 'portrait'
+                }
+            };
+
+            try {
+                if (typeof html2pdf !== 'undefined') {
+                    await html2pdf().set(opt).from(sheet).save();
+                    fill.style.width = '100%';
+                    stepText.textContent = '✅ PDF 导出成功，已开始下载！';
+                    setTimeout(() => {
+                        modal.classList.remove('active');
+                        sheet.style.transform = originalTransform;
+                    }, 800);
+                } else {
+                    throw new Error('html2pdf library not available');
+                }
+            } catch (err) {
+                console.warn('html2pdf fallback to window.print():', err);
+                sheet.style.transform = originalTransform;
+                modal.classList.remove('active');
+                alert('正在为您打开浏览器打印窗口，请在目标打印机中选择「另存为 PDF」即可！');
+                window.print();
+            }
+        }
+
+        // --- Export to Image (PNG) ---
+        async function exportToImage() {
+            const sheet = document.getElementById('worksheetPage');
+            const title = (document.getElementById('previewSheetTitle').textContent || '造句练习纸').trim();
+            const originalTransform = sheet.style.transform;
+            sheet.style.transform = 'scale(1)';
+
+            try {
+                // If html2canvas exists inside html2pdf
+                if (window.html2canvas) {
+                    const canvas = await window.html2canvas(sheet, { scale: 2, useCORS: true });
+                    const link = document.createElement('a');
+                    link.download = `${title}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                } else {
+                    alert('请使用右侧「打印 / 另存为 PDF」按钮导出！');
+                }
+            } catch (e) {
+                console.error(e);
+            } finally {
+                sheet.style.transform = originalTransform;
+            }
+        }
+
+        // --- Dual-Mode Navigation Switcher ---
+        let currentMode = 'worksheet'; // 'worksheet' (default) or 'interactive'
+
+        function switchMainMode(mode) {
+            currentMode = mode;
+            const tabWorksheet = document.getElementById('tabWorksheetBtn');
+            const tabInteractive = document.getElementById('tabInteractiveBtn');
+            const viewWorksheet = document.getElementById('viewWorksheetMode');
+            const viewInteractive = document.getElementById('viewInteractiveMode');
+
+            if (mode === 'interactive') {
+                tabInteractive.classList.add('active');
+                tabWorksheet.classList.remove('active');
+                viewInteractive.style.display = 'block';
+                viewWorksheet.style.display = 'none';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                tabWorksheet.classList.add('active');
+                tabInteractive.classList.remove('active');
+                viewWorksheet.style.display = 'block';
+                viewInteractive.style.display = 'none';
+                renderWorksheet();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // --- 4-Agent Interactive Studio State ---
+        let activePromptSentence = '';
+        let activeInteractiveImageUrl = '';
+        let activeModeratorRubric = null;
+        let isAgent1Running = false;
+        let isAgent2Running = false;
+        let isAgent3Running = false;
+
+        function updatePipelineTracker(stepIndex, state) {
+            // Map steps to 3 simple child-and-adult friendly pills:
+            // 1: 选主题出题 -> pillStep1
+            // 2/4: 画画 & 写句子 -> pillStep1 done, pillStep2 active
+            // 3: 批改 -> pillStep2 done, pillStep3 active (or done)
+            const p1 = document.getElementById('pillStep1');
+            const p2 = document.getElementById('pillStep2');
+            const p3 = document.getElementById('pillStep3');
+
+            if (stepIndex === 1) {
+                if (state === 'active') {
+                    if (p1) p1.className = 'clean-step-pill active';
+                    if (p2) p2.className = 'clean-step-pill';
+                    if (p3) p3.className = 'clean-step-pill';
+                } else if (state === 'done') {
+                    if (p1) p1.className = 'clean-step-pill done';
+                    if (p2) p2.className = 'clean-step-pill active';
+                }
+            } else if (stepIndex === 2 || stepIndex === 4) {
+                if (state === 'active') {
+                    if (p1) p1.className = 'clean-step-pill done';
+                    if (p2) p2.className = 'clean-step-pill active';
+                } else if (state === 'done') {
+                    if (p1) p1.className = 'clean-step-pill done';
+                    if (p2) p2.className = 'clean-step-pill active';
+                }
+            } else if (stepIndex === 3) {
+                if (state === 'active') {
+                    if (p1) p1.className = 'clean-step-pill done';
+                    if (p2) p2.className = 'clean-step-pill active';
+                    if (p3) p3.className = 'clean-step-pill';
+                } else if (state === 'grading') {
+                    if (p1) p1.className = 'clean-step-pill done';
+                    if (p2) p2.className = 'clean-step-pill done';
+                    if (p3) p3.className = 'clean-step-pill active';
+                } else if (state === 'done') {
+                    if (p1) p1.className = 'clean-step-pill done';
+                    if (p2) p2.className = 'clean-step-pill done';
+                    if (p3) p3.className = 'clean-step-pill done';
+                }
+            }
+        }
+
+        // --- Step 1: 选主题出题 ---
+        function setAgent1Topic(topic) {
+            const input = document.getElementById('agent1TopicInput');
+            if (input) input.value = topic;
+            handleAgent1Generate();
+        }
+
+        async function handleAgent1Generate() {
+            if (isAgent1Running) return;
+            const topicInput = document.getElementById('agent1TopicInput');
+            const topicKeyword = topicInput ? topicInput.value.trim() : '';
+
+            const btn = document.getElementById('btnAgent1Gen');
+            const statusText = document.getElementById('agent1StatusText');
+            const confirmBox = document.getElementById('agent1PromptConfirmBox');
+            const promptTextArea = document.getElementById('agent1PromptText');
+
+            isAgent1Running = true;
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+            btn.innerHTML = '<span>⏳</span> 正在构思中...';
+            statusText.style.display = 'block';
+            statusText.innerHTML = '<span>✨ 正在为你变出有趣的造句题目...</span>';
+            updatePipelineTracker(1, 'active');
+
+            try {
+                const res = await window.geminiImageService.generateSentenceIdea(topicKeyword, (msg) => {
+                    statusText.textContent = msg;
+                });
+
+                activePromptSentence = res.sentence;
+                promptTextArea.value = res.sentence;
+                confirmBox.style.display = 'flex';
+                statusText.innerHTML = `<span>✨ 题目想好啦！点击下方按钮开始画画吧</span>`;
+                updatePipelineTracker(1, 'done');
+
+                // Smooth scroll into confirm box
+                confirmBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                promptTextArea.focus();
+
+            } catch (err) {
+                console.error(err);
+                alert(`出题失败: ${err.message}\n请检查网络或 API 密钥。`);
+                statusText.innerHTML = `<span style="color: #ef4444;">❌ 出现了一点小意外，请重试一下</span>`;
+                updatePipelineTracker(1, 'active');
+            } finally {
+                isAgent1Running = false;
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.innerHTML = '<span>⚡</span> 变出题目！';
+            }
+        }
+
+        // --- Step 2: 绘制插图与生成观测要点 ---
+        async function handleConfirmPromptAndGenerate() {
+            if (isAgent2Running) return;
+            const promptTextArea = document.getElementById('agent1PromptText');
+            const sentence = promptTextArea ? promptTextArea.value.trim() : '';
+            if (!sentence) {
+                alert('题目内容不能为空，请输入句子！');
+                return;
+            }
+
+            activePromptSentence = sentence;
+            const styleKey = document.getElementById('agent2StyleSelect').value;
+
+            // UI Elements
+            const confirmBtn = document.getElementById('btnConfirmPrompt');
+            const placeholder = document.getElementById('stageImagePlaceholder');
+            const loadingBox = document.getElementById('stageImageLoading');
+            const loadingText = document.getElementById('stageLoadingText');
+            const stageImg = document.getElementById('stageIllustrationImg');
+            const stageActions = document.getElementById('stageImageActions');
+            const stageWrapper = document.getElementById('stageImageWrapper');
+            const evalReport = document.getElementById('evalReportContainer');
+
+            isAgent2Running = true;
+            confirmBtn.disabled = true;
+            confirmBtn.style.opacity = '0.7';
+            confirmBtn.innerHTML = '<span>🎨</span> 正在用心画画中，稍等一下下...';
+
+            placeholder.style.display = 'none';
+            loadingBox.style.display = 'block';
+            stageImg.style.display = 'none';
+            stageActions.style.display = 'none';
+            stageWrapper.classList.remove('has-image');
+            evalReport.style.display = 'none';
+
+            updatePipelineTracker(2, 'active');
+
+            // 1. In parallel: generate Moderator Rubric (visual checkpoints)
+            window.geminiImageService.generateModeratorRubric(sentence).then(rubric => {
+                activeModeratorRubric = rubric;
+                renderModeratorRubric(rubric);
+            }).catch(e => {
+                console.warn('Moderator Rubric fallback:', e);
+            });
+
+            // 2. Render illustration
+            try {
+                const renderResult = await window.geminiImageService.generateIllustrationFromSentence(sentence, styleKey, {
+                    width: 600,
+                    height: 600,
+                    onStatus: (msg) => {
+                        loadingText.textContent = msg;
+                    }
+                });
+
+                activeInteractiveImageUrl = renderResult.dataUrl;
+                stageImg.src = renderResult.dataUrl;
+                stageImg.style.display = 'block';
+                loadingBox.style.display = 'none';
+                stageActions.style.display = 'flex';
+                stageWrapper.classList.add('has-image');
+                updatePipelineTracker(2, 'done');
+
+                // Prepare Student Arena
+                updatePipelineTracker(3, 'active');
+                const studentInput = document.getElementById('studentSentenceInput');
+                if (studentInput) {
+                    studentInput.value = '';
+                    updateStudentCharCount();
+                    studentInput.focus();
+                }
+
+            } catch (err) {
+                console.error(err);
+                loadingBox.style.display = 'none';
+                placeholder.style.display = 'block';
+                placeholder.innerHTML = `<div style="color: #ef4444; padding: 20px; font-family: 'KaiTi', '楷体', serif;">插画画错啦: ${err.message}<br><button type="button" class="btn btn-secondary" onclick="handleConfirmPromptAndGenerate()" style="margin-top: 10px; border-radius: 9999px;">🔄 重新画画</button></div>`;
+                alert(`插画绘制失败: ${err.message}`);
+                updatePipelineTracker(2, 'active');
+            } finally {
+                isAgent2Running = false;
+                confirmBtn.disabled = false;
+                confirmBtn.style.opacity = '1';
+                confirmBtn.innerHTML = '<span>🎨</span> 确认画面，开始画画啦！';
+            }
+        }
+
+        // Render Observation Checkpoints in UI
+        function renderModeratorRubric(rubric) {
+            const placeholder = document.getElementById('rubricPlaceholder');
+            const contentBox = document.getElementById('rubricContentBox');
+            const elementsList = document.getElementById('rubricElementsList');
+
+            if (placeholder) placeholder.style.display = 'none';
+            if (contentBox) contentBox.style.display = 'block';
+
+            if (elementsList) {
+                elementsList.innerHTML = '';
+                const elements = rubric.keyVisualElements || ["主要人物/动物", "动作神态", "周围环境"];
+                elements.forEach(item => {
+                    const tag = document.createElement('span');
+                    tag.className = 'rubric-element-tag';
+                    tag.textContent = `🏷️ ${item}`;
+                    elementsList.appendChild(tag);
+                });
+            }
+        }
+
+        // --- Student Arena: Live Char Count & Quick Fill ---
+        function updateStudentCharCount() {
+            const val = document.getElementById('studentSentenceInput').value;
+            const count = Array.from(val.trim()).length;
+            const badge = document.getElementById('studentCharCount');
+            if (badge) badge.textContent = `已写 ${count} 个字 📝`;
+        }
+
+        function fillStudentPromptSentence() {
+            if (!activePromptSentence) {
+                alert('请先选择主题并生成插图！');
+                return;
+            }
+            const input = document.getElementById('studentSentenceInput');
+            input.value = activePromptSentence;
+            updateStudentCharCount();
+            input.focus();
+        }
+
+        function fillStudentSample(sampleText) {
+            const input = document.getElementById('studentSentenceInput');
+            input.value = sampleText;
+            updateStudentCharCount();
+            input.focus();
+        }
+
+        // --- Step 3: 视觉审图与老师名师智能批阅 ---
+        async function handleSubmitStudentSentence() {
+            if (isAgent3Running) return;
+
+            if (!activeInteractiveImageUrl) {
+                alert('请先选择主题并画好插画，才能进行看图造句哦！');
+                return;
+            }
+
+            const studentSentence = document.getElementById('studentSentenceInput').value.trim();
+            if (!studentSentence || studentSentence.length < 3) {
+                alert('请写出一句完整的话（至少3个字以上）哦！');
+                return;
+            }
+
+            const btn = document.getElementById('btnSubmitStudentSentence');
+            const evalInd = document.getElementById('evalStatusIndicator');
+            const evalText = document.getElementById('evalStatusText');
+            const evalReport = document.getElementById('evalReportContainer');
+
+            isAgent3Running = true;
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+            btn.innerHTML = '<span>⏳</span> 老师正在批改中...';
+            evalInd.style.display = 'flex';
+            evalText.textContent = '老师正在仔细看图，批改你的句子...';
+            evalReport.style.display = 'none';
+            updatePipelineTracker(3, 'grading');
+
+            try {
+                const res = await window.geminiImageService.evaluateStudentSentenceWithVision({
+                    imageDataUrl: activeInteractiveImageUrl,
+                    studentSentence: studentSentence,
+                    topicSentence: activePromptSentence,
+                    rubric: activeModeratorRubric,
+                    onStatus: (msg) => {
+                        evalText.textContent = msg;
+                    }
+                });
+
+                if (res.success && res.evaluation) {
+                    renderEvaluationReport(res.evaluation, res.model);
+                    updatePipelineTracker(3, 'done');
+                } else {
+                    throw new Error('未获取到有效的评阅结果');
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert(`批改出错啦: ${err.message}`);
+                updatePipelineTracker(3, 'active');
+            } finally {
+                isAgent3Running = false;
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.innerHTML = '<span>🚀</span> 写好啦！让老师批改 🌟';
+                evalInd.style.display = 'none';
+            }
+        }
+
+        function renderEvaluationReport(ev, modelName) {
+            const container = document.getElementById('evalReportContainer');
+            container.style.display = 'block';
+
+            // Overall Score & Stars
+            const scoreVal = parseFloat(ev.score || ev.stars || 4.5).toFixed(1);
+            document.getElementById('reportScoreVal').textContent = scoreVal;
+
+            let starCount = Math.round(parseFloat(scoreVal));
+            let starStr = '★'.repeat(Math.max(1, Math.min(5, starCount))) + '☆'.repeat(Math.max(0, 5 - starCount));
+            document.getElementById('reportStars').textContent = starStr;
+
+            // Level Badge
+            const badge = document.getElementById('reportLevelBadge');
+            const level = ev.level || (scoreVal >= 4.5 ? '🌟 卓越小作家' : scoreVal >= 3.8 ? '👍 优秀小写手' : '🌱 达标进步中');
+            badge.textContent = level;
+
+            // 4 Dimension Bars
+            const dims = ev.dimensions || {};
+            const parseDimScore = (val) => {
+                if (!val) return 4.5;
+                const match = String(val).match(/(\d+(?:\.\d+)?)/);
+                return match ? parseFloat(match[1]) : 4.5;
+            };
+
+            const sImg = parseDimScore(dims.imageMatch);
+            const sGrammar = parseDimScore(dims.grammar);
+            const sVocab = parseDimScore(dims.vocabulary);
+            const sLogic = parseDimScore(dims.logic);
+
+            document.getElementById('dimScoreImage').textContent = `${sImg}`;
+            document.getElementById('dimFillImage').style.width = `${Math.min(100, (sImg / 5) * 100)}%`;
+
+            document.getElementById('dimScoreGrammar').textContent = `${sGrammar}`;
+            document.getElementById('dimFillGrammar').style.width = `${Math.min(100, (sGrammar / 5) * 100)}%`;
+
+            document.getElementById('dimScoreVocab').textContent = `${sVocab}`;
+            document.getElementById('dimFillVocab').style.width = `${Math.min(100, (sVocab / 5) * 100)}%`;
+
+            document.getElementById('dimScoreLogic').textContent = `${sLogic}`;
+            document.getElementById('dimFillLogic').style.width = `${Math.min(100, (sLogic / 5) * 100)}%`;
+
+            // Praise, Critique
+            document.getElementById('reportPraiseText').textContent = ev.praise || '孩子的观察细腻，语句很有画面感！';
+            document.getElementById('reportCritiqueText').textContent = ev.critique || '注意检查句子完整性与标点符号。';
+            document.getElementById('reportImprovedSentence').textContent = ev.improvedSentence || activePromptSentence;
+
+            // Scroll into report
+            container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function resetStudentPractice() {
+            document.getElementById('studentSentenceInput').value = '';
+            updateStudentCharCount();
+            document.getElementById('evalReportContainer').style.display = 'none';
+            document.getElementById('studentSentenceInput').focus();
+            updatePipelineTracker(3, 'active');
+        }
+
+        // --- Seamless Bridge: 将插画与句子带入练习纸排版 ---
+        function importInteractiveToWorksheet() {
+            const studentSentence = document.getElementById('studentSentenceInput')?.value.trim();
+            const textToUse = studentSentence || activePromptSentence || '造句练习';
+
+            document.getElementById('sentenceInput').value = textToUse;
+
+            if (activeInteractiveImageUrl) {
+                currentIllustrationDataUrl = activeInteractiveImageUrl;
+                showIllustrationOnSheet = true;
+
+                const previewImg = document.getElementById('previewIllustrationImg');
+                if (previewImg) previewImg.src = activeInteractiveImageUrl;
+
+                const illustArea = document.getElementById('worksheetIllustrationArea');
+                if (illustArea) illustArea.style.display = 'flex';
+
+                const toggleBox = document.getElementById('showIllustOnSheetCheckbox');
+                if (toggleBox) toggleBox.checked = true;
+
+                const toggleCard = document.getElementById('worksheetIllustToggleCard');
+                if (toggleCard) toggleCard.style.display = 'block';
+            }
+
+            resetAutoRows();
+            switchMainMode('worksheet');
+
+            setTimeout(() => {
+                const sheet = document.getElementById('worksheetPage');
+                if (sheet) sheet.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        }
+
+        function downloadInteractiveImage() {
+            if (!activeInteractiveImageUrl) return;
+            const a = document.createElement('a');
+            a.href = activeInteractiveImageUrl;
+            a.download = `教学插图_${Date.now()}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function openImageZoomModal() {
+            if (!activeInteractiveImageUrl) return;
+            const modal = document.getElementById('imageZoomModal');
+            const img = document.getElementById('zoomModalImg');
+            img.src = activeInteractiveImageUrl;
+            modal.style.display = 'flex';
+        }
+
+        function closeImageZoomModal() {
+            document.getElementById('imageZoomModal').style.display = 'none';
+        }
+
+        // --- Primary Worksheet Illustration Toggle Handlers ---
+        function handleToggleIllustOnSheet() {
+            const checkbox = document.getElementById('showIllustOnSheetCheckbox');
+            const checked = checkbox ? checkbox.checked : false;
+            showIllustrationOnSheet = checked && Boolean(currentIllustrationDataUrl);
+            const area = document.getElementById('worksheetIllustrationArea');
+            if (area) area.style.display = showIllustrationOnSheet ? 'flex' : 'none';
+            resetAutoRows();
+        }
+
+        function removeCurrentIllustration() {
+            currentIllustrationDataUrl = '';
+            showIllustrationOnSheet = false;
+            const area = document.getElementById('worksheetIllustrationArea');
+            if (area) area.style.display = 'none';
+            const img = document.getElementById('previewIllustrationImg');
+            if (img) img.src = '';
+            const checkbox = document.getElementById('showIllustOnSheetCheckbox');
+            if (checkbox) checkbox.checked = false;
+            const toggleCard = document.getElementById('worksheetIllustToggleCard');
+            if (toggleCard) toggleCard.style.display = 'none';
+            resetAutoRows();
+        }
+
+        function downloadCurrentIllustration() {
+            if (!currentIllustrationDataUrl) return;
+            const a = document.createElement('a');
+            a.href = currentIllustrationDataUrl;
+            a.download = `练习纸配图_${Date.now()}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function setActiveModelBadge(modelId) {
+            // Legacy / compatibility
+        }
+
+        // --- API Key Modal & Model Health Diagnostic ---
+        function openApiKeyModal() {
+            const input = document.getElementById('modalApiKeyInput');
+            input.value = window.geminiImageService.getApiKey();
+            document.getElementById('apiKeyModal').style.display = 'flex';
+        }
+
+        function closeApiKeyModal() {
+            document.getElementById('apiKeyModal').style.display = 'none';
+        }
+
+        function toggleApiKeyVisibility() {
+            const input = document.getElementById('modalApiKeyInput');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        function saveApiKeyFromModal() {
+            const input = document.getElementById('modalApiKeyInput');
+            const key = input.value.trim();
+            if (key) {
+                window.geminiImageService.setApiKey(key);
+                alert('API 密钥已成功保存在本地浏览器！');
+            } else {
+                window.geminiImageService.resetApiKey();
+                alert('已恢复为默认 API 密钥。');
+            }
+            closeApiKeyModal();
+        }
+
+        async function runModelDiagnostics() {
+            const btn = document.getElementById('diagBtn');
+            const list = document.getElementById('modelHealthList');
+            btn.disabled = true;
+            btn.textContent = '⏳ 测试中...';
+            list.innerHTML = '<div style="color: #38bdf8; text-align: center; padding: 10px;">正在并发向 5 个 Gemini 模型发送测试探针...</div>';
+
+            try {
+                const results = await window.geminiImageService.testAllModelsHealth();
+                list.innerHTML = '';
+                results.forEach(res => {
+                    const row = document.createElement('div');
+                    row.style.display = 'flex';
+                    row.style.alignItems = 'center';
+                    row.style.justifyContent = 'space-between';
+                    row.style.padding = '8px 12px';
+                    row.style.borderRadius = '6px';
+                    row.style.background = res.status === 'healthy' ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)';
+                    row.style.border = `1px solid ${res.status === 'healthy' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`;
+
+                    const statusIcon = res.status === 'healthy' ? '🟢' : (res.status === 'exhausted' ? '🟡' : '🔴');
+                    const badgeText = res.status === 'healthy' ? `${res.latency}ms · 在线 (${res.rpd} RPD)` : res.message;
+
+                    row.innerHTML = `
+                        <div style="font-weight: 600; color: ${res.status === 'healthy' ? '#34d399' : '#f87171'};">
+                            ${statusIcon} ${res.name}
+                        </div>
+                        <div style="font-size: 11px; color: ${res.status === 'healthy' ? '#94a3b8' : '#fca5a5'};">
+                            ${badgeText}
+                        </div>
+                    `;
+                    list.appendChild(row);
+                });
+            } catch (err) {
+                list.innerHTML = `<div style="color: #ef4444; padding: 8px;">诊断失败: ${err.message}</div>`;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🩺 重新测试连通性';
+            }
+        }
+
+        // --- Initialize on Page Load ---
+        window.addEventListener('DOMContentLoaded', () => {
+            initDate();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('grid')) {
+                gridType = urlParams.get('grid');
+                const sel = document.getElementById('gridTypeSelect');
+                if (sel) sel.value = gridType;
+            }
+            if (urlParams.get('sentence') || urlParams.get('prompt')) {
+                const s = urlParams.get('sentence') || urlParams.get('prompt');
+                document.getElementById('sentenceInput').value = s;
+                const customPrompt = document.getElementById('aiCustomPromptInput');
+                if (customPrompt) customPrompt.value = s;
+            }
+
+            loadDictionary();
+
+            // Auto fit width on desktop
+            if (window.innerWidth > 1200) {
+                setTimeout(fitToWidth, 300);
+            }
+        });
+    </script>
+</body>
+
+</html>
