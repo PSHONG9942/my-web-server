@@ -20,10 +20,10 @@ function getBuiltinDefaultKey() {
 // 多模型负载均衡池 (总配额超过 1060 RPD)
 const GEMINI_MODEL_POOL = [
     { id: 'gemini-3.5-flash-lite', name: 'Gemini 3.5 Flash Lite', rpd: 500, rpm: 15, tag: '极速主力 (500次/天)' },
-    { id: 'gemini-3.1-flash-lite', name: 'Gemini 3.1 Flash Lite', rpd: 500, rpm: 15, tag: '备用主力 (500次/天)' },
     { id: 'gemini-3.6-flash', name: 'Gemini 3.6 Flash', rpd: 20, rpm: 5, tag: '高质量推演 (20次/天)' },
-    { id: 'gemini-3.8-flash', name: 'Gemini 3.8 Flash', rpd: 20, rpm: 5, tag: '顶级新模型 (20次/天)' },
-    { id: 'gemini-3-flash-preview', name: 'Gemini 3 Flash Preview', rpd: 20, rpm: 5, tag: '前沿预览 (20次/天)' }
+    { id: 'gemini-3-flash-preview', name: 'Gemini 3 Flash Preview', rpd: 20, rpm: 5, tag: '前沿预览 (20次/天)' },
+    { id: 'gemini-3.1-flash-lite', name: 'Gemini 3.1 Flash Lite', rpd: 500, rpm: 15, tag: '备用主力 (500次/天)' },
+    { id: 'gemini-3.8-flash', name: 'Gemini 3.8 Flash', rpd: 20, rpm: 5, tag: '顶级新模型 (20次/天)' }
 ];
 
 // 预设教育插画风格
@@ -509,7 +509,6 @@ Return STRICT JSON ONLY:
 
 请依据上面的图片视觉细节与评价准则，给出专业的 5 分制量规批阅分析（以纯 JSON 格式输出）。`;
 
-        const apiKey = this.getApiKey();
         if (!apiKey) {
             return {
                 success: true,
