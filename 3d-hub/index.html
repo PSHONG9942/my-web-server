@@ -4,148 +4,655 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pei Ching 3D Print Hub</title>
+    <title>SJK(C) Pei Ching 3D Print Hub | 培青华小3D打印中心</title>
 
-    <link rel="icon" href="../images/logo.png" type="image/png">
+    <link rel="icon" href="logo.png" type="image/png">
     <link rel="stylesheet" href="../css/style.css">
 
-    <!-- Google Fonts for Keychain Previews -->
+    <!-- Google Fonts for Keychain & Topper Previews -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Audiowide&family=Bangers&family=Bebas+Neue&family=Bungee&family=Changa+One&family=DynaPuff&family=Noto+Emoji:wght@700&family=Noto+Sans:wght@700&family=Pacifico&family=Poppins:wght@700&family=Press+Start+2P&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Audiowide&family=Bangers&family=Bebas+Neue&family=Bungee&family=Changa+One&family=DynaPuff&family=Noto+Emoji:wght@700&family=Noto+Sans:wght@700&family=Pacifico&family=Poppins:wght@400;600;700&family=Press+Start+2P&display=swap"
         rel="stylesheet">
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', 'Microsoft YaHei', '微软雅黑', 'SimHei', '黑体', sans-serif !important;
+            display: block !important;
+            min-height: 100vh;
+            padding: 14px 20px 80px;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'DynaPuff', 'Microsoft YaHei', '微软雅黑', 'SimHei', '黑体', cursive !important;
+        }
+
+        /* 满屏响应式主容器 */
+        .dashboard {
+            width: 100% !important;
+            max-width: 1680px !important;
+            margin: 0 auto !important;
+        }
+
+        /* 紧凑全宽顶部标题+看摊工具栏二合一 */
+        .booth-toolbar {
+            position: sticky;
+            top: 10px;
+            z-index: 900;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 12px 20px;
+            border-radius: 18px;
+            box-shadow: 0 6px 22px rgba(15, 23, 42, 0.08);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 18px;
+        }
+
+        .brand-bar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-align: left;
+        }
+
+        .brand-logo {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            object-fit: contain;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            background: #ffffff;
+        }
+
+        .brand-title {
+            margin: 0;
+            font-size: 21px;
+            line-height: 1.25;
+            color: #1e293b;
+        }
+
+        .brand-subtitle {
+            margin: 3px 0 0;
+            font-size: 12.5px;
+            color: #64748b;
+        }
+
+        @media (max-width: 720px) {
+            body {
+                padding: 10px 10px 80px;
+            }
+
+            .brand-logo {
+                width: 44px;
+                height: 44px;
+            }
+
+            .brand-title {
+                font-size: 16px;
+            }
+        }
+
+        .booth-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+            background: #f1f5f9;
+            padding: 6px 12px;
+            border-radius: 999px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+            display: inline-block;
+        }
+
+        .status-dot.offline {
+            background: #f59e0b;
+        }
+
+        .booth-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .pill-btn {
+            position: relative;
+            border: none;
+            border-radius: 999px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            font-family: inherit;
+        }
+
+        .pill-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+        }
+
+        .pill-btn-board {
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            color: #ffffff;
+        }
+
+        .pill-btn-chat {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: #ffffff;
+        }
+
+        .pill-btn-sound {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+
+        .badge-count {
+            background: #ef4444;
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 800;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 999px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 0 5px;
+        }
+
+        .badge-count.visible {
+            display: inline-flex;
+        }
+
+        /* 顶部即时通知浮条 */
+        #live-toast-banner {
+            position: fixed;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-220%);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 2500;
+            background: #1e293b;
+            color: #ffffff;
+            padding: 12px 18px;
+            border-radius: 14px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 92vw;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+            font-size: 14px;
+            font-weight: 600;
+            border-left: 5px solid #f59e0b;
+        }
+
+        #live-toast-banner.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
         .hub-container {
             background-color: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
+            padding: 26px 28px;
+            border-radius: 20px;
+            box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
+            width: 100%;
+            max-width: 100%;
             margin: 0 auto;
             text-align: left;
         }
 
+        /* 桌面宽屏双栏工作台 */
+        .workspace-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) minmax(350px, 1fr);
+            gap: 28px;
+            align-items: start;
+        }
+
+        .workspace-left {
+            min-width: 0;
+        }
+
+        .workspace-right {
+            position: sticky;
+            top: 104px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            min-width: 0;
+        }
+
+        .checkout-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 18px;
+        }
+
+        .checkout-card label:first-child {
+            margin-top: 0;
+        }
+
+        @media (max-width: 959px) {
+            .workspace-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .workspace-right {
+                position: static;
+            }
+        }
+
         .hub-container label {
-            font-weight: bold;
+            font-weight: 700;
             color: #2c3e50;
             display: block;
-            margin-bottom: 5px;
-            margin-top: 15px;
+            margin-bottom: 6px;
+            margin-top: 16px;
         }
 
         .hub-container input[type="text"],
         .hub-container input[type="number"],
+        .hub-container input[type="url"],
+        .hub-container textarea,
         .hub-container select {
             width: 100%;
             padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 15px;
             box-sizing: border-box;
             font-family: inherit;
-            transition: border-color 0.3s;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #ffffff;
         }
 
-        .hub-container input[type="text"]:focus,
-        .hub-container input[type="number"]:focus,
+        .hub-container input:focus,
+        .hub-container textarea:focus,
         .hub-container select:focus {
-            border-color: #007bff;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
             outline: none;
         }
 
-        .hub-container input[type="range"] {
-            width: 100%;
-            margin-top: 10px;
+        .form-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        @media (max-width: 600px) {
+            .form-grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .hub-container {
+                padding: 18px;
+            }
+        }
+
+        /* 6宫格图文物品选择卡片 */
+        .model-card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 8px;
+            margin-bottom: 18px;
+        }
+
+        @media (max-width: 640px) {
+            .model-card-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .model-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px 10px;
+            text-align: center;
+            cursor: pointer;
+            background: #ffffff;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .model-card:hover {
+            border-color: #93c5fd;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(37, 99, 235, 0.1);
+        }
+
+        .model-card.active {
+            border-color: #2563eb;
+            background: #eff6ff;
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.18);
+        }
+
+        .model-card.makerworld-card {
+            border-color: #fed7aa;
+            background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%);
+        }
+
+        .model-card.makerworld-card.active {
+            border-color: #ea580c;
+            background: linear-gradient(180deg, #ffedd5 0%, #fff7ed 100%);
+            box-shadow: 0 6px 16px rgba(234, 88, 12, 0.2);
+        }
+
+        .model-card-icon {
+            font-size: 28px;
+            line-height: 1.1;
+            margin-bottom: 6px;
+        }
+
+        .model-card-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1.3;
+        }
+
+        .model-card-sub {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .model-card-price {
+            margin-top: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 999px;
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .makerworld-card .model-card-price {
+            background: #ffedd5;
+            color: #c2410c;
+        }
+
+        .sr-only-select {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
         }
 
         .helptext {
             font-size: 0.85em;
-            color: #7f8c8d;
+            color: #64748b;
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .info-card {
-            background-color: #e3f2fd;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #007bff;
-            margin-bottom: 20px;
-            font-size: 14px;
+            background-color: #eff6ff;
+            padding: 16px;
+            border-radius: 14px;
+            border-left: 5px solid #2563eb;
+            margin-bottom: 0;
+            font-size: 13.5px;
             color: #1e3a8a;
             display: none;
+            line-height: 1.6;
+        }
+
+        .mw-guide-box {
+            background: #fffbeb;
+            border: 2px solid #f59e0b;
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 18px;
+            color: #78350f;
+            font-size: 13.5px;
+            line-height: 1.6;
+        }
+
+        .mw-guide-box h4 {
+            margin: 0 0 10px 0;
+            color: #b45309;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .mw-rule-item {
+            background: rgba(255, 255, 255, 0.75);
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .mw-open-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #00ae42, #16a34a);
+            color: #ffffff !important;
+            text-decoration: none;
+            font-weight: 700;
+            border-radius: 12px;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.28);
+            transition: transform 0.15s ease;
+        }
+
+        .mw-open-btn:hover {
+            transform: translateY(-2px);
         }
 
         .preview-box {
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
+            background-color: #f8fafc;
+            padding: 22px;
+            border-radius: 16px;
             text-align: center;
-            margin-bottom: 25px;
-            border: 2px dashed #ced4da;
+            margin-bottom: 0;
+            border: 2px dashed #cbd5e1;
             display: none;
         }
 
-        .preview-box svg,
+        .preview-box svg {
+            width: 100%;
+            max-width: 340px;
+            height: auto;
+            margin: 0 auto;
+        }
+
         .preview-box img {
             margin: 0 auto;
+        }
+
+        .hole-badge {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            background: #e0e7ff;
+            color: #3730a3;
         }
 
         .dynamic-field {
             display: none;
         }
 
+        /* 彩色圆点色卡 */
+        .swatch-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+            margin-bottom: 4px;
+        }
+
+        .color-swatch-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid #cbd5e1;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            padding: 0;
+        }
+
+        .color-swatch-btn:hover {
+            transform: scale(1.12);
+        }
+
+        .color-swatch-btn.active {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+            transform: scale(1.12);
+        }
+
+        .color-swatch-btn.swatch-transparent {
+            background: repeating-conic-gradient(#cbd5e1 0% 25%, #ffffff 0% 50%) 50% / 10px 10px !important;
+        }
+
+        .color-swatch-btn.swatch-none {
+            background: #f8fafc !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        .warning-banner {
+            display: none;
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            color: #92400e;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
         .checkbox-row {
             display: flex;
-            align-items: center;
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            margin-top: 15px;
+            align-items: flex-start;
+            background: #f8fafc;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            margin-top: 14px;
+            gap: 10px;
+        }
+
+        .checkbox-row input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            cursor: pointer;
+            flex-shrink: 0;
         }
 
         .checkbox-row label {
-            margin: 0 0 0 10px;
+            margin: 0;
             cursor: pointer;
+            font-size: 14px;
+            line-height: 1.45;
         }
 
         .price-box {
-            background-color: #2c3e50;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
             color: white;
-            padding: 20px;
-            border-radius: 8px;
+            padding: 18px;
+            border-radius: 14px;
             text-align: center;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: bold;
-            margin: 25px 0;
+            margin: 16px 0;
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.18);
+        }
+
+        .price-box.quote-mode {
+            background: linear-gradient(135deg, #9a3412 0%, #ea580c 100%);
         }
 
         .price-breakdown {
-            font-size: 14px;
-            color: #bdc3c7;
+            font-size: 13.5px;
+            color: #e2e8f0;
             font-weight: normal;
             margin-top: 8px;
+            line-height: 1.5;
         }
 
         .theme-btn {
             padding: 8px 12px;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 13px;
             cursor: pointer;
             font-weight: bold;
-            transition: opacity 0.2s;
-            margin: 4px;
+            transition: all 0.2s;
+            margin: 3px;
         }
 
         .theme-btn:hover {
-            opacity: 0.8;
+            opacity: 0.88;
+            transform: translateY(-1px);
+        }
+
+        .theme-btn.active-theme {
+            box-shadow: 0 0 0 3px #2563eb;
+            transform: scale(1.04);
         }
 
         .submit-btn {
             width: 100%;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 15px 24px;
         }
 
         #loading-overlay {
@@ -155,7 +662,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.85);
             z-index: 9999;
             justify-content: center;
             align-items: center;
@@ -163,8 +670,8 @@
         }
 
         .spinner {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #007bff;
+            border: 5px solid #e2e8f0;
+            border-top: 5px solid #2563eb;
             border-radius: 50%;
             width: 50px;
             height: 50px;
@@ -181,26 +688,379 @@
             }
         }
 
+        /* 电子收据卡片 */
         #success-message {
             display: none;
-            background-color: #d4edda;
-            color: #155724;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            background: #ffffff;
+            border: 2px solid #16a34a;
+            border-radius: 16px;
+            padding: 24px;
             text-align: center;
-            border: 1px solid #c3e6cb;
+            box-shadow: 0 10px 25px rgba(22, 163, 74, 0.12);
         }
 
-        /* Override the global Asian font from style.css with a playful font */
-        body {
-            font-family: 'Poppins', 'Microsoft YaHei', '微软雅黑', 'SimHei', '黑体', sans-serif !important;
+        .receipt-card {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 0;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.7;
         }
 
-        h1,
-        h2,
-        h3 {
-            font-family: 'DynaPuff', 'Microsoft YaHei', '微软雅黑', 'SimHei', '黑体', cursive !important;
+        .receipt-order-id {
+            font-size: 22px;
+            font-weight: 800;
+            color: #1d4ed8;
+            letter-spacing: 1px;
+        }
+
+        /* 通用弹窗 Modal */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .modal-backdrop.open {
+            display: flex;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            border-radius: 18px;
+            width: 100%;
+            max-width: 560px;
+            max-height: 88vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.28);
+            text-align: left;
+        }
+
+        .modal-card.wide {
+            max-width: 780px;
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 18px;
+            color: #0f172a;
+        }
+
+        .modal-close-btn {
+            background: #e2e8f0;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: #334155;
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 14px 20px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #1e293b;
+            border: none;
+            border-radius: 999px;
+            padding: 10px 20px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .btn-primary-sm {
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            border-radius: 999px;
+            padding: 10px 20px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        /* 现场看板订单卡片 */
+        .board-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .board-tab-btn {
+            padding: 6px 14px;
+            border-radius: 999px;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #475569;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .board-tab-btn.active {
+            background: #2563eb;
+            color: #ffffff;
+            border-color: #2563eb;
+        }
+
+        .board-order-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 12px;
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .board-order-card.highlight-quoted {
+            border: 2px solid #f59e0b;
+            background: #fffbeb;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-Pending-Quote {
+            background: #ffedd5;
+            color: #c2410c;
+        }
+
+        .status-Quoted {
+            background: #fef08a;
+            color: #854d0e;
+        }
+
+        .status-Paid,
+        .status-Printing,
+        .status-Completed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-Pending {
+            background: #e0f2fe;
+            color: #075985;
+        }
+
+        .status-Rejected,
+        .status-Cancelled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .board-action-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .btn-xs {
+            border: none;
+            border-radius: 8px;
+            padding: 7px 12px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .btn-confirm-pay {
+            background: #16a34a;
+            color: #ffffff;
+        }
+
+        .btn-cancel-order {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .btn-ask-order {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        /* 右下角实时聊天悬浮窗 */
+        #booth-chat-box {
+            display: none;
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            width: 360px;
+            max-width: calc(100vw - 24px);
+            height: 480px;
+            max-height: 78vh;
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.25);
+            border: 1px solid #cbd5e1;
+            z-index: 2100;
+            flex-direction: column;
+            overflow: hidden;
+            text-align: left;
+        }
+
+        #booth-chat-box.open {
+            display: flex;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: #ffffff;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            background: #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .chat-bubble {
+            max-width: 82%;
+            padding: 9px 12px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            line-height: 1.45;
+            word-break: break-word;
+        }
+
+        .chat-bubble.booth {
+            align-self: flex-end;
+            background: #2563eb;
+            color: #ffffff;
+            border-bottom-right-radius: 3px;
+        }
+
+        .chat-bubble.teacher {
+            align-self: flex-start;
+            background: #ffffff;
+            color: #1e293b;
+            border: 1px solid #cbd5e1;
+            border-bottom-left-radius: 3px;
+        }
+
+        .chat-meta {
+            font-size: 10.5px;
+            opacity: 0.78;
+            margin-top: 4px;
+        }
+
+        .chat-quick-chips {
+            padding: 6px 10px;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .chat-chip {
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 11.5px;
+            cursor: pointer;
+            color: #334155;
+            flex-shrink: 0;
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 8px;
+            padding: 10px;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .chat-input-row input {
+            flex: 1;
+            padding: 9px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 999px;
+            font-size: 13.5px;
+            font-family: inherit;
+        }
+
+        .chat-send-btn {
+            background: #059669;
+            color: #ffffff;
+            border: none;
+            border-radius: 999px;
+            padding: 0 16px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .admin-footer-link {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 13px;
+        }
+
+        .admin-footer-link a {
+            color: #64748b;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid #e2e8f0;
+        }
+
+        .admin-footer-link a:hover {
+            color: #1d4ed8;
+            border-color: #93c5fd;
         }
     </style>
 </head>
@@ -208,455 +1068,691 @@
 <body>
     <div id="loading-overlay">
         <div class="spinner"></div>
-        <h3 style="margin-top: 15px; color: #007bff;">Sending Order...</h3>
+        <h3 style="margin-top: 15px; color: #2563eb;">Sending Order... 正在提交订单...</h3>
+    </div>
+
+    <div id="live-toast-banner" onclick="handleToastClick()">
+        <span id="live-toast-text">🔔 有新消息！</span>
     </div>
 
     <div class="dashboard">
-        <header class="welcome-section">
-            <a href="../index.html"><img src="logo.png" class="mini-logo" alt="Logo"></a>
-            <h1>SJK(C) Pei Ching 3D Hub <b>培青华小3D打印中心</b></h1>
-            <p>Choose what you want to make!<br><b>选择你想要制作的物品！</b> <i>Sila pilih apa yang anda mahu buat!</i></p>
+        <!-- 紧凑型全宽顶部导航栏（标题 + 义卖会看摊工具二合一） -->
+        <header class="booth-toolbar">
+            <div class="brand-bar">
+                <a href="../index.html"><img src="logo.png" class="brand-logo" alt="Pei Ching 3D Hub Logo"></a>
+                <div>
+                    <h1 class="brand-title">SJK(C) Pei Ching 3D Hub <b>培青华小3D打印中心</b></h1>
+                    <p class="brand-subtitle">Choose what you want to make! <b>选择你想要制作的物品！</b> <i>Sila pilih apa yang anda mahu buat!</i></p>
+                </div>
+            </div>
+            <div class="booth-actions">
+                <div class="booth-status-pill" id="connection-pill">
+                    <span class="status-dot" id="connection-dot"></span>
+                    <span id="connection-text">正在连接云端系统...</span>
+                </div>
+                <button type="button" class="pill-btn pill-btn-sound" id="btn-sound-toggle" onclick="toggleSound()">
+                    🔔 提示音: 开
+                </button>
+                <button type="button" class="pill-btn pill-btn-board" id="btn-open-booth-board"
+                    onclick="openBoothBoard()">
+                    📋 现场订单 / 报价看板
+                    <span class="badge-count" id="badge-quotes">0</span>
+                </button>
+                <button type="button" class="pill-btn pill-btn-chat" id="btn-toggle-chat" onclick="toggleChatBox()">
+                    💬 呼叫潘老师
+                    <span class="badge-count" id="badge-chat">0</span>
+                </button>
+            </div>
         </header>
 
         <div class="hub-container">
+            <!-- 提交成功电子凭证 -->
             <div id="success-message">
-                <h2>🎉 Order Submitted Successfully!</h2>
-                <p>Your 3D printing request has been recorded. We will process it shortly.</p>
-                <button class="btn" style="margin-top: 15px;" onclick="location.reload()">Place Another Order</button>
+                <h2 style="margin-top: 0; color: #15803d;">🎉 Order Submitted Successfully! 订单提交成功！</h2>
+                <p id="receipt-subtitle" style="color: #334155; margin-bottom: 10px;">
+                    请向现场摊位同学出示此凭证或截图保存。<br>
+                    <i>Sila tunjukkan resit ini kepada petugas di gerai.</i>
+                </p>
+                <div class="receipt-card" id="receipt-details"></div>
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 16px;">
+                    <button type="button" class="btn" onclick="resetForNewOrder()">➕ Place Another Order 继续下一单</button>
+                    <button type="button" id="btn-receipt-open-board" class="btn-secondary"
+                        style="display:none; padding: 12px 22px;" onclick="openBoothBoard()">
+                        📋 查看老师报价进度
+                    </button>
+                </div>
             </div>
 
-            <form id="order-form">
-                <label for="id_student_name">Your Name <b>你的名字</b> <i>Nama Anda</i>: <span
-                        style="color: #ef4444;">*</span></label>
-                <input type="text" id="id_student_name" required placeholder="e.g., Ali bin Ahmad">
+            <form id="order-form" novalidate>
+                <div class="workspace-grid">
+                    <!-- 左侧：基本信息 + 物品挑选 + 定制参数区 -->
+                    <div class="workspace-left">
+                        <div class="form-grid-2">
+                            <div>
+                                <label for="id_student_name" style="margin-top: 0;">Your Name <b>你的名字</b> <i>Nama Anda</i>: <span
+                                        style="color: #ef4444;">*</span></label>
+                                <input type="text" id="id_student_name" required placeholder="e.g., Ali bin Ahmad / 陈小明">
+                            </div>
+                            <div>
+                                <label for="id_student_class" style="margin-top: 0;">Your Class <b>你的班级 / 联系</b> <i>Kelas Anda</i>: <span
+                                        style="color: #ef4444;">*</span></label>
+                                <input type="text" id="id_student_class" required placeholder="e.g., 6 Merah / 6M / 老师">
+                            </div>
+                        </div>
 
-                <label for="id_student_class">Your Class <b>你的班级</b> <i>Kelas Anda</i>: <span
-                        style="color: #ef4444;">*</span></label>
-                <input type="text" id="id_student_class" required placeholder="e.g., 6 Merah">
+                        <label for="id_model_choice" style="margin-top: 18px;">Choose an Item <b>选择物品</b> <i>Pilih
+                                Barang</i>:</label>
 
-                <label for="id_model_choice">Choose an Item <b>选择物品</b> <i>Pilih Barang</i>:</label>
-                <select id="id_model_choice">
-                    <option value="Keychain" selected>🔑 Personalized Name Keychain 个性化名字钥匙扣 Rantai Kunci Nama Peribadi
-                    </option>
-                    <option value="Tumbler">🥤 Mini Tumbler (Chapstick Holder) 迷你保温杯（润唇膏盒） Tumbler Mini (Bekas Pelembap
-                        Bibir)</option>
-                    <option value="Topper">✏️ Pencil Topper (Name & Emoji) 铅笔套（名字和表情） Penutup Pensel (Nama & Emoji)
-                    </option>
-                    <option value="Flexi_Cat">🐱 Fluffy Tail Flexi Cat 软体猫咪 Kucing Flexi</option>
-                    <option value="Flexi_Bunny">🐰 Cute Flexi Easter Bunny 可爱复活兔 Arnab Flexi</option>
-                </select>
+                        <!-- 6宫格图文卡片选择器 -->
+                        <div class="model-card-grid" id="model-card-grid">
+                            <div class="model-card active" data-value="Keychain" onclick="selectModelCard('Keychain')">
+                                <div class="model-card-icon">🔑</div>
+                                <div class="model-card-title">Name Keychain<br>名字钥匙扣</div>
+                                <div class="model-card-sub">Rantai Kunci Nama</div>
+                                <div class="model-card-price">RM 4.00 起</div>
+                            </div>
+                            <div class="model-card" data-value="Tumbler" onclick="selectModelCard('Tumbler')">
+                                <div class="model-card-icon">🥤</div>
+                                <div class="model-card-title">Mini Tumbler<br>迷你保温杯</div>
+                                <div class="model-card-sub">Bekas Pelembap Bibir</div>
+                                <div class="model-card-price">RM 9.00 起</div>
+                            </div>
+                            <div class="model-card" data-value="Topper" onclick="selectModelCard('Topper')">
+                                <div class="model-card-icon">✏️</div>
+                                <div class="model-card-title">Pencil Topper<br>铅笔套</div>
+                                <div class="model-card-sub">Penutup Pensel</div>
+                                <div class="model-card-price">RM 3 - RM 10</div>
+                            </div>
+                            <div class="model-card" data-value="Flexi_Cat" onclick="selectModelCard('Flexi_Cat')">
+                                <div class="model-card-icon">🐱</div>
+                                <div class="model-card-title">Flexi Cat<br>软体猫咪</div>
+                                <div class="model-card-sub">Kucing Flexi</div>
+                                <div class="model-card-price">RM 20.00 (送铁环)</div>
+                            </div>
+                            <div class="model-card" data-value="Flexi_Bunny" onclick="selectModelCard('Flexi_Bunny')">
+                                <div class="model-card-icon">🐰</div>
+                                <div class="model-card-title">Flexi Bunny<br>可爱复活兔</div>
+                                <div class="model-card-sub">Arnab Flexi</div>
+                                <div class="model-card-price">RM 20.00 (送铁环)</div>
+                            </div>
+                            <div class="model-card makerworld-card" data-value="MakerWorld"
+                                onclick="selectModelCard('MakerWorld')">
+                                <div class="model-card-icon">🌐</div>
+                                <div class="model-card-title">MakerWorld 自选<br>Custom Model</div>
+                                <div class="model-card-sub">Model Pilihan Sendiri</div>
+                                <div class="model-card-price">待老师评估报价</div>
+                            </div>
+                        </div>
 
-                <!-- INFO CARDS -->
-                <div id="info-keychain" class="info-card">
-                    <strong>🔑 Name Keychain</strong><br>
-                    • Price: Small(RM4), Medium(RM6), Large(RM9).<br>
-                    • Colors: Pick different colors for base and text!<br>
-                    • Add Ring (+RM1.00): Hang it on your bag!<br><br>
-                    <strong>🔑 <b>名字钥匙扣</b></strong><br>
-                    • <b>价格</b>: Small(RM4), Medium(RM6), Large(RM9).<br>
-                    • <b>颜色</b>: <b>可以选择不同的<b>颜色</b>！</b><br>
-                    • <b>加铁环</b> (+RM1.00): <b>挂在书包上！</b><br><br>
-                    <strong>🔑 <i>Rantai Kunci Nama</i></strong><br>
-                    • <i>Harga: Small(RM4), Medium(RM6), Large(RM9).</i><br>
-                    • <i>Warna: Boleh pilih warna berbeza!</i><br>
-                    • <i>Tambah Besi (+RM1.00): Gantung di beg!</i>
-                </div>
+                        <!-- 保留同步 select 控件 -->
+                        <select id="id_model_choice" class="sr-only-select" aria-label="Choose an Item">
+                            <option value="Keychain" selected>🔑 Personalized Name Keychain</option>
+                            <option value="Tumbler">🥤 Mini Tumbler</option>
+                            <option value="Topper">✏️ Pencil Topper</option>
+                            <option value="Flexi_Cat">🐱 Fluffy Tail Flexi Cat</option>
+                            <option value="Flexi_Bunny">🐰 Cute Flexi Easter Bunny</option>
+                            <option value="MakerWorld">🌐 MakerWorld Custom Model</option>
+                        </select>
 
-                <div id="info-tumbler" class="info-card">
-                    <strong>🥤 Mini Tumbler</strong><br>
-                    • 1 Color (RM9.00)<br>
-                    • 2 Colors (RM11.00)<br>
-                    • Add Ring (+RM1.00): Hang it on your bag!<br><br>
-                    <strong>🥤 <b>迷你保温杯</b></strong><br>
-                    • <b>单色</b> (RM9.00)<br>
-                    • <b>双色</b> (RM11.00)<br>
-                    • <b>加铁环</b> (+RM1.00): <b>挂在书包上！</b><br><br>
-                    <strong>🥤 <i>Tumbler Mini</i></strong><br>
-                    • <i>1 Warna (RM9.00)</i><br>
-                    • <i>2 Warna (RM11.00)</i><br>
-                    • <i>Tambah Besi (+RM1.00): Gantung di beg!</i>
-                </div>
+                        <!-- MAKERWORLD 自定义模型专区 -->
+                        <div id="section-makerworld" class="dynamic-field">
+                            <div class="mw-guide-box">
+                                <h4>⚠️ 选模必读排雷指南 / Important Guide / Panduan Penting</h4>
+                                <div class="mw-rule-item">
+                                    <strong>1. 🎨 手涂白模 vs AMS 最多4色限制：</strong><br>
+                                    MakerWorld 上许多精美图片是作者<strong>手涂上色 (Hand-Painted)</strong> 或渲染效果图，实际 3D 打印出来会是<strong>单色纯色</strong>！我们的打印机配有一台 AMS，<strong>最多只支持 4 种颜色自动换色打印</strong>（且模型本身必须带有多色/AMS配置）。<br>
+                                    <span style="font-size: 12px; color: #92400e;"><i>Hand-painted photos print as solid single color. Our AMS printer supports max 4 colors only.</i></span>
+                                </div>
+                                <div class="mw-rule-item">
+                                    <strong>2. 📏 尺寸与打印时间限制：</strong><br>
+                                    模型尺寸不可超过打印盘大小，也不接收需要打印十几个小时的巨型模型。<br>
+                                    <span style="font-size: 12px; color: #92400e;"><i>Must fit our print bed; extra-large models taking 10+ hours are not accepted.</i></span>
+                                </div>
+                                <div class="mw-rule-item" style="margin-bottom: 0;">
+                                    <strong>3. 🛠️ 避开易断悬空 & 推荐搜索关键词：</strong><br>
+                                    请勿挑选带有复杂悬空、极细长结构或需大量支撑的模型（如复杂动漫手办、细剑，拆支撑极易断）。<br>
+                                    💡 <strong>推荐搜索：</strong> <code>Print-in-Place</code>（一体打印）、<code>Flexi</code>（关节可动）、<code>No Support</code>（免支撑）、<code>AMS</code>。
+                                </div>
+                            </div>
 
-                <div id="info-topper" class="info-card">
-                    <strong>✏️ Pencil Topper</strong><br>
-                    • Price: RM3.00 - RM10.00 (Depends on name length).<br>
-                    • Put it on your pencil!<br><br>
-                    <strong>✏️ <b>铅笔套</b></strong><br>
-                    • <b>价格</b>: RM3.00 - RM10.00 (<b>根据名字长度</b>).<br>
-                    • <b>放在铅笔上！</b><br><br>
-                    <strong>✏️ <i>Penutup Pensel</i></strong><br>
-                    • <i>Harga: RM3.00 - RM10.00 (Ikut panjang nama).</i><br>
-                    • <i>Letak di atas pensel!</i>
-                </div>
+                            <label for="id_mw_url">MakerWorld 模型链接或准确名称 <b>Model Link or Name</b> <i>Pautan / Nama Model</i>: <span style="color: #ef4444;">*</span></label>
+                            <span class="helptext">请从 MakerWorld 复制网页链接（例如 https://makerworld.com/en/models/...）或写明模型完整名称+作者。</span>
+                            <input type="text" id="id_mw_url" placeholder="https://makerworld.com/en/models/...">
 
-                <div id="info-flexicat" class="info-card"
-                    style="border-left-color: #ec4899; background-color: #fce7f3; color: #831843;">
-                    <strong>🐱 Flexi Cat</strong><br>
-                    • Price (RM20.00)<br>
-                    • Choose up to 3 colors!<br>
-                    • Free metal ring!<br><br>
-                    <strong>🐱 <b>软体猫咪</b></strong><br>
-                    • <b>价格</b> (RM20.00)<br>
-                    • <b>最多可选择3种<b>颜色</b>！</b><br>
-                    • <b>免费送铁环！</b><br><br>
-                    <strong>🐱 <i>Kucing Flexi</i></strong><br>
-                    • <i>Harga (RM20.00)</i><br>
-                    • <i>Boleh pilih hingga 3 warna!</i><br>
-                    • <i>Percuma gelang besi!</i>
-                </div>
+                            <label for="id_mw_color_mode">Printing Color Mode <b>打印颜色模式</b> <i>Mod Warna Cetakan</i>:</label>
+                            <select id="id_mw_color_mode">
+                                <option value="1_Color" selected>🎨 单色打印 (1 Color - 最推荐，成功率高、价格实惠 / Satu Warna)</option>
+                                <option value="AMS_4Color">🌈 AMS 多色打印 (最多 4 色 - 仅限模型自带多色配置 / Maks 4 Warna)</option>
+                            </select>
+                        </div>
 
-                <div id="info-flexibunny" class="info-card"
-                    style="border-left-color: #a855f7; background-color: #f3e8ff; color: #581c87;">
-                    <strong>🐰 Flexi Bunny</strong><br>
-                    • Price (RM20.00)<br>
-                    • Choose from 6 cute themes!<br>
-                    • Free metal ring!<br><br>
-                    <strong>🐰 <b>可爱复活兔</b></strong><br>
-                    • <b>价格</b> (RM20.00)<br>
-                    • <b>有6个可爱主题选择！</b><br>
-                    • <b>免费送铁环！</b><br><br>
-                    <strong>🐰 <i>Arnab Flexi</i></strong><br>
-                    • <i>Harga (RM20.00)</i><br>
-                    • <i>Ada 6 tema comel!</i><br>
-                    • <i>Percuma gelang besi!</i>
-                </div>
+                        <!-- DYNAMIC COLOR FIELDS -->
+                        <div id="field-main-color" class="dynamic-field">
+                            <label id="label_main_color" for="id_filament_color">Main Color (Body) <b>主体颜色</b> <i>Warna Utama</i>:</label>
+                            <select id="id_filament_color">
+                                <option value="Black">⚫ Black PLA 黑色 Hitam</option>
+                                <option value="White">⚪ White PLA 白色 Putih</option>
+                                <option value="Red">🔴 Red PLA 红色 Merah</option>
+                                <option value="Blue" selected>🔵 Blue PLA 蓝色 Biru</option>
+                                <option value="Green">🟢 Green PLA 绿色 Hijau</option>
+                                <option value="Pink">🌸 Pink PLA 粉色 Merah Jambu</option>
+                                <option value="Purple">🟣 Purple PLA 紫色 Ungu</option>
+                                <option value="Yellow">🟡 Yellow PLA 黄色 Kuning</option>
+                                <option value="Turquoise">💎 Turquoise PLA 蓝绿色 Firus</option>
+                                <option value="Light Blue">🧊 Light Blue PLA 浅蓝色 Biru Muda</option>
+                                <option value="Transparent">🌫️ Transparent PLA/PETG 透明 Lutsinar</option>
+                            </select>
+                            <div class="swatch-row" data-target="id_filament_color"></div>
+                        </div>
 
-                <!-- PREVIEWS -->
-                <div id="preview-keychain" class="preview-box">
-                    <p style="margin-top: 0; color: #4b5563; font-weight: bold; font-size: 14px;">Preview <b>预览</b>
-                        <i>Pratonton</i>:
-                    </p>
-                    <svg width="220" height="70" viewBox="0 0 220 70" xmlns="http://www.w3.org/2000/svg">
-                        <rect id="kc-base" x="30" y="10" width="180" height="50" rx="10" fill="#ffffff" stroke="#d1d5db"
-                            stroke-width="4" />
-                        <circle id="kc-ring" cx="18" cy="35" r="12" fill="none" stroke="#d1d5db" stroke-width="4" />
-                        <text id="kc-text" x="120" y="43" font-family="'Archivo Black', sans-serif" font-size="20"
-                            font-weight="bold" fill="#1f2937" stroke="#000000" stroke-width="1"
-                            text-anchor="middle">YOUR NAME</text>
-                    </svg>
-                </div>
+                        <div id="section-secondary-color" class="dynamic-field">
+                            <label id="label_secondary_color" for="id_secondary_color">Secondary Color (Details)
+                                <b>第二种颜色</b> <i>Warna Kedua</i>:</label>
+                            <span class="helptext" id="helptext_secondary_color">Choose the same color as the Main Body for
+                                Single Color pricing.</span>
+                            <select id="id_secondary_color">
+                                <option value="None" selected>❌ None (Single Color) 无（单色） Tiada (Satu Warna)</option>
+                                <option value="Black">⚫ Black PLA 黑色 Hitam</option>
+                                <option value="White">⚪ White PLA 白色 Putih</option>
+                                <option value="Red">🔴 Red PLA 红色 Merah</option>
+                                <option value="Blue">🔵 Blue PLA 蓝色 Biru</option>
+                                <option value="Green">🟢 Green PLA 绿色 Hijau</option>
+                                <option value="Pink">🌸 Pink PLA 粉色 Merah Jambu</option>
+                                <option value="Purple">🟣 Purple PLA 紫色 Ungu</option>
+                                <option value="Yellow">🟡 Yellow PLA 黄色 Kuning</option>
+                                <option value="Turquoise">💎 Turquoise PLA 蓝绿色 Firus</option>
+                                <option value="Light Blue">🧊 Light Blue PLA 浅蓝色 Biru Muda</option>
+                                <option value="Transparent">🌫️ Transparent PLA/PETG 透明 Lutsinar</option>
+                            </select>
+                            <div class="swatch-row" data-target="id_secondary_color"></div>
+                        </div>
 
-                <div id="preview-tumbler" class="preview-box">
-                    <p style="margin-top: 0; color: #4b5563; font-weight: bold; font-size: 14px;">Preview <b>预览</b>
-                        <i>Pratonton</i>:
-                    </p>
-                    <svg width="220" height="160" viewBox="0 0 220 160" xmlns="http://www.w3.org/2000/svg">
-                        <g transform="translate(35, 0)">
-                            <path id="tumbler-handle" d="M 100 55 L 125 55 L 125 85 L 97 85" fill="none"
-                                stroke="#d1d5db" stroke-width="8" stroke-linejoin="round" />
-                            <path id="tumbler-body"
-                                d="M 45 40 L 105 40 L 95 95 L 85 95 L 85 130 L 65 130 L 65 95 L 55 95 Z" fill="#ffffff"
-                                stroke="#d1d5db" stroke-width="4" stroke-linejoin="round" />
-                            <ellipse id="tumbler-lid" cx="75" cy="40" rx="30" ry="8" fill="#ffffff" stroke="#d1d5db"
-                                stroke-width="4" />
-                            <rect id="tumbler-straw" x="71" y="10" width="8" height="30" fill="#ffffff" stroke="#d1d5db"
-                                stroke-width="4" rx="2" />
-                            <circle id="tumbler-ring" cx="120" cy="100" r="8" fill="none" stroke="#9ca3af"
-                                stroke-width="3" style="display: none;" />
-                        </g>
-                    </svg>
-                </div>
+                        <div id="section-tertiary-color" class="dynamic-field">
+                            <label id="label_tertiary_color" for="id_tertiary_color">Tertiary Color (Stripes) <b>第三种颜色（条纹/细节）</b> <i>Warna
+                                    Ketiga</i>:</label>
+                            <select id="id_tertiary_color">
+                                <option value="Black" selected>⚫ Black PLA 黑色 Hitam</option>
+                                <option value="White">⚪ White PLA 白色 Putih</option>
+                                <option value="Red">🔴 Red PLA 红色 Merah</option>
+                                <option value="Blue">🔵 Blue PLA 蓝色 Biru</option>
+                                <option value="Green">🟢 Green PLA 绿色 Hijau</option>
+                                <option value="Pink">🌸 Pink PLA 粉色 Merah Jambu</option>
+                                <option value="Purple">🟣 Purple PLA 紫色 Ungu</option>
+                                <option value="Yellow">🟡 Yellow PLA 黄色 Kuning</option>
+                                <option value="Turquoise">💎 Turquoise PLA 蓝绿色 Firus</option>
+                                <option value="Light Blue">🧊 Light Blue PLA 浅蓝色 Biru Muda</option>
+                                <option value="Transparent">🌫️ Transparent PLA/PETG 透明 Lutsinar</option>
+                            </select>
+                            <div class="swatch-row" data-target="id_tertiary_color"></div>
+                        </div>
 
-                <div id="preview-topper" class="preview-box">
-                    <p style="margin-top: 0; color: #4b5563; font-weight: bold; font-size: 14px;">Topper Preview:</p>
-                    <svg width="220" height="70" viewBox="0 0 220 70" xmlns="http://www.w3.org/2000/svg">
-                        <polygon points="10,35 30,25 200,25 200,45 30,45" fill="#fcd34d" stroke="#d97706"
-                            stroke-width="2" />
-                        <polygon points="10,35 30,25 30,45" fill="#374151" />
-                        <rect id="topper-base" x="80" y="15" width="100" height="40" rx="8" fill="#ffffff"
-                            stroke="#d1d5db" stroke-width="4" />
-                        <text id="topper-text" x="130" y="43" font-family="'Archivo Black', sans-serif" font-size="18"
-                            font-weight="bold" fill="#1f2937" stroke="#000000" stroke-width="1"
-                            text-anchor="middle">NAME</text>
-                    </svg>
-                </div>
+                        <div id="section-fourth-color" class="dynamic-field">
+                            <label for="id_fourth_color">4th Color (Optional) <b>第四种颜色（选填）</b> <i>Warna Ke-4 (Pilihan)</i>:</label>
+                            <select id="id_fourth_color">
+                                <option value="None" selected>❌ Not Needed 不需要（仅用3色） Tidak Perlu</option>
+                                <option value="Black">⚫ Black PLA 黑色 Hitam</option>
+                                <option value="White">⚪ White PLA 白色 Putih</option>
+                                <option value="Red">🔴 Red PLA 红色 Merah</option>
+                                <option value="Blue">🔵 Blue PLA 蓝色 Biru</option>
+                                <option value="Green">🟢 Green PLA 绿色 Hijau</option>
+                                <option value="Pink">🌸 Pink PLA 粉色 Merah Jambu</option>
+                                <option value="Purple">🟣 Purple PLA 紫色 Ungu</option>
+                                <option value="Yellow">🟡 Yellow PLA 黄色 Kuning</option>
+                                <option value="Turquoise">💎 Turquoise PLA 蓝绿色 Firus</option>
+                                <option value="Light Blue">🧊 Light Blue PLA 浅蓝色 Biru Muda</option>
+                                <option value="Transparent">🌫️ Transparent PLA/PETG 透明 Lutsinar</option>
+                            </select>
+                            <div class="swatch-row" data-target="id_fourth_color"></div>
+                        </div>
 
-                <div id="preview-flexicat" class="preview-box">
-                    <p style="margin-top: 0; color: #4b5563; font-weight: bold; font-size: 14px;">Flexi Cat Preview:</p>
+                        <div id="field-name-color" class="dynamic-field">
+                            <label for="id_keychain_name_color">Name & Emoji Color <b>名字和表情颜色</b> <i>Warna Nama &
+                                    Emoji</i>:</label>
+                            <select id="id_keychain_name_color">
+                                <option value="Black">⚫ Black PLA 黑色 Hitam</option>
+                                <option value="White" selected>⚪ White PLA 白色 Putih</option>
+                                <option value="Red">🔴 Red PLA 红色 Merah</option>
+                                <option value="Blue">🔵 Blue PLA 蓝色 Biru</option>
+                                <option value="Green">🟢 Green PLA 绿色 Hijau</option>
+                                <option value="Pink">🌸 Pink PLA 粉色 Merah Jambu</option>
+                                <option value="Purple">🟣 Purple PLA 紫色 Ungu</option>
+                                <option value="Yellow">🟡 Yellow PLA 黄色 Kuning</option>
+                                <option value="Turquoise">💎 Turquoise PLA 蓝绿色 Firus</option>
+                                <option value="Light Blue">🧊 Light Blue PLA 浅蓝色 Biru Muda</option>
+                                <option value="Transparent">🌫️ Transparent PLA/PETG 透明 Lutsinar</option>
+                            </select>
+                            <div class="swatch-row" data-target="id_keychain_name_color"></div>
+                            <div id="same-color-warning" class="warning-banner">
+                                ⚠️ 提醒：底色与字色相同，印出来的名字会看不清楚哦！建议换一个对比色。<br>
+                                <i>Warning: Same base and text color will be hard to read!</i>
+                            </div>
+                        </div>
 
-                    <div
-                        style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; justify-content: center;">
-                        <button type="button" class="theme-btn" onclick="setCatTheme('Pink', 'White', 'Black')"
-                            style="background: #fdf2f8; color: #ec4899; border: 1px solid #fbcfe8;">🌸 Sakura</button>
-                        <button type="button" class="theme-btn" onclick="setCatTheme('Turquoise', 'White', 'Blue')"
-                            style="background: #eff6ff; color: #3b82f6; border: 1px solid #bfdbfe;">🌊 Ocean</button>
-                        <button type="button" class="theme-btn" onclick="setCatTheme('Black', 'Red', 'White')"
-                            style="background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca;">🧛 Dracula</button>
-                        <button type="button" class="theme-btn" onclick="setCatTheme('Black', 'Yellow', 'White')"
-                            style="background: #fefce8; color: #ca8a04; border: 1px solid #fef08a;">🐝
-                            Bumblebee</button>
-                        <button type="button" class="theme-btn" onclick="setCatTheme('Black', 'White', 'White')"
-                            style="background: #f3f4f6; color: #1f2937; border: 1px solid #d1d5db;">🐼 Panda</button>
-                        <button type="button" class="theme-btn" onclick="setCatTheme('Red', 'White', 'Black')"
-                            style="background: #fef2f2; color: #ef4444; border: 1px solid #fecaca;">🦊 Red
-                            Panda</button>
+                        <div id="field-text" class="dynamic-field">
+                            <label for="id_keychain_text">What name to write? <b>要写什么名字？</b> <i>Tulis nama apa?</i> <span
+                                    style="color: #ef4444;">*</span></label>
+                            <span class="helptext">Max 15 characters. 最多 15 个字符。</span>
+                            <input type="text" id="id_keychain_text" value="" placeholder="例如 / e.g., JAYDEN" maxlength="15">
+                        </div>
+
+                        <div id="field-emoji" class="dynamic-field">
+                            <label for="id_topper_emoji">Select an Emoji <b>选择表情</b> <i>Pilih Emoji</i>:</label>
+                            <select id="id_topper_emoji">
+                                <option value="None" selected>❌ No Emoji 无表情 Tiada Emoji</option>
+                                <option value="⚽">⚽ Soccer Ball</option>
+                                <option value="🦄">🦄 Unicorn</option>
+                                <option value="🤖">🤖 Robot</option>
+                                <option value="🌸">🌸 Flower</option>
+                                <option value="🎃">🎃 Pumpkin</option>
+                                <option value="💖">💖 Heart</option>
+                                <option value="⭐">⭐ Star</option>
+                                <option value="🐾">🐾 Paw Print</option>
+                                <option value="🦋">🦋 Butterfly</option>
+                                <option value="🔥">🔥 Fire</option>
+                                <option value="👑">👑 Crown</option>
+                            </select>
+                        </div>
+
+                        <div id="field-font" class="dynamic-field">
+                            <label for="id_font_style">Font Style <b>字体选择</b> <i>Pilihan Fon</i>:</label>
+                            <select id="id_font_style">
+                                <option value="Archivo Black" style="font-family: 'Archivo Black', sans-serif;" selected>Archivo
+                                    Black</option>
+                                <option value="Audiowide" style="font-family: 'Audiowide', cursive;">Audiowide</option>
+                                <option value="Bangers" style="font-family: 'Bangers', cursive;">Bangers</option>
+                                <option value="Bebas Neue" style="font-family: 'Bebas Neue', sans-serif;">Bebas Neue</option>
+                                <option value="Bungee" style="font-family: 'Bungee', cursive;">Bungee</option>
+                                <option value="Changa One" style="font-family: 'Changa One', cursive;">Changa One</option>
+                                <option value="DynaPuff" style="font-family: 'DynaPuff', cursive;">DynaPuff</option>
+                                <option value="Noto Sans" style="font-family: 'Noto Sans', sans-serif; font-weight: 700;">Noto
+                                    Sans</option>
+                                <option value="Pacifico" style="font-family: 'Pacifico', cursive;">Pacifico</option>
+                                <option value="Poppins" style="font-family: 'Poppins', sans-serif; font-weight: 700;">Poppins
+                                </option>
+                                <option value="Press Start 2P" style="font-family: 'Press Start 2P', cursive;">Press Start 2P
+                                </option>
+                            </select>
+                        </div>
+
+                        <div id="field-width" class="dynamic-field">
+                            <label for="id_keychain_width">Keychain Size <b>钥匙扣尺寸</b> <i>Saiz Rantai Kunci</i>:</label>
+                            <span class="helptext">Select the size of your keychain.</span>
+                            <select id="id_keychain_width" required>
+                                <option value="15" selected>Small (15mm) 小 Kecil - RM 4.00</option>
+                                <option value="22">Medium (22mm) 中 Sederhana - RM 6.00</option>
+                                <option value="30">Large (30mm) 大 Besar - RM 9.00</option>
+                            </select>
+                        </div>
+
+                        <div id="section-cat-hole" class="dynamic-field">
+                            <label for="id_cat_keychain_hole">Keychain Ring Hole Position <b>打孔位置</b> <i>Posisi Lubang</i>:</label>
+                            <select id="id_cat_keychain_hole">
+                                <option value="None" selected>❌ No Hole 无孔 Tiada Lubang</option>
+                                <option value="Ear">👂 Right Ear 右耳 Telinga Kanan</option>
+                                <option value="Tail">🐈 Tail Tip 尾巴尖 Hujung Ekor</option>
+                                <option value="Head">🗣️ Top of Head 头顶 Atas Kepala</option>
+                            </select>
+                        </div>
+
+                        <div id="section-ring-add-on" class="dynamic-field">
+                            <div class="checkbox-row">
+                                <input type="checkbox" id="id_add_keychain_ring">
+                                <label id="label_ring_addon" for="id_add_keychain_ring">Add Metal Ring (+RM1.00) <b>加铁环</b>
+                                    (+RM1.00) <i>Tambah Gelang Besi (+RM1.00)</i></label>
+                            </div>
+                        </div>
+
+                        <!-- MakerWorld 备注和必读勾选 -->
+                        <div id="section-mw-notes" class="dynamic-field">
+                            <label for="id_mw_notes">Notes / Special Requests <b>订单备注 / 尺寸或配色说明（选填）</b> <i>Catatan
+                                    Tambahan</i>:</label>
+                            <textarea id="id_mw_notes" rows="2"
+                                placeholder="例如：想印小一点（大约手掌一半大）、只印第1盘、或指定各个部件颜色..."></textarea>
+
+                            <div class="checkbox-row" style="background: #fff7ed; border-color: #fdba74;">
+                                <input type="checkbox" id="id_mw_confirm">
+                                <label for="id_mw_confirm">
+                                    我明白：老师会先检查模型能否打印并报价；若原图是手涂模型，印出来会是纯色（单色或最多4色）。<br>
+                                    <span style="font-size: 12px; color: #7c2d12;"><i>I understand teacher will verify printability & quote first; hand-painted photos print as solid filament.</i></span>
+                                </label>
+                            </div>
+                        </div>
                     </div>
 
-                    <div id="flexicat-img" style="display: none; margin-bottom: 15px;">
-                        <!-- Using local images isn't strictly necessary if SVG is the main preview, but I'll leave the tags. They may broken if images are missing. -->
-                        <img id="flexicat-real-image" src="" alt="Flexi Cat Theme"
-                            style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                        <p style="font-size: 12px; color: #059669; margin-top: 5px;">✨ Showing Recommended Theme</p>
-                    </div>
+                    <!-- 右侧：实时预览 + 说明卡 + 数量计价与提交（宽屏吸顶常驻） -->
+                    <div class="workspace-right">
+                        <!-- PREVIEWS -->
+                        <div id="preview-keychain" class="preview-box">
+                            <p style="margin-top: 0; color: #475569; font-weight: bold; font-size: 14px;">Preview <b>实时预览</b>
+                                <i>Pratonton</i>:
+                            </p>
+                            <svg width="240" height="75" viewBox="0 0 220 70" xmlns="http://www.w3.org/2000/svg">
+                                <rect id="kc-base" x="30" y="10" width="180" height="50" rx="10" fill="#3b82f6" stroke="#1d4ed8"
+                                    stroke-width="4" />
+                                <circle id="kc-ring" cx="18" cy="35" r="12" fill="none" stroke="#1d4ed8" stroke-width="4" />
+                                <text id="kc-text" x="120" y="43" font-family="'Archivo Black', sans-serif" font-size="20"
+                                    font-weight="bold" fill="#ffffff" stroke="#d1d5db" stroke-width="1"
+                                    text-anchor="middle">YOUR NAME</text>
+                            </svg>
+                        </div>
 
-                    <svg id="flexicat-svg" width="220" height="210" viewBox="0 0 220 210"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <g transform="translate(110, 45)">
-                            <!-- Tail Segments alternating colors -->
-                            <polygon points="-12,135 0,160 12,135" class="cat-main" stroke-width="2"
-                                stroke-linejoin="round" />
-                            <polygon points="-15,115 0,140 15,115" class="cat-sec-tail" stroke-width="2"
-                                stroke-linejoin="round" />
-                            <polygon points="-18,95 0,120 18,95" class="cat-main" stroke-width="2"
-                                stroke-linejoin="round" />
-                            <polygon points="-20,75 0,100 20,75" class="cat-sec-tail" stroke-width="2"
-                                stroke-linejoin="round" />
-                            <polygon points="-18,55 0,80 18,55" class="cat-main" stroke-width="2"
-                                stroke-linejoin="round" />
-                            <polygon points="-15,35 0,60 15,35" class="cat-sec-tail" stroke-width="2"
-                                stroke-linejoin="round" />
+                        <div id="preview-tumbler" class="preview-box">
+                            <p style="margin-top: 0; color: #475569; font-weight: bold; font-size: 14px;">Preview <b>实时预览</b>
+                                <i>Pratonton</i>:
+                            </p>
+                            <svg width="220" height="160" viewBox="0 0 220 160" xmlns="http://www.w3.org/2000/svg">
+                                <g transform="translate(35, 0)">
+                                    <path id="tumbler-handle" d="M 100 55 L 125 55 L 125 85 L 97 85" fill="none"
+                                        stroke="#d1d5db" stroke-width="8" stroke-linejoin="round" />
+                                    <path id="tumbler-body"
+                                        d="M 45 40 L 105 40 L 95 95 L 85 95 L 85 130 L 65 130 L 65 95 L 55 95 Z" fill="#ffffff"
+                                        stroke="#d1d5db" stroke-width="4" stroke-linejoin="round" />
+                                    <ellipse id="tumbler-lid" cx="75" cy="40" rx="30" ry="8" fill="#ffffff" stroke="#d1d5db"
+                                        stroke-width="4" />
+                                    <rect id="tumbler-straw" x="71" y="10" width="8" height="30" fill="#ffffff" stroke="#d1d5db"
+                                        stroke-width="4" rx="2" />
+                                    <circle id="tumbler-ring" cx="120" cy="100" r="8" fill="none" stroke="#9ca3af"
+                                        stroke-width="3" style="display: none;" />
+                                </g>
+                            </svg>
+                        </div>
 
-                            <rect x="-25" y="10" width="50" height="35" rx="15" class="cat-main" stroke-width="2" />
-                            <rect x="-15" y="15" width="30" height="25" rx="10" class="cat-sec" />
+                        <div id="preview-topper" class="preview-box">
+                            <p style="margin-top: 0; color: #475569; font-weight: bold; font-size: 14px;">Topper Preview <b>铅笔套实时预览</b>:</p>
+                            <svg width="240" height="75" viewBox="0 0 220 70" xmlns="http://www.w3.org/2000/svg">
+                                <polygon points="10,35 30,25 200,25 200,45 30,45" fill="#fcd34d" stroke="#d97706"
+                                    stroke-width="2" />
+                                <polygon points="10,35 30,25 30,45" fill="#374151" />
+                                <rect id="topper-base" x="80" y="15" width="100" height="40" rx="8" fill="#3b82f6"
+                                    stroke="#1d4ed8" stroke-width="4" />
+                                <text id="topper-text" x="130" y="43" font-family="'Archivo Black', sans-serif" font-size="18"
+                                    font-weight="bold" fill="#ffffff" stroke="#d1d5db" stroke-width="1"
+                                    text-anchor="middle">NAME</text>
+                            </svg>
+                        </div>
 
-                            <circle cx="-25" cy="20" r="7" class="cat-main" stroke-width="2" />
-                            <circle cx="25" cy="20" r="7" class="cat-main" stroke-width="2" />
-                            <circle cx="-20" cy="40" r="7" class="cat-main" stroke-width="2" />
-                            <circle cx="20" cy="40" r="7" class="cat-main" stroke-width="2" />
+                        <div id="preview-flexicat" class="preview-box">
+                            <p style="margin-top: 0; color: #475569; font-weight: bold; font-size: 14px;">Flexi Cat Preview <b>猫咪主题与预览</b>:</p>
 
-                            <polygon points="-25,-5 -35,-25 -10,-15" class="cat-main" stroke-width="2"
-                                stroke-linejoin="round" />
-                            <polygon points="-22,-7 -30,-20 -12,-13" class="cat-sec" />
-                            <polygon points="25,-5 35,-25 10,-15" class="cat-main" stroke-width="2"
-                                stroke-linejoin="round" />
-                            <polygon points="22,-7 30,-20 12,-13" class="cat-sec" />
+                            <div
+                                style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; justify-content: center;">
+                                <button type="button" class="theme-btn" data-cat-theme="sakura"
+                                    onclick="setCatTheme('Pink', 'White', 'Black')"
+                                    style="background: #fdf2f8; color: #ec4899; border: 1px solid #fbcfe8;">🌸 Sakura</button>
+                                <button type="button" class="theme-btn" data-cat-theme="ocean"
+                                    onclick="setCatTheme('Turquoise', 'White', 'Blue')"
+                                    style="background: #eff6ff; color: #3b82f6; border: 1px solid #bfdbfe;">🌊 Ocean</button>
+                                <button type="button" class="theme-btn" data-cat-theme="dracula"
+                                    onclick="setCatTheme('Black', 'Red', 'White')"
+                                    style="background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca;">🧛 Dracula</button>
+                                <button type="button" class="theme-btn" data-cat-theme="bumblebee"
+                                    onclick="setCatTheme('Black', 'Yellow', 'White')"
+                                    style="background: #fefce8; color: #ca8a04; border: 1px solid #fef08a;">🐝
+                                    Bumblebee</button>
+                                <button type="button" class="theme-btn" data-cat-theme="panda"
+                                    onclick="setCatTheme('Black', 'White', 'White')"
+                                    style="background: #f3f4f6; color: #1f2937; border: 1px solid #d1d5db;">🐼 Panda</button>
+                                <button type="button" class="theme-btn" data-cat-theme="redpanda"
+                                    onclick="setCatTheme('Red', 'White', 'Black')"
+                                    style="background: #fef2f2; color: #ef4444; border: 1px solid #fecaca;">🦊 Red
+                                    Panda</button>
+                            </div>
 
-                            <ellipse cx="0" cy="0" rx="35" ry="22" class="cat-main" stroke-width="2" />
-                            <ellipse cx="0" cy="5" rx="20" ry="12" class="cat-sec" />
+                            <div id="flexicat-img" style="display: none; margin-bottom: 10px;">
+                                <img id="flexicat-real-image" src="" alt="Flexi Cat Theme" loading="lazy"
+                                    style="max-width: 100%; max-height: 280px; height: auto; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.12);">
+                                <p style="font-size: 12px; color: #059669; margin-top: 6px;">✨ 推荐官方配色实拍图 (可在左侧微调任意颜色查看自定义效果)</p>
+                            </div>
 
-                            <path d="M-15,-5 Q-10,-10 -5,-5" class="cat-ter" fill="none" stroke-width="2.5"
-                                stroke-linecap="round" />
-                            <path d="M5,-5 Q10,-10 15,-5" class="cat-ter" fill="none" stroke-width="2.5"
-                                stroke-linecap="round" />
-                            <circle cx="0" cy="1" r="2.5" class="cat-ter" />
-                            <path d="M0,3 Q-4,7 -7,3 M0,3 Q4,7 7,3" class="cat-ter" fill="none" stroke-width="2"
-                                stroke-linecap="round" />
-                            <path d="M-5,-20 L0,-15 L5,-20" class="cat-ter" fill="none" stroke-width="2"
-                                stroke-linecap="round" />
-                            <path d="M-10,-18 L-5,-13" class="cat-ter" fill="none" stroke-width="2"
-                                stroke-linecap="round" />
-                            <path d="M10,-18 L5,-13" class="cat-ter" fill="none" stroke-width="2"
-                                stroke-linecap="round" />
+                            <svg id="flexicat-svg" width="220" height="210" viewBox="0 0 220 210"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <g transform="translate(110, 45)">
+                                    <polygon points="-12,135 0,160 12,135" class="cat-main" stroke-width="2"
+                                        stroke-linejoin="round" />
+                                    <polygon points="-15,115 0,140 15,115" class="cat-sec-tail" stroke-width="2"
+                                        stroke-linejoin="round" />
+                                    <polygon points="-18,95 0,120 18,95" class="cat-main" stroke-width="2"
+                                        stroke-linejoin="round" />
+                                    <polygon points="-20,75 0,100 20,75" class="cat-sec-tail" stroke-width="2"
+                                        stroke-linejoin="round" />
+                                    <polygon points="-18,55 0,80 18,55" class="cat-main" stroke-width="2"
+                                        stroke-linejoin="round" />
+                                    <polygon points="-15,35 0,60 15,35" class="cat-sec-tail" stroke-width="2"
+                                        stroke-linejoin="round" />
 
-                            <circle id="cat-hole-ear" cx="32" cy="-22" r="5" fill="none" stroke="#9ca3af"
-                                stroke-width="2.5" style="display:none;" />
-                            <circle id="cat-hole-head" cx="0" cy="-25" r="5" fill="none" stroke="#9ca3af"
-                                stroke-width="2.5" style="display:none;" />
-                            <circle id="cat-hole-tail" cx="0" cy="163" r="5" fill="none" stroke="#9ca3af"
-                                stroke-width="2.5" style="display:none;" />
-                        </g>
-                    </svg>
-                </div>
+                                    <rect x="-25" y="10" width="50" height="35" rx="15" class="cat-main" stroke-width="2" />
+                                    <rect x="-15" y="15" width="30" height="25" rx="10" class="cat-sec" />
 
-                <div id="preview-flexibunny" class="preview-box">
-                    <p style="margin-top: 0; color: #4b5563; font-weight: bold; font-size: 14px;">Flexi Bunny Preview:
-                    </p>
+                                    <circle cx="-25" cy="20" r="7" class="cat-main" stroke-width="2" />
+                                    <circle cx="25" cy="20" r="7" class="cat-main" stroke-width="2" />
+                                    <circle cx="-20" cy="40" r="7" class="cat-main" stroke-width="2" />
+                                    <circle cx="20" cy="40" r="7" class="cat-main" stroke-width="2" />
 
-                    <div
-                        style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; justify-content: center;">
-                        <button type="button" class="theme-btn"
-                            onclick="setBunnyTheme('Strawberry', 'Red', 'White', 'Pink')"
-                            style="background: #fdf2f8; color: #ec4899; border: 1px solid #fbcfe8;">🍓
-                            Strawberry</button>
-                        <button type="button" class="theme-btn"
-                            onclick="setBunnyTheme('Mint', 'Green', 'White', 'Pink')"
-                            style="background: #eff6ff; color: #10b981; border: 1px solid #a7f3d0;">🧊 Mint</button>
-                        <button type="button" class="theme-btn"
-                            onclick="setBunnyTheme('Lemon', 'Yellow', 'White', 'Pink')"
-                            style="background: #fefce8; color: #ca8a04; border: 1px solid #fef08a;">🍋 Lemon</button>
-                        <button type="button" class="theme-btn"
-                            onclick="setBunnyTheme('Grape', 'Purple', 'White', 'Pink')"
-                            style="background: #f3e8ff; color: #7e22ce; border: 1px solid #e9d5ff;">🍇 Grape</button>
-                        <button type="button" class="theme-btn"
-                            onclick="setBunnyTheme('Peach', 'Pink', 'White', 'White')"
-                            style="background: #fef2f2; color: #ef4444; border: 1px solid #fecaca;">🍑 Peach</button>
-                        <button type="button" class="theme-btn"
-                            onclick="setBunnyTheme('Vanilla', 'White', 'White', 'Pink')"
-                            style="background: #f9fafb; color: #374151; border: 1px solid #d1d5db;">🍦 Vanilla</button>
-                    </div>
+                                    <polygon points="-25,-5 -35,-25 -10,-15" class="cat-main" stroke-width="2"
+                                        stroke-linejoin="round" />
+                                    <polygon points="-22,-7 -30,-20 -12,-13" class="cat-sec" />
+                                    <polygon points="25,-5 35,-25 10,-15" class="cat-main" stroke-width="2"
+                                        stroke-linejoin="round" />
+                                    <polygon points="22,-7 30,-20 12,-13" class="cat-sec" />
 
-                    <div id="flexibunny-img" style="margin-bottom: 15px;">
-                        <img id="flexibunny-real-image" src="" alt="Flexi Bunny Theme"
-                            style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: none;">
-                        <p style="font-size: 12px; color: #059669; margin-top: 5px;">✨ Exclusive Premium Edition (Colors
-                            Locked)</p>
-                    </div>
-                </div>
+                                    <ellipse cx="0" cy="0" rx="35" ry="22" class="cat-main" stroke-width="2" />
+                                    <ellipse cx="0" cy="5" rx="20" ry="12" class="cat-sec" />
 
-                <!-- DYNAMIC FIELDS -->
-                <div id="field-main-color" class="dynamic-field">
-                    <label for="id_filament_color">Main Color (Body) <b>身体<b>颜色</b></b> <i>Warna Badan</i>:</label>
-                    <select id="id_filament_color">
-                        <option value="Black">⚫ Black PLA 黑色 Hitam</option>
-                        <option value="White" selected>⚪ White PLA 白色 Putih</option>
-                        <option value="Red">🔴 Red PLA 红色 Merah</option>
-                        <option value="Blue">🔵 Blue PLA 蓝色 Biru</option>
-                        <option value="Green">🟢 Green PLA 绿色 Hijau</option>
-                        <option value="Pink">🌸 Pink PLA 粉色 Merah Jambu</option>
-                        <option value="Purple">🟣 Purple PLA 紫色 Ungu</option>
-                        <option value="Yellow">🟡 Yellow PLA 黄色 Kuning</option>
-                        <option value="Turquoise">💎 Turquoise PLA 蓝绿色 Firus</option>
-                        <option value="Light Blue">🧊 Light Blue PLA 浅蓝色 Biru Muda</option>
-                        <option value="Transparent">🌫️ Transparent PLA/PETG 透明 Lutsinar</option>
-                    </select>
-                </div>
+                                    <path d="M-15,-5 Q-10,-10 -5,-5" class="cat-ter" fill="none" stroke-width="2.5"
+                                        stroke-linecap="round" />
+                                    <path d="M5,-5 Q10,-10 15,-5" class="cat-ter" fill="none" stroke-width="2.5"
+                                        stroke-linecap="round" />
+                                    <circle cx="0" cy="1" r="2.5" class="cat-ter" />
+                                    <path d="M0,3 Q-4,7 -7,3 M0,3 Q4,7 7,3" class="cat-ter" fill="none" stroke-width="2"
+                                        stroke-linecap="round" />
+                                    <path d="M-5,-20 L0,-15 L5,-20" class="cat-ter" fill="none" stroke-width="2"
+                                        stroke-linecap="round" />
+                                    <path d="M-10,-18 L-5,-13" class="cat-ter" fill="none" stroke-width="2"
+                                        stroke-linecap="round" />
+                                    <path d="M10,-18 L5,-13" class="cat-ter" fill="none" stroke-width="2"
+                                        stroke-linecap="round" />
 
-                <div id="section-secondary-color" class="dynamic-field">
-                    <label id="label_secondary_color" for="id_secondary_color">Secondary Color (Belly/Details)
-                        <b>肚子或细节<b>颜色</b></b> <i>Warna Perut atau Perincian</i>:</label>
-                    <span class="helptext" id="helptext_secondary_color">Choose the same color as the Main Body for
-                        Single Color pricing.</span>
-                    <select id="id_secondary_color">
-                        <option value="None" selected>❌ None (Single Color) 无（单色） Tiada (Satu Warna)</option>
-                        <option value="Black">⚫ Black PLA 黑色 Hitam</option>
-                        <option value="White">⚪ White PLA 白色 Putih</option>
-                        <option value="Red">🔴 Red PLA 红色 Merah</option>
-                        <option value="Blue">🔵 Blue PLA 蓝色 Biru</option>
-                        <option value="Green">🟢 Green PLA 绿色 Hijau</option>
-                        <option value="Pink">🌸 Pink PLA 粉色 Merah Jambu</option>
-                        <option value="Purple">🟣 Purple PLA 紫色 Ungu</option>
-                        <option value="Yellow">🟡 Yellow PLA 黄色 Kuning</option>
-                        <option value="Turquoise">💎 Turquoise PLA 蓝绿色 Firus</option>
-                        <option value="Light Blue">🧊 Light Blue PLA 浅蓝色 Biru Muda</option>
-                        <option value="Transparent">🌫️ Transparent PLA/PETG 透明 Lutsinar</option>
-                    </select>
-                </div>
+                                    <circle id="cat-hole-ear" cx="32" cy="-22" r="5" fill="none" stroke="#ef4444"
+                                        stroke-width="2.5" style="display:none;" />
+                                    <circle id="cat-hole-head" cx="0" cy="-25" r="5" fill="none" stroke="#ef4444"
+                                        stroke-width="2.5" style="display:none;" />
+                                    <circle id="cat-hole-tail" cx="0" cy="163" r="5" fill="none" stroke="#ef4444"
+                                        stroke-width="2.5" style="display:none;" />
+                                </g>
+                            </svg>
+                            <div class="hole-badge" id="cat-hole-badge">📍 打孔位置：无孔 No Hole</div>
+                        </div>
 
-                <div id="section-tertiary-color" class="dynamic-field">
-                    <label for="id_tertiary_color">Tertiary Color (Stripes) <b>条纹<b>颜色</b></b> <i>Warna
-                            Jalur</i>:</label>
-                    <select id="id_tertiary_color">
-                        <option value="Black" selected>⚫ Black PLA 黑色 Hitam</option>
-                        <option value="White">⚪ White PLA 白色 Putih</option>
-                        <option value="Red">🔴 Red PLA 红色 Merah</option>
-                        <option value="Blue">🔵 Blue PLA 蓝色 Biru</option>
-                        <option value="Green">🟢 Green PLA 绿色 Hijau</option>
-                        <option value="Pink">🌸 Pink PLA 粉色 Merah Jambu</option>
-                        <option value="Purple">🟣 Purple PLA 紫色 Ungu</option>
-                        <option value="Yellow">🟡 Yellow PLA 黄色 Kuning</option>
-                        <option value="Turquoise">💎 Turquoise PLA 蓝绿色 Firus</option>
-                        <option value="Light Blue">🧊 Light Blue PLA 浅蓝色 Biru Muda</option>
-                        <option value="Transparent">🌫️ Transparent PLA/PETG 透明 Lutsinar</option>
-                    </select>
-                </div>
+                        <div id="preview-flexibunny" class="preview-box">
+                            <p style="margin-top: 0; color: #475569; font-weight: bold; font-size: 14px;">Flexi Bunny Preview <b>兔子主题选择</b>:
+                            </p>
 
-                <div id="field-name-color" class="dynamic-field">
-                    <label for="id_keychain_name_color">Name & Emoji Color <b>名字和表情的<b>颜色</b></b> <i>Warna Nama &
-                            Emoji</i>:</label>
-                    <select id="id_keychain_name_color">
-                        <option value="Black">⚫ Black PLA 黑色 Hitam</option>
-                        <option value="White" selected>⚪ White PLA 白色 Putih</option>
-                        <option value="Red">🔴 Red PLA 红色 Merah</option>
-                        <option value="Blue">🔵 Blue PLA 蓝色 Biru</option>
-                        <option value="Green">🟢 Green PLA 绿色 Hijau</option>
-                        <option value="Pink">🌸 Pink PLA 粉色 Merah Jambu</option>
-                        <option value="Purple">🟣 Purple PLA 紫色 Ungu</option>
-                        <option value="Yellow">🟡 Yellow PLA 黄色 Kuning</option>
-                        <option value="Turquoise">💎 Turquoise PLA 蓝绿色 Firus</option>
-                        <option value="Light Blue">🧊 Light Blue PLA 浅蓝色 Biru Muda</option>
-                        <option value="Transparent">🌫️ Transparent PLA/PETG 透明 Lutsinar</option>
-                    </select>
-                </div>
+                            <div
+                                style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; justify-content: center;">
+                                <button type="button" class="theme-btn" data-bunny-theme="Strawberry"
+                                    onclick="setBunnyTheme('Strawberry', 'Red', 'White', 'Pink')"
+                                    style="background: #fdf2f8; color: #ec4899; border: 1px solid #fbcfe8;">🍓
+                                    Strawberry</button>
+                                <button type="button" class="theme-btn" data-bunny-theme="Mint"
+                                    onclick="setBunnyTheme('Mint', 'Green', 'White', 'Pink')"
+                                    style="background: #eff6ff; color: #10b981; border: 1px solid #a7f3d0;">🧊 Mint</button>
+                                <button type="button" class="theme-btn" data-bunny-theme="Lemon"
+                                    onclick="setBunnyTheme('Lemon', 'Yellow', 'White', 'Pink')"
+                                    style="background: #fefce8; color: #ca8a04; border: 1px solid #fef08a;">🍋 Lemon</button>
+                                <button type="button" class="theme-btn" data-bunny-theme="Grape"
+                                    onclick="setBunnyTheme('Grape', 'Purple', 'White', 'Pink')"
+                                    style="background: #f3e8ff; color: #7e22ce; border: 1px solid #e9d5ff;">🍇 Grape</button>
+                                <button type="button" class="theme-btn" data-bunny-theme="Peach"
+                                    onclick="setBunnyTheme('Peach', 'Pink', 'White', 'White')"
+                                    style="background: #fef2f2; color: #ef4444; border: 1px solid #fecaca;">🍑 Peach</button>
+                                <button type="button" class="theme-btn" data-bunny-theme="Vanilla"
+                                    onclick="setBunnyTheme('Vanilla', 'White', 'White', 'Pink')"
+                                    style="background: #f9fafb; color: #374151; border: 1px solid #d1d5db;">🍦 Vanilla</button>
+                            </div>
 
-                <div id="field-text" class="dynamic-field">
-                    <label for="id_keychain_text">What name to write? <b>要写什么名字？</b> <i>Tulis nama apa?</i>:</label>
-                    <span class="helptext">Max 15 characters.</span>
-                    <input type="text" id="id_keychain_text" value="YOUR NAME" maxlength="15">
-                </div>
+                            <div id="flexibunny-img" style="margin-bottom: 10px;">
+                                <img id="flexibunny-real-image" src="" alt="Flexi Bunny Theme" loading="lazy"
+                                    style="max-width: 100%; max-height: 280px; height: auto; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.12); display: none;">
+                                <p style="font-size: 12px; color: #059669; margin-top: 6px;">✨ Exclusive Premium Edition (6款限定配色)</p>
+                            </div>
+                            <div class="hole-badge" id="bunny-hole-badge">📍 打孔位置：无孔 No Hole</div>
+                        </div>
 
-                <div id="field-emoji" class="dynamic-field">
-                    <label for="id_topper_emoji">Select an Emoji / 选择表情 / Pilih Emoji:</label>
-                    <select id="id_topper_emoji">
-                        <option value="None" selected>❌ No Emoji 无表情 Tiada Emoji</option>
-                        <option value="⚽">⚽ Soccer Ball</option>
-                        <option value="🦄">🦄 Unicorn</option>
-                        <option value="🤖">🤖 Robot</option>
-                        <option value="🌸">🌸 Flower</option>
-                        <option value="🎃">🎃 Pumpkin</option>
-                        <option value="💖">💖 Heart</option>
-                        <option value="⭐">⭐ Star</option>
-                        <option value="🐾">🐾 Paw Print</option>
-                        <option value="🦋">🦋 Butterfly</option>
-                        <option value="🔥">🔥 Fire</option>
-                        <option value="👑">👑 Crown</option>
-                    </select>
-                </div>
+                        <!-- INFO CARDS -->
+                        <div id="info-keychain" class="info-card">
+                            <strong>🔑 Name Keychain / <b>名字钥匙扣</b> / <i>Rantai Kunci Nama</i></strong><br>
+                            • Price 价格: Small 15mm (RM4), Medium 22mm (RM6), Large 30mm (RM9)<br>
+                            • Colors 颜色: Pick different colors for base and text! 可自由搭配底色和字色！<br>
+                            • Add Ring 加铁环 (+RM1.00): Hang it on your bag! 挂在书包上！
+                        </div>
 
-                <div id="field-font" class="dynamic-field">
-                    <label for="id_font_style">Font Style <b>字体选择</b> <i>Pilihan Fon</i>:</label>
-                    <select id="id_font_style">
-                        <option value="Archivo Black" style="font-family: 'Archivo Black', sans-serif;" selected>Archivo
-                            Black</option>
-                        <option value="Audiowide" style="font-family: 'Audiowide', cursive;">Audiowide</option>
-                        <option value="Bangers" style="font-family: 'Bangers', cursive;">Bangers</option>
-                        <option value="Bebas Neue" style="font-family: 'Bebas Neue', sans-serif;">Bebas Neue</option>
-                        <option value="Bungee" style="font-family: 'Bungee', cursive;">Bungee</option>
-                        <option value="Changa One" style="font-family: 'Changa One', cursive;">Changa One</option>
-                        <option value="DynaPuff" style="font-family: 'DynaPuff', cursive;">DynaPuff</option>
-                        <option value="Noto Sans" style="font-family: 'Noto Sans', sans-serif; font-weight: 700;">Noto
-                            Sans</option>
-                        <option value="Pacifico" style="font-family: 'Pacifico', cursive;">Pacifico</option>
-                        <option value="Poppins" style="font-family: 'Poppins', sans-serif; font-weight: 700;">Poppins
-                        </option>
-                        <option value="Press Start 2P" style="font-family: 'Press Start 2P', cursive;">Press Start 2P
-                        </option>
-                    </select>
-                </div>
+                        <div id="info-tumbler" class="info-card">
+                            <strong>🥤 Mini Tumbler / <b>迷你保温杯（润唇膏盒）</b> / <i>Tumbler Mini</i></strong><br>
+                            • 1 Color 单色 (RM9.00) | 2 Colors 双色 (RM11.00)<br>
+                            • Add Ring 加铁环 (+RM1.00): Hang it on your bag! 挂在书包上！
+                        </div>
 
-                <div id="field-width" class="dynamic-field">
-                    <label for="id_keychain_width">Keychain Size / 钥匙扣尺寸 / Saiz Rantai Kunci:</label>
-                    <span class="helptext">Select the size of your keychain.</span>
-                    <select id="id_keychain_width" required>
-                        <option value="15" selected>Small (15mm) 小 Kecil - RM 4.00</option>
-                        <option value="22">Medium (22mm) 中 Sederhana - RM 6.00</option>
-                        <option value="30">Large (30mm) 大 Besar - RM 9.00</option>
-                    </select>
-                </div>
+                        <div id="info-topper" class="info-card">
+                            <strong>✏️ Pencil Topper / <b>铅笔套（名字和表情）</b> / <i>Penutup Pensel</i></strong><br>
+                            • Price 价格: RM3.00 - RM10.00 (Depends on name length 根据名字长度计算)<br>
+                            • Put it on your pencil! 放在铅笔上！
+                        </div>
 
-                <div id="section-cat-hole" class="dynamic-field">
-                    <label for="id_cat_keychain_hole">Keychain Ring Hole Position / 打孔位置 / Posisi Lubang:</label>
-                    <select id="id_cat_keychain_hole">
-                        <option value="None" selected>❌ No Hole 无孔 Tiada Lubang</option>
-                        <option value="Ear">👂 Right Ear 右耳 Telinga Kanan</option>
-                        <option value="Tail">🐈 Tail Tip 尾巴尖 Hujung Ekor</option>
-                        <option value="Head">🗣️ Top of Head 头顶 Atas Kepala</option>
-                    </select>
-                </div>
+                        <div id="info-flexicat" class="info-card"
+                            style="border-left-color: #ec4899; background-color: #fdf2f8; color: #831843;">
+                            <strong>🐱 Flexi Cat / <b>软体猫咪</b> / <i>Kucing Flexi</i></strong><br>
+                            • Price 价格: <strong>RM20.00</strong> | Choose up to 3 colors! 最多可选择3种颜色！<br>
+                            • 🎁 <strong>Free Metal Ring! 免费送铁环！</strong> <i>Percuma gelang besi!</i>
+                        </div>
 
-                <div id="section-ring-add-on" class="dynamic-field">
-                    <div class="checkbox-row">
-                        <input type="checkbox" id="id_add_keychain_ring" style="width: auto; transform: scale(1.5);">
-                        <label for="id_add_keychain_ring">Add Metal Ring (+RM1.00) <b>加铁环</b> (+RM1.00) <i>Tambah Gelang
-                                Besi (+RM1.00)</i></label>
+                        <div id="info-flexibunny" class="info-card"
+                            style="border-left-color: #a855f7; background-color: #faf5ff; color: #581c87;">
+                            <strong>🐰 Flexi Bunny / <b>可爱复活兔</b> / <i>Arnab Flexi</i></strong><br>
+                            • Price 价格: <strong>RM20.00</strong> | Choose from 6 cute themes! 有6个可爱主题选择！<br>
+                            • 🎁 <strong>Free Metal Ring! 免费送铁环！</strong> <i>Percuma gelang besi!</i>
+                        </div>
+
+                        <div id="info-makerworld" class="info-card"
+                            style="border-left-color: #ea580c; background-color: #fff7ed; color: #7c2d12;">
+                            <strong>🌐 MakerWorld Custom Model / <b>自选模型评估</b> / <i>Model Pilihan Sendiri</i></strong><br>
+                            找不到喜欢的款式？点击下方绿色按钮去 MakerWorld 逛一逛，选好模型后把链接粘贴到左侧提交即可！潘老师会远程帮你切片检查可印性并报价。<br>
+                            <i>Tak jumpa rekaan yang diminati? Pilih model dari MakerWorld dan hantarkan pautan untuk semakan harga oleh cikgu!</i>
+                            <a href="https://makerworld.com" target="_blank" rel="noopener noreferrer" class="mw-open-btn">
+                                🚀 前往 MakerWorld.com 挑选模型 (新窗口打开)
+                            </a>
+                        </div>
+
+                        <!-- 数量与结算区 -->
+                        <div class="checkout-card">
+                            <label for="id_quantity">Quantity <b>数量</b> <i>Kuantiti</i>:</label>
+                            <input type="number" id="id_quantity" value="1" min="1" max="50" required>
+
+                            <div class="price-box" id="price-box">
+                                <div id="price-main-line">
+                                    Estimated Cost <b>预计费用</b> <i>Harga Anggaran</i>: RM <span id="live-price">0.00</span>
+                                </div>
+                                <div class="price-breakdown" id="price-breakdown">Calculating...</div>
+                            </div>
+
+                            <button type="submit" id="btn-submit-order" class="btn submit-btn">
+                                Print Now! <b>现在打印！</b> <i>Cetak Sekarang!</i>
+                            </button>
+                        </div>
                     </div>
                 </div>
-
-                <label for="id_quantity">Quantity / 数量 / Kuantiti:</label>
-                <input type="number" id="id_quantity" value="1" min="1" required>
-
-                <div class="price-box">
-                    Estimated Cost <b>预计费用</b> <i>Harga Anggaran</i>: RM <span id="live-price">0.00</span>
-                    <div class="price-breakdown" id="price-breakdown">Calculating...</div>
-                </div>
-
-                <button type="submit" class="btn submit-btn">Print Now! <b>现在打印！</b> <i>Cetak Sekarang!</i></button>
             </form>
+        </div>
+
+        <div class="admin-footer-link">
+            <a href="admin.html">⚙️ 老师远程报价与管理后台 (Teacher Admin Portal)</a>
+        </div>
+    </div>
+
+    <!-- 提交前二次确认弹窗 -->
+    <div id="confirm-modal" class="modal-backdrop">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>📝 Confirm Order 核对订单内容</h3>
+                <button type="button" class="modal-close-btn" onclick="closeConfirmModal()">✕</button>
+            </div>
+            <div class="modal-body" id="confirm-modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeConfirmModal()">返回修改 Back</button>
+                <button type="button" class="btn-primary-sm" onclick="executeOrderSubmission()">✅ 确认提交 Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 现场订单与报价看板弹窗 -->
+    <div id="booth-orders-modal" class="modal-backdrop">
+        <div class="modal-card wide">
+            <div class="modal-header">
+                <h3>📋 义卖会现场订单 & 报价看板 (Booth Board)</h3>
+                <button type="button" class="modal-close-btn" onclick="closeBoothBoard()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
+                    <div class="board-tabs" style="margin-bottom: 0;">
+                        <button type="button" class="board-tab-btn active" data-filter="all"
+                            onclick="setBoardFilter('all')">全部订单</button>
+                        <button type="button" class="board-tab-btn" data-filter="quotes"
+                            onclick="setBoardFilter('quotes')">⚡ MakerWorld 报价</button>
+                        <button type="button" class="board-tab-btn" data-filter="active"
+                            onclick="setBoardFilter('active')">✅ 已确认/打印</button>
+                    </div>
+                    <button type="button" class="btn-xs" style="background: #f1f5f9; color: #334155;"
+                        onclick="pollServerState(true)">🔄 立即刷新</button>
+                </div>
+                <div id="booth-orders-list">
+                    <p style="text-align: center; color: #64748b;">正在加载订单数据...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <span style="font-size: 12px; color: #64748b; margin-right: auto;">每 10 秒自动同步老师远程报价</span>
+                <button type="button" class="btn-secondary" onclick="closeBoothBoard()">关闭 Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 右下角实时聊天窗口（现场学生 <-> 潘老师） -->
+    <div id="booth-chat-box">
+        <div class="chat-header">
+            <span>💬 呼叫潘老师 (实时连线)</span>
+            <button type="button" onclick="toggleChatBox(false)"
+                style="background: rgba(255,255,255,0.2); border: none; color: #fff; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; font-weight: bold;">✕</button>
+        </div>
+        <div class="chat-messages" id="booth-chat-messages">
+            <div style="text-align: center; font-size: 12px; color: #64748b; margin-top: 20px;">
+                有疑问或刚提交了自定义模型？发消息直接联系潘老师！
+            </div>
+        </div>
+        <div class="chat-quick-chips">
+            <button type="button" class="chat-chip"
+                onclick="sendQuickChat('老师，刚有顾客提交了 MakerWorld 模型求报价！')">🙋 有新模型求报价</button>
+            <button type="button" class="chat-chip"
+                onclick="sendQuickChat('老师，顾客问大概什么时候可以拿到成品？')">⏱️ 问打印时间</button>
+            <button type="button" class="chat-chip"
+                onclick="sendQuickChat('老师，顾客想修改刚才的订单可以吗？')">✏️ 想改订单</button>
+        </div>
+        <div class="chat-input-row">
+            <input type="text" id="booth-chat-input" placeholder="输入消息给潘老师..."
+                onkeydown="if(event.key==='Enter'){event.preventDefault();sendBoothChat();}">
+            <button type="button" class="chat-send-btn" onclick="sendBoothChat()">发送</button>
         </div>
     </div>
 
     <script>
-        // REPLACE THIS URL WITH YOUR GOOGLE APPS SCRIPT WEB APP URL
+        // Google Apps Script Web App URL (与 Code.gs 部署后的网址保持一致)
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzy7WXbRMLGd78p8jQT6UlrEAD33x-FpmHgxMLP8OkZSx8jJqwhgrx4Oix3kJTAdjzF_w/exec';
+
+        const LOCAL_ORDERS_KEY = 'peiching_3dhub_orders';
+        const LOCAL_CHAT_KEY = 'peiching_3dhub_chats';
+        const LAST_SEEN_CHAT_KEY = 'peiching_3dhub_booth_seen_chat';
+        const LOCAL_TG_TOKEN_KEY = 'peiching_3dhub_tg_token';
+        const LOCAL_TG_CHAT_KEY = 'peiching_3dhub_tg_chat_id';
+
+        let tgBotToken = localStorage.getItem(LOCAL_TG_TOKEN_KEY) || '';
+        let tgChatId = localStorage.getItem(LOCAL_TG_CHAT_KEY) || '';
 
         const colorMap = {
             'Black': { base: '#1f2937', stroke: '#111827', text: '#ffffff', isTrans: false },
@@ -682,15 +1778,141 @@
         ];
 
         const bunnyThemes = [
-            { id: 'strawberry', main: 'Red', sec: 'White', ter: 'Pink', img: 'strawberry.png' },
-            { id: 'mint', main: 'Green', sec: 'White', ter: 'Pink', img: 'mint.png' },
-            { id: 'lemon', main: 'Yellow', sec: 'White', ter: 'Pink', img: 'lemon.png' },
-            { id: 'grape', main: 'Purple', sec: 'White', ter: 'Pink', img: 'grape.png' },
-            { id: 'peach', main: 'Pink', sec: 'White', ter: 'White', img: 'peach.png' },
-            { id: 'vanilla', main: 'White', sec: 'White', ter: 'Pink', img: 'vanilla.png' }
+            { id: 'Strawberry', main: 'Red', sec: 'White', ter: 'Pink', img: 'strawberry.png' },
+            { id: 'Mint', main: 'Green', sec: 'White', ter: 'Pink', img: 'mint.png' },
+            { id: 'Lemon', main: 'Yellow', sec: 'White', ter: 'Pink', img: 'lemon.png' },
+            { id: 'Grape', main: 'Purple', sec: 'White', ter: 'Pink', img: 'grape.png' },
+            { id: 'Peach', main: 'Pink', sec: 'White', ter: 'White', img: 'peach.png' },
+            { id: 'Vanilla', main: 'White', sec: 'White', ter: 'Pink', img: 'vanilla.png' }
         ];
 
+        const holeLabelMap = {
+            'None': '📍 打孔位置：无孔 No Hole / Tiada Lubang',
+            'Ear': '📍 打孔位置：右耳 Right Ear / Telinga Kanan',
+            'Tail': '📍 打孔位置：尾巴尖 Tail Tip / Hujung Ekor',
+            'Head': '📍 打孔位置：头顶 Top of Head / Atas Kepala'
+        };
+
         let currentPrice = 0.00;
+        let currentBunnyTheme = 'Strawberry';
+        let pendingFormData = null;
+        let soundEnabled = true;
+        let serverOrders = [];
+        let serverChats = [];
+        let boardFilter = 'all';
+        let knownOrderStatuses = {};
+        let knownChatCount = 0;
+        let hasInitialPoll = false;
+        let toastTimer = null;
+        let toastAction = null;
+
+        function escapeHtml(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function sanitizeHttpUrl(url) {
+            const trimmed = String(url || '').trim();
+            if (/^https?:\/\//i.test(trimmed)) return trimmed;
+            return '';
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('btn-sound-toggle');
+            btn.innerText = soundEnabled ? '🔔 提示音: 开' : '🔕 提示音: 关';
+            if (soundEnabled) playNotificationBeep();
+        }
+
+        function playNotificationBeep() {
+            if (!soundEnabled) return;
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                const now = ctx.currentTime;
+                [587.33, 880].forEach((freq, idx) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+                    gain.gain.setValueAtTime(0.14, now + idx * 0.12);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.25);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now + idx * 0.12);
+                    osc.stop(now + idx * 0.12 + 0.26);
+                });
+            } catch (e) {
+                // Ignore AudioContext autoplay restrictions before user gesture
+            }
+        }
+
+        function showToast(text, actionType) {
+            const banner = document.getElementById('live-toast-banner');
+            document.getElementById('live-toast-text').innerText = text;
+            toastAction = actionType || null;
+            banner.classList.add('show');
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => banner.classList.remove('show'), 5500);
+        }
+
+        function handleToastClick() {
+            document.getElementById('live-toast-banner').classList.remove('show');
+            if (toastAction === 'board') openBoothBoard();
+            if (toastAction === 'chat') toggleChatBox(true);
+        }
+
+        function renderColorSwatches() {
+            document.querySelectorAll('.swatch-row').forEach(container => {
+                const targetId = container.getAttribute('data-target');
+                const selectEl = document.getElementById(targetId);
+                if (!selectEl) return;
+
+                container.innerHTML = '';
+                Array.from(selectEl.options).forEach(opt => {
+                    if (opt.hidden || opt.disabled) return;
+                    const val = opt.value;
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'color-swatch-btn';
+                    btn.title = opt.text;
+                    btn.setAttribute('data-val', val);
+
+                    if (val === 'None') {
+                        btn.classList.add('swatch-none');
+                        btn.innerText = '✕';
+                    } else if (val === 'Transparent') {
+                        btn.classList.add('swatch-transparent');
+                    } else if (colorMap[val]) {
+                        btn.style.backgroundColor = colorMap[val].base;
+                    }
+
+                    if (selectEl.value === val) {
+                        btn.classList.add('active');
+                    }
+
+                    btn.addEventListener('click', function () {
+                        selectEl.value = val;
+                        updateUI();
+                    });
+                    container.appendChild(btn);
+                });
+            });
+        }
+
+        function selectModelCard(modelVal) {
+            const selectEl = document.getElementById('id_model_choice');
+            selectEl.value = modelVal;
+            document.querySelectorAll('.model-card').forEach(card => {
+                card.classList.toggle('active', card.getAttribute('data-value') === modelVal);
+            });
+            updateUI();
+        }
 
         function setCatTheme(mainColor, secondaryColor, tertiaryColor) {
             document.getElementById('id_filament_color').value = mainColor;
@@ -700,20 +1922,32 @@
         }
 
         function setBunnyTheme(themeName, mainColor, secColor, terColor) {
+            currentBunnyTheme = themeName;
             document.getElementById('id_filament_color').value = mainColor;
             document.getElementById('id_secondary_color').value = secColor;
             document.getElementById('id_tertiary_color').value = terColor;
-            updatePreviewAndPrice();
+            document.querySelectorAll('[data-bunny-theme]').forEach(btn => {
+                btn.classList.toggle('active-theme', btn.getAttribute('data-bunny-theme') === themeName);
+            });
+            updateUI();
         }
+
+        let previousModelChoice = '';
 
         function updateUI() {
             const modelChoice = document.getElementById('id_model_choice').value;
+            const modelChanged = modelChoice !== previousModelChoice;
+            previousModelChoice = modelChoice;
+
+            document.querySelectorAll('.model-card').forEach(card => {
+                card.classList.toggle('active', card.getAttribute('data-value') === modelChoice);
+            });
 
             document.querySelectorAll('.dynamic-field').forEach(el => el.style.display = 'none');
             document.querySelectorAll('.info-card').forEach(el => el.style.display = 'none');
             document.querySelectorAll('.preview-box').forEach(el => el.style.display = 'none');
 
-            // Dynamically hide the "Head" hole option for the Bunny
+            // 动态控制兔子 "Head" 打孔选项
             const holeSelect = document.getElementById('id_cat_keychain_hole');
             if (holeSelect) {
                 Array.from(holeSelect.options).forEach(opt => {
@@ -730,6 +1964,48 @@
                 });
             }
 
+            // 控制副色中的 "None" 选项 (Flexi_Cat 和 MakerWorld多色不允许选 None)
+            const secSelect = document.getElementById('id_secondary_color');
+            const mwColorMode = document.getElementById('id_mw_color_mode').value;
+            const hideNoneInSec = (modelChoice === 'Flexi_Cat' || (modelChoice === 'MakerWorld' && mwColorMode === 'AMS_4Color'));
+            if (secSelect) {
+                Array.from(secSelect.options).forEach(opt => {
+                    if (opt.value === 'None') {
+                        opt.disabled = hideNoneInSec;
+                        opt.hidden = hideNoneInSec;
+                    }
+                });
+                if (hideNoneInSec && secSelect.value === 'None') {
+                    secSelect.value = 'White';
+                }
+            }
+
+            // 更新铁环文案与默认勾选状态
+            const ringLabel = document.getElementById('label_ring_addon');
+            const ringCheckbox = document.getElementById('id_add_keychain_ring');
+            if (modelChoice === 'Flexi_Cat' || modelChoice === 'Flexi_Bunny') {
+                ringLabel.innerHTML = '🎁 Add Metal Ring (FREE!) <b>免费附送铁环 (RM0.00)</b> <i>Percuma Gelang Besi (RM0.00)</i>';
+                if (modelChanged && holeSelect.value !== 'None') {
+                    ringCheckbox.checked = true;
+                }
+            } else {
+                ringLabel.innerHTML = 'Add Metal Ring (+RM1.00) <b>加铁环 (+RM1.00)</b> <i>Tambah Gelang Besi (+RM1.00)</i>';
+            }
+
+            // 更新主色标签
+            const mainLabel = document.getElementById('label_main_color');
+            if (modelChoice === 'Keychain' || modelChoice === 'Topper') {
+                mainLabel.innerHTML = 'Base Color <b>底板颜色</b> <i>Warna Tapak</i>:';
+            } else if (modelChoice === 'Tumbler') {
+                mainLabel.innerHTML = 'Main Color (Tumbler Body) <b>杯身颜色</b> <i>Warna Badan Tumbler</i>:';
+            } else if (modelChoice === 'MakerWorld') {
+                mainLabel.innerHTML = (mwColorMode === 'AMS_4Color')
+                    ? '1st Preferred Color (Main) <b>第一种期望主色</b> <i>Warna Pilihan Pertama</i>:'
+                    : 'Preferred Filament Color <b>期望打印颜色（单色）</b> <i>Warna Pilihan</i>:';
+            } else {
+                mainLabel.innerHTML = 'Main Color (Body) <b>身体颜色</b> <i>Warna Badan</i>:';
+            }
+
             if (modelChoice === 'Keychain') {
                 document.getElementById('info-keychain').style.display = 'block';
                 document.getElementById('preview-keychain').style.display = 'block';
@@ -744,8 +2020,10 @@
                 document.getElementById('info-tumbler').style.display = 'block';
                 document.getElementById('preview-tumbler').style.display = 'block';
                 document.getElementById('field-main-color').style.display = 'block';
-                document.getElementById('label_secondary_color').innerText = "Secondary Color (Lid & Straw):";
-                document.getElementById('helptext_secondary_color').innerText = "Choose the same color as the Main Body for Single Color pricing.";
+                document.getElementById('label_secondary_color').innerHTML =
+                    'Secondary Color (Lid & Straw) <b>杯盖与吸管颜色</b> <i>Warna Penutup & Straw</i>:';
+                document.getElementById('helptext_secondary_color').innerHTML =
+                    'Choose "None" or same color as Main Body for Single Color pricing. <b>选“无”或与杯身同色按单色计价。</b>';
                 document.getElementById('section-secondary-color').style.display = 'block';
                 document.getElementById('section-ring-add-on').style.display = 'block';
 
@@ -762,15 +2040,18 @@
                 document.getElementById('info-flexicat').style.display = 'block';
                 document.getElementById('preview-flexicat').style.display = 'block';
                 document.getElementById('field-main-color').style.display = 'block';
-
-                document.getElementById('label_secondary_color').innerText = "Secondary Color (Belly, Snout, Paws):";
-                document.getElementById('helptext_secondary_color').innerText = "";
+                document.getElementById('label_secondary_color').innerHTML =
+                    'Secondary Color (Belly, Snout, Paws) <b>肚子、嘴巴与爪子颜色</b> <i>Warna Perut, Muncung & Kaki</i>:';
+                document.getElementById('helptext_secondary_color').innerText = '';
                 document.getElementById('section-secondary-color').style.display = 'block';
+                document.getElementById('label_tertiary_color').innerHTML =
+                    'Tertiary Color (Stripes & Face) <b>条纹与五官颜色</b> <i>Warna Jalur & Muka</i>:';
                 document.getElementById('section-tertiary-color').style.display = 'block';
                 document.getElementById('section-cat-hole').style.display = 'block';
 
-                if (document.getElementById('id_cat_keychain_hole').value !== 'None') {
+                if (holeSelect.value !== 'None') {
                     document.getElementById('section-ring-add-on').style.display = 'block';
+                    if (modelChanged) ringCheckbox.checked = true;
                 }
 
             } else if (modelChoice === 'Flexi_Bunny') {
@@ -778,35 +2059,90 @@
                 document.getElementById('preview-flexibunny').style.display = 'block';
                 document.getElementById('section-cat-hole').style.display = 'block';
 
-                if (document.getElementById('id_cat_keychain_hole').value !== 'None') {
+                if (holeSelect.value !== 'None') {
                     document.getElementById('section-ring-add-on').style.display = 'block';
+                    if (modelChanged) ringCheckbox.checked = true;
                 }
 
                 const currMain = document.getElementById('id_filament_color').value;
-                const validBunnyColors = ['Red', 'Green', 'Yellow', 'Purple', 'Pink', 'White'];
-                if (!validBunnyColors.includes(currMain)) {
-                    setBunnyTheme('Strawberry', 'Red', 'White', 'Pink');
+                const validBunny = bunnyThemes.find(t => t.main === currMain);
+                if (!validBunny) {
+                    currentBunnyTheme = 'Strawberry';
+                    document.getElementById('id_filament_color').value = 'Red';
+                    document.getElementById('id_secondary_color').value = 'White';
+                    document.getElementById('id_tertiary_color').value = 'Pink';
+                } else {
+                    currentBunnyTheme = validBunny.id;
+                }
+                document.querySelectorAll('[data-bunny-theme]').forEach(btn => {
+                    btn.classList.toggle('active-theme', btn.getAttribute('data-bunny-theme') === currentBunnyTheme);
+                });
+
+            } else if (modelChoice === 'MakerWorld') {
+                document.getElementById('info-makerworld').style.display = 'block';
+                document.getElementById('section-makerworld').style.display = 'block';
+                document.getElementById('field-main-color').style.display = 'block';
+                document.getElementById('section-mw-notes').style.display = 'block';
+
+                if (mwColorMode === 'AMS_4Color') {
+                    document.getElementById('label_secondary_color').innerHTML =
+                        '2nd Preferred Color <b>第二种期望颜色</b> <i>Warna Pilihan Ke-2</i>:';
+                    document.getElementById('helptext_secondary_color').innerText =
+                        'AMS 最多支持 4 色打印。';
+                    document.getElementById('section-secondary-color').style.display = 'block';
+                    document.getElementById('label_tertiary_color').innerHTML =
+                        '3rd Preferred Color <b>第三种期望颜色</b> <i>Warna Pilihan Ke-3</i>:';
+                    document.getElementById('section-tertiary-color').style.display = 'block';
+                    document.getElementById('section-fourth-color').style.display = 'block';
                 }
             }
 
+            renderColorSwatches();
             updatePreviewAndPrice();
         }
 
         function updatePreviewAndPrice() {
             const modelChoice = document.getElementById('id_model_choice').value;
-            const quantity = parseInt(document.getElementById('id_quantity').value) || 1;
+            const quantity = Math.max(1, parseInt(document.getElementById('id_quantity').value, 10) || 1);
             const mainColor = document.getElementById('id_filament_color').value;
             const nameColor = document.getElementById('id_keychain_name_color').value;
             const addRing = document.getElementById('id_add_keychain_ring').checked;
 
-            const nameInput = document.getElementById('id_keychain_text').value.trim() || 'NAME';
+            const rawNameInput = document.getElementById('id_keychain_text').value.trim();
+            const previewName = rawNameInput || 'YOUR NAME';
             const fontSelect = document.getElementById('id_font_style').value;
             const mainColors = colorMap[mainColor] || colorMap['White'];
             const textColors = colorMap[nameColor] || colorMap['White'];
 
+            // 同色预警检查
+            const sameColorBanner = document.getElementById('same-color-warning');
+            if ((modelChoice === 'Keychain' || modelChoice === 'Topper') && mainColor === nameColor) {
+                sameColorBanner.style.display = 'block';
+            } else {
+                sameColorBanner.style.display = 'none';
+            }
+
+            const priceBox = document.getElementById('price-box');
+            const priceMainLine = document.getElementById('price-main-line');
+            const submitBtn = document.getElementById('btn-submit-order');
+
             let perItem = 0.00;
             let breakdown = "";
             let ringCost = addRing ? 1.00 : 0.00;
+
+            if (modelChoice === 'MakerWorld') {
+                priceBox.classList.add('quote-mode');
+                priceMainLine.innerHTML = '待老师评估报价 <b>To Be Quoted</b> <i>Harga Akan Dinilai</i>';
+                document.getElementById('price-breakdown').innerHTML =
+                    `提交后潘老师会用切片软件检查是否能印、计算耗材与时间，并通过右上角「现场订单看板」发送报价（数量: ${quantity} 件）。`;
+                submitBtn.innerHTML = '📨 提交给老师评估报价 <b>Submit for Quote</b> <i>Hantar untuk Sebut Harga</i>';
+                currentPrice = 0;
+                return;
+            }
+
+            priceBox.classList.remove('quote-mode');
+            priceMainLine.innerHTML = 'Estimated Cost <b>预计费用</b> <i>Harga Anggaran</i>: RM <span id="live-price">0.00</span>';
+            submitBtn.innerHTML = 'Print Now! <b>现在打印！</b> <i>Cetak Sekarang!</i>';
 
             if (modelChoice === 'Keychain') {
                 const kcText = document.getElementById('kc-text');
@@ -814,7 +2150,7 @@
                 const kcRing = document.getElementById('kc-ring');
 
                 if (kcText && kcBase && kcRing) {
-                    kcText.textContent = nameInput;
+                    kcText.textContent = previewName;
                     kcText.setAttribute('font-family', ['Audiowide', 'Bangers', 'Bungee', 'Changa One', 'DynaPuff', 'Pacifico', 'Press Start 2P'].includes(fontSelect) ? `'${fontSelect}', cursive` : `'${fontSelect}', sans-serif`);
                     kcText.setAttribute('font-size', fontSelect === 'Press Start 2P' ? '12' : '20');
                     kcBase.setAttribute('fill', mainColors.base);
@@ -825,7 +2161,7 @@
                     kcText.setAttribute('stroke', textColors.stroke);
                 }
 
-                const width = parseInt(document.getElementById('id_keychain_width').value) || 15;
+                const width = parseInt(document.getElementById('id_keychain_width').value, 10) || 15;
                 let keychainBasePrice = 4.00;
                 if (width === 22) keychainBasePrice = 6.00;
                 if (width === 30) keychainBasePrice = 9.00;
@@ -838,16 +2174,20 @@
                 const topperText = document.getElementById('topper-text');
                 const topperBase = document.getElementById('topper-base');
                 const emoji = document.getElementById('id_topper_emoji').value;
+                const displayTopperName = rawNameInput || 'NAME';
 
-                let charCountForWidth = nameInput.length;
-                let innerContent = nameInput;
-                if (emoji !== 'None') {
-                    charCountForWidth += 2;
-                    innerContent += ` <tspan font-family="'Noto Emoji', sans-serif">${emoji}</tspan>`;
-                }
-
+                let charCountForWidth = displayTopperName.length;
                 if (topperText && topperBase) {
-                    topperText.innerHTML = innerContent;
+                    topperText.textContent = '';
+                    topperText.appendChild(document.createTextNode(displayTopperName));
+                    if (emoji !== 'None') {
+                        charCountForWidth += 2;
+                        topperText.appendChild(document.createTextNode(' '));
+                        const tspan = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+                        tspan.setAttribute('font-family', "'Noto Emoji', sans-serif");
+                        tspan.textContent = emoji;
+                        topperText.appendChild(tspan);
+                    }
                     topperText.setAttribute('font-family', ['Audiowide', 'Bangers', 'Bungee', 'Changa One', 'DynaPuff', 'Pacifico', 'Press Start 2P'].includes(fontSelect) ? `'${fontSelect}', cursive` : `'${fontSelect}', sans-serif`);
                     topperText.setAttribute('font-size', fontSelect === 'Press Start 2P' ? '12' : '18');
                     topperBase.setAttribute('fill', mainColors.base);
@@ -863,9 +2203,8 @@
                     topperText.setAttribute('x', 180 - (dynamicWidth / 2));
                 }
 
-                let charCount = nameInput.length;
+                let charCount = displayTopperName.length;
                 if (emoji !== 'None') charCount += 2;
-
                 let extraChars = Math.max(0, charCount - 4);
                 let rawPrice = 3.0 + (extraChars * 0.6);
                 let topperBasePrice = Math.min(10.0, Math.ceil(rawPrice));
@@ -892,7 +2231,6 @@
 
                 let tumblerBasePrice = (secondaryColor === 'None' || mainColor === secondaryColor) ? 9.00 : 11.00;
                 perItem = tumblerBasePrice + ringCost;
-
                 breakdown = `Tumbler Base: RM${tumblerBasePrice.toFixed(2)}`;
                 if (ringCost > 0) breakdown += ` | Keychain Ring: +RM${ringCost.toFixed(2)}`;
 
@@ -906,6 +2244,10 @@
                     const terColors = colorMap[terColorVal] || colorMap['Black'];
 
                     const matchedTheme = catThemes.find(t => t.main === mainColor && t.sec === secColorVal && t.ter === terColorVal);
+                    document.querySelectorAll('[data-cat-theme]').forEach(btn => {
+                        btn.classList.toggle('active-theme', Boolean(matchedTheme && btn.getAttribute('data-cat-theme') === matchedTheme.id));
+                    });
+
                     const svgPreview = document.getElementById('flexicat-svg');
                     const imgDiv = document.getElementById('flexicat-img');
                     const imgEl = document.getElementById('flexicat-real-image');
@@ -938,33 +2280,706 @@
                     document.getElementById('cat-hole-ear').style.display = (hole === 'Ear') ? 'block' : 'none';
                     document.getElementById('cat-hole-head').style.display = (hole === 'Head') ? 'block' : 'none';
                     document.getElementById('cat-hole-tail').style.display = (hole === 'Tail') ? 'block' : 'none';
+                    document.getElementById('cat-hole-badge').innerText = holeLabelMap[hole] || holeLabelMap['None'];
                 } else {
-                    const matchedTheme = bunnyThemes.find(t => t.main === mainColor && t.sec === secColorVal && t.ter === terColorVal);
+                    const matchedTheme = bunnyThemes.find(t => t.id === currentBunnyTheme) ||
+                        bunnyThemes.find(t => t.main === mainColor && t.sec === secColorVal && t.ter === terColorVal);
                     const imgEl = document.getElementById('flexibunny-real-image');
-
                     if (matchedTheme && matchedTheme.img) {
                         imgEl.src = matchedTheme.img;
                         imgEl.style.display = 'block';
                     } else {
                         imgEl.style.display = 'none';
                     }
+                    document.getElementById('bunny-hole-badge').innerText = holeLabelMap[hole] || holeLabelMap['None'];
                 }
 
                 let itemName = modelChoice === 'Flexi_Cat' ? 'Flexi Cat' : 'Flexi Bunny';
                 perItem = 20.00;
                 breakdown = `${itemName} Premium Base: RM20.00`;
-
                 if (hole !== 'None' && addRing) {
-                    breakdown += ` | Keychain Ring: Free`;
+                    breakdown += ` | Keychain Ring: Free 免费`;
                 }
             }
 
             currentPrice = perItem * quantity;
-            breakdown += `<br>(RM${perItem.toFixed(2)} x ${quantity} pcs)`;
+            breakdown += `<br>(RM${perItem.toFixed(2)} × ${quantity} pcs)`;
 
-            document.getElementById('live-price').innerText = currentPrice.toFixed(2);
+            const livePriceEl = document.getElementById('live-price');
+            if (livePriceEl) livePriceEl.innerText = currentPrice.toFixed(2);
             document.getElementById('price-breakdown').innerHTML = breakdown;
         }
+
+        function buildOrderSummaryText(d) {
+            if (d.model_choice === 'Keychain') {
+                return `名字: "${d.keychain_text}" | ${d.keychain_width}mm | 底:${d.filament_color} 字:${d.keychain_name_color} | 字体:${d.font_style} | 铁环:${d.add_keychain_ring ? '加(+RM1)' : '无'}`;
+            }
+            if (d.model_choice === 'Tumbler') {
+                return `杯身:${d.filament_color} | 杯盖/吸管:${d.secondary_color} | 铁环:${d.add_keychain_ring ? '加(+RM1)' : '无'}`;
+            }
+            if (d.model_choice === 'Topper') {
+                return `名字: "${d.keychain_text}" | 表情:${d.topper_emoji} | 底:${d.filament_color} 字:${d.keychain_name_color} | 字体:${d.font_style}`;
+            }
+            if (d.model_choice === 'Flexi_Cat') {
+                return `主色:${d.filament_color} | 副色:${d.secondary_color} | 条纹:${d.tertiary_color} | 孔位:${d.cat_keychain_hole} | 铁环:${d.add_keychain_ring ? '免费送' : '无'}`;
+            }
+            if (d.model_choice === 'Flexi_Bunny') {
+                return `主题:${d.bunny_theme} (${d.filament_color}/${d.secondary_color}/${d.tertiary_color}) | 孔位:${d.cat_keychain_hole} | 铁环:${d.add_keychain_ring ? '免费送' : '无'}`;
+            }
+            if (d.model_choice === 'MakerWorld') {
+                return `模式:${d.mw_color_mode === 'AMS_4Color' ? 'AMS多色(≤4色)' : '单色打印'} | 颜色:${d.mw_colors}`;
+            }
+            return d.model_choice;
+        }
+
+        function generateOrderId() {
+            const num = Math.floor(1000 + Math.random() * 9000);
+            return '3D-' + num;
+        }
+
+        // 表单提交 -> 先校验 -> 弹出二次确认框
+        document.getElementById('order-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const studentName = document.getElementById('id_student_name').value.trim();
+            const studentClass = document.getElementById('id_student_class').value.trim();
+            const modelChoice = document.getElementById('id_model_choice').value;
+            const quantity = Math.max(1, parseInt(document.getElementById('id_quantity').value, 10) || 1);
+
+            if (!studentName) {
+                alert('请先填写你的名字！Please enter your name.');
+                document.getElementById('id_student_name').focus();
+                return;
+            }
+            if (!studentClass) {
+                alert('请先填写你的班级或联系信息！Please enter your class.');
+                document.getElementById('id_student_class').focus();
+                return;
+            }
+
+            const keychainText = document.getElementById('id_keychain_text').value.trim();
+            if (modelChoice === 'Keychain' || modelChoice === 'Topper') {
+                if (!keychainText) {
+                    alert('请填写要打印的名字！Please enter the name to print on your item.');
+                    document.getElementById('id_keychain_text').focus();
+                    return;
+                }
+            }
+
+            const mwUrl = document.getElementById('id_mw_url').value.trim();
+            const mwColorMode = document.getElementById('id_mw_color_mode').value;
+            const mwNotes = document.getElementById('id_mw_notes').value.trim();
+            const mwConfirm = document.getElementById('id_mw_confirm').checked;
+
+            if (modelChoice === 'MakerWorld') {
+                if (!mwUrl) {
+                    alert('请粘贴 MakerWorld 模型链接或填写完整模型名称！');
+                    document.getElementById('id_mw_url').focus();
+                    return;
+                }
+                if (!mwConfirm) {
+                    alert('请先勾选下方的选模须知确认框！Please tick the confirmation checkbox.');
+                    document.getElementById('id_mw_confirm').focus();
+                    return;
+                }
+            }
+
+            const mainColor = document.getElementById('id_filament_color').value;
+            const secColor = document.getElementById('id_secondary_color').value;
+            const terColor = document.getElementById('id_tertiary_color').value;
+            const fourthColor = document.getElementById('id_fourth_color').value;
+
+            let mwColors = mainColor;
+            if (modelChoice === 'MakerWorld' && mwColorMode === 'AMS_4Color') {
+                const cols = [mainColor, secColor, terColor];
+                if (fourthColor && fourthColor !== 'None') cols.push(fourthColor);
+                mwColors = cols.join(' + ');
+            }
+
+            const bunnyObj = bunnyThemes.find(t => t.id === currentBunnyTheme) || bunnyThemes[0];
+            const isMW = modelChoice === 'MakerWorld';
+
+            pendingFormData = {
+                action: 'create_order',
+                order_id: generateOrderId(),
+                model_choice: modelChoice,
+                student_name: studentName,
+                student_class: studentClass,
+                quantity: quantity,
+                total_price: isMW ? 'Pending Quote' : currentPrice.toFixed(2),
+                date: new Date().toISOString(),
+                status: isMW ? 'Pending Quote' : 'Pending',
+
+                filament_color: modelChoice === 'Flexi_Bunny' ? bunnyObj.main : mainColor,
+                secondary_color: modelChoice === 'Flexi_Bunny' ? bunnyObj.sec : secColor,
+                tertiary_color: modelChoice === 'Flexi_Bunny' ? bunnyObj.ter : terColor,
+                bunny_theme: currentBunnyTheme,
+                keychain_name_color: document.getElementById('id_keychain_name_color').value,
+                keychain_text: keychainText,
+                topper_emoji: document.getElementById('id_topper_emoji').value,
+                font_style: document.getElementById('id_font_style').value,
+                keychain_width: document.getElementById('id_keychain_width').value,
+                cat_keychain_hole: document.getElementById('id_cat_keychain_hole').value,
+                add_keychain_ring: (modelChoice === 'Flexi_Cat' || modelChoice === 'Flexi_Bunny')
+                    ? (document.getElementById('id_cat_keychain_hole').value !== 'None' && document.getElementById('id_add_keychain_ring').checked)
+                    : document.getElementById('id_add_keychain_ring').checked,
+
+                mw_url: mwUrl,
+                mw_color_mode: mwColorMode,
+                mw_colors: mwColors,
+                mw_notes: mwNotes
+            };
+            pendingFormData.summary = buildOrderSummaryText(pendingFormData);
+
+            // 填充二次确认弹窗
+            const modalBody = document.getElementById('confirm-modal-body');
+            modalBody.innerHTML = `
+                <div style="background:#f8fafc; border-radius:12px; padding:14px; border:1px solid #e2e8f0; line-height:1.75; font-size:14px;">
+                    <div><strong>👤 姓名 / 班级：</strong>${escapeHtml(studentName)} (${escapeHtml(studentClass)})</div>
+                    <div><strong>📦 物品类型：</strong>${escapeHtml(modelChoice)} × ${quantity}</div>
+                    <div><strong>🎨 定制配置：</strong>${escapeHtml(pendingFormData.summary)}</div>
+                    ${isMW ? `<div><strong>🔗 模型链接/名称：</strong>${escapeHtml(mwUrl)}</div>` : ''}
+                    ${mwNotes ? `<div><strong>📝 备注：</strong>${escapeHtml(mwNotes)}</div>` : ''}
+                    <hr style="border:none; border-top:1px dashed #cbd5e1; margin:10px 0;">
+                    <div style="font-size:17px; font-weight:800; color:${isMW ? '#ea580c' : '#1d4ed8'};">
+                        💰 ${isMW ? '费用：待潘老师远程评估报价 (Pending Quote)' : '总计金额：RM ' + escapeHtml(pendingFormData.total_price)}
+                    </div>
+                </div>
+                <p style="font-size:12.5px; color:#64748b; margin-top:10px; margin-bottom:0;">
+                    请确认以上拼写、颜色与数量无误后再点击提交。
+                </p>
+            `;
+            document.getElementById('confirm-modal').classList.add('open');
+        });
+
+        function closeConfirmModal() {
+            document.getElementById('confirm-modal').classList.remove('open');
+        }
+
+        function saveOrderToLocalCache(orderPayload) {
+            const list = readLocalOrders();
+            const record = {
+                'Order ID': orderPayload.order_id,
+                'Date': formatLocalDateTime(new Date()),
+                'Status': orderPayload.status,
+                'Model Choice': orderPayload.model_choice,
+                'Student Name': orderPayload.student_name,
+                'Class': orderPayload.student_class,
+                'Quantity': orderPayload.quantity,
+                'Total Price': orderPayload.total_price,
+                'Summary': orderPayload.summary,
+                'MakerWorld URL': orderPayload.mw_url || '',
+                'Student Notes': orderPayload.mw_notes || '',
+                'Teacher Note': '',
+                'Updated At': formatLocalDateTime(new Date())
+            };
+            list.unshift(record);
+            localStorage.setItem(LOCAL_ORDERS_KEY, JSON.stringify(list.slice(0, 100)));
+        }
+
+        function readLocalOrders() {
+            try {
+                return JSON.parse(localStorage.getItem(LOCAL_ORDERS_KEY) || '[]');
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function readLocalChats() {
+            try {
+                return JSON.parse(localStorage.getItem(LOCAL_CHAT_KEY) || '[]');
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function formatLocalDateTime(d) {
+            const pad = n => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+        }
+
+        async function postToGas(payload) {
+            const res = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                redirect: 'follow',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            });
+            const text = await res.text();
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                return { status: res.ok ? 'success' : 'error', raw: text };
+            }
+        }
+
+        async function sendTelegramDirectFromBooth(text) {
+            const token = tgBotToken || localStorage.getItem(LOCAL_TG_TOKEN_KEY) || '';
+            const chatId = tgChatId || localStorage.getItem(LOCAL_TG_CHAT_KEY) || '';
+            if (!token || !chatId) return false;
+            try {
+                const url = 'https://api.telegram.org/bot' + encodeURIComponent(String(token).trim()) + '/sendMessage';
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: String(chatId).trim(),
+                        text: text,
+                        disable_web_page_preview: false
+                    })
+                });
+                const json = await res.json();
+                return Boolean(json && json.ok);
+            } catch (e) {
+                return false;
+            }
+        }
+
+        async function executeOrderSubmission() {
+            if (!pendingFormData) return;
+            closeConfirmModal();
+
+            const payload = pendingFormData;
+            document.getElementById('loading-overlay').style.display = 'flex';
+
+            let submittedRemotely = false;
+            let telegramSentByGas = false;
+            try {
+                const res = await postToGas(payload);
+                if (res && res.order_id) {
+                    payload.order_id = res.order_id;
+                }
+                telegramSentByGas = Boolean(res && res.telegram_sent);
+                submittedRemotely = true;
+            } catch (err) {
+                console.warn('Remote submit fallback to local cache:', err);
+            }
+
+            if (!telegramSentByGas) {
+                const isMWOrder = payload.model_choice === 'MakerWorld';
+                const tgText = isMWOrder
+                    ? `🚨【义卖会新询价单】\n单号: #${payload.order_id}\n学生: ${payload.student_name} (${payload.student_class})\n数量: ${payload.quantity} 件\n模式: ${payload.mw_color_mode === 'AMS_4Color' ? 'AMS 多色(≤4色)' : '单色打印'}\n期望颜色: ${payload.mw_colors || '未指定'}\n模型链接/名称:\n${payload.mw_url || '-'}${payload.mw_notes ? '\n备注: ' + payload.mw_notes : ''}\n\n👉 请打开老师后台查看模型并回复报价！`
+                    : `🆕【3D打印新订单】\n单号: #${payload.order_id}\n学生: ${payload.student_name} (${payload.student_class})\n物品: ${payload.model_choice} x${payload.quantity}\n金额: RM ${payload.total_price}\n详情: ${payload.summary}`;
+                sendTelegramDirectFromBooth(tgText);
+            }
+
+            saveOrderToLocalCache(payload);
+            document.getElementById('loading-overlay').style.display = 'none';
+            document.getElementById('order-form').style.display = 'none';
+            document.getElementById('success-message').style.display = 'block';
+
+            const isMW = payload.model_choice === 'MakerWorld';
+            document.getElementById('btn-receipt-open-board').style.display = isMW ? 'inline-block' : 'none';
+            document.getElementById('receipt-subtitle').innerHTML = isMW
+                ? '⏳ 你的自选模型已发送给潘老师，老师正在审核是否能打印并报价。<br>请稍候几分钟，现场摊位同学会在「现场订单看板」收到报价！'
+                : '请向现场摊位同学出示此凭证并付款确认，或截图保存。<br><i>Sila tunjukkan resit ini kepada petugas di gerai.</i>';
+
+            document.getElementById('receipt-details').innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+                    <span class="receipt-order-id">#${escapeHtml(payload.order_id)}</span>
+                    <span class="status-badge status-${escapeHtml(payload.status.replace(/\s+/g, '-'))}">
+                        ${isMW ? '⏳ 待老师评估报价' : '📋 已提交待收款'}
+                    </span>
+                </div>
+                <div><strong>👤 学生：</strong>${escapeHtml(payload.student_name)} (${escapeHtml(payload.student_class)})</div>
+                <div><strong>📦 物品：</strong>${escapeHtml(payload.model_choice)} × ${escapeHtml(payload.quantity)}</div>
+                <div><strong>🎨 配置：</strong>${escapeHtml(payload.summary)}</div>
+                ${payload.mw_url ? `<div><strong>🔗 模型：</strong>${escapeHtml(payload.mw_url)}</div>` : ''}
+                ${payload.mw_notes ? `<div><strong>📝 备注：</strong>${escapeHtml(payload.mw_notes)}</div>` : ''}
+                <div style="margin-top:8px; font-weight:800; font-size:16px; color:${isMW ? '#ea580c' : '#15803d'};">
+                    💰 金额：${isMW ? '待老师报价 (Pending Quote)' : 'RM ' + escapeHtml(payload.total_price)}
+                </div>
+                <div style="font-size:11.5px; color:#64748b; margin-top:6px;">
+                    提交时间：${formatLocalDateTime(new Date())} ${submittedRemotely ? '• ☁️ 已同步云端' : '• 💾 已本地缓存'}
+                </div>
+            `;
+
+            pollServerState(true);
+        }
+
+        function resetForNewOrder() {
+            document.getElementById('success-message').style.display = 'none';
+            document.getElementById('order-form').style.display = 'block';
+            document.getElementById('id_student_name').value = '';
+            document.getElementById('id_student_class').value = '';
+            document.getElementById('id_keychain_text').value = '';
+            document.getElementById('id_mw_url').value = '';
+            document.getElementById('id_mw_notes').value = '';
+            document.getElementById('id_mw_confirm').checked = false;
+            document.getElementById('id_quantity').value = '1';
+            pendingFormData = null;
+            updateUI();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // =====================================================================
+        // 现场订单与报价看板 & 实时师生连线聊天
+        // =====================================================================
+        function openBoothBoard() {
+            document.getElementById('booth-orders-modal').classList.add('open');
+            renderBoothOrders();
+            pollServerState(true);
+        }
+
+        function closeBoothBoard() {
+            document.getElementById('booth-orders-modal').classList.remove('open');
+        }
+
+        function setBoardFilter(filterVal) {
+            boardFilter = filterVal;
+            document.querySelectorAll('.board-tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-filter') === filterVal);
+            });
+            renderBoothOrders();
+        }
+
+        function formatStatusLabel(status) {
+            const map = {
+                'Pending Quote': '⏳ 等待老师报价',
+                'Quoted': '💰 老师已报价 (请收款确认)',
+                'Rejected': '🚫 无法打印/需更换模型',
+                'Pending': '📝 待现场确认',
+                'Paid': '✅ 已收款 (安排打印)',
+                'Printing': '🖨️ 正在打印中',
+                'Completed': '🎉 打印完成',
+                'Cancelled': '❌ 已取消'
+            };
+            return map[status] || status;
+        }
+
+        function renderBoothOrders() {
+            const container = document.getElementById('booth-orders-list');
+            let list = serverOrders.slice();
+
+            if (boardFilter === 'quotes') {
+                list = list.filter(o => o['Model Choice'] === 'MakerWorld' || o['Status'] === 'Pending Quote' || o['Status'] === 'Quoted' || o['Status'] === 'Rejected');
+            } else if (boardFilter === 'active') {
+                list = list.filter(o => ['Paid', 'Printing', 'Completed'].includes(o['Status']));
+            }
+
+            if (list.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:#64748b; padding:24px 0;">暂无符合条件的订单记录。</p>';
+                return;
+            }
+
+            container.innerHTML = list.map(o => {
+                const orderId = o['Order ID'] || '-';
+                const status = o['Status'] || 'Pending';
+                const statusClass = 'status-' + String(status).replace(/\s+/g, '-');
+                const model = o['Model Choice'] || '';
+                const safeUrl = sanitizeHttpUrl(o['MakerWorld URL']);
+                const priceVal = o['Total Price'];
+                const isQuoted = status === 'Quoted';
+                const isPendingQuote = status === 'Pending Quote';
+                const canConfirmPay = ['Quoted', 'Pending'].includes(status);
+                const canCancel = ['Quoted', 'Pending', 'Pending Quote', 'Rejected'].includes(status);
+
+                return `
+                    <div class="board-order-card ${isQuoted ? 'highlight-quoted' : ''}">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+                            <div>
+                                <strong style="font-size:15px; color:#0f172a;">#${escapeHtml(orderId)}</strong>
+                                <span style="margin-left:8px; font-weight:700; color:#1e293b;">${escapeHtml(o['Student Name'])} (${escapeHtml(o['Class'])})</span>
+                            </div>
+                            <span class="status-badge ${escapeHtml(statusClass)}">${escapeHtml(formatStatusLabel(status))}</span>
+                        </div>
+                        <div style="font-size:13px; color:#334155; margin-top:8px; line-height:1.5;">
+                            <div><strong>物品：</strong>${escapeHtml(model)} × ${escapeHtml(o['Quantity'])} | <strong>配置：</strong>${escapeHtml(o['Summary'])}</div>
+                            ${o['MakerWorld URL'] ? `<div><strong>模型：</strong>${safeUrl ? `<a href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(o['MakerWorld URL'])}</a>` : escapeHtml(o['MakerWorld URL'])}</div>` : ''}
+                            ${o['Student Notes'] ? `<div><strong>学生备注：</strong>${escapeHtml(o['Student Notes'])}</div>` : ''}
+                            ${o['Teacher Note'] ? `<div style="margin-top:6px; background:#eff6ff; padding:6px 10px; border-radius:8px; color:#1e3a8a;"><strong>👨‍🏫 老师评语：</strong>${escapeHtml(o['Teacher Note'])}</div>` : ''}
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-top:10px; padding-top:8px; border-top:1px solid #f1f5f9;">
+                            <div style="font-weight:800; font-size:15px; color:${isPendingQuote ? '#ea580c' : '#15803d'};">
+                                ${isPendingQuote ? '⏳ 价格：待老师评估' : (status === 'Rejected' ? '🚫 无法打印' : '💰 价格：RM ' + escapeHtml(priceVal))}
+                            </div>
+                            <span style="font-size:11.5px; color:#94a3b8;">${escapeHtml(o['Date'])}</span>
+                        </div>
+                        <div class="board-action-row">
+                            ${canConfirmPay ? `<button type="button" class="btn-xs btn-confirm-pay" onclick="boothUpdateOrder('${escapeHtml(orderId)}', 'Paid')">✅ 已收款确认打印</button>` : ''}
+                            ${canCancel ? `<button type="button" class="btn-xs btn-cancel-order" onclick="boothUpdateOrder('${escapeHtml(orderId)}', 'Cancelled')">❌ 顾客取消</button>` : ''}
+                            <button type="button" class="btn-xs btn-ask-order" onclick="askAboutOrder('${escapeHtml(orderId)}')">💬 询问老师此单</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function boothUpdateOrder(orderId, newStatus) {
+            const label = newStatus === 'Paid' ? '确认顾客已付款并安排打印' : '取消该笔订单';
+            if (!confirm(`确定要对订单 #${orderId} 执行「${label}」吗？`)) return;
+
+            // 先本地即时更新，提升现场响应速度
+            const localList = readLocalOrders();
+            localList.forEach(item => {
+                if (item['Order ID'] === orderId) {
+                    item['Status'] = newStatus;
+                    item['Updated At'] = formatLocalDateTime(new Date());
+                }
+            });
+            localStorage.setItem(LOCAL_ORDERS_KEY, JSON.stringify(localList));
+
+            let targetOrder = null;
+            serverOrders.forEach(item => {
+                if (item['Order ID'] === orderId) {
+                    item['Status'] = newStatus;
+                    targetOrder = item;
+                }
+            });
+            renderBoothOrders();
+            updateBadges();
+
+            let telegramSentByGas = false;
+            try {
+                const res = await postToGas({
+                    action: 'booth_confirm_order',
+                    order_id: orderId,
+                    new_status: newStatus
+                });
+                telegramSentByGas = Boolean(res && res.telegram_sent);
+                pollServerState(true);
+            } catch (err) {
+                console.warn('Offline update cached locally:', err);
+            }
+
+            if (!telegramSentByGas && targetOrder) {
+                const msg = newStatus === 'Paid'
+                    ? `💰【现场已收款确认】\n单号: #${orderId}\n学生: ${targetOrder['Student Name']} (${targetOrder['Class']})\n物品: ${targetOrder['Model Choice']}\n金额: RM ${targetOrder['Total Price']}\n✅ 现场已收款，可以安排打印！`
+                    : `❌【现场顾客已取消】\n单号: #${orderId}\n学生: ${targetOrder['Student Name']} (${targetOrder['Class']})\n物品: ${targetOrder['Model Choice']}`;
+                sendTelegramDirectFromBooth(msg);
+            }
+        }
+
+        function toggleChatBox(forceState) {
+            const box = document.getElementById('booth-chat-box');
+            const shouldOpen = typeof forceState === 'boolean' ? forceState : !box.classList.contains('open');
+            box.classList.toggle('open', shouldOpen);
+            if (shouldOpen) {
+                markChatsSeen();
+                renderChatMessages();
+                const input = document.getElementById('booth-chat-input');
+                if (input) input.focus();
+            }
+        }
+
+        function askAboutOrder(orderId) {
+            closeBoothBoard();
+            toggleChatBox(true);
+            const input = document.getElementById('booth-chat-input');
+            input.value = `关于订单 #${orderId}：`;
+            input.focus();
+        }
+
+        function markChatsSeen() {
+            const teacherMsgs = serverChats.filter(c => c.Sender === 'teacher');
+            localStorage.setItem(LAST_SEEN_CHAT_KEY, String(teacherMsgs.length));
+            updateBadges();
+        }
+
+        function renderChatMessages() {
+            const container = document.getElementById('booth-chat-messages');
+            if (!serverChats.length) {
+                container.innerHTML = '<div style="text-align:center; font-size:12px; color:#64748b; margin-top:24px;">有疑问或刚提交了自定义模型？发消息直接联系潘老师！</div>';
+                return;
+            }
+
+            container.innerHTML = serverChats.map(msg => {
+                const isBooth = msg.Sender === 'booth';
+                return `
+                    <div class="chat-bubble ${isBooth ? 'booth' : 'teacher'}">
+                        <div style="font-size:11px; font-weight:700; margin-bottom:2px;">
+                            ${isBooth ? '🙋 现场摊位' : '👨‍🏫 潘老师'}
+                        </div>
+                        <div>${escapeHtml(msg.Text)}</div>
+                        <div class="chat-meta">${escapeHtml(msg.Date || '')}</div>
+                    </div>
+                `;
+            }).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function sendQuickChat(text) {
+            document.getElementById('booth-chat-input').value = text;
+            sendBoothChat();
+        }
+
+        async function sendBoothChat() {
+            const input = document.getElementById('booth-chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = '';
+
+            const newMsg = {
+                'Msg ID': 'MSG-' + Date.now(),
+                'Date': formatLocalDateTime(new Date()),
+                'Sender': 'booth',
+                'Text': text,
+                'Order Ref': ''
+            };
+
+            const cached = readLocalChats();
+            cached.push(newMsg);
+            localStorage.setItem(LOCAL_CHAT_KEY, JSON.stringify(cached.slice(-80)));
+
+            serverChats.push(newMsg);
+            renderChatMessages();
+
+            let telegramSentByGas = false;
+            try {
+                const res = await postToGas({
+                    action: 'send_chat',
+                    sender: 'booth',
+                    text: text
+                });
+                telegramSentByGas = Boolean(res && res.telegram_sent);
+            } catch (err) {
+                console.warn('Chat cached locally:', err);
+            }
+
+            if (!telegramSentByGas) {
+                sendTelegramDirectFromBooth(`💬【义卖会现场学生求助】\n"${text}"\n\n👉 请打开老师后台实时对话回复！`);
+            }
+        }
+
+        function updateBadges() {
+            const quotedAttentionCount = serverOrders.filter(o => o['Status'] === 'Quoted' || o['Status'] === 'Rejected').length;
+            const quoteBadge = document.getElementById('badge-quotes');
+            quoteBadge.innerText = quotedAttentionCount;
+            quoteBadge.classList.toggle('visible', quotedAttentionCount > 0);
+
+            const teacherMsgCount = serverChats.filter(c => c.Sender === 'teacher').length;
+            const seenCount = parseInt(localStorage.getItem(LAST_SEEN_CHAT_KEY) || '0', 10);
+            const unreadChat = document.getElementById('booth-chat-box').classList.contains('open')
+                ? 0
+                : Math.max(0, teacherMsgCount - seenCount);
+            const chatBadge = document.getElementById('badge-chat');
+            chatBadge.innerText = unreadChat;
+            chatBadge.classList.toggle('visible', unreadChat > 0);
+        }
+
+        function mergeWithLocal(remoteOrders, remoteChats) {
+            const localOrders = readLocalOrders();
+            const mergedMap = {};
+            localOrders.forEach(o => { if (o['Order ID']) mergedMap[o['Order ID']] = o; });
+            remoteOrders.forEach(o => { if (o['Order ID']) mergedMap[o['Order ID']] = o; });
+            const mergedOrders = Object.values(mergedMap).sort((a, b) => String(b.Date || '').localeCompare(String(a.Date || '')));
+
+            const localChats = readLocalChats();
+            const chatMap = {};
+            localChats.forEach(c => { if (c['Msg ID']) chatMap[c['Msg ID']] = c; });
+            remoteChats.forEach(c => { if (c['Msg ID']) chatMap[c['Msg ID']] = c; });
+            const mergedChats = Object.values(chatMap).sort((a, b) => String(a.Date || '').localeCompare(String(b.Date || '')));
+
+            return { mergedOrders, mergedChats };
+        }
+
+        function checkNewAlerts(orders, chats) {
+            if (!hasInitialPoll) {
+                orders.forEach(o => { knownOrderStatuses[o['Order ID']] = o['Status']; });
+                knownChatCount = chats.length;
+                hasInitialPoll = true;
+                return;
+            }
+
+            let alertTriggered = false;
+            orders.forEach(o => {
+                const prev = knownOrderStatuses[o['Order ID']];
+                if (prev && prev !== o['Status'] && (o['Status'] === 'Quoted' || o['Status'] === 'Rejected')) {
+                    const msg = o['Status'] === 'Quoted'
+                        ? `💰 老师已为 #${o['Order ID']} (${o['Student Name']}) 报价：RM ${o['Total Price']}！点击查看`
+                        : `🚫 #${o['Order ID']} (${o['Student Name']}) 无法打印，请看老师评语`;
+                    showToast(msg, 'board');
+                    alertTriggered = true;
+                }
+                knownOrderStatuses[o['Order ID']] = o['Status'];
+            });
+
+            if (chats.length > knownChatCount) {
+                const newTeacherMsgs = chats.slice(knownChatCount).filter(c => c.Sender === 'teacher');
+                if (newTeacherMsgs.length > 0) {
+                    const last = newTeacherMsgs[newTeacherMsgs.length - 1];
+                    showToast(`💬 潘老师回复：${last.Text}`, 'chat');
+                    alertTriggered = true;
+                }
+            }
+            knownChatCount = chats.length;
+
+            if (alertTriggered) playNotificationBeep();
+        }
+
+        async function pollServerState(manual) {
+            const dot = document.getElementById('connection-dot');
+            const connText = document.getElementById('connection-text');
+
+            try {
+                const res = await fetch(SCRIPT_URL + '?action=get_state&_t=' + Date.now(), {
+                    method: 'GET',
+                    redirect: 'follow'
+                });
+                const data = await res.json();
+                if (data && data.status === 'success') {
+                    dot.classList.remove('offline');
+                    connText.innerText = '☁️ 云端实时连线中';
+                    if (data.tg_bot_token) {
+                        tgBotToken = data.tg_bot_token;
+                        localStorage.setItem(LOCAL_TG_TOKEN_KEY, tgBotToken);
+                    }
+                    if (data.tg_chat_id) {
+                        tgChatId = data.tg_chat_id;
+                        localStorage.setItem(LOCAL_TG_CHAT_KEY, tgChatId);
+                    }
+
+                    const merged = mergeWithLocal(data.orders || [], data.chats || []);
+                    checkNewAlerts(merged.mergedOrders, merged.mergedChats);
+                    serverOrders = merged.mergedOrders;
+                    serverChats = merged.mergedChats;
+
+                    if (document.getElementById('booth-orders-modal').classList.contains('open')) {
+                        renderBoothOrders();
+                    }
+                    if (document.getElementById('booth-chat-box').classList.contains('open')) {
+                        markChatsSeen();
+                        renderChatMessages();
+                    }
+                    updateBadges();
+                    return;
+                }
+                throw new Error('Unexpected response');
+            } catch (err) {
+                dot.classList.add('offline');
+                connText.innerText = '💾 本地缓存模式 (待部署新版 Code.gs)';
+                const merged = mergeWithLocal([], []);
+                checkNewAlerts(merged.mergedOrders, merged.mergedChats);
+                serverOrders = merged.mergedOrders;
+                serverChats = merged.mergedChats;
+                if (document.getElementById('booth-orders-modal').classList.contains('open')) {
+                    renderBoothOrders();
+                }
+                if (document.getElementById('booth-chat-box').classList.contains('open')) {
+                    markChatsSeen();
+                    renderChatMessages();
+                }
+                updateBadges();
+            }
+        }
+
+        // 同浏览器标签页实时同步 (本地联调增强)
+        window.addEventListener('storage', function (e) {
+            if (e.key === LOCAL_ORDERS_KEY || e.key === LOCAL_CHAT_KEY) {
+                const merged = mergeWithLocal(serverOrders, serverChats);
+                checkNewAlerts(merged.mergedOrders, merged.mergedChats);
+                serverOrders = merged.mergedOrders;
+                serverChats = merged.mergedChats;
+                if (document.getElementById('booth-orders-modal').classList.contains('open')) {
+                    renderBoothOrders();
+                }
+                if (document.getElementById('booth-chat-box').classList.contains('open')) {
+                    markChatsSeen();
+                    renderChatMessages();
+                }
+                updateBadges();
+            }
+        });
 
         const fontDropdown = document.getElementById('id_font_style');
         if (fontDropdown) {
@@ -974,62 +2989,16 @@
             fontDropdown.style.fontFamily = fontDropdown.value;
         }
 
-        document.querySelectorAll('input, select').forEach(element => {
+        document.querySelectorAll('#order-form input, #order-form select, #order-form textarea').forEach(element => {
             element.addEventListener('input', updateUI);
             element.addEventListener('change', updateUI);
         });
 
-        // Form Submission Logic
-        document.getElementById('order-form').addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            if (SCRIPT_URL === 'YOUR_GOOGLE_SCRIPT_URL_HERE') {
-                alert("Please configure the Google Apps Script Web App URL in the HTML file first.");
-                return;
-            }
-
-            const formData = {
-                model_choice: document.getElementById('id_model_choice').value,
-                student_name: document.getElementById('id_student_name').value,
-                student_class: document.getElementById('id_student_class').value,
-                quantity: document.getElementById('id_quantity').value,
-                total_price: currentPrice.toFixed(2),
-                date: new Date().toISOString(),
-                status: 'Pending',
-
-                filament_color: document.getElementById('id_filament_color').value,
-                secondary_color: document.getElementById('id_secondary_color').value,
-                tertiary_color: document.getElementById('id_tertiary_color').value,
-                keychain_name_color: document.getElementById('id_keychain_name_color').value,
-                keychain_text: document.getElementById('id_keychain_text').value,
-                topper_emoji: document.getElementById('id_topper_emoji').value,
-                font_style: document.getElementById('id_font_style').value,
-                keychain_width: document.getElementById('id_keychain_width').value,
-                cat_keychain_hole: document.getElementById('id_cat_keychain_hole').value,
-                add_keychain_ring: document.getElementById('id_add_keychain_ring').checked
-            };
-
-            document.getElementById('loading-overlay').style.display = 'flex';
-
-            fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors', // Bypasses CORS, opaque response
-                headers: {
-                    'Content-Type': 'text/plain'
-                },
-                body: JSON.stringify(formData)
-            }).then(() => {
-                document.getElementById('loading-overlay').style.display = 'none';
-                document.getElementById('order-form').style.display = 'none';
-                document.getElementById('success-message').style.display = 'block';
-            }).catch(err => {
-                document.getElementById('loading-overlay').style.display = 'none';
-                alert('An error occurred while submitting. Please try again.');
-                console.error(err);
-            });
+        document.addEventListener('DOMContentLoaded', function () {
+            updateUI();
+            pollServerState(false);
+            setInterval(() => pollServerState(false), 10000);
         });
-
-        window.onload = updateUI;
     </script>
 </body>
 

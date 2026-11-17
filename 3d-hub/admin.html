@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>老师远程报价后台 | Pei Ching 3D Hub Admin</title>
+    <link rel="icon" href="logo.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', 'Microsoft YaHei', '微软雅黑', sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            min-height: 100vh;
+        }
+
+        /* PIN 锁屏界面 */
+        #pin-lock-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .pin-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 32px 24px;
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+        }
+
+        .pin-card img {
+            width: 72px;
+            margin-bottom: 10px;
+        }
+
+        .pin-input {
+            width: 100%;
+            padding: 14px;
+            font-size: 22px;
+            letter-spacing: 6px;
+            text-align: center;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            margin: 14px 0;
+            font-weight: 800;
+        }
+
+        .pin-input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #ffffff;
+            border: none;
+            padding: 13px 20px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.06);
+        }
+
+        /* 顶部导航栏 */
+        .topbar {
+            background: #0f172a;
+            color: #ffffff;
+            padding: 14px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 900;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.2);
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .topbar-left img {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            background: #fff;
+            padding: 2px;
+        }
+
+        .topbar-title {
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        .topbar-sub {
+            font-size: 11.5px;
+            color: #94a3b8;
+        }
+
+        .topbar-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .top-pill {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            padding: 7px 12px;
+            border-radius: 999px;
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            font-family: inherit;
+        }
+
+        .top-pill:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1680px;
+            margin: 0 auto;
+            padding: 18px 24px 60px;
+        }
+
+        @media (min-width: 1024px) {
+            #quotes-container,
+            #all-orders-container {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+                gap: 16px;
+                align-items: start;
+            }
+
+            .quote-card,
+            .order-row-card {
+                margin-bottom: 0;
+            }
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        @media (max-width: 820px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .stat-val {
+            font-size: 26px;
+            font-weight: 800;
+            margin-top: 4px;
+            color: #0f172a;
+        }
+
+        .stat-card.urgent {
+            border-left: 5px solid #ea580c;
+            background: #fff7ed;
+        }
+
+        .stat-card.urgent .stat-val {
+            color: #c2410c;
+        }
+
+        /* 模块导航 Tab（手机友好） */
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            margin-bottom: 16px;
+        }
+
+        .nav-tab {
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #334155;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: inherit;
+        }
+
+        .nav-tab.active {
+            background: #2563eb;
+            color: #ffffff;
+            border-color: #2563eb;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        .tab-badge {
+            background: #ef4444;
+            color: #ffffff;
+            font-size: 11px;
+            border-radius: 999px;
+            padding: 1px 7px;
+            display: none;
+        }
+
+        .tab-badge.show {
+            display: inline-block;
+        }
+
+        .panel-section {
+            display: none;
+        }
+
+        .panel-section.active {
+            display: block;
+        }
+
+        /* 报价卡片 */
+        .quote-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 16px;
+            border: 2px solid #fed7aa;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+        }
+
+        .quote-card.quoted-done {
+            border-color: #cbd5e1;
+        }
+
+        .quote-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 11px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-Pending-Quote {
+            background: #ffedd5;
+            color: #c2410c;
+        }
+
+        .status-Quoted {
+            background: #fef08a;
+            color: #854d0e;
+        }
+
+        .status-Paid,
+        .status-Printing,
+        .status-Completed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-Pending {
+            background: #e0f2fe;
+            color: #075985;
+        }
+
+        .status-Rejected,
+        .status-Cancelled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .mw-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #16a34a;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 13px;
+            margin: 8px 0;
+        }
+
+        .quick-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 8px 0;
+        }
+
+        .chip-btn {
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            color: #1e293b;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .chip-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .quote-controls {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 14px;
+            margin-top: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .quote-inputs-row {
+            display: grid;
+            grid-template-columns: 160px 1fr;
+            gap: 10px;
+        }
+
+        @media (max-width: 640px) {
+            .quote-inputs-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .field-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .quote-btn-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .btn-send-quote {
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 18px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .btn-reject {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        /* 聊天中心 */
+        .chat-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 68vh;
+            min-height: 440px;
+        }
+
+        .chat-stream {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .bubble {
+            max-width: 78%;
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 14px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .bubble.teacher {
+            align-self: flex-end;
+            background: #2563eb;
+            color: #ffffff;
+            border-bottom-right-radius: 4px;
+        }
+
+        .bubble.booth {
+            align-self: flex-start;
+            background: #ffffff;
+            color: #0f172a;
+            border: 1px solid #cbd5e1;
+            border-bottom-left-radius: 4px;
+        }
+
+        .bubble-time {
+            font-size: 11px;
+            opacity: 0.75;
+            margin-top: 4px;
+        }
+
+        .chat-compose {
+            padding: 12px;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        /* 全部订单列表 */
+        .orders-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .order-row-card {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .config-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 16px;
+        }
+
+        .config-card label {
+            display: block;
+            font-weight: 700;
+            font-size: 13.5px;
+            margin: 12px 0 6px;
+        }
+
+        .toast-alert {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            color: #ffffff;
+            padding: 10px 18px;
+            border-radius: 999px;
+            font-size: 13.5px;
+            font-weight: 600;
+            z-index: 2800;
+            display: none;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- PIN 码锁屏 -->
+    <div id="pin-lock-screen">
+        <div class="pin-card">
+            <img src="logo.png" alt="Logo">
+            <h2 style="margin: 6px 0 4px;">老师远程报价后台</h2>
+            <p style="font-size: 13px; color: #64748b; margin-top: 0;">Pei Ching 3D Print Hub Admin</p>
+            <input type="password" id="pin-input" class="pin-input" placeholder="••••" inputmode="numeric"
+                onkeydown="if(event.key==='Enter') unlockAdmin()">
+            <div id="pin-error" style="color: #dc2626; font-size: 13px; min-height: 20px; margin-bottom: 8px;"></div>
+            <button type="button" class="btn-primary" onclick="unlockAdmin()">🔓 解锁进入后台</button>
+            <p style="font-size: 12px; color: #94a3b8; margin-top: 14px;">默认初始密码：<code>8888</code>（可在设置中修改）</p>
+            <a href="index.html" style="font-size: 12.5px; color: #2563eb; text-decoration: none;">← 返回点单页面</a>
+        </div>
+    </div>
+
+    <div class="toast-alert" id="toast-alert"></div>
+
+    <!-- 主后台界面 -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <img src="logo.png" alt="Logo">
+            <div>
+                <div class="topbar-title">🛠️ 培青 3D Hub 远程报价后台</div>
+                <div class="topbar-sub" id="conn-status">正在连接云端...</div>
+            </div>
+        </div>
+        <div class="topbar-actions">
+            <button type="button" class="top-pill" id="btn-sound" onclick="toggleSound()">🔔 提醒音: 开</button>
+            <button type="button" class="top-pill" id="btn-autopoll" onclick="toggleAutoPoll()">⏱️ 自动刷新: 开</button>
+            <button type="button" class="top-pill" onclick="refreshState(true)">🔄 刷新</button>
+            <a href="index.html" class="top-pill">🛒 前台点单页</a>
+            <button type="button" class="top-pill" onclick="lockAdmin()">🔒 锁定</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- 义卖会统计卡片 -->
+        <section class="stats-grid">
+            <div class="stat-card urgent">
+                <div class="stat-label">🚨 待评估询价单 (Pending Quote)</div>
+                <div class="stat-val" id="stat-pending-quotes">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">📦 总订单数 (Total Orders)</div>
+                <div class="stat-val" id="stat-total-orders">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">✅ 已收款/打印中</div>
+                <div class="stat-val" id="stat-paid-count">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">💰 已收款总额 (RM)</div>
+                <div class="stat-val" id="stat-revenue">0.00</div>
+            </div>
+        </section>
+
+        <!-- 功能切换 Tabs -->
+        <div class="nav-tabs">
+            <button type="button" class="nav-tab active" data-tab="quotes" onclick="switchTab('quotes')">
+                🚨 待评估报价中心 <span class="tab-badge" id="badge-tab-quotes">0</span>
+            </button>
+            <button type="button" class="nav-tab" data-tab="chat" onclick="switchTab('chat')">
+                💬 现场摊位连线 <span class="tab-badge" id="badge-tab-chat">0</span>
+            </button>
+            <button type="button" class="nav-tab" data-tab="orders" onclick="switchTab('orders')">
+                📦 全部订单管理
+            </button>
+            <button type="button" class="nav-tab" data-tab="settings" onclick="switchTab('settings')">
+                🤖 Telegram 通知与配置
+            </button>
+        </div>
+
+        <!-- 模块 A：待评估报价中心 -->
+        <section id="tab-quotes" class="panel-section active">
+            <div id="quotes-container">
+                <p style="text-align:center; color:#64748b; padding: 30px 0;">正在加载询价单...</p>
+            </div>
+        </section>
+
+        <!-- 模块 B：现场摊位实时连线 -->
+        <section id="tab-chat" class="panel-section">
+            <div class="chat-card">
+                <div class="chat-stream" id="admin-chat-stream">
+                    <p style="text-align:center; color:#64748b;">暂无聊天记录</p>
+                </div>
+                <div class="chat-compose">
+                    <div class="quick-chips" style="margin-top: 0; margin-bottom: 8px;">
+                        <button type="button" class="chip-btn"
+                            onclick="sendQuickReply('收到，正在切片看模型，请稍等1分钟！')">⏱️ 正在切片稍等1分钟</button>
+                        <button type="button" class="chip-btn"
+                            onclick="sendQuickReply('这个可以印！可以让顾客先付款确认，我回去安排打印。')">✅ 可印，可先收款</button>
+                        <button type="button" class="chip-btn"
+                            onclick="sendQuickReply('抱歉，这个模型悬空太多容易断，请帮顾客换一个 Print-in-Place 模型。')">🚫 模型印不了请更换</button>
+                        <button type="button" class="chip-btn"
+                            onclick="sendQuickReply('提醒顾客：原图是手涂模型，印出来是单色纯色哦。')">🎨 提醒手涂变单色</button>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <input type="text" id="admin-chat-input" class="field-input" placeholder="输入回复给现场看摊学生..."
+                            onkeydown="if(event.key==='Enter'){event.preventDefault();sendTeacherChat();}">
+                        <button type="button" class="btn-send-quote" onclick="sendTeacherChat()"
+                            style="white-space:nowrap;">发送回复</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 C：全部订单总览 -->
+        <section id="tab-orders" class="panel-section">
+            <div class="orders-toolbar">
+                <div class="quick-chips" style="margin: 0;">
+                    <button type="button" class="chip-btn" onclick="setOrderFilter('ALL')">全部</button>
+                    <button type="button" class="chip-btn" onclick="setOrderFilter('Pending Quote')">待报价</button>
+                    <button type="button" class="chip-btn" onclick="setOrderFilter('Quoted')">已报价</button>
+                    <button type="button" class="chip-btn" onclick="setOrderFilter('Pending')">待收款</button>
+                    <button type="button" class="chip-btn" onclick="setOrderFilter('Paid')">已收款</button>
+                    <button type="button" class="chip-btn" onclick="setOrderFilter('Printing')">打印中</button>
+                    <button type="button" class="chip-btn" onclick="setOrderFilter('Completed')">已完成</button>
+                </div>
+                <input type="text" id="order-search-input" class="field-input" style="max-width: 260px;"
+                    placeholder="搜索单号、姓名或班级..." oninput="renderAllOrders()">
+            </div>
+            <div id="all-orders-container"></div>
+        </section>
+
+        <!-- 模块 D：Telegram 配置与部署指引 -->
+        <section id="tab-settings" class="panel-section">
+            <div class="config-card">
+                <h3 style="margin-top:0;">🤖 Telegram Bot 即时推送配置</h3>
+                <p style="font-size:13px; color:#64748b;">
+                    配置后，每当现场有学生提交 <strong>MakerWorld 询价单</strong>、<strong>普通订单</strong>、<strong>确认收款</strong> 或 <strong>发起聊天求助</strong>，你的手机 Telegram 都会第一时间收到通知。
+                </p>
+                <div id="tg-status-pill"
+                    style="display:inline-block; padding:5px 12px; border-radius:999px; font-size:12.5px; font-weight:700; background:#f1f5f9; color:#334155;">
+                    云端 Telegram 状态：检测中...
+                </div>
+
+                <label for="cfg-bot-token">Telegram Bot Token (从 @BotFather 获取)</label>
+                <input type="password" id="cfg-bot-token" class="field-input" placeholder="例如：1234567890:AAHxxx...">
+
+                <label for="cfg-chat-id">你的 Telegram Chat ID (从 @userinfobot 获取)</label>
+                <input type="text" id="cfg-chat-id" class="field-input" placeholder="例如：987654321">
+
+                <label for="cfg-new-pin">修改后台登录 PIN 码（不改请留空）</label>
+                <input type="password" id="cfg-new-pin" class="field-input" placeholder="留空表示保持当前 PIN 码" inputmode="numeric">
+
+                <label for="cfg-script-url">Google Apps Script Web App URL</label>
+                <input type="text" id="cfg-script-url" class="field-input">
+
+                <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
+                    <button type="button" class="btn-send-quote" onclick="saveSettings()">💾 保存配置到云端</button>
+                    <button type="button" class="chip-btn" style="padding:10px 16px; font-size:13.5px;"
+                        onclick="testTelegram()">📨 发送测试 Telegram 通知</button>
+                </div>
+            </div>
+
+            <div class="config-card">
+                <h3 style="margin-top:0;">📖 Google Apps Script 后端部署说明（3步完成）</h3>
+                <ol style="font-size:13.5px; line-height:1.8; color:#334155; padding-left:20px;">
+                    <li>打开你绑定 Google Sheets 的 Apps Script 编辑器，将最新的 <code>3d-hub/Code.gs</code> 代码完整覆盖粘贴并保存（Ctrl+S）。</li>
+                    <li>在编辑器上方函数下拉框中选择 <code>authorizeTelegramPermission</code> 并点击 <strong>「运行 (Run)」</strong>，按提示允许外部网络请求权限；然后点击右上角 <strong>「部署 (Deploy)」→「管理部署」→ 编辑 → 版本选「新版本」</strong>。</li>
+                    <li>在 Telegram 对你的机器人发送 <code>/start</code>（确保已启动对话），再填入上方 Token 与 Chat ID 保存并测试！系统已内置<strong>浏览器直连 Telegram 双通道兜底</strong>，即使 GAS 未授权外部请求也可在浏览器端直接发出测试通知。</li>
+                </ol>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzy7WXbRMLGd78p8jQT6UlrEAD33x-FpmHgxMLP8OkZSx8jJqwhgrx4Oix3kJTAdjzF_w/exec';
+        const LOCAL_ORDERS_KEY = 'peiching_3dhub_orders';
+        const LOCAL_CHAT_KEY = 'peiching_3dhub_chats';
+        const SESSION_PIN_KEY = 'peiching_3dhub_admin_pin';
+        const CUSTOM_URL_KEY = 'peiching_3dhub_script_url';
+        const LOCAL_PIN_KEY = 'peiching_3dhub_local_pin';
+        const LOCAL_TG_TOKEN_KEY = 'peiching_3dhub_tg_token';
+        const LOCAL_TG_CHAT_KEY = 'peiching_3dhub_tg_chat_id';
+
+        let SCRIPT_URL = localStorage.getItem(CUSTOM_URL_KEY) || DEFAULT_SCRIPT_URL;
+        let currentPin = sessionStorage.getItem(SESSION_PIN_KEY) || '';
+        let orders = [];
+        let chats = [];
+        let soundEnabled = true;
+        let autoPollEnabled = true;
+        let currentOrderFilter = 'ALL';
+        let activeTab = 'quotes';
+        let knownOrderIds = new Set();
+        let knownChatCount = 0;
+        let initialPollDone = false;
+
+        function escapeHtml(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function sanitizeHttpUrl(url) {
+            const t = String(url || '').trim();
+            return /^https?:\/\//i.test(t) ? t : '';
+        }
+
+        function formatLocalDateTime(d) {
+            const pad = n => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+        }
+
+        function showToast(msg) {
+            const el = document.getElementById('toast-alert');
+            el.innerText = msg;
+            el.style.display = 'block';
+            clearTimeout(el._t);
+            el._t = setTimeout(() => { el.style.display = 'none'; }, 3600);
+        }
+
+        function playBeep() {
+            if (!soundEnabled) return;
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                const now = ctx.currentTime;
+                [660, 880, 1046.5].forEach((freq, idx) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+                    gain.gain.setValueAtTime(0.14, now + idx * 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.2);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now + idx * 0.1);
+                    osc.stop(now + idx * 0.1 + 0.22);
+                });
+            } catch (e) {}
+        }
+
+        async function postToGas(payload) {
+            const res = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                redirect: 'follow',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            });
+            const text = await res.text();
+            return JSON.parse(text);
+        }
+
+        async function unlockAdmin() {
+            const pinVal = document.getElementById('pin-input').value.trim();
+            const errEl = document.getElementById('pin-error');
+            if (!pinVal) {
+                errEl.innerText = '请输入 PIN 码';
+                return;
+            }
+            errEl.innerText = '正在验证...';
+
+            try {
+                const res = await postToGas({ action: 'verify_pin', pin: pinVal });
+                if (res && res.status === 'success' && res.valid) {
+                    currentPin = pinVal;
+                    sessionStorage.setItem(SESSION_PIN_KEY, currentPin);
+                    localStorage.setItem(LOCAL_PIN_KEY, currentPin);
+                    document.getElementById('pin-lock-screen').style.display = 'none';
+                    errEl.innerText = '';
+                    refreshState(true);
+                    return;
+                }
+                if (res && res.valid === false) {
+                    errEl.innerText = '❌ PIN 码错误，请重试';
+                    return;
+                }
+                throw new Error('Legacy GAS');
+            } catch (e) {
+                const localPin = localStorage.getItem(LOCAL_PIN_KEY) || '8888';
+                if (pinVal === localPin) {
+                    currentPin = pinVal;
+                    sessionStorage.setItem(SESSION_PIN_KEY, currentPin);
+                    document.getElementById('pin-lock-screen').style.display = 'none';
+                    errEl.innerText = '';
+                    refreshState(true);
+                } else {
+                    errEl.innerText = '❌ PIN 码错误（默认 8888）';
+                }
+            }
+        }
+
+        function lockAdmin() {
+            sessionStorage.removeItem(SESSION_PIN_KEY);
+            currentPin = '';
+            document.getElementById('pin-input').value = '';
+            document.getElementById('pin-lock-screen').style.display = 'flex';
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('btn-sound').innerText = soundEnabled ? '🔔 提醒音: 开' : '🔕 提醒音: 关';
+            if (soundEnabled) playBeep();
+        }
+
+        function toggleAutoPoll() {
+            autoPollEnabled = !autoPollEnabled;
+            document.getElementById('btn-autopoll').innerText = autoPollEnabled ? '⏱️ 自动刷新: 开' : '⏸️ 自动刷新: 关';
+        }
+
+        function switchTab(tabName) {
+            activeTab = tabName;
+            document.querySelectorAll('.nav-tab').forEach(t => {
+                t.classList.toggle('active', t.getAttribute('data-tab') === tabName);
+            });
+            document.querySelectorAll('.panel-section').forEach(p => p.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+            if (tabName === 'chat') {
+                document.getElementById('badge-tab-chat').classList.remove('show');
+                renderChat();
+            }
+        }
+
+        function formatStatusLabel(s) {
+            const m = {
+                'Pending Quote': '⏳ 待评估报价',
+                'Quoted': '💰 已报价(待收款)',
+                'Rejected': '🚫 无法打印',
+                'Pending': '📝 待收款确认',
+                'Paid': '✅ 已收款(可打印)',
+                'Printing': '🖨️ 打印中',
+                'Completed': '🎉 已完成',
+                'Cancelled': '❌ 已取消'
+            };
+            return m[s] || s;
+        }
+
+        function readLocalOrders() {
+            try { return JSON.parse(localStorage.getItem(LOCAL_ORDERS_KEY) || '[]'); } catch (e) { return []; }
+        }
+
+        function readLocalChats() {
+            try { return JSON.parse(localStorage.getItem(LOCAL_CHAT_KEY) || '[]'); } catch (e) { return []; }
+        }
+
+        function mergeData(remoteOrders, remoteChats) {
+            const oMap = {};
+            readLocalOrders().forEach(o => { if (o['Order ID']) oMap[o['Order ID']] = o; });
+            remoteOrders.forEach(o => { if (o['Order ID']) oMap[o['Order ID']] = o; });
+            const mergedOrders = Object.values(oMap).sort((a, b) => String(b.Date || '').localeCompare(String(a.Date || '')));
+
+            const cMap = {};
+            readLocalChats().forEach(c => { if (c['Msg ID']) cMap[c['Msg ID']] = c; });
+            remoteChats.forEach(c => { if (c['Msg ID']) cMap[c['Msg ID']] = c; });
+            const mergedChats = Object.values(cMap).sort((a, b) => String(a.Date || '').localeCompare(String(b.Date || '')));
+
+            return { mergedOrders, mergedChats };
+        }
+
+        function checkAlerts(newOrders, newChats) {
+            if (!initialPollDone) {
+                newOrders.forEach(o => knownOrderIds.add(o['Order ID']));
+                knownChatCount = newChats.length;
+                initialPollDone = true;
+                return;
+            }
+
+            let beepNeeded = false;
+            newOrders.forEach(o => {
+                if (!knownOrderIds.has(o['Order ID'])) {
+                    knownOrderIds.add(o['Order ID']);
+                    if (o['Status'] === 'Pending Quote') {
+                        showToast(`🚨 新询价单 #${o['Order ID']} 来自 ${o['Student Name']}`);
+                        beepNeeded = true;
+                    }
+                }
+            });
+
+            if (newChats.length > knownChatCount) {
+                const newBoothMsgs = newChats.slice(knownChatCount).filter(c => c.Sender === 'booth');
+                if (newBoothMsgs.length > 0) {
+                    showToast(`💬 现场学生发来消息：${newBoothMsgs[newBoothMsgs.length - 1].Text}`);
+                    if (activeTab !== 'chat') {
+                        const b = document.getElementById('badge-tab-chat');
+                        b.innerText = String((parseInt(b.innerText || '0', 10) || 0) + newBoothMsgs.length);
+                        b.classList.add('show');
+                    }
+                    beepNeeded = true;
+                }
+            }
+            knownChatCount = newChats.length;
+            if (beepNeeded) playBeep();
+        }
+
+        async function refreshState(manual) {
+            const connEl = document.getElementById('conn-status');
+            try {
+                const res = await fetch(SCRIPT_URL + '?action=get_state&_t=' + Date.now(), {
+                    method: 'GET',
+                    redirect: 'follow'
+                });
+                const data = await res.json();
+                if (data && data.status === 'success') {
+                    connEl.innerText = `☁️ 云端已同步 • ${data.server_time || ''}`;
+                    if (data.tg_bot_token) {
+                        localStorage.setItem(LOCAL_TG_TOKEN_KEY, data.tg_bot_token);
+                        const tokEl = document.getElementById('cfg-bot-token');
+                        if (tokEl && !tokEl.value) tokEl.value = data.tg_bot_token;
+                    }
+                    if (data.tg_chat_id) {
+                        localStorage.setItem(LOCAL_TG_CHAT_KEY, data.tg_chat_id);
+                        const chatEl = document.getElementById('cfg-chat-id');
+                        if (chatEl && !chatEl.value) chatEl.value = data.tg_chat_id;
+                    }
+                    const hasLocalTg = Boolean(localStorage.getItem(LOCAL_TG_TOKEN_KEY) && localStorage.getItem(LOCAL_TG_CHAT_KEY));
+                    const tgEl = document.getElementById('tg-status-pill');
+                    tgEl.innerText = (data.telegram_configured || hasLocalTg)
+                        ? '✅ Telegram Bot 已配置并启用（支持云端/浏览器直连双通道）'
+                        : '⚠️ 尚未配置 Telegram Bot Token / Chat ID';
+                    tgEl.style.background = (data.telegram_configured || hasLocalTg) ? '#dcfce7' : '#fef3c7';
+                    tgEl.style.color = (data.telegram_configured || hasLocalTg) ? '#166534' : '#92400e';
+
+                    const merged = mergeData(data.orders || [], data.chats || []);
+                    checkAlerts(merged.mergedOrders, merged.mergedChats);
+                    orders = merged.mergedOrders;
+                    chats = merged.mergedChats;
+                    renderAllViews();
+                    if (manual) showToast('✅ 已刷新最新订单与消息');
+                    return;
+                }
+                throw new Error('Invalid response');
+            } catch (e) {
+                connEl.innerText = '💾 本地缓存模式（待部署新版 Code.gs）';
+                document.getElementById('tg-status-pill').innerText = '⚠️ 需部署新版 Code.gs 才能连通云端 Telegram';
+                const merged = mergeData([], []);
+                checkAlerts(merged.mergedOrders, merged.mergedChats);
+                orders = merged.mergedOrders;
+                chats = merged.mergedChats;
+                renderAllViews();
+            }
+        }
+
+        function renderAllViews() {
+            renderStats();
+            renderQuotes();
+            renderChat();
+            renderAllOrders();
+        }
+
+        function renderStats() {
+            const pendingQuotes = orders.filter(o => o['Status'] === 'Pending Quote').length;
+            const paidOrders = orders.filter(o => ['Paid', 'Printing', 'Completed'].includes(o['Status']));
+            let revenue = 0;
+            paidOrders.forEach(o => {
+                const num = parseFloat(o['Total Price']);
+                if (!isNaN(num)) revenue += num;
+            });
+
+            document.getElementById('stat-pending-quotes').innerText = pendingQuotes;
+            document.getElementById('stat-total-orders').innerText = orders.length;
+            document.getElementById('stat-paid-count').innerText = paidOrders.length;
+            document.getElementById('stat-revenue').innerText = revenue.toFixed(2);
+
+            const qBadge = document.getElementById('badge-tab-quotes');
+            qBadge.innerText = pendingQuotes;
+            qBadge.classList.toggle('show', pendingQuotes > 0);
+        }
+
+        function renderQuotes() {
+            const container = document.getElementById('quotes-container');
+            const mwOrders = orders.filter(o => o['Model Choice'] === 'MakerWorld' || o['Status'] === 'Pending Quote' || o['Status'] === 'Quoted');
+            // 置顶待报价
+            mwOrders.sort((a, b) => {
+                const rank = s => (s === 'Pending Quote' ? 0 : (s === 'Quoted' ? 1 : 2));
+                return rank(a['Status']) - rank(b['Status']);
+            });
+
+            if (mwOrders.length === 0) {
+                container.innerHTML = '<div class="config-card" style="text-align:center; color:#64748b;">🎉 目前没有 MakerWorld 询价单！</div>';
+                return;
+            }
+
+            container.innerHTML = mwOrders.map(o => {
+                const id = o['Order ID'] || '';
+                const status = o['Status'] || 'Pending Quote';
+                const statusCls = 'status-' + String(status).replace(/\s+/g, '-');
+                const rawUrl = String(o['MakerWorld URL'] || '').trim();
+                const safeHttp = sanitizeHttpUrl(rawUrl);
+                const viewUrl = safeHttp || ('https://makerworld.com/en/search/models?keyword=' + encodeURIComponent(rawUrl));
+                const priceNum = parseFloat(o['Total Price']);
+                const initialPrice = isNaN(priceNum) ? '' : priceNum.toFixed(2);
+
+                return `
+                    <div class="quote-card ${status !== 'Pending Quote' ? 'quoted-done' : ''}">
+                        <div class="quote-header">
+                            <div>
+                                <strong style="font-size:16px;">#${escapeHtml(id)}</strong>
+                                <span style="margin-left:8px; font-weight:700;">${escapeHtml(o['Student Name'])} (${escapeHtml(o['Class'])})</span>
+                                <span style="margin-left:8px; font-size:12px; color:#64748b;">${escapeHtml(o['Date'])}</span>
+                            </div>
+                            <span class="status-badge ${escapeHtml(statusCls)}">${escapeHtml(formatStatusLabel(status))}</span>
+                        </div>
+                        <div style="font-size:13.5px; line-height:1.6; color:#334155;">
+                            <div><strong>数量：</strong>${escapeHtml(o['Quantity'])} 件 | <strong>配置：</strong>${escapeHtml(o['Summary'])}</div>
+                            <div><strong>模型名称/链接：</strong>${escapeHtml(rawUrl || '-')}</div>
+                            ${o['Student Notes'] ? `<div><strong>学生备注：</strong>${escapeHtml(o['Student Notes'])}</div>` : ''}
+                            ${rawUrl ? `<a href="${escapeHtml(viewUrl)}" target="_blank" rel="noopener noreferrer" class="mw-link-btn">🔗 ${safeHttp ? '打开 MakerWorld 查看模型' : '去 MakerWorld 搜索此模型'}</a>` : ''}
+                        </div>
+
+                        <div class="quote-controls">
+                            <div style="font-size:12.5px; font-weight:700; color:#475569;">快捷金额 (RM)：</div>
+                            <div class="quick-chips">
+                                ${[5, 8, 10, 12, 15, 20, 25, 30].map(p => `<button type="button" class="chip-btn" onclick="fillQuotePrice('${escapeHtml(id)}', ${p})">RM ${p}</button>`).join('')}
+                            </div>
+
+                            <div class="quote-inputs-row">
+                                <input type="number" step="0.5" min="0" id="q-price-${escapeHtml(id)}" class="field-input"
+                                    value="${escapeHtml(initialPrice)}" placeholder="报价金额 RM">
+                                <input type="text" id="q-note-${escapeHtml(id)}" class="field-input"
+                                    value="${escapeHtml(o['Teacher Note'] || '')}" placeholder="给现场学生/顾客的评语说明...">
+                            </div>
+
+                            <div class="quick-chips">
+                                <button type="button" class="chip-btn" onclick="fillQuoteNote('${escapeHtml(id)}', '✅ 模型可打印！现场付款后即可安排打印')">✅ 可打印</button>
+                                <button type="button" class="chip-btn" onclick="fillQuoteNote('${escapeHtml(id)}', '⚠️ 注意：原图为手涂效果，实际打印为单色/纯色')">⚠️ 提醒手涂变单色</button>
+                                <button type="button" class="chip-btn" onclick="fillQuoteNote('${escapeHtml(id)}', '⚠️ 仅支持单色打印，已按单色为你报价')">⚠️ 按单色报价</button>
+                                <button type="button" class="chip-btn" onclick="fillQuoteNote('${escapeHtml(id)}', '❌ 抱歉，此模型悬空/支撑过多易断，请重选一体打印(Print-in-Place)模型')">❌ 支撑过多易断</button>
+                            </div>
+
+                            <div class="quote-btn-row">
+                                <button type="button" class="btn-send-quote" onclick="submitQuote('${escapeHtml(id)}', 'Quoted')">💰 发送报价给现场</button>
+                                <button type="button" class="btn-reject" onclick="submitQuote('${escapeHtml(id)}', 'Rejected')">🚫 无法打印 / 驳回</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function fillQuotePrice(orderId, amount) {
+            const el = document.getElementById('q-price-' + orderId);
+            if (el) el.value = Number(amount).toFixed(2);
+        }
+
+        function fillQuoteNote(orderId, note) {
+            const el = document.getElementById('q-note-' + orderId);
+            if (el) el.value = note;
+        }
+
+        async function submitQuote(orderId, targetStatus) {
+            const priceEl = document.getElementById('q-price-' + orderId);
+            const noteEl = document.getElementById('q-note-' + orderId);
+            const priceVal = priceEl ? priceEl.value.trim() : '';
+            const noteVal = noteEl ? noteEl.value.trim() : '';
+
+            if (targetStatus === 'Quoted' && (!priceVal || isNaN(parseFloat(priceVal)))) {
+                alert('请先输入有效的报价金额（RM）！');
+                if (priceEl) priceEl.focus();
+                return;
+            }
+
+            const finalNote = (targetStatus === 'Rejected' && !noteVal)
+                ? '抱歉，此模型结构复杂/耗时过长无法打印，请更换一体打印模型。'
+                : noteVal;
+
+            // 同步更新本地缓存
+            const local = readLocalOrders();
+            local.forEach(item => {
+                if (item['Order ID'] === orderId) {
+                    item['Status'] = targetStatus;
+                    if (targetStatus === 'Quoted') item['Total Price'] = parseFloat(priceVal).toFixed(2);
+                    item['Teacher Note'] = finalNote;
+                    item['Updated At'] = formatLocalDateTime(new Date());
+                }
+            });
+            localStorage.setItem(LOCAL_ORDERS_KEY, JSON.stringify(local));
+
+            orders.forEach(item => {
+                if (item['Order ID'] === orderId) {
+                    item['Status'] = targetStatus;
+                    if (targetStatus === 'Quoted') item['Total Price'] = parseFloat(priceVal).toFixed(2);
+                    item['Teacher Note'] = finalNote;
+                }
+            });
+            renderAllViews();
+            showToast(targetStatus === 'Quoted' ? `✅ 已发送报价 RM ${parseFloat(priceVal).toFixed(2)} 给现场` : `🚫 已驳回 #${orderId}`);
+
+            try {
+                const res = await postToGas({
+                    action: 'update_quote',
+                    pin: currentPin,
+                    order_id: orderId,
+                    quote_price: targetStatus === 'Quoted' ? parseFloat(priceVal).toFixed(2) : '',
+                    status: targetStatus,
+                    teacher_note: finalNote
+                });
+                if (res && res.status === 'error') {
+                    alert('云端更新失败: ' + res.message);
+                } else {
+                    refreshState(false);
+                }
+            } catch (e) {
+                console.warn('Updated locally, awaiting GAS sync:', e);
+            }
+        }
+
+        function setOrderFilter(f) {
+            currentOrderFilter = f;
+            renderAllOrders();
+        }
+
+        function renderAllOrders() {
+            const container = document.getElementById('all-orders-container');
+            const query = (document.getElementById('order-search-input').value || '').trim().toLowerCase();
+
+            const filtered = orders.filter(o => {
+                if (currentOrderFilter !== 'ALL' && o['Status'] !== currentOrderFilter) return false;
+                if (query) {
+                    const hay = `${o['Order ID']} ${o['Student Name']} ${o['Class']} ${o['Model Choice']}`.toLowerCase();
+                    if (!hay.includes(query)) return false;
+                }
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="config-card" style="text-align:center; color:#64748b;">暂无匹配订单</div>';
+                return;
+            }
+
+            const statusOptions = ['Pending Quote', 'Quoted', 'Rejected', 'Pending', 'Paid', 'Printing', 'Completed', 'Cancelled'];
+
+            container.innerHTML = filtered.map(o => {
+                const id = o['Order ID'] || '';
+                const st = o['Status'] || 'Pending';
+                const cls = 'status-' + String(st).replace(/\s+/g, '-');
+                return `
+                    <div class="order-row-card">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                            <div>
+                                <strong>#${escapeHtml(id)}</strong>
+                                <span style="margin-left:8px; font-weight:700;">${escapeHtml(o['Student Name'])} (${escapeHtml(o['Class'])})</span>
+                                <span style="margin-left:8px; color:#2563eb; font-weight:700;">${escapeHtml(o['Model Choice'])} × ${escapeHtml(o['Quantity'])}</span>
+                            </div>
+                            <span class="status-badge ${escapeHtml(cls)}">${escapeHtml(formatStatusLabel(st))}</span>
+                        </div>
+                        <div style="font-size:13px; color:#475569; margin-top:6px;">
+                            ${escapeHtml(o['Summary'])}
+                            ${o['MakerWorld URL'] ? ` | <strong>模型:</strong> ${escapeHtml(o['MakerWorld URL'])}` : ''}
+                            ${o['Student Notes'] ? ` | <strong>备注:</strong> ${escapeHtml(o['Student Notes'])}` : ''}
+                        </div>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:10px;">
+                            <span style="font-weight:800; color:#15803d; min-width:110px;">
+                                ${st === 'Pending Quote' ? '⏳ 待报价' : '💰 RM ' + escapeHtml(o['Total Price'])}
+                            </span>
+                            <select id="ord-st-${escapeHtml(id)}" class="field-input" style="max-width:180px; padding:6px 10px;">
+                                ${statusOptions.map(opt => `<option value="${opt}" ${opt === st ? 'selected' : ''}>${formatStatusLabel(opt)}</option>`).join('')}
+                            </select>
+                            <input type="text" id="ord-price-${escapeHtml(id)}" class="field-input" style="max-width:110px; padding:6px 10px;"
+                                value="${escapeHtml(o['Total Price'] === 'Pending Quote' ? '' : o['Total Price'])}" placeholder="价格 RM">
+                            <input type="text" id="ord-note-${escapeHtml(id)}" class="field-input" style="flex:1; min-width:160px; padding:6px 10px;"
+                                value="${escapeHtml(o['Teacher Note'] || '')}" placeholder="老师备注">
+                            <button type="button" class="btn-send-quote" style="padding:7px 14px;"
+                                onclick="saveOrderRow('${escapeHtml(id)}')">保存状态</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function saveOrderRow(orderId) {
+            const st = document.getElementById('ord-st-' + orderId).value;
+            const pr = document.getElementById('ord-price-' + orderId).value.trim();
+            const nt = document.getElementById('ord-note-' + orderId).value.trim();
+
+            const local = readLocalOrders();
+            local.forEach(item => {
+                if (item['Order ID'] === orderId) {
+                    item['Status'] = st;
+                    if (pr) item['Total Price'] = pr;
+                    item['Teacher Note'] = nt;
+                }
+            });
+            localStorage.setItem(LOCAL_ORDERS_KEY, JSON.stringify(local));
+
+            orders.forEach(item => {
+                if (item['Order ID'] === orderId) {
+                    item['Status'] = st;
+                    if (pr) item['Total Price'] = pr;
+                    item['Teacher Note'] = nt;
+                }
+            });
+            renderAllViews();
+            showToast(`✅ 订单 #${orderId} 状态已更新`);
+
+            try {
+                await postToGas({
+                    action: 'update_quote',
+                    pin: currentPin,
+                    order_id: orderId,
+                    quote_price: pr,
+                    status: st,
+                    teacher_note: nt
+                });
+                refreshState(false);
+            } catch (e) {}
+        }
+
+        function renderChat() {
+            const stream = document.getElementById('admin-chat-stream');
+            if (!chats.length) {
+                stream.innerHTML = '<p style="text-align:center; color:#64748b; margin-top:30px;">暂无聊天消息，现场学生求助时会显示在这里。</p>';
+                return;
+            }
+            stream.innerHTML = chats.map(m => {
+                const isTeacher = m.Sender === 'teacher';
+                return `
+                    <div class="bubble ${isTeacher ? 'teacher' : 'booth'}">
+                        <div style="font-size:11px; font-weight:700; margin-bottom:2px;">
+                            ${isTeacher ? '👨‍🏫 潘老师 (我)' : '🙋 现场看摊学生'}
+                        </div>
+                        <div>${escapeHtml(m.Text)}</div>
+                        <div class="bubble-time">${escapeHtml(m.Date || '')}</div>
+                    </div>
+                `;
+            }).join('');
+            stream.scrollTop = stream.scrollHeight;
+        }
+
+        function sendQuickReply(text) {
+            document.getElementById('admin-chat-input').value = text;
+            sendTeacherChat();
+        }
+
+        async function sendTeacherChat() {
+            const input = document.getElementById('admin-chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = '';
+
+            const msgObj = {
+                'Msg ID': 'MSG-' + Date.now(),
+                'Date': formatLocalDateTime(new Date()),
+                'Sender': 'teacher',
+                'Text': text,
+                'Order Ref': ''
+            };
+
+            const cached = readLocalChats();
+            cached.push(msgObj);
+            localStorage.setItem(LOCAL_CHAT_KEY, JSON.stringify(cached.slice(-80)));
+            chats.push(msgObj);
+            renderChat();
+
+            try {
+                await postToGas({
+                    action: 'send_chat',
+                    pin: currentPin,
+                    sender: 'teacher',
+                    text: text
+                });
+            } catch (e) {}
+        }
+
+        async function sendTelegramDirect(token, chatId, text) {
+            const url = 'https://api.telegram.org/bot' + encodeURIComponent(String(token).trim()) + '/sendMessage';
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: String(chatId).trim(),
+                    text: text,
+                    disable_web_page_preview: false
+                })
+            });
+            const json = await res.json();
+            if (json && json.ok) return { ok: true };
+            return { ok: false, reason: (json && json.description) || ('HTTP ' + res.status) };
+        }
+
+        async function saveSettings() {
+            const botToken = document.getElementById('cfg-bot-token').value.trim();
+            const chatId = document.getElementById('cfg-chat-id').value.trim();
+            const newPin = document.getElementById('cfg-new-pin').value.trim();
+            const customUrl = document.getElementById('cfg-script-url').value.trim();
+
+            if (botToken) localStorage.setItem(LOCAL_TG_TOKEN_KEY, botToken);
+            if (chatId) localStorage.setItem(LOCAL_TG_CHAT_KEY, chatId);
+
+            if (customUrl) {
+                SCRIPT_URL = customUrl;
+                localStorage.setItem(CUSTOM_URL_KEY, customUrl);
+            }
+
+            try {
+                const res = await postToGas({
+                    action: 'save_config',
+                    pin: currentPin,
+                    bot_token: botToken || undefined,
+                    chat_id: chatId || undefined,
+                    new_pin: newPin || undefined
+                });
+                if (res && res.status === 'success') {
+                    if (newPin) {
+                        currentPin = newPin;
+                        sessionStorage.setItem(SESSION_PIN_KEY, newPin);
+                        localStorage.setItem(LOCAL_PIN_KEY, newPin);
+                    }
+                    showToast('✅ 配置已保存到云端与本地缓存！');
+                    refreshState(false);
+                } else {
+                    alert('保存失败: ' + (res.message || '未知错误'));
+                }
+            } catch (e) {
+                alert('无法连接到 Google Apps Script，但 Bot Token 与 Chat ID 已保存至本地浏览器缓存。');
+            }
+        }
+
+        async function testTelegram() {
+            const inputToken = document.getElementById('cfg-bot-token').value.trim();
+            const inputChatId = document.getElementById('cfg-chat-id').value.trim();
+            const token = inputToken || localStorage.getItem(LOCAL_TG_TOKEN_KEY) || '';
+            const chatId = inputChatId || localStorage.getItem(LOCAL_TG_CHAT_KEY) || '';
+            showToast('📨 正在发送测试消息...');
+
+            let gasErrorMsg = '';
+            try {
+                const res = await postToGas({
+                    action: 'test_telegram',
+                    pin: currentPin,
+                    bot_token: token || undefined,
+                    chat_id: chatId || undefined
+                });
+                if (res && res.status === 'success') {
+                    alert('✅ Telegram 测试消息发送成功（via Google Apps Script）！请查看你的 Telegram。');
+                    return;
+                }
+                gasErrorMsg = (res && res.message) || 'GAS 返回错误';
+            } catch (e) {
+                gasErrorMsg = e.message || '无法连接 Google Apps Script';
+            }
+
+            // 当 GAS 因缺少 UrlFetchApp 权限等原因失败时，自动切换为浏览器直连 Telegram API
+            if (token && chatId) {
+                try {
+                    const testMsg = '✅ Pei Ching 3D Print Hub 测试通知成功（浏览器直连通道）！\n时间: ' + formatLocalDateTime(new Date()) + '\n义卖会远程报价与现场呼叫系统已连接就绪。';
+                    const directRes = await sendTelegramDirect(token, chatId, testMsg);
+                    if (directRes.ok) {
+                        localStorage.setItem(LOCAL_TG_TOKEN_KEY, token);
+                        localStorage.setItem(LOCAL_TG_CHAT_KEY, chatId);
+                        alert('✅ 已通过「浏览器直连通道」成功发送 Telegram 测试消息！请查看你的 Telegram。\n\n（注：如需纯后台推送，请按下方说明在 Apps Script 运行 authorizeTelegramPermission 授权并重新部署新版 Code.gs）');
+                        return;
+                    }
+                    alert('❌ 浏览器直连发送也失败：' + directRes.reason + '\n\n请检查：\n1. Bot Token 是否复制完整；\n2. 你是否已经在 Telegram 对这个机器人（bbq bot）发送过 /start；\n3. Chat ID 是否正确。\n\n(GAS 原错误: ' + gasErrorMsg + ')');
+                    return;
+                } catch (directErr) {
+                    alert('❌ 发送失败：' + directErr.message + '\n(GAS 原错误: ' + gasErrorMsg + ')');
+                    return;
+                }
+            }
+
+            alert('❌ 发送失败：' + gasErrorMsg + '\n请确保上方已填入 Bot Token 和 Chat ID 再试一次。');
+        }
+
+        window.addEventListener('storage', function (e) {
+            if (e.key === LOCAL_ORDERS_KEY || e.key === LOCAL_CHAT_KEY) {
+                const merged = mergeData(orders, chats);
+                checkAlerts(merged.mergedOrders, merged.mergedChats);
+                orders = merged.mergedOrders;
+                chats = merged.mergedChats;
+                renderAllViews();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('cfg-script-url').value = SCRIPT_URL;
+            const savedTok = localStorage.getItem(LOCAL_TG_TOKEN_KEY);
+            const savedChat = localStorage.getItem(LOCAL_TG_CHAT_KEY);
+            if (savedTok) document.getElementById('cfg-bot-token').value = savedTok;
+            if (savedChat) document.getElementById('cfg-chat-id').value = savedChat;
+            if (currentPin) {
+                document.getElementById('pin-lock-screen').style.display = 'none';
+                refreshState(false);
+            }
+            setInterval(() => {
+                if (currentPin && autoPollEnabled) refreshState(false);
+            }, 8000);
+        });
+    </script>
+</body>
+
+</html>
