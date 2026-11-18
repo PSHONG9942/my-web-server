@@ -281,24 +281,24 @@ function handleCreateOrder_(ss, data) {
     ];
     summary = '名字: ' + (data.keychain_text || '') + ' | 表情:' + (data.topper_emoji || 'None') + ' | 底:' + (data.filament_color || '') + ' 字:' + (data.keychain_name_color || '') + ' | 字体:' + (data.font_style || '');
   } else if (modelChoice === 'Flexi_Cat') {
-    headers = baseHeaders.concat(['Main Color', 'Secondary Color', 'Tertiary Color', 'Hole Position', 'Add Ring', 'Order ID']);
+    headers = baseHeaders.concat(['Main Color', 'Secondary Color', 'Tertiary Color', 'Hole Position', 'Add Ring', 'Theme', 'Order ID']);
     rowData = [
       formattedDate, status, studentName, studentClass, quantity, totalPrice,
       data.filament_color || '', data.secondary_color || '', data.tertiary_color || '',
-      data.cat_keychain_hole || 'None', data.add_keychain_ring ? 'Yes' : 'No',
-      orderId
+      data.cat_keychain_hole || 'Standard', data.add_keychain_ring ? 'Yes' : 'No',
+      data.cat_theme || '', orderId
     ];
-    summary = '主色:' + (data.filament_color || '') + ' | 副色:' + (data.secondary_color || '') + ' | 条纹:' + (data.tertiary_color || '') + ' | 孔位:' + (data.cat_keychain_hole || 'None') + ' | 铁环:' + (data.add_keychain_ring ? '送' : '无');
+    summary = (data.cat_theme ? '主题:' + data.cat_theme + ' ' : '') + '(' + (data.filament_color || '') + '/' + (data.secondary_color || '') + '/' + (data.tertiary_color || '') + ') | 铁环:' + (data.add_keychain_ring ? '加(+RM1)' : '无');
   } else if (modelChoice === 'Flexi_Bunny') {
     const bunny = resolveBunnyDetails_(data);
     headers = baseHeaders.concat(['Main Color (skin)', 'Secondary Color (belly)', 'Tertiary Color (Details)', 'Hole Position', 'Add Ring', 'Theme', 'Order ID']);
     rowData = [
       formattedDate, status, studentName, studentClass, quantity, totalPrice,
       bunny.main, bunny.sec, bunny.ter,
-      data.cat_keychain_hole || 'None', data.add_keychain_ring ? 'Yes' : 'No',
+      data.cat_keychain_hole || 'Standard', data.add_keychain_ring ? 'Yes' : 'No',
       bunny.theme, orderId
     ];
-    summary = '主题:' + bunny.theme + ' (' + bunny.main + '/' + bunny.sec + '/' + bunny.ter + ') | 孔位:' + (data.cat_keychain_hole || 'None') + ' | 铁环:' + (data.add_keychain_ring ? '送' : '无');
+    summary = '主题:' + bunny.theme + ' (' + bunny.main + '/' + bunny.sec + '/' + bunny.ter + ') | 铁环:' + (data.add_keychain_ring ? '加(+RM1)' : '无');
   } else if (modelChoice === 'MakerWorld') {
     headers = ['Order ID', 'Date', 'Status', 'Student Name', 'Class', 'Quantity', 'Quote Price', 'MakerWorld URL / Name', 'Color Mode', 'Preferred Colors', 'Student Notes', 'Teacher Note'];
     rowData = [
