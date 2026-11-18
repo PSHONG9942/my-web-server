@@ -322,11 +322,11 @@
             }
         }
 
-        /* 6宫格图文物品选择卡片 */
+        /* 图文物品选择卡片 */
         .model-card-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
+            gap: 10px;
             margin-top: 8px;
             margin-bottom: 18px;
         }
@@ -1143,37 +1143,31 @@
                         <label for="id_model_choice" style="margin-top: 18px;">Choose an Item <b>选择物品</b> <i>Pilih
                                 Barang</i>:</label>
 
-                        <!-- 6宫格图文卡片选择器 -->
+                        <!-- 图文卡片选择器（5款选项） -->
                         <div class="model-card-grid" id="model-card-grid">
                             <div class="model-card active" data-value="Keychain" onclick="selectModelCard('Keychain')">
                                 <div class="model-card-icon">🔑</div>
                                 <div class="model-card-title">Name Keychain<br>名字钥匙扣</div>
                                 <div class="model-card-sub">Rantai Kunci Nama</div>
-                                <div class="model-card-price">RM 4.00 起</div>
+                                <div class="model-card-price">RM 4.00</div>
                             </div>
                             <div class="model-card" data-value="Tumbler" onclick="selectModelCard('Tumbler')">
                                 <div class="model-card-icon">🥤</div>
                                 <div class="model-card-title">Mini Tumbler<br>迷你保温杯</div>
                                 <div class="model-card-sub">Bekas Pelembap Bibir</div>
-                                <div class="model-card-price">RM 9.00 起</div>
-                            </div>
-                            <div class="model-card" data-value="Topper" onclick="selectModelCard('Topper')">
-                                <div class="model-card-icon">✏️</div>
-                                <div class="model-card-title">Pencil Topper<br>铅笔套</div>
-                                <div class="model-card-sub">Penutup Pensel</div>
-                                <div class="model-card-price">RM 3 - RM 10</div>
+                                <div class="model-card-price">RM 4.00</div>
                             </div>
                             <div class="model-card" data-value="Flexi_Cat" onclick="selectModelCard('Flexi_Cat')">
                                 <div class="model-card-icon">🐱</div>
                                 <div class="model-card-title">Flexi Cat<br>软体猫咪</div>
                                 <div class="model-card-sub">Kucing Flexi</div>
-                                <div class="model-card-price">RM 20.00 (送铁环)</div>
+                                <div class="model-card-price">RM 4.00</div>
                             </div>
                             <div class="model-card" data-value="Flexi_Bunny" onclick="selectModelCard('Flexi_Bunny')">
                                 <div class="model-card-icon">🐰</div>
                                 <div class="model-card-title">Flexi Bunny<br>可爱复活兔</div>
                                 <div class="model-card-sub">Arnab Flexi</div>
-                                <div class="model-card-price">RM 20.00 (送铁环)</div>
+                                <div class="model-card-price">RM 4.00</div>
                             </div>
                             <div class="model-card makerworld-card" data-value="MakerWorld"
                                 onclick="selectModelCard('MakerWorld')">
@@ -1188,7 +1182,6 @@
                         <select id="id_model_choice" class="sr-only-select" aria-label="Choose an Item">
                             <option value="Keychain" selected>🔑 Personalized Name Keychain</option>
                             <option value="Tumbler">🥤 Mini Tumbler</option>
-                            <option value="Topper">✏️ Pencil Topper</option>
                             <option value="Flexi_Cat">🐱 Fluffy Tail Flexi Cat</option>
                             <option value="Flexi_Bunny">🐰 Cute Flexi Easter Bunny</option>
                             <option value="MakerWorld">🌐 MakerWorld Custom Model</option>
@@ -1335,24 +1328,6 @@
                             <input type="text" id="id_keychain_text" value="" placeholder="例如 / e.g., JAYDEN" maxlength="15">
                         </div>
 
-                        <div id="field-emoji" class="dynamic-field">
-                            <label for="id_topper_emoji">Select an Emoji <b>选择表情</b> <i>Pilih Emoji</i>:</label>
-                            <select id="id_topper_emoji">
-                                <option value="None" selected>❌ No Emoji 无表情 Tiada Emoji</option>
-                                <option value="⚽">⚽ Soccer Ball</option>
-                                <option value="🦄">🦄 Unicorn</option>
-                                <option value="🤖">🤖 Robot</option>
-                                <option value="🌸">🌸 Flower</option>
-                                <option value="🎃">🎃 Pumpkin</option>
-                                <option value="💖">💖 Heart</option>
-                                <option value="⭐">⭐ Star</option>
-                                <option value="🐾">🐾 Paw Print</option>
-                                <option value="🦋">🦋 Butterfly</option>
-                                <option value="🔥">🔥 Fire</option>
-                                <option value="👑">👑 Crown</option>
-                            </select>
-                        </div>
-
                         <div id="field-font" class="dynamic-field">
                             <label for="id_font_style">Font Style <b>字体选择</b> <i>Pilihan Fon</i>:</label>
                             <select id="id_font_style">
@@ -1376,28 +1351,18 @@
 
                         <div id="field-width" class="dynamic-field">
                             <label for="id_keychain_width">Keychain Size <b>钥匙扣尺寸</b> <i>Saiz Rantai Kunci</i>:</label>
-                            <span class="helptext">Select the size of your keychain.</span>
+                            <span class="helptext">Select the size of your keychain (All sizes RM4.00).</span>
                             <select id="id_keychain_width" required>
                                 <option value="15" selected>Small (15mm) 小 Kecil - RM 4.00</option>
-                                <option value="22">Medium (22mm) 中 Sederhana - RM 6.00</option>
-                                <option value="30">Large (30mm) 大 Besar - RM 9.00</option>
-                            </select>
-                        </div>
-
-                        <div id="section-cat-hole" class="dynamic-field">
-                            <label for="id_cat_keychain_hole">Keychain Ring Hole Position <b>打孔位置</b> <i>Posisi Lubang</i>:</label>
-                            <select id="id_cat_keychain_hole">
-                                <option value="None" selected>❌ No Hole 无孔 Tiada Lubang</option>
-                                <option value="Ear">👂 Right Ear 右耳 Telinga Kanan</option>
-                                <option value="Tail">🐈 Tail Tip 尾巴尖 Hujung Ekor</option>
-                                <option value="Head">🗣️ Top of Head 头顶 Atas Kepala</option>
+                                <option value="22">Medium (22mm) 中 Sederhana - RM 4.00</option>
+                                <option value="30">Large (30mm) 大 Besar - RM 4.00</option>
                             </select>
                         </div>
 
                         <div id="section-ring-add-on" class="dynamic-field">
                             <div class="checkbox-row">
                                 <input type="checkbox" id="id_add_keychain_ring">
-                                <label id="label_ring_addon" for="id_add_keychain_ring">Add Metal Ring (+RM1.00) <b>加铁环</b>
+                                <label id="label_ring_addon" for="id_add_keychain_ring">Add Metal Ring (+RM1.00) <b>加钥匙圈/铁环</b>
                                     (+RM1.00) <i>Tambah Gelang Besi (+RM1.00)</i></label>
                             </div>
                         </div>
@@ -1457,20 +1422,6 @@
                             </svg>
                         </div>
 
-                        <div id="preview-topper" class="preview-box">
-                            <p style="margin-top: 0; color: #475569; font-weight: bold; font-size: 14px;">Topper Preview <b>铅笔套实时预览</b>:</p>
-                            <svg width="240" height="75" viewBox="0 0 220 70" xmlns="http://www.w3.org/2000/svg">
-                                <polygon points="10,35 30,25 200,25 200,45 30,45" fill="#fcd34d" stroke="#d97706"
-                                    stroke-width="2" />
-                                <polygon points="10,35 30,25 30,45" fill="#374151" />
-                                <rect id="topper-base" x="80" y="15" width="100" height="40" rx="8" fill="#3b82f6"
-                                    stroke="#1d4ed8" stroke-width="4" />
-                                <text id="topper-text" x="130" y="43" font-family="'Archivo Black', sans-serif" font-size="18"
-                                    font-weight="bold" fill="#ffffff" stroke="#d1d5db" stroke-width="1"
-                                    text-anchor="middle">NAME</text>
-                            </svg>
-                        </div>
-
                         <div id="preview-flexicat" class="preview-box">
                             <p style="margin-top: 0; color: #475569; font-weight: bold; font-size: 14px;">Flexi Cat Preview <b>猫咪主题与预览</b>:</p>
 
@@ -1499,9 +1450,9 @@
                             </div>
 
                             <div id="flexicat-img" style="display: none; margin-bottom: 10px;">
-                                <img id="flexicat-real-image" src="" alt="Flexi Cat Theme" loading="lazy"
+                                <img id="flexicat-real-image" src="" alt="Flexi Cat Theme"
                                     style="max-width: 100%; max-height: 280px; height: auto; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.12);">
-                                <p style="font-size: 12px; color: #059669; margin-top: 6px;">✨ 推荐官方配色实拍图 (可在左侧微调任意颜色查看自定义效果)</p>
+                                <p style="font-size: 12px; color: #059669; margin-top: 6px;">✨ 6款限定预设配色 (点击上方按钮切换主题) / Exclusive 6 Preset Themes</p>
                             </div>
 
                             <svg id="flexicat-svg" width="220" height="210" viewBox="0 0 220 210"
@@ -1560,7 +1511,6 @@
                                         stroke-width="2.5" style="display:none;" />
                                 </g>
                             </svg>
-                            <div class="hole-badge" id="cat-hole-badge">📍 打孔位置：无孔 No Hole</div>
                         </div>
 
                         <div id="preview-flexibunny" class="preview-box">
@@ -1591,45 +1541,38 @@
                             </div>
 
                             <div id="flexibunny-img" style="margin-bottom: 10px;">
-                                <img id="flexibunny-real-image" src="" alt="Flexi Bunny Theme" loading="lazy"
+                                <img id="flexibunny-real-image" src="" alt="Flexi Bunny Theme"
                                     style="max-width: 100%; max-height: 280px; height: auto; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.12); display: none;">
                                 <p style="font-size: 12px; color: #059669; margin-top: 6px;">✨ Exclusive Premium Edition (6款限定配色)</p>
                             </div>
-                            <div class="hole-badge" id="bunny-hole-badge">📍 打孔位置：无孔 No Hole</div>
                         </div>
 
                         <!-- INFO CARDS -->
                         <div id="info-keychain" class="info-card">
                             <strong>🔑 Name Keychain / <b>名字钥匙扣</b> / <i>Rantai Kunci Nama</i></strong><br>
-                            • Price 价格: Small 15mm (RM4), Medium 22mm (RM6), Large 30mm (RM9)<br>
+                            • Price 价格: <strong>RM4.00</strong> (Small 15mm / Medium 22mm / Large 30mm)<br>
                             • Colors 颜色: Pick different colors for base and text! 可自由搭配底色和字色！<br>
-                            • Add Ring 加铁环 (+RM1.00): Hang it on your bag! 挂在书包上！
+                            • Add Keychain Ring 加钥匙圈 (+RM1.00 = <strong>RM5.00</strong>): Hang it on your bag!
                         </div>
 
                         <div id="info-tumbler" class="info-card">
                             <strong>🥤 Mini Tumbler / <b>迷你保温杯（润唇膏盒）</b> / <i>Tumbler Mini</i></strong><br>
-                            • 1 Color 单色 (RM9.00) | 2 Colors 双色 (RM11.00)<br>
-                            • Add Ring 加铁环 (+RM1.00): Hang it on your bag! 挂在书包上！
-                        </div>
-
-                        <div id="info-topper" class="info-card">
-                            <strong>✏️ Pencil Topper / <b>铅笔套（名字和表情）</b> / <i>Penutup Pensel</i></strong><br>
-                            • Price 价格: RM3.00 - RM10.00 (Depends on name length 根据名字长度计算)<br>
-                            • Put it on your pencil! 放在铅笔上！
+                            • Price 价格: <strong>RM4.00</strong> (单色或双色统一价 / 1 or 2 Colors)<br>
+                            • Add Keychain Ring 加钥匙圈 (+RM1.00 = <strong>RM5.00</strong>): Hang it on your bag!
                         </div>
 
                         <div id="info-flexicat" class="info-card"
                             style="border-left-color: #ec4899; background-color: #fdf2f8; color: #831843;">
                             <strong>🐱 Flexi Cat / <b>软体猫咪</b> / <i>Kucing Flexi</i></strong><br>
-                            • Price 价格: <strong>RM20.00</strong> | Choose up to 3 colors! 最多可选择3种颜色！<br>
-                            • 🎁 <strong>Free Metal Ring! 免费送铁环！</strong> <i>Percuma gelang besi!</i>
+                            • Price 价格: <strong>RM4.00</strong> | 6款限定预设配色 Choose from 6 cute themes!<br>
+                            • Add Keychain Ring 加钥匙圈 (+RM1.00 = <strong>RM5.00</strong>): Hang it on your bag!
                         </div>
 
                         <div id="info-flexibunny" class="info-card"
                             style="border-left-color: #a855f7; background-color: #faf5ff; color: #581c87;">
                             <strong>🐰 Flexi Bunny / <b>可爱复活兔</b> / <i>Arnab Flexi</i></strong><br>
-                            • Price 价格: <strong>RM20.00</strong> | Choose from 6 cute themes! 有6个可爱主题选择！<br>
-                            • 🎁 <strong>Free Metal Ring! 免费送铁环！</strong> <i>Percuma gelang besi!</i>
+                            • Price 价格: <strong>RM4.00</strong> | 6款限定预设配色 Choose from 6 cute themes!<br>
+                            • Add Keychain Ring 加钥匙圈 (+RM1.00 = <strong>RM5.00</strong>): Hang it on your bag!
                         </div>
 
                         <div id="info-makerworld" class="info-card"
@@ -1769,12 +1712,12 @@
         };
 
         const catThemes = [
-            { id: 'sakura', main: 'Pink', sec: 'White', ter: 'Black', img: 'sakura.png' },
-            { id: 'ocean', main: 'Turquoise', sec: 'White', ter: 'Blue', img: 'ocean.png' },
-            { id: 'dracula', main: 'Black', sec: 'Red', ter: 'White', img: 'dracula.png' },
-            { id: 'bumblebee', main: 'Black', sec: 'Yellow', ter: 'White', img: 'bumblebee.png' },
-            { id: 'panda', main: 'Black', sec: 'White', ter: 'White', img: 'panda.png' },
-            { id: 'redpanda', main: 'Red', sec: 'White', ter: 'Black', img: 'red panda.png' }
+            { id: 'sakura', label: 'Sakura', main: 'Pink', sec: 'White', ter: 'Black', img: 'sakura.png' },
+            { id: 'ocean', label: 'Ocean', main: 'Turquoise', sec: 'White', ter: 'Blue', img: 'ocean.png' },
+            { id: 'dracula', label: 'Dracula', main: 'Black', sec: 'Red', ter: 'White', img: 'dracula.png' },
+            { id: 'bumblebee', label: 'Bumblebee', main: 'Black', sec: 'Yellow', ter: 'White', img: 'bumblebee.png' },
+            { id: 'panda', label: 'Panda', main: 'Black', sec: 'White', ter: 'White', img: 'panda.png' },
+            { id: 'redpanda', label: 'Red Panda', main: 'Red', sec: 'White', ter: 'Black', img: 'red panda.png' }
         ];
 
         const bunnyThemes = [
@@ -1786,14 +1729,8 @@
             { id: 'Vanilla', main: 'White', sec: 'White', ter: 'Pink', img: 'vanilla.png' }
         ];
 
-        const holeLabelMap = {
-            'None': '📍 打孔位置：无孔 No Hole / Tiada Lubang',
-            'Ear': '📍 打孔位置：右耳 Right Ear / Telinga Kanan',
-            'Tail': '📍 打孔位置：尾巴尖 Tail Tip / Hujung Ekor',
-            'Head': '📍 打孔位置：头顶 Top of Head / Atas Kepala'
-        };
-
         let currentPrice = 0.00;
+        let currentCatTheme = 'Sakura';
         let currentBunnyTheme = 'Strawberry';
         let pendingFormData = null;
         let soundEnabled = true;
@@ -1915,6 +1852,8 @@
         }
 
         function setCatTheme(mainColor, secondaryColor, tertiaryColor) {
+            const matched = catThemes.find(t => t.main === mainColor && t.sec === secondaryColor && t.ter === tertiaryColor);
+            if (matched) currentCatTheme = matched.label;
             document.getElementById('id_filament_color').value = mainColor;
             document.getElementById('id_secondary_color').value = secondaryColor;
             document.getElementById('id_tertiary_color').value = tertiaryColor;
@@ -1947,27 +1886,10 @@
             document.querySelectorAll('.info-card').forEach(el => el.style.display = 'none');
             document.querySelectorAll('.preview-box').forEach(el => el.style.display = 'none');
 
-            // 动态控制兔子 "Head" 打孔选项
-            const holeSelect = document.getElementById('id_cat_keychain_hole');
-            if (holeSelect) {
-                Array.from(holeSelect.options).forEach(opt => {
-                    if (opt.value === 'Head') {
-                        if (modelChoice === 'Flexi_Bunny') {
-                            opt.disabled = true;
-                            opt.hidden = true;
-                            if (holeSelect.value === 'Head') holeSelect.value = 'None';
-                        } else {
-                            opt.disabled = false;
-                            opt.hidden = false;
-                        }
-                    }
-                });
-            }
-
-            // 控制副色中的 "None" 选项 (Flexi_Cat 和 MakerWorld多色不允许选 None)
+            // 控制副色中的 "None" 选项 (MakerWorld多色不允许选 None)
             const secSelect = document.getElementById('id_secondary_color');
             const mwColorMode = document.getElementById('id_mw_color_mode').value;
-            const hideNoneInSec = (modelChoice === 'Flexi_Cat' || (modelChoice === 'MakerWorld' && mwColorMode === 'AMS_4Color'));
+            const hideNoneInSec = (modelChoice === 'MakerWorld' && mwColorMode === 'AMS_4Color');
             if (secSelect) {
                 Array.from(secSelect.options).forEach(opt => {
                     if (opt.value === 'None') {
@@ -1980,21 +1902,13 @@
                 }
             }
 
-            // 更新铁环文案与默认勾选状态
+            // 统一钥匙圈/铁环加购文案为 +RM1.00
             const ringLabel = document.getElementById('label_ring_addon');
-            const ringCheckbox = document.getElementById('id_add_keychain_ring');
-            if (modelChoice === 'Flexi_Cat' || modelChoice === 'Flexi_Bunny') {
-                ringLabel.innerHTML = '🎁 Add Metal Ring (FREE!) <b>免费附送铁环 (RM0.00)</b> <i>Percuma Gelang Besi (RM0.00)</i>';
-                if (modelChanged && holeSelect.value !== 'None') {
-                    ringCheckbox.checked = true;
-                }
-            } else {
-                ringLabel.innerHTML = 'Add Metal Ring (+RM1.00) <b>加铁环 (+RM1.00)</b> <i>Tambah Gelang Besi (+RM1.00)</i>';
-            }
+            ringLabel.innerHTML = 'Add Metal Ring (+RM1.00) <b>加钥匙圈/铁环 (+RM1.00)</b> <i>Tambah Gelang Besi (+RM1.00)</i>';
 
             // 更新主色标签
             const mainLabel = document.getElementById('label_main_color');
-            if (modelChoice === 'Keychain' || modelChoice === 'Topper') {
+            if (modelChoice === 'Keychain') {
                 mainLabel.innerHTML = 'Base Color <b>底板颜色</b> <i>Warna Tapak</i>:';
             } else if (modelChoice === 'Tumbler') {
                 mainLabel.innerHTML = 'Main Color (Tumbler Body) <b>杯身颜色</b> <i>Warna Badan Tumbler</i>:';
@@ -2023,46 +1937,34 @@
                 document.getElementById('label_secondary_color').innerHTML =
                     'Secondary Color (Lid & Straw) <b>杯盖与吸管颜色</b> <i>Warna Penutup & Straw</i>:';
                 document.getElementById('helptext_secondary_color').innerHTML =
-                    'Choose "None" or same color as Main Body for Single Color pricing. <b>选“无”或与杯身同色按单色计价。</b>';
+                    'Choose "None" for single color (Same RM4.00 price). <b>单色与双色统一 RM4.00。</b>';
                 document.getElementById('section-secondary-color').style.display = 'block';
                 document.getElementById('section-ring-add-on').style.display = 'block';
-
-            } else if (modelChoice === 'Topper') {
-                document.getElementById('info-topper').style.display = 'block';
-                document.getElementById('preview-topper').style.display = 'block';
-                document.getElementById('field-main-color').style.display = 'block';
-                document.getElementById('field-name-color').style.display = 'block';
-                document.getElementById('field-text').style.display = 'block';
-                document.getElementById('field-emoji').style.display = 'block';
-                document.getElementById('field-font').style.display = 'block';
 
             } else if (modelChoice === 'Flexi_Cat') {
                 document.getElementById('info-flexicat').style.display = 'block';
                 document.getElementById('preview-flexicat').style.display = 'block';
-                document.getElementById('field-main-color').style.display = 'block';
-                document.getElementById('label_secondary_color').innerHTML =
-                    'Secondary Color (Belly, Snout, Paws) <b>肚子、嘴巴与爪子颜色</b> <i>Warna Perut, Muncung & Kaki</i>:';
-                document.getElementById('helptext_secondary_color').innerText = '';
-                document.getElementById('section-secondary-color').style.display = 'block';
-                document.getElementById('label_tertiary_color').innerHTML =
-                    'Tertiary Color (Stripes & Face) <b>条纹与五官颜色</b> <i>Warna Jalur & Muka</i>:';
-                document.getElementById('section-tertiary-color').style.display = 'block';
-                document.getElementById('section-cat-hole').style.display = 'block';
+                document.getElementById('section-ring-add-on').style.display = 'block';
 
-                if (holeSelect.value !== 'None') {
-                    document.getElementById('section-ring-add-on').style.display = 'block';
-                    if (modelChanged) ringCheckbox.checked = true;
+                // 锁定为 6 款默认预设配色
+                const currMain = document.getElementById('id_filament_color').value;
+                const currSec = document.getElementById('id_secondary_color').value;
+                const currTer = document.getElementById('id_tertiary_color').value;
+                const validCat = catThemes.find(t => t.main === currMain && t.sec === currSec && t.ter === currTer);
+                if (!validCat) {
+                    const defCat = catThemes[0];
+                    currentCatTheme = defCat.label;
+                    document.getElementById('id_filament_color').value = defCat.main;
+                    document.getElementById('id_secondary_color').value = defCat.sec;
+                    document.getElementById('id_tertiary_color').value = defCat.ter;
+                } else {
+                    currentCatTheme = validCat.label;
                 }
 
             } else if (modelChoice === 'Flexi_Bunny') {
                 document.getElementById('info-flexibunny').style.display = 'block';
                 document.getElementById('preview-flexibunny').style.display = 'block';
-                document.getElementById('section-cat-hole').style.display = 'block';
-
-                if (holeSelect.value !== 'None') {
-                    document.getElementById('section-ring-add-on').style.display = 'block';
-                    if (modelChanged) ringCheckbox.checked = true;
-                }
+                document.getElementById('section-ring-add-on').style.display = 'block';
 
                 const currMain = document.getElementById('id_filament_color').value;
                 const validBunny = bunnyThemes.find(t => t.main === currMain);
@@ -2116,7 +2018,7 @@
 
             // 同色预警检查
             const sameColorBanner = document.getElementById('same-color-warning');
-            if ((modelChoice === 'Keychain' || modelChoice === 'Topper') && mainColor === nameColor) {
+            if (modelChoice === 'Keychain' && mainColor === nameColor) {
                 sameColorBanner.style.display = 'block';
             } else {
                 sameColorBanner.style.display = 'none';
@@ -2163,54 +2065,10 @@
 
                 const width = parseInt(document.getElementById('id_keychain_width').value, 10) || 15;
                 let keychainBasePrice = 4.00;
-                if (width === 22) keychainBasePrice = 6.00;
-                if (width === 30) keychainBasePrice = 9.00;
 
                 perItem = keychainBasePrice + ringCost;
                 breakdown = `Size ${width}mm Base: RM${keychainBasePrice.toFixed(2)}`;
                 if (ringCost > 0) breakdown += ` | Keychain Ring: +RM${ringCost.toFixed(2)}`;
-
-            } else if (modelChoice === 'Topper') {
-                const topperText = document.getElementById('topper-text');
-                const topperBase = document.getElementById('topper-base');
-                const emoji = document.getElementById('id_topper_emoji').value;
-                const displayTopperName = rawNameInput || 'NAME';
-
-                let charCountForWidth = displayTopperName.length;
-                if (topperText && topperBase) {
-                    topperText.textContent = '';
-                    topperText.appendChild(document.createTextNode(displayTopperName));
-                    if (emoji !== 'None') {
-                        charCountForWidth += 2;
-                        topperText.appendChild(document.createTextNode(' '));
-                        const tspan = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
-                        tspan.setAttribute('font-family', "'Noto Emoji', sans-serif");
-                        tspan.textContent = emoji;
-                        topperText.appendChild(tspan);
-                    }
-                    topperText.setAttribute('font-family', ['Audiowide', 'Bangers', 'Bungee', 'Changa One', 'DynaPuff', 'Pacifico', 'Press Start 2P'].includes(fontSelect) ? `'${fontSelect}', cursive` : `'${fontSelect}', sans-serif`);
-                    topperText.setAttribute('font-size', fontSelect === 'Press Start 2P' ? '12' : '18');
-                    topperBase.setAttribute('fill', mainColors.base);
-                    topperBase.setAttribute('stroke', mainColors.stroke);
-                    topperBase.setAttribute('fill-opacity', mainColors.isTrans ? '0.5' : '1');
-                    topperText.setAttribute('fill', textColors.base);
-                    topperText.setAttribute('stroke', textColors.stroke);
-
-                    let dynamicWidth = 40 + (charCountForWidth * 10);
-                    if (dynamicWidth > 150) dynamicWidth = 150;
-                    topperBase.setAttribute('width', dynamicWidth);
-                    topperBase.setAttribute('x', 180 - dynamicWidth);
-                    topperText.setAttribute('x', 180 - (dynamicWidth / 2));
-                }
-
-                let charCount = displayTopperName.length;
-                if (emoji !== 'None') charCount += 2;
-                let extraChars = Math.max(0, charCount - 4);
-                let rawPrice = 3.0 + (extraChars * 0.6);
-                let topperBasePrice = Math.min(10.0, Math.ceil(rawPrice));
-
-                perItem = topperBasePrice;
-                breakdown = `Pencil Topper Base: RM${topperBasePrice.toFixed(2)}`;
 
             } else if (modelChoice === 'Tumbler') {
                 const secondaryColor = document.getElementById('id_secondary_color').value;
@@ -2229,13 +2087,12 @@
                     document.getElementById('tumbler-ring').style.display = addRing ? 'block' : 'none';
                 }
 
-                let tumblerBasePrice = (secondaryColor === 'None' || mainColor === secondaryColor) ? 9.00 : 11.00;
+                let tumblerBasePrice = 4.00;
                 perItem = tumblerBasePrice + ringCost;
                 breakdown = `Tumbler Base: RM${tumblerBasePrice.toFixed(2)}`;
                 if (ringCost > 0) breakdown += ` | Keychain Ring: +RM${ringCost.toFixed(2)}`;
 
             } else if (modelChoice === 'Flexi_Cat' || modelChoice === 'Flexi_Bunny') {
-                const hole = document.getElementById('id_cat_keychain_hole').value;
                 const secColorVal = document.getElementById('id_secondary_color').value;
                 const terColorVal = document.getElementById('id_tertiary_color').value;
 
@@ -2243,7 +2100,8 @@
                     const secColors = colorMap[secColorVal] || colorMap['White'];
                     const terColors = colorMap[terColorVal] || colorMap['Black'];
 
-                    const matchedTheme = catThemes.find(t => t.main === mainColor && t.sec === secColorVal && t.ter === terColorVal);
+                    const matchedTheme = catThemes.find(t => t.main === mainColor && t.sec === secColorVal && t.ter === terColorVal) || catThemes[0];
+                    currentCatTheme = matchedTheme.label;
                     document.querySelectorAll('[data-cat-theme]').forEach(btn => {
                         btn.classList.toggle('active-theme', Boolean(matchedTheme && btn.getAttribute('data-cat-theme') === matchedTheme.id));
                     });
@@ -2276,11 +2134,6 @@
                         el.setAttribute('stroke', terColors.base);
                         if (el.tagName === 'circle') el.setAttribute('fill', terColors.base);
                     });
-
-                    document.getElementById('cat-hole-ear').style.display = (hole === 'Ear') ? 'block' : 'none';
-                    document.getElementById('cat-hole-head').style.display = (hole === 'Head') ? 'block' : 'none';
-                    document.getElementById('cat-hole-tail').style.display = (hole === 'Tail') ? 'block' : 'none';
-                    document.getElementById('cat-hole-badge').innerText = holeLabelMap[hole] || holeLabelMap['None'];
                 } else {
                     const matchedTheme = bunnyThemes.find(t => t.id === currentBunnyTheme) ||
                         bunnyThemes.find(t => t.main === mainColor && t.sec === secColorVal && t.ter === terColorVal);
@@ -2291,14 +2144,13 @@
                     } else {
                         imgEl.style.display = 'none';
                     }
-                    document.getElementById('bunny-hole-badge').innerText = holeLabelMap[hole] || holeLabelMap['None'];
                 }
 
                 let itemName = modelChoice === 'Flexi_Cat' ? 'Flexi Cat' : 'Flexi Bunny';
-                perItem = 20.00;
-                breakdown = `${itemName} Premium Base: RM20.00`;
-                if (hole !== 'None' && addRing) {
-                    breakdown += ` | Keychain Ring: Free 免费`;
+                perItem = 4.00 + ringCost;
+                breakdown = `${itemName} Base: RM4.00`;
+                if (ringCost > 0) {
+                    breakdown += ` | Keychain Ring: +RM${ringCost.toFixed(2)}`;
                 }
             }
 
@@ -2317,14 +2169,11 @@
             if (d.model_choice === 'Tumbler') {
                 return `杯身:${d.filament_color} | 杯盖/吸管:${d.secondary_color} | 铁环:${d.add_keychain_ring ? '加(+RM1)' : '无'}`;
             }
-            if (d.model_choice === 'Topper') {
-                return `名字: "${d.keychain_text}" | 表情:${d.topper_emoji} | 底:${d.filament_color} 字:${d.keychain_name_color} | 字体:${d.font_style}`;
-            }
             if (d.model_choice === 'Flexi_Cat') {
-                return `主色:${d.filament_color} | 副色:${d.secondary_color} | 条纹:${d.tertiary_color} | 孔位:${d.cat_keychain_hole} | 铁环:${d.add_keychain_ring ? '免费送' : '无'}`;
+                return `主题:${d.cat_theme} (${d.filament_color}/${d.secondary_color}/${d.tertiary_color}) | 铁环:${d.add_keychain_ring ? '加(+RM1)' : '无'}`;
             }
             if (d.model_choice === 'Flexi_Bunny') {
-                return `主题:${d.bunny_theme} (${d.filament_color}/${d.secondary_color}/${d.tertiary_color}) | 孔位:${d.cat_keychain_hole} | 铁环:${d.add_keychain_ring ? '免费送' : '无'}`;
+                return `主题:${d.bunny_theme} (${d.filament_color}/${d.secondary_color}/${d.tertiary_color}) | 铁环:${d.add_keychain_ring ? '加(+RM1)' : '无'}`;
             }
             if (d.model_choice === 'MakerWorld') {
                 return `模式:${d.mw_color_mode === 'AMS_4Color' ? 'AMS多色(≤4色)' : '单色打印'} | 颜色:${d.mw_colors}`;
@@ -2358,7 +2207,7 @@
             }
 
             const keychainText = document.getElementById('id_keychain_text').value.trim();
-            if (modelChoice === 'Keychain' || modelChoice === 'Topper') {
+            if (modelChoice === 'Keychain') {
                 if (!keychainText) {
                     alert('请填写要打印的名字！Please enter the name to print on your item.');
                     document.getElementById('id_keychain_text').focus();
@@ -2396,6 +2245,7 @@
                 mwColors = cols.join(' + ');
             }
 
+            const catObj = catThemes.find(t => t.main === mainColor && t.sec === secColor && t.ter === terColor) || catThemes[0];
             const bunnyObj = bunnyThemes.find(t => t.id === currentBunnyTheme) || bunnyThemes[0];
             const isMW = modelChoice === 'MakerWorld';
 
@@ -2410,19 +2260,17 @@
                 date: new Date().toISOString(),
                 status: isMW ? 'Pending Quote' : 'Pending',
 
-                filament_color: modelChoice === 'Flexi_Bunny' ? bunnyObj.main : mainColor,
-                secondary_color: modelChoice === 'Flexi_Bunny' ? bunnyObj.sec : secColor,
-                tertiary_color: modelChoice === 'Flexi_Bunny' ? bunnyObj.ter : terColor,
+                filament_color: modelChoice === 'Flexi_Bunny' ? bunnyObj.main : (modelChoice === 'Flexi_Cat' ? catObj.main : mainColor),
+                secondary_color: modelChoice === 'Flexi_Bunny' ? bunnyObj.sec : (modelChoice === 'Flexi_Cat' ? catObj.sec : secColor),
+                tertiary_color: modelChoice === 'Flexi_Bunny' ? bunnyObj.ter : (modelChoice === 'Flexi_Cat' ? catObj.ter : terColor),
+                cat_theme: catObj.label,
                 bunny_theme: currentBunnyTheme,
                 keychain_name_color: document.getElementById('id_keychain_name_color').value,
                 keychain_text: keychainText,
-                topper_emoji: document.getElementById('id_topper_emoji').value,
                 font_style: document.getElementById('id_font_style').value,
                 keychain_width: document.getElementById('id_keychain_width').value,
-                cat_keychain_hole: document.getElementById('id_cat_keychain_hole').value,
-                add_keychain_ring: (modelChoice === 'Flexi_Cat' || modelChoice === 'Flexi_Bunny')
-                    ? (document.getElementById('id_cat_keychain_hole').value !== 'None' && document.getElementById('id_add_keychain_ring').checked)
-                    : document.getElementById('id_add_keychain_ring').checked,
+                cat_keychain_hole: 'Standard',
+                add_keychain_ring: document.getElementById('id_add_keychain_ring').checked,
 
                 mw_url: mwUrl,
                 mw_color_mode: mwColorMode,
