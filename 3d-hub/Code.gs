@@ -245,6 +245,7 @@ function handleCreateOrder_(ss, data) {
     'Topper': 'Pencil Toppers',
     'Flexi_Cat': 'Flexi Cats',
     'Flexi_Bunny': 'Flexi Bunnies',
+    'Clicker': 'Fidget Clickers',
     'MakerWorld': 'MakerWorld Custom'
   };
   const tabName = tabNameMap[modelChoice] || 'Other Orders';
@@ -299,6 +300,15 @@ function handleCreateOrder_(ss, data) {
       bunny.theme, orderId
     ];
     summary = '主题:' + bunny.theme + ' (' + bunny.main + '/' + bunny.sec + '/' + bunny.ter + ') | 铁环:' + (data.add_keychain_ring ? '加(+RM1)' : '无');
+  } else if (modelChoice === 'Clicker') {
+    headers = baseHeaders.concat(['Layout Design', 'Key Count', 'Base Color', 'Keycap Color', 'Add Ring', 'Order ID']);
+    rowData = [
+      formattedDate, status, studentName, studentClass, quantity, totalPrice,
+      data.clicker_layout || '', data.clicker_keys || '', data.filament_color || '',
+      data.secondary_color || '', data.add_keychain_ring ? 'Yes' : 'No',
+      orderId
+    ];
+    summary = '款式:' + (data.clicker_layout || '') + ' (' + (data.clicker_keys || '') + '键) | 底座:' + (data.filament_color || '') + ' 按键:' + (data.secondary_color || '') + ' | 铁环:' + (data.add_keychain_ring ? '加(+RM1)' : '无');
   } else if (modelChoice === 'MakerWorld') {
     headers = ['Order ID', 'Date', 'Status', 'Student Name', 'Class', 'Quantity', 'Quote Price', 'MakerWorld URL / Name', 'Color Mode', 'Preferred Colors', 'Student Notes', 'Teacher Note'];
     rowData = [
