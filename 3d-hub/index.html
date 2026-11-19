@@ -2072,15 +2072,15 @@
                 }));
 
                 const arrowCells = [
-                    { r: 0, c: 1, sym: '↑' },
-                    { r: 1, c: 0, sym: '←' },
-                    { r: 1, c: 1, sym: '↓' },
-                    { r: 1, c: 2, sym: '→' }
+                    { r: 0, c: 1 },
+                    { r: 1, c: 0 },
+                    { r: 1, c: 1 },
+                    { r: 1, c: 2 }
                 ];
                 arrowCells.forEach(cell => {
                     const kx = ox + pad + cell.c * (keySize + gap);
                     const ky = oy + pad + cell.r * (keySize + gap);
-                    drawKeycap(svg, kx, ky, keySize, keyColors, cell.sym);
+                    drawKeycap(svg, kx, ky, keySize, keyColors, '');
                 });
             } else {
                 svg.appendChild(createSvgEl('rect', {
