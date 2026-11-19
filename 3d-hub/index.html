@@ -43,8 +43,7 @@
 
         /* 紧凑全宽顶部标题+看摊工具栏二合一 */
         .booth-toolbar {
-            position: sticky;
-            top: 10px;
+            position: relative;
             z-index: 900;
             display: flex;
             flex-wrap: wrap;
@@ -245,7 +244,7 @@
 
         .workspace-right {
             position: sticky;
-            top: 104px;
+            top: 16px;
             display: flex;
             flex-direction: column;
             gap: 16px;
@@ -322,10 +321,10 @@
             }
         }
 
-        /* 图文物品选择卡片 */
+        /* 图文物品选择卡片（6宫格：3列x2行） */
         .model-card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 10px;
             margin-top: 8px;
             margin-bottom: 18px;
@@ -335,6 +334,61 @@
             .model-card-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
+        }
+
+        .clicker-layout-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(126px, 1fr));
+            gap: 8px;
+            margin-top: 8px;
+            margin-bottom: 12px;
+        }
+
+        .clicker-layout-btn {
+            border: 2px solid #e2e8f0;
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 8px 6px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s ease;
+            font-family: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .clicker-layout-btn:hover {
+            border-color: #93c5fd;
+            transform: translateY(-1px);
+        }
+
+        .clicker-layout-btn.active {
+            border-color: #2563eb;
+            background: #eff6ff;
+            box-shadow: 0 3px 10px rgba(37, 99, 235, 0.15);
+        }
+
+        .clicker-layout-name {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .clicker-layout-sub {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .clicker-layout-price {
+            font-size: 11px;
+            font-weight: 700;
+            color: #1d4ed8;
+            background: #dbeafe;
+            padding: 2px 8px;
+            border-radius: 999px;
+            margin-top: 2px;
         }
 
         .model-card {
@@ -1143,7 +1197,7 @@
                         <label for="id_model_choice" style="margin-top: 18px;">Choose an Item <b>选择物品</b> <i>Pilih
                                 Barang</i>:</label>
 
-                        <!-- 图文卡片选择器（5款选项） -->
+                        <!-- 图文卡片选择器（6款选项） -->
                         <div class="model-card-grid" id="model-card-grid">
                             <div class="model-card active" data-value="Keychain" onclick="selectModelCard('Keychain')">
                                 <div class="model-card-icon">🔑</div>
@@ -1169,6 +1223,12 @@
                                 <div class="model-card-sub">Arnab Flexi</div>
                                 <div class="model-card-price">RM 4.00</div>
                             </div>
+                            <div class="model-card" data-value="Clicker" onclick="selectModelCard('Clicker')">
+                                <div class="model-card-icon">⌨️</div>
+                                <div class="model-card-title">Fidget Clicker<br>解压按键</div>
+                                <div class="model-card-sub">Butang Klik Fidget</div>
+                                <div class="model-card-price">RM 2.00 起</div>
+                            </div>
                             <div class="model-card makerworld-card" data-value="MakerWorld"
                                 onclick="selectModelCard('MakerWorld')">
                                 <div class="model-card-icon">🌐</div>
@@ -1184,8 +1244,30 @@
                             <option value="Tumbler">🥤 Mini Tumbler</option>
                             <option value="Flexi_Cat">🐱 Fluffy Tail Flexi Cat</option>
                             <option value="Flexi_Bunny">🐰 Cute Flexi Easter Bunny</option>
+                            <option value="Clicker">⌨️ Fidget Clicker</option>
                             <option value="MakerWorld">🌐 MakerWorld Custom Model</option>
                         </select>
+
+                        <!-- 解压按键排列设计选择器 -->
+                        <div id="field-clicker-layout" class="dynamic-field">
+                            <label for="id_clicker_layout">Clicker Layout Design <b>选择按键排列款式</b> <i>Pilih Rekaan Susunan Butang</i>:</label>
+                            <span class="helptext">每个按键 RM2.00（例如：3个按键 = RM6.00）；加钥匙圈 +RM1.00。</span>
+                            <div id="clicker-layout-grid" class="clicker-layout-grid"></div>
+                            <select id="id_clicker_layout" class="sr-only-select" aria-label="Clicker Layout Design">
+                                <option value="1x1" selected>1×1 (1 Key) - RM 2.00</option>
+                                <option value="1x2">1×2 (2 Keys) - RM 4.00</option>
+                                <option value="1x3">1×3 (3 Keys) - RM 6.00</option>
+                                <option value="2x2">2×2 方形 (4 Keys) - RM 8.00</option>
+                                <option value="Arrow_4">Arrow 方向键 (4 Keys) - RM 8.00</option>
+                                <option value="1x4">1×4 一排 (4 Keys) - RM 8.00</option>
+                                <option value="1x5">1×5 一排 (5 Keys) - RM 10.00</option>
+                                <option value="2x3">2×3 双排 (6 Keys) - RM 12.00</option>
+                                <option value="1x6">1×6 一排 (6 Keys) - RM 12.00</option>
+                                <option value="2x4">2×4 双排 (8 Keys) - RM 16.00</option>
+                                <option value="1x8">1×8 一排 (8 Keys) - RM 16.00</option>
+                                <option value="3x3">3×3 九宫格 (9 Keys) - RM 18.00</option>
+                            </select>
+                        </div>
 
                         <!-- MAKERWORLD 自定义模型专区 -->
                         <div id="section-makerworld" class="dynamic-field">
@@ -1547,6 +1629,13 @@
                             </div>
                         </div>
 
+                        <div id="preview-clicker" class="preview-box">
+                            <p style="margin-top: 0; color: #475569; font-weight: bold; font-size: 14px;">Fidget Clicker Preview <b>解压按键实时预览</b>:
+                            </p>
+                            <svg id="clicker-svg" width="300" height="150" viewBox="0 0 260 130" xmlns="http://www.w3.org/2000/svg"></svg>
+                            <p id="clicker-preview-caption" style="font-size: 12px; color: #475569; margin-top: 8px; margin-bottom: 0; font-weight: 600;"></p>
+                        </div>
+
                         <!-- INFO CARDS -->
                         <div id="info-keychain" class="info-card">
                             <strong>🔑 Name Keychain / <b>名字钥匙扣</b> / <i>Rantai Kunci Nama</i></strong><br>
@@ -1573,6 +1662,14 @@
                             <strong>🐰 Flexi Bunny / <b>可爱复活兔</b> / <i>Arnab Flexi</i></strong><br>
                             • Price 价格: <strong>RM4.00</strong> | 6款限定预设配色 Choose from 6 cute themes!<br>
                             • Add Keychain Ring 加钥匙圈 (+RM1.00 = <strong>RM5.00</strong>): Hang it on your bag!
+                        </div>
+
+                        <div id="info-clicker" class="info-card"
+                            style="border-left-color: #0ea5e9; background-color: #f0f9ff; color: #0c4a6e;">
+                            <strong>⌨️ Fidget Clicker / <b>解压按键</b> / <i>Butang Klik Fidget</i></strong><br>
+                            • Price 价格: <strong>RM2.00 per key (每颗按键 RM2.00)</strong> — 例：3 键 = RM6.00，3×3 = RM18.00<br>
+                            • Colors 颜色: 自由搭配 <strong>底座颜色</strong> 与 <strong>按键颜色</strong>！<br>
+                            • Add Keychain Ring 加钥匙圈 (+RM1.00): 可挂在书包或钥匙上！
                         </div>
 
                         <div id="info-makerworld" class="info-card"
@@ -1729,6 +1826,21 @@
             { id: 'Vanilla', main: 'White', sec: 'White', ter: 'Pink', img: 'vanilla.png' }
         ];
 
+        const clickerLayouts = [
+            { id: '1x1', label: '1×1 单颗', sub: '1 Key', keys: 1, rows: 1, cols: 1, type: 'grid' },
+            { id: '1x2', label: '1×2 一排', sub: '2 Keys', keys: 2, rows: 1, cols: 2, type: 'grid' },
+            { id: '1x3', label: '1×3 一排', sub: '3 Keys', keys: 3, rows: 1, cols: 3, type: 'grid' },
+            { id: '2x2', label: '2×2 方形', sub: '4 Keys', keys: 4, rows: 2, cols: 2, type: 'grid' },
+            { id: 'Arrow_4', label: 'Arrow 方向键', sub: '4 Keys', keys: 4, rows: 2, cols: 3, type: 'arrow' },
+            { id: '1x4', label: '1×4 一排', sub: '4 Keys', keys: 4, rows: 1, cols: 4, type: 'grid' },
+            { id: '1x5', label: '1×5 一排', sub: '5 Keys', keys: 5, rows: 1, cols: 5, type: 'grid' },
+            { id: '2x3', label: '2×3 双排', sub: '6 Keys', keys: 6, rows: 2, cols: 3, type: 'grid' },
+            { id: '1x6', label: '1×6 一排', sub: '6 Keys', keys: 6, rows: 1, cols: 6, type: 'grid' },
+            { id: '2x4', label: '2×4 双排', sub: '8 Keys', keys: 8, rows: 2, cols: 4, type: 'grid' },
+            { id: '1x8', label: '1×8 一排', sub: '8 Keys', keys: 8, rows: 1, cols: 8, type: 'grid' },
+            { id: '3x3', label: '3×3 九宫格', sub: '9 Keys', keys: 9, rows: 3, cols: 3, type: 'grid' }
+        ];
+
         let currentPrice = 0.00;
         let currentCatTheme = 'Sakura';
         let currentBunnyTheme = 'Strawberry';
@@ -1871,6 +1983,149 @@
             updateUI();
         }
 
+        function renderClickerLayoutButtons() {
+            const container = document.getElementById('clicker-layout-grid');
+            const selectEl = document.getElementById('id_clicker_layout');
+            if (!container || !selectEl) return;
+
+            container.innerHTML = '';
+            clickerLayouts.forEach(item => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'clicker-layout-btn' + (selectEl.value === item.id ? ' active' : '');
+                btn.setAttribute('data-layout', item.id);
+                btn.innerHTML = `
+                    <span class="clicker-layout-name">${escapeHtml(item.label)}</span>
+                    <span class="clicker-layout-sub">${escapeHtml(item.sub)}</span>
+                    <span class="clicker-layout-price">RM ${(item.keys * 2).toFixed(2)}</span>
+                `;
+                btn.addEventListener('click', function () {
+                    selectEl.value = item.id;
+                    updateUI();
+                });
+                container.appendChild(btn);
+            });
+        }
+
+        function createSvgEl(tag, attrs) {
+            const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+            Object.keys(attrs).forEach(k => el.setAttribute(k, String(attrs[k])));
+            return el;
+        }
+
+        function renderClickerPreview(layout, baseColors, keyColors, addRing) {
+            const svg = document.getElementById('clicker-svg');
+            if (!svg) return;
+            svg.textContent = '';
+
+            const keySize = layout.cols >= 7 ? 26 : (layout.cols >= 5 ? 32 : 40);
+            const gap = 5;
+            const pad = 10;
+            const gridW = layout.cols * keySize + (layout.cols - 1) * gap;
+            const gridH = layout.rows * keySize + (layout.rows - 1) * gap;
+            const baseW = gridW + pad * 2;
+            const baseH = gridH + pad * 2;
+            const leftMargin = addRing ? 30 : 12;
+            const vbW = baseW + leftMargin + 12;
+            const vbH = baseH + 20;
+
+            svg.setAttribute('viewBox', `0 0 ${vbW} ${vbH}`);
+            const ox = leftMargin;
+            const oy = 10;
+
+            if (addRing) {
+                const cy = oy + baseH / 2;
+                svg.appendChild(createSvgEl('rect', {
+                    x: ox - 11, y: cy - 8, width: 14, height: 16, rx: 5,
+                    fill: baseColors.base, stroke: baseColors.stroke, 'stroke-width': 2.5,
+                    'fill-opacity': baseColors.isTrans ? '0.55' : '1'
+                }));
+                svg.appendChild(createSvgEl('circle', {
+                    cx: ox - 17, cy: cy, r: 8,
+                    fill: 'none', stroke: '#94a3b8', 'stroke-width': 2.8
+                }));
+            }
+
+            if (layout.type === 'arrow') {
+                // T 字方向键底座（先画外框再填色无缝衔接）
+                const topX = ox + pad + (keySize + gap) - pad;
+                const topW = keySize + pad * 2;
+                const topH = keySize + pad + gap;
+                const botY = oy + pad + keySize + gap - pad;
+                const botH = keySize + pad * 2;
+
+                svg.appendChild(createSvgEl('rect', {
+                    x: topX, y: oy, width: topW, height: topH + 6, rx: 8,
+                    fill: baseColors.stroke, stroke: baseColors.stroke, 'stroke-width': 3
+                }));
+                svg.appendChild(createSvgEl('rect', {
+                    x: ox, y: botY, width: baseW, height: botH, rx: 8,
+                    fill: baseColors.stroke, stroke: baseColors.stroke, 'stroke-width': 3
+                }));
+                svg.appendChild(createSvgEl('rect', {
+                    x: topX, y: oy, width: topW, height: topH + 6, rx: 8,
+                    fill: baseColors.base, 'fill-opacity': baseColors.isTrans ? '0.55' : '1'
+                }));
+                svg.appendChild(createSvgEl('rect', {
+                    x: ox, y: botY, width: baseW, height: botH, rx: 8,
+                    fill: baseColors.base, 'fill-opacity': baseColors.isTrans ? '0.55' : '1'
+                }));
+
+                const arrowCells = [
+                    { r: 0, c: 1, sym: '↑' },
+                    { r: 1, c: 0, sym: '←' },
+                    { r: 1, c: 1, sym: '↓' },
+                    { r: 1, c: 2, sym: '→' }
+                ];
+                arrowCells.forEach(cell => {
+                    const kx = ox + pad + cell.c * (keySize + gap);
+                    const ky = oy + pad + cell.r * (keySize + gap);
+                    drawKeycap(svg, kx, ky, keySize, keyColors, cell.sym);
+                });
+            } else {
+                svg.appendChild(createSvgEl('rect', {
+                    x: ox, y: oy, width: baseW, height: baseH, rx: 9,
+                    fill: baseColors.base, stroke: baseColors.stroke, 'stroke-width': 3,
+                    'fill-opacity': baseColors.isTrans ? '0.55' : '1'
+                }));
+                for (let r = 0; r < layout.rows; r++) {
+                    for (let c = 0; c < layout.cols; c++) {
+                        const kx = ox + pad + c * (keySize + gap);
+                        const ky = oy + pad + r * (keySize + gap);
+                        drawKeycap(svg, kx, ky, keySize, keyColors, '');
+                    }
+                }
+            }
+
+            const captionEl = document.getElementById('clicker-preview-caption');
+            if (captionEl) {
+                captionEl.innerText = `款式：${layout.label} (${layout.keys} 颗按键) ${addRing ? '• 含钥匙圈' : ''}`;
+            }
+        }
+
+        function drawKeycap(svg, kx, ky, keySize, keyColors, symbolText) {
+            svg.appendChild(createSvgEl('rect', {
+                x: kx, y: ky, width: keySize, height: keySize, rx: 6,
+                fill: keyColors.base, stroke: keyColors.stroke, 'stroke-width': 2,
+                'fill-opacity': keyColors.isTrans ? '0.6' : '1'
+            }));
+            const inset = Math.max(4, Math.round(keySize * 0.14));
+            svg.appendChild(createSvgEl('rect', {
+                x: kx + inset, y: ky + inset - 1,
+                width: keySize - inset * 2, height: keySize - inset * 2, rx: 4,
+                fill: 'none', stroke: keyColors.stroke, 'stroke-width': 1.2, 'stroke-opacity': '0.35'
+            }));
+            if (symbolText) {
+                const txt = createSvgEl('text', {
+                    x: kx + keySize / 2, y: ky + keySize / 2 + 4,
+                    'text-anchor': 'middle', 'font-size': Math.round(keySize * 0.42),
+                    'font-weight': 'bold', fill: keyColors.text, opacity: '0.65'
+                });
+                txt.textContent = symbolText;
+                svg.appendChild(txt);
+            }
+        }
+
         let previousModelChoice = '';
 
         function updateUI() {
@@ -1886,10 +2141,10 @@
             document.querySelectorAll('.info-card').forEach(el => el.style.display = 'none');
             document.querySelectorAll('.preview-box').forEach(el => el.style.display = 'none');
 
-            // 控制副色中的 "None" 选项 (MakerWorld多色不允许选 None)
+            // 控制副色中的 "None" 选项 (Clicker 和 MakerWorld多色不允许选 None)
             const secSelect = document.getElementById('id_secondary_color');
             const mwColorMode = document.getElementById('id_mw_color_mode').value;
-            const hideNoneInSec = (modelChoice === 'MakerWorld' && mwColorMode === 'AMS_4Color');
+            const hideNoneInSec = (modelChoice === 'Clicker' || (modelChoice === 'MakerWorld' && mwColorMode === 'AMS_4Color'));
             if (secSelect) {
                 Array.from(secSelect.options).forEach(opt => {
                     if (opt.value === 'None') {
@@ -1912,6 +2167,8 @@
                 mainLabel.innerHTML = 'Base Color <b>底板颜色</b> <i>Warna Tapak</i>:';
             } else if (modelChoice === 'Tumbler') {
                 mainLabel.innerHTML = 'Main Color (Tumbler Body) <b>杯身颜色</b> <i>Warna Badan Tumbler</i>:';
+            } else if (modelChoice === 'Clicker') {
+                mainLabel.innerHTML = 'Base Color <b>底座颜色</b> <i>Warna Tapak</i>:';
             } else if (modelChoice === 'MakerWorld') {
                 mainLabel.innerHTML = (mwColorMode === 'AMS_4Color')
                     ? '1st Preferred Color (Main) <b>第一种期望主色</b> <i>Warna Pilihan Pertama</i>:'
@@ -1979,6 +2236,19 @@
                 document.querySelectorAll('[data-bunny-theme]').forEach(btn => {
                     btn.classList.toggle('active-theme', btn.getAttribute('data-bunny-theme') === currentBunnyTheme);
                 });
+
+            } else if (modelChoice === 'Clicker') {
+                document.getElementById('info-clicker').style.display = 'block';
+                document.getElementById('preview-clicker').style.display = 'block';
+                document.getElementById('field-clicker-layout').style.display = 'block';
+                document.getElementById('field-main-color').style.display = 'block';
+                document.getElementById('label_secondary_color').innerHTML =
+                    'Keycap Color (Keys) <b>按键颜色</b> <i>Warna Butang</i>:';
+                document.getElementById('helptext_secondary_color').innerHTML =
+                    'Choose your favorite keycap color. <b>选择喜欢的按键帽颜色。</b>';
+                document.getElementById('section-secondary-color').style.display = 'block';
+                document.getElementById('section-ring-add-on').style.display = 'block';
+                renderClickerLayoutButtons();
 
             } else if (modelChoice === 'MakerWorld') {
                 document.getElementById('info-makerworld').style.display = 'block';
@@ -2152,6 +2422,21 @@
                 if (ringCost > 0) {
                     breakdown += ` | Keychain Ring: +RM${ringCost.toFixed(2)}`;
                 }
+
+            } else if (modelChoice === 'Clicker') {
+                const layoutId = document.getElementById('id_clicker_layout').value;
+                const layoutObj = clickerLayouts.find(l => l.id === layoutId) || clickerLayouts[0];
+                const keyColorVal = document.getElementById('id_secondary_color').value;
+                const keyColors = colorMap[keyColorVal] || colorMap['White'];
+
+                renderClickerPreview(layoutObj, mainColors, keyColors, addRing);
+
+                const baseClickerPrice = layoutObj.keys * 2.00;
+                perItem = baseClickerPrice + ringCost;
+                breakdown = `Fidget Clicker (${layoutObj.label}, ${layoutObj.keys} Keys × RM2): RM${baseClickerPrice.toFixed(2)}`;
+                if (ringCost > 0) {
+                    breakdown += ` | Keychain Ring: +RM${ringCost.toFixed(2)}`;
+                }
             }
 
             currentPrice = perItem * quantity;
@@ -2174,6 +2459,9 @@
             }
             if (d.model_choice === 'Flexi_Bunny') {
                 return `主题:${d.bunny_theme} (${d.filament_color}/${d.secondary_color}/${d.tertiary_color}) | 铁环:${d.add_keychain_ring ? '加(+RM1)' : '无'}`;
+            }
+            if (d.model_choice === 'Clicker') {
+                return `款式:${d.clicker_layout} (${d.clicker_keys}键) | 底座:${d.filament_color} 按键:${d.secondary_color} | 铁环:${d.add_keychain_ring ? '加(+RM1)' : '无'}`;
             }
             if (d.model_choice === 'MakerWorld') {
                 return `模式:${d.mw_color_mode === 'AMS_4Color' ? 'AMS多色(≤4色)' : '单色打印'} | 颜色:${d.mw_colors}`;
@@ -2247,6 +2535,7 @@
 
             const catObj = catThemes.find(t => t.main === mainColor && t.sec === secColor && t.ter === terColor) || catThemes[0];
             const bunnyObj = bunnyThemes.find(t => t.id === currentBunnyTheme) || bunnyThemes[0];
+            const clickerObj = clickerLayouts.find(l => l.id === document.getElementById('id_clicker_layout').value) || clickerLayouts[0];
             const isMW = modelChoice === 'MakerWorld';
 
             pendingFormData = {
@@ -2265,6 +2554,8 @@
                 tertiary_color: modelChoice === 'Flexi_Bunny' ? bunnyObj.ter : (modelChoice === 'Flexi_Cat' ? catObj.ter : terColor),
                 cat_theme: catObj.label,
                 bunny_theme: currentBunnyTheme,
+                clicker_layout: clickerObj.id,
+                clicker_keys: clickerObj.keys,
                 keychain_name_color: document.getElementById('id_keychain_name_color').value,
                 keychain_text: keychainText,
                 font_style: document.getElementById('id_font_style').value,
