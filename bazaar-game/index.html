@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>小小义卖会 · 一年级钱币交易游戏</title>
+  <script>
+    if (location.pathname !== "/" && !location.pathname.endsWith("/") && !location.pathname.endsWith(".html")) {
+      location.replace(location.pathname + "/" + location.search + location.hash);
+    }
+  </script>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- 义卖会顶部遮阳棚与导航栏 -->
+  <header class="stall-header">
+    <div class="awning-stripes" aria-hidden="true"></div>
+    <div class="header-inner">
+      <div class="brand-area">
+        <button type="button" id="btn-home" class="btn-pill btn-home" title="回到义卖广场">
+          🏠 <span class="hide-xs">义卖广场</span>
+        </button>
+        <div class="brand-titles">
+          <h1 id="header-stall-name">🎪 一年级小小义卖会</h1>
+          <span id="header-school-name" class="school-badge">培青华小</span>
+        </div>
+      </div>
+
+      <div class="difficulty-bar" role="group" aria-label="难度选择">
+        <button type="button" class="diff-btn active" data-level="1">⭐ 1星</button>
+        <button type="button" class="diff-btn" data-level="2">⭐⭐ 2星</button>
+        <button type="button" class="diff-btn" data-level="3">⭐⭐⭐ 3星</button>
+        <button type="button" class="diff-btn" data-level="4">⭐⭐⭐⭐ 4星</button>
+      </div>
+
+      <div class="header-tools">
+        <button type="button" id="btn-assist" class="btn-pill is-on" title="开启或关闭教学提示与实时计数">
+          💡 提示:开
+        </button>
+        <button type="button" id="btn-voice" class="btn-pill is-on" title="开启或关闭中文语音与音效">
+          🔊 语音:开
+        </button>
+        <div class="star-pill" title="已获得的星星">
+          ⭐ <span id="star-count">0</span>
+        </div>
+        <button type="button" id="btn-teacher" class="btn-pill btn-teacher" title="老师设置义卖菜单与价格">
+          👩‍🏫 <span class="hide-sm">老师设置</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-stage">
+    <!-- 视图 0: 义卖广场首页 -->
+    <section id="view-home" class="view active">
+      <div class="home-hero">
+        <div class="hero-mascot">🦁</div>
+        <div class="hero-copy">
+          <h2>欢迎来到义卖会游乐场！</h2>
+          <p id="home-level-desc">当前难度：⭐ 1星（萌芽新手）· 只用 RM1、RM5、RM10（整数价格）</p>
+        </div>
+        <button type="button" id="btn-hero-speak" class="btn-speak-circle" title="听老师念欢迎语">🔊</button>
+      </div>
+
+      <div class="mode-grid">
+        <button type="button" class="mode-card card-mint" data-goto="count">
+          <div class="mode-badge">第 1 关</div>
+          <div class="mode-icon">🔍</div>
+          <h3>认识与数钱</h3>
+          <p>点一点听声音，学认马来西亚纸币和硬币，当数钱小侦探！</p>
+          <span class="mode-cta">点我开始 →</span>
+        </button>
+
+        <button type="button" class="mode-card card-sky" data-goto="pay">
+          <div class="mode-badge">第 2 关</div>
+          <div class="mode-icon">🛒</div>
+          <h3>小顾客买东西</h3>
+          <p>看懂商品标价，从钱包里拿出刚刚好的钱付给摊主！</p>
+          <span class="mode-cta">点我开始 →</span>
+        </button>
+
+        <button type="button" class="mode-card card-sun" data-goto="change">
+          <div class="mode-badge">第 3 关</div>
+          <div class="mode-icon">💰</div>
+          <h3>小老板找零钱</h3>
+          <p>用「往上数」小魔法，学会算出要找给顾客多少钱！</p>
+          <span class="mode-cta">点我开始 →</span>
+        </button>
+
+        <button type="button" class="mode-card card-coral" data-goto="roleplay">
+          <div class="mode-badge">第 4 关 · 扮家家酒</div>
+          <div class="mode-icon">🎪</div>
+          <h3>义卖会大冒险</h3>
+          <p>扮演小老板开义卖摊，或是当小顾客拿零用钱逛摊位！</p>
+          <span class="mode-cta">进入摊位 →</span>
+        </button>
+      </div>
+
+      <div class="active-money-strip">
+        <div class="strip-title">
+          <span>🎒 当前难度会用到的马来西亚钱币：</span>
+          <span class="strip-hint">（切换上方 ⭐ 星级即可解锁 5仙、RM50、RM100）</span>
+        </div>
+        <div id="home-money-preview" class="money-preview-row"></div>
+      </div>
+    </section>
+
+    <!-- 视图 1: 第1关 认识与数钱 -->
+    <section id="view-count" class="view">
+      <div class="view-toolbar">
+        <div class="subtab-group">
+          <button type="button" class="subtab-btn active" data-count-tab="learn">📖 钱币点读馆</button>
+          <button type="button" class="subtab-btn" data-count-tab="quiz">🕵️ 数钱小侦探</button>
+        </div>
+        <div id="count-score-pill" class="score-pill">答对题数：<strong id="count-correct-num">0</strong></div>
+      </div>
+
+      <!-- 子页 A: 钱币点读馆 -->
+      <div id="count-tab-learn" class="count-subpanel active">
+        <div class="learn-layout">
+          <div class="learn-showcase">
+            <div class="showcase-card">
+              <div id="learn-spotlight-token" class="spotlight-token"></div>
+              <div class="spotlight-info">
+                <div class="spotlight-title-row">
+                  <h3 id="learn-title">点击右边任何钱币</h3>
+                  <button type="button" id="btn-learn-speak" class="btn-speak-sm">🔊 念给我听</button>
+                </div>
+                <p id="learn-desc" class="spotlight-desc">点一点不同的纸币和硬币，听听它们的名字和颜色吧！</p>
+              </div>
+            </div>
+
+            <div class="magic-exchange-box">
+              <div class="magic-header">
+                <h4>✨ 换钱小魔法（点一点看怎么换）</h4>
+              </div>
+              <div id="magic-buttons" class="magic-buttons"></div>
+              <div id="magic-visual" class="magic-visual"></div>
+            </div>
+          </div>
+
+          <div class="learn-gallery">
+            <h4>👇 点一点钱币来认识它们：</h4>
+            <div id="learn-money-grid" class="learn-money-grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 子页 B: 数钱小侦探 -->
+      <div id="count-tab-quiz" class="count-subpanel">
+        <div class="quiz-board">
+          <div class="quiz-prompt-row">
+            <h3>🕵️ 请数一数，桌上一共有多少钱？</h3>
+            <div class="quiz-prompt-actions">
+              <span id="count-assist-sum" class="assist-chip">已点算：RM 0</span>
+              <button type="button" id="btn-count-speak" class="btn-speak-sm">🔊 读题</button>
+              <button type="button" id="btn-count-next" class="btn-secondary-sm">🔄 换一题</button>
+            </div>
+          </div>
+          <p class="quiz-tip">小贴士：手指点一点桌上的钱币，可以帮自己做标记慢慢数哦！</p>
+          <div id="count-mat" class="felt-mat count-mat"></div>
+          <div id="count-choices" class="choices-grid"></div>
+          <div id="count-feedback" class="feedback-banner"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 视图 2: 第2关 小顾客买东西（凑钱付款） -->
+    <section id="view-pay" class="view">
+      <div class="pay-layout">
+        <div class="pay-top-stage">
+          <div class="clerk-bubble-card">
+            <div class="avatar-circle">👩‍🍳</div>
+            <div class="bubble-content">
+              <div class="bubble-top">
+                <span class="speaker-name">摊位小老师</span>
+                <button type="button" id="btn-pay-speak" class="btn-speak-sm">🔊 再听一次</button>
+              </div>
+              <p id="pay-prompt-text" class="speech-line">请付给我刚好的钱吧！</p>
+            </div>
+          </div>
+
+          <div id="pay-items-display" class="featured-items-card"></div>
+
+          <div class="target-price-box">
+            <span class="box-label">总共要付</span>
+            <strong id="pay-target-amount" class="price-huge">RM 3</strong>
+            <button type="button" id="btn-pay-new" class="btn-secondary-sm">🔄 换一题</button>
+          </div>
+        </div>
+
+        <div class="pay-mat-area">
+          <div class="mat-header">
+            <span>🖐️ 付款桌面（点桌上的钱可以拿回去）</span>
+            <span id="pay-current-sum" class="assist-chip">已放：RM 0</span>
+          </div>
+          <div id="pay-mat" class="felt-mat interactive-mat">
+            <div class="mat-placeholder">点击下方钱包里的纸币或硬币放到这里</div>
+          </div>
+          <div id="pay-feedback" class="feedback-banner"></div>
+        </div>
+
+        <div class="wallet-dock">
+          <div class="dock-header">
+            <span>👛 我的小钱包（点击钱币放上桌面）</span>
+            <div class="dock-actions">
+              <button type="button" id="btn-pay-hint" class="btn-hint">💡 小帮手提示</button>
+              <button type="button" id="btn-pay-clear" class="btn-clear">🗑️ 重放</button>
+              <button type="button" id="btn-pay-submit" class="btn-submit">✅ 确认付款</button>
+            </div>
+          </div>
+          <div id="pay-wallet" class="money-drawer"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 视图 3: 第3关 小老板找零钱 -->
+    <section id="view-change" class="view">
+      <div class="change-layout">
+        <div class="change-top-stage">
+          <div class="clerk-bubble-card">
+            <div id="change-customer-avatar" class="avatar-circle">🐰</div>
+            <div class="bubble-content">
+              <div class="bubble-top">
+                <span id="change-customer-name" class="speaker-name">小兔同学</span>
+                <button type="button" id="btn-change-speak" class="btn-speak-sm">🔊 听顾客说</button>
+              </div>
+              <p id="change-prompt-text" class="speech-line">我要买这个，给你一张钱，请找我零钱！</p>
+            </div>
+          </div>
+
+          <div class="pos-three-cols">
+            <div class="pos-stat-card">
+              <span class="stat-label" id="change-item-label">🛍️ 商品价钱</span>
+              <strong id="change-item-price" class="stat-val">RM 3</strong>
+            </div>
+            <div class="pos-stat-card paid-card">
+              <span class="stat-label">💵 顾客付了</span>
+              <div id="change-paid-visual" class="paid-visual-mini"></div>
+              <strong id="change-paid-amount" class="stat-val">RM 5</strong>
+            </div>
+            <div class="pos-stat-card change-card">
+              <span class="stat-label">💰 要找回</span>
+              <strong id="change-target-display" class="stat-val">？</strong>
+              <button type="button" id="btn-change-new" class="btn-secondary-sm">🔄 换一题</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 往上数教学辅助条 -->
+        <div id="change-scaffold-box" class="scaffold-box">
+          <div class="scaffold-top">
+            <span id="scaffold-formula" class="formula-pill">💡 往上数小魔法：从 RM 3 数到 RM 5</span>
+            <span id="change-current-sum" class="assist-chip">找零盘已放：RM 0</span>
+          </div>
+          <div class="countup-track">
+            <div id="countup-base-bar" class="countup-segment seg-base">商品 RM 3</div>
+            <div id="countup-added-bar" class="countup-segment seg-added">+ RM 0</div>
+            <div id="countup-goal-label" class="countup-goal">目标 RM 5</div>
+          </div>
+        </div>
+
+        <div class="pay-mat-area">
+          <div class="mat-header">
+            <span>💰 找零盘（点盘里的钱可以拿回抽屉）</span>
+          </div>
+          <div id="change-mat" class="felt-mat interactive-mat">
+            <div class="mat-placeholder">从下面收银抽屉点选要找给顾客的钱</div>
+          </div>
+          <div id="change-feedback" class="feedback-banner"></div>
+        </div>
+
+        <div class="wallet-dock">
+          <div class="dock-header">
+            <span>🗄️ 收银机抽屉（点击拿钱找零）</span>
+            <div class="dock-actions">
+              <button type="button" id="btn-change-hint" class="btn-hint">💡 小帮手提示</button>
+              <button type="button" id="btn-change-clear" class="btn-clear">🗑️ 清空</button>
+              <button type="button" id="btn-change-submit" class="btn-submit">🤝 找零给顾客</button>
+            </div>
+          </div>
+          <div id="change-drawer" class="money-drawer"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 视图 4: 第4关 义卖会扮家家酒 -->
+    <section id="view-roleplay" class="view">
+      <div class="view-toolbar roleplay-toolbar">
+        <div class="subtab-group">
+          <button type="button" class="subtab-btn active" data-rp-mode="shopkeeper">🏪 我是小老板（开义卖摊）</button>
+          <button type="button" class="subtab-btn" data-rp-mode="customer">🛒 我是小顾客（逛义卖会）</button>
+        </div>
+        <div id="rp-hud" class="rp-hud">
+          <span class="hud-pill">💵 营业额：<strong id="rp-revenue">RM 0</strong></span>
+          <span class="hud-pill">😊 服务客人：<strong id="rp-served">0</strong></span>
+          <span class="hud-pill">🏅 贴纸：<strong id="rp-sticker-count">0</strong></span>
+          <button type="button" id="btn-rp-summary" class="btn-secondary-sm">📊 收摊结账</button>
+        </div>
+      </div>
+
+      <!-- 4A: 我是小老板 -->
+      <div id="rp-shopkeeper" class="rp-panel active">
+        <div class="rp-shop-grid">
+          <div class="rp-left-col">
+            <div class="customer-stage-card">
+              <div class="step-dots">
+                <span id="rp-dot-1" class="step-dot active">1. 拿商品</span>
+                <span id="rp-dot-2" class="step-dot">2. 收钱</span>
+                <span id="rp-dot-3" class="step-dot">3. 找零交货</span>
+              </div>
+              <div class="customer-row">
+                <div id="rp-cust-avatar" class="avatar-circle lg">🐼</div>
+                <div class="bubble-content">
+                  <div class="bubble-top">
+                    <span id="rp-cust-name" class="speaker-name">熊猫小乐</span>
+                    <button type="button" id="btn-rp-speak" class="btn-speak-sm">🔊 听订单</button>
+                  </div>
+                  <p id="rp-cust-speech" class="speech-line">老板你好！请给我一份美食！</p>
+                  <div id="rp-order-pills" class="order-pills"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="stall-shelf-card">
+              <div class="shelf-header">
+                <div class="shelf-title-wrap">
+                  <h4>🏪 我的义卖摊货架（点一点顾客要的商品装袋）</h4>
+                  <span id="rp-shelf-count" class="shelf-count-badge"></span>
+                </div>
+                <div id="rp-cat-filters" class="cat-filters">
+                  <button type="button" class="cat-pill active" data-cat="all">全部</button>
+                  <button type="button" class="cat-pill" data-cat="美食">美食</button>
+                  <button type="button" class="cat-pill" data-cat="饮料">饮料</button>
+                  <button type="button" class="cat-pill" data-cat="文具玩具">文具玩具</button>
+                  <button type="button" class="cat-pill" data-cat="其它">其它</button>
+                </div>
+              </div>
+              <div id="rp-stall-items" class="stall-items-grid"></div>
+            </div>
+          </div>
+
+          <div class="rp-right-col">
+            <div class="counter-card">
+              <h4>🛍️ 打包袋与账单</h4>
+              <div id="rp-bag-list" class="bag-list">
+                <div class="empty-tip">请从左边货架点选顾客要的商品</div>
+              </div>
+              <div class="bag-total-row">
+                <span>商品总价：</span>
+                <strong id="rp-order-total">RM 0</strong>
+              </div>
+              <button type="button" id="btn-rp-pack-done" class="btn-submit full-w">🛍️ 装好了，请顾客付款！</button>
+            </div>
+
+            <div id="rp-cashier-box" class="counter-card is-disabled">
+              <h4>💵 收银台与找零</h4>
+              <div class="cust-paid-box">
+                <span>顾客付给你的钱：</span>
+                <div id="rp-cust-paid-tokens" class="paid-tokens-row">等待装袋...</div>
+                <div class="change-math-row">
+                  <span>应付：<strong id="rp-math-price">-</strong></span>
+                  <span>实收：<strong id="rp-math-paid">-</strong></span>
+                  <span id="rp-math-need-wrap">应找：<strong id="rp-math-need">-</strong></span>
+                </div>
+              </div>
+
+              <div id="rp-change-mat" class="felt-mat interactive-mat compact-mat">
+                <div class="mat-placeholder">点下方收银抽屉放要找的零钱（刚好不用找可直接交货）</div>
+              </div>
+              <div id="rp-feedback" class="feedback-banner"></div>
+              <div id="rp-drawer" class="money-drawer compact-drawer"></div>
+              <div class="rp-cashier-actions">
+                <button type="button" id="btn-rp-hint" class="btn-hint">💡 提示</button>
+                <button type="button" id="btn-rp-clear-change" class="btn-clear">🗑️ 清空</button>
+                <button type="button" id="btn-rp-complete" class="btn-submit">🤝 完成交易！</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4B: 我是小顾客 -->
+      <div id="rp-customer" class="rp-panel">
+        <div class="rp-shop-grid">
+          <div class="rp-left-col">
+            <div class="customer-stage-card">
+              <div class="customer-row">
+                <div class="avatar-circle lg">🐻</div>
+                <div class="bubble-content">
+                  <div class="bubble-top">
+                    <span class="speaker-name">热心摊主小熊</span>
+                    <button type="button" id="btn-cust-speak" class="btn-speak-sm">🔊 听摊主说</button>
+                  </div>
+                  <p id="cust-owner-speech" class="speech-line">欢迎光临！看看你想买什么？挑好后按「去结账」哦！</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="stall-shelf-card">
+              <div class="shelf-header">
+                <div class="shelf-title-wrap">
+                  <h4>🛍️ 义卖会商品区（点商品放进购物篮）</h4>
+                  <span id="cust-shelf-count" class="shelf-count-badge"></span>
+                </div>
+                <button type="button" id="btn-cust-reset-wallet" class="btn-secondary-sm">🔄 重新领零用钱逛街</button>
+              </div>
+              <div id="cust-cat-filters" class="cat-filters shelf-cat-row">
+                <button type="button" class="cat-pill active" data-cat="all">全部</button>
+                <button type="button" class="cat-pill" data-cat="美食">美食</button>
+                <button type="button" class="cat-pill" data-cat="饮料">饮料</button>
+                <button type="button" class="cat-pill" data-cat="文具玩具">文具玩具</button>
+                <button type="button" class="cat-pill" data-cat="其它">其它</button>
+              </div>
+              <div id="cust-stall-items" class="stall-items-grid"></div>
+            </div>
+          </div>
+
+          <div class="rp-right-col">
+            <div class="counter-card">
+              <div class="wallet-summary-head">
+                <h4>👛 我的零用钱袋</h4>
+                <strong id="cust-wallet-total" class="price-badge">RM 10</strong>
+              </div>
+              <div id="cust-wallet-tokens" class="cust-wallet-tokens"></div>
+              <p class="small-note" id="cust-wallet-hint">挑选商品后点击「去结账」，再点自己的钱币付款，老板会把找零放回你钱包！</p>
+            </div>
+
+            <div class="counter-card">
+              <h4>🛍️ 我的购物篮</h4>
+              <div id="cust-basket-list" class="bag-list">
+                <div class="empty-tip">购物篮还是空的，快去选喜欢的物品吧！</div>
+              </div>
+              <div class="bag-total-row">
+                <span>应付总额：</span>
+                <strong id="cust-basket-total">RM 0</strong>
+              </div>
+              <div class="cust-basket-btns">
+                <button type="button" id="btn-cust-clear-basket" class="btn-clear">清空篮子</button>
+                <button type="button" id="btn-cust-checkout" class="btn-submit">💳 去结账</button>
+              </div>
+            </div>
+
+            <div id="cust-checkout-box" class="counter-card hidden">
+              <h4>🖐️ 付款给小熊老板</h4>
+              <div class="mat-header">
+                <span>已放入付款台：</span>
+                <strong id="cust-pay-sum">RM 0</strong>
+              </div>
+              <div id="cust-pay-mat" class="felt-mat interactive-mat compact-mat">
+                <div class="mat-placeholder">点击上方「我的零用钱袋」里的钱币付款</div>
+              </div>
+              <div id="cust-feedback" class="feedback-banner"></div>
+              <div class="rp-cashier-actions">
+                <button type="button" id="btn-cust-cancel-pay" class="btn-clear">⬅️ 继续逛街</button>
+                <button type="button" id="btn-cust-pay-confirm" class="btn-submit">✅ 付钱买下！</button>
+              </div>
+            </div>
+
+            <div class="counter-card">
+              <h4>🎒 我买到的宝贝 (<span id="cust-bought-count">0</span>)</h4>
+              <div id="cust-bought-list" class="bought-pills"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 老师设置模态框 -->
+  <div id="modal-teacher" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="teacher-modal-title">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <h3 id="teacher-modal-title">👩‍🏫 老师设置 · 自定义学校义卖会菜单</h3>
+        <button type="button" id="btn-teacher-close" class="btn-close-modal" aria-label="关闭">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row-2">
+          <label class="form-field">
+            <span>摊位名称</span>
+            <input type="text" id="cfg-stall-name" maxlength="40" />
+          </label>
+          <label class="form-field">
+            <span>学校名称</span>
+            <input type="text" id="cfg-school-name" maxlength="40" />
+          </label>
+        </div>
+
+        <div class="add-item-box">
+          <h4>➕ 新增义卖商品</h4>
+          <div class="emoji-picker" id="new-item-emojis"></div>
+          <div class="add-item-fields">
+            <input type="text" id="new-item-emoji" value="🍩" maxlength="4" class="emoji-input" title="图标" />
+            <input type="text" id="new-item-name" placeholder="商品名称（例：鸡蛋糕）" maxlength="30" />
+            <select id="new-item-cat">
+              <option value="美食">美食</option>
+              <option value="饮料">饮料</option>
+              <option value="文具玩具">文具玩具</option>
+              <option value="其它">其它</option>
+            </select>
+            <div class="price-input-wrap">
+              <span>RM</span>
+              <input type="number" id="new-item-price" step="0.05" min="0.05" max="100" value="2.00" />
+            </div>
+            <button type="button" id="btn-add-item" class="btn-submit">添加</button>
+          </div>
+        </div>
+
+        <div class="menu-list-header">
+          <h4>📋 目前义卖菜单（可直接修改价钱与名称）</h4>
+          <span class="small-note">提示：1星难度会自动选用整数价钱（RM 1 ~ RM 10）的商品</span>
+        </div>
+        <div id="teacher-items-list" class="teacher-items-list"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="btn-reset-config" class="btn-clear">🔄 恢复默认菜单</button>
+        <div class="footer-right">
+          <span id="teacher-save-status" class="save-status"></span>
+          <button type="button" id="btn-save-config" class="btn-submit">💾 保存菜单</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 收摊结账总结模态框 -->
+  <div id="modal-summary" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>🎉 小老板收摊大丰收！</h3>
+        <button type="button" id="btn-summary-close" class="btn-close-modal" aria-label="关闭">✕</button>
+      </div>
+      <div class="modal-body summary-body">
+        <div class="summary-trophy">🏆</div>
+        <div class="summary-stats">
+          <div class="sum-box"><span>服务客人</span><strong id="sum-served">0 位</strong></div>
+          <div class="sum-box"><span>今日营业额</span><strong id="sum-revenue">RM 0</strong></div>
+          <div class="sum-box"><span>获得贴纸</span><strong id="sum-stickers">0 张</strong></div>
+        </div>
+        <div id="sum-sticker-shelf" class="sticker-shelf"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="btn-summary-ok" class="btn-submit full-w">继续营业！</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 庆祝礼花层 & 鼓励提示 -->
+  <div id="confetti-layer" class="confetti-layer" aria-hidden="true"></div>
+  <div id="toast-banner" class="toast-banner" aria-live="polite"></div>
+
+  <script src="js/money.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
