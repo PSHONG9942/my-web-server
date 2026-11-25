@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SJK(C) Pei Ching 3D Print Hub | 培青华小3D打印中心</title>
+    <title>培青华小 3D 打印中心 | Pusat Cetakan 3D SJK(C) Pei Ching</title>
 
     <link rel="icon" href="logo.png" type="image/png">
     <link rel="stylesheet" href="../css/style.css">
@@ -537,6 +537,39 @@
 
         .mw-open-btn:hover {
             transform: translateY(-2px);
+        }
+
+        .mw-video-box {
+            background: #fff7ed;
+            border: 2px solid #fb923c;
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+
+        .mw-video-box h4 {
+            margin: 0 0 10px 0;
+            color: #c2410c;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .mw-video-player {
+            width: 100%;
+            max-height: 440px;
+            border-radius: 10px;
+            background: #0f172a;
+            display: block;
+            outline: none;
+        }
+
+        .mw-video-caption {
+            margin: 8px 0 0;
+            font-size: 12.5px;
+            color: #9a3412;
+            line-height: 1.5;
         }
 
         .preview-box {
@@ -1102,11 +1135,11 @@
 <body>
     <div id="loading-overlay">
         <div class="spinner"></div>
-        <h3 style="margin-top: 15px; color: #2563eb;">Sending Order... 正在提交订单...</h3>
+        <h3 style="margin-top: 15px; color: #2563eb;">正在提交订单... / Menghantar Pesanan...</h3>
     </div>
 
     <div id="live-toast-banner" onclick="handleToastClick()">
-        <span id="live-toast-text">🔔 有新消息！</span>
+        <span id="live-toast-text">🔔 有新消息！ / Mesej baharu!</span>
     </div>
 
     <div class="dashboard">
@@ -1115,25 +1148,25 @@
             <div class="brand-bar">
                 <a href="../index.html"><img src="logo.png" class="brand-logo" alt="Pei Ching 3D Hub Logo"></a>
                 <div>
-                    <h1 class="brand-title">SJK(C) Pei Ching 3D Hub <b>培青华小3D打印中心</b></h1>
-                    <p class="brand-subtitle">Choose what you want to make! <b>选择你想要制作的物品！</b> <i>Sila pilih apa yang anda mahu buat!</i></p>
+                    <h1 class="brand-title"><b>培青华小 3D 打印中心</b> <span style="font-size:0.82em; font-weight:600; color:#475569;">Pusat Cetakan 3D SJK(C) Pei Ching</span></h1>
+                    <p class="brand-subtitle"><b>选择你想要制作的物品！</b> <i>Sila pilih barang yang ingin dicetak!</i></p>
                 </div>
             </div>
             <div class="booth-actions">
                 <div class="booth-status-pill" id="connection-pill">
                     <span class="status-dot" id="connection-dot"></span>
-                    <span id="connection-text">正在连接云端系统...</span>
+                    <span id="connection-text">正在连接云端... / Menyambung...</span>
                 </div>
                 <button type="button" class="pill-btn pill-btn-sound" id="btn-sound-toggle" onclick="toggleSound()">
-                    🔔 提示音: 开
+                    🔔 提示音: 开 / Bunyi: Hidup
                 </button>
                 <button type="button" class="pill-btn pill-btn-board" id="btn-open-booth-board"
                     onclick="openBoothBoard()">
-                    📋 现场订单 / 报价看板
+                    📋 订单与报价看板 · Papan Pesanan
                     <span class="badge-count" id="badge-quotes">0</span>
                 </button>
                 <button type="button" class="pill-btn pill-btn-chat" id="btn-toggle-chat" onclick="toggleChatBox()">
-                    💬 呼叫潘老师
+                    💬 呼叫潘老师 · Hubungi Cikgu
                     <span class="badge-count" id="badge-chat">0</span>
                 </button>
             </div>
@@ -1142,17 +1175,17 @@
         <div class="hub-container">
             <!-- 提交成功电子凭证 -->
             <div id="success-message">
-                <h2 style="margin-top: 0; color: #15803d;">🎉 Order Submitted Successfully! 订单提交成功！</h2>
+                <h2 style="margin-top: 0; color: #15803d;">🎉 订单提交成功！ / Pesanan Berjaya Dihantar!</h2>
                 <p id="receipt-subtitle" style="color: #334155; margin-bottom: 10px;">
                     请向现场摊位同学出示此凭证或截图保存。<br>
-                    <i>Sila tunjukkan resit ini kepada petugas di gerai.</i>
+                    <i>Sila tunjukkan resit ini kepada petugas di gerai atau simpan tangkap layar.</i>
                 </p>
                 <div class="receipt-card" id="receipt-details"></div>
                 <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 16px;">
-                    <button type="button" class="btn" onclick="resetForNewOrder()">➕ Place Another Order 继续下一单</button>
+                    <button type="button" class="btn" onclick="resetForNewOrder()">➕ 继续下一单 / Buat Pesanan Baharu</button>
                     <button type="button" id="btn-receipt-open-board" class="btn-secondary"
                         style="display:none; padding: 12px 22px;" onclick="openBoothBoard()">
-                        📋 查看老师报价进度
+                        📋 查看老师报价进度 / Semak Sebut Harga
                     </button>
                 </div>
             </div>
@@ -1163,235 +1196,243 @@
                     <div class="workspace-left">
                         <div class="form-grid-2">
                             <div>
-                                <label for="id_student_name" style="margin-top: 0;">Your Name <b>你的名字</b> <i>Nama Anda</i>: <span
+                                <label for="id_student_name" style="margin-top: 0;"><b>你的名字</b> <i>Nama Anda</i>: <span
                                         style="color: #ef4444;">*</span></label>
-                                <input type="text" id="id_student_name" required placeholder="e.g., Ali bin Ahmad / 陈小明">
+                                <input type="text" id="id_student_name" required placeholder="例如 / Contoh: 陈小明 / Ali bin Ahmad">
                             </div>
                             <div>
-                                <label for="id_student_class" style="margin-top: 0;">Your Class <b>你的班级 / 联系</b> <i>Kelas Anda</i>: <span
+                                <label for="id_student_class" style="margin-top: 0;"><b>你的班级 / 联系</b> <i>Kelas Anda</i>: <span
                                         style="color: #ef4444;">*</span></label>
-                                <input type="text" id="id_student_class" required placeholder="e.g., 6 Merah / 6M / 老师">
+                                <input type="text" id="id_student_class" required placeholder="例如 / Contoh: 6 Merah / 6M / 老师">
                             </div>
                         </div>
 
-                        <label for="id_model_choice" style="margin-top: 18px;">Choose an Item <b>选择物品</b> <i>Pilih
-                                Barang</i>:</label>
+                        <label for="id_model_choice" style="margin-top: 18px;"><b>选择物品</b> <i>Pilih Barang</i>:</label>
 
                         <!-- 图文卡片选择器（6款选项） -->
                         <div class="model-card-grid" id="model-card-grid">
                             <div class="model-card active" data-value="Keychain" onclick="selectModelCard('Keychain')">
                                 <div class="model-card-icon">🔑</div>
-                                <div class="model-card-title">Name Keychain<br>名字钥匙扣</div>
+                                <div class="model-card-title">名字钥匙扣</div>
                                 <div class="model-card-sub">Rantai Kunci Nama</div>
                                 <div class="model-card-price">RM 4.00</div>
                             </div>
                             <div class="model-card" data-value="Tumbler" onclick="selectModelCard('Tumbler')">
                                 <div class="model-card-icon">🥤</div>
-                                <div class="model-card-title">Mini Tumbler<br>迷你保温杯</div>
-                                <div class="model-card-sub">Bekas Pelembap Bibir</div>
+                                <div class="model-card-title">迷你保温杯</div>
+                                <div class="model-card-sub">Tumbler Mini (Bekas Bibir)</div>
                                 <div class="model-card-price">RM 4.00</div>
                             </div>
                             <div class="model-card" data-value="Flexi_Cat" onclick="selectModelCard('Flexi_Cat')">
                                 <div class="model-card-icon">🐱</div>
-                                <div class="model-card-title">Flexi Cat<br>软体猫咪</div>
+                                <div class="model-card-title">软体猫咪</div>
                                 <div class="model-card-sub">Kucing Flexi</div>
                                 <div class="model-card-price">RM 4.00</div>
                             </div>
                             <div class="model-card" data-value="Flexi_Bunny" onclick="selectModelCard('Flexi_Bunny')">
                                 <div class="model-card-icon">🐰</div>
-                                <div class="model-card-title">Flexi Bunny<br>可爱复活兔</div>
+                                <div class="model-card-title">可爱复活兔</div>
                                 <div class="model-card-sub">Arnab Flexi</div>
                                 <div class="model-card-price">RM 4.00</div>
                             </div>
                             <div class="model-card" data-value="Clicker" onclick="selectModelCard('Clicker')">
                                 <div class="model-card-icon">⌨️</div>
-                                <div class="model-card-title">Fidget Clicker<br>解压按键</div>
+                                <div class="model-card-title">解压按键</div>
                                 <div class="model-card-sub">Butang Klik Fidget</div>
-                                <div class="model-card-price">RM 2.00 起</div>
+                                <div class="model-card-price">RM 2.00 起 / Dari RM 2.00</div>
                             </div>
                             <div class="model-card makerworld-card" data-value="MakerWorld"
                                 onclick="selectModelCard('MakerWorld')">
                                 <div class="model-card-icon">🌐</div>
-                                <div class="model-card-title">MakerWorld 自选<br>Custom Model</div>
+                                <div class="model-card-title">MakerWorld 自选模型</div>
                                 <div class="model-card-sub">Model Pilihan Sendiri</div>
-                                <div class="model-card-price">待老师评估报价</div>
+                                <div class="model-card-price">待老师报价 / Sebut Harga</div>
                             </div>
                         </div>
 
                         <!-- 保留同步 select 控件 -->
-                        <select id="id_model_choice" class="sr-only-select" aria-label="Choose an Item">
-                            <option value="Keychain" selected>🔑 Personalized Name Keychain</option>
-                            <option value="Tumbler">🥤 Mini Tumbler</option>
-                            <option value="Flexi_Cat">🐱 Fluffy Tail Flexi Cat</option>
-                            <option value="Flexi_Bunny">🐰 Cute Flexi Easter Bunny</option>
-                            <option value="Clicker">⌨️ Fidget Clicker</option>
-                            <option value="MakerWorld">🌐 MakerWorld Custom Model</option>
+                        <select id="id_model_choice" class="sr-only-select" aria-label="选择物品 / Pilih Barang">
+                            <option value="Keychain" selected>🔑 名字钥匙扣 / Rantai Kunci Nama</option>
+                            <option value="Tumbler">🥤 迷你保温杯 / Tumbler Mini</option>
+                            <option value="Flexi_Cat">🐱 软体猫咪 / Kucing Flexi</option>
+                            <option value="Flexi_Bunny">🐰 可爱复活兔 / Arnab Flexi</option>
+                            <option value="Clicker">⌨️ 解压按键 / Butang Klik Fidget</option>
+                            <option value="MakerWorld">🌐 MakerWorld 自选模型 / Model Pilihan Sendiri</option>
                         </select>
 
                         <!-- 解压按键排列设计选择器 -->
                         <div id="field-clicker-layout" class="dynamic-field">
-                            <label for="id_clicker_layout">Clicker Layout Design <b>选择按键排列款式</b> <i>Pilih Rekaan Susunan Butang</i>:</label>
-                            <span class="helptext">每个按键 RM2.00（例如：3个按键 = RM6.00）；加钥匙圈 +RM1.00。</span>
+                            <label for="id_clicker_layout"><b>选择按键排列款式</b> <i>Pilih Rekaan Susunan Butang</i>:</label>
+                            <span class="helptext">每个按键 RM2.00（例如：3个按键 = RM6.00）；加钥匙圈 +RM1.00。<br><i>RM2.00 setiap butang (cth: 3 butang = RM6.00); tambah gelang kunci +RM1.00.</i></span>
                             <div id="clicker-layout-grid" class="clicker-layout-grid"></div>
-                            <select id="id_clicker_layout" class="sr-only-select" aria-label="Clicker Layout Design">
-                                <option value="1x1" selected>1×1 (1 Key) - RM 2.00</option>
-                                <option value="1x2">1×2 (2 Keys) - RM 4.00</option>
-                                <option value="1x3">1×3 (3 Keys) - RM 6.00</option>
-                                <option value="2x2">2×2 方形 (4 Keys) - RM 8.00</option>
-                                <option value="Arrow_4">Arrow 方向键 (4 Keys) - RM 8.00</option>
-                                <option value="1x4">1×4 一排 (4 Keys) - RM 8.00</option>
-                                <option value="1x5">1×5 一排 (5 Keys) - RM 10.00</option>
-                                <option value="2x3">2×3 双排 (6 Keys) - RM 12.00</option>
-                                <option value="1x6">1×6 一排 (6 Keys) - RM 12.00</option>
-                                <option value="2x4">2×4 双排 (8 Keys) - RM 16.00</option>
-                                <option value="1x8">1×8 一排 (8 Keys) - RM 16.00</option>
-                                <option value="3x3">3×3 九宫格 (9 Keys) - RM 18.00</option>
+                            <select id="id_clicker_layout" class="sr-only-select" aria-label="选择按键排列款式 / Pilih Rekaan Susunan Butang">
+                                <option value="1x1" selected>1×1 单颗 (1 Butang) - RM 2.00</option>
+                                <option value="1x2">1×2 一排 (2 Butang) - RM 4.00</option>
+                                <option value="1x3">1×3 一排 (3 Butang) - RM 6.00</option>
+                                <option value="2x2">2×2 方形 (4 Butang) - RM 8.00</option>
+                                <option value="Arrow_4">Arrow 方向键 (4 Butang) - RM 8.00</option>
+                                <option value="1x4">1×4 一排 (4 Butang) - RM 8.00</option>
+                                <option value="1x5">1×5 一排 (5 Butang) - RM 10.00</option>
+                                <option value="2x3">2×3 双排 (6 Butang) - RM 12.00</option>
+                                <option value="1x6">1×6 一排 (6 Butang) - RM 12.00</option>
+                                <option value="2x4">2×4 双排 (8 Butang) - RM 16.00</option>
+                                <option value="1x8">1×8 一排 (8 Butang) - RM 16.00</option>
+                                <option value="3x3">3×3 九宫格 (9 Butang) - RM 18.00</option>
                             </select>
                         </div>
 
                         <!-- MAKERWORLD 自定义模型专区 -->
                         <div id="section-makerworld" class="dynamic-field">
+                            <div class="mw-video-box">
+                                <h4>🎬 教学视频：如何在 MakerWorld 找模型 / Panduan Video: Cara Cari Model di MakerWorld</h4>
+                                <video id="mw-tutorial-video" class="mw-video-player" src="makerworld-guide.mp4" controls autoplay loop muted playsinline preload="metadata">
+                                    您的浏览器不支持视频播放。 / Pelayar anda tidak menyokong main balik video.
+                                </video>
+                                <p class="mw-video-caption">
+                                    🔁 视频会自动循环播放；可点击右下角全屏放大观看，或拖动进度条重看。<br>
+                                    <i>Video akan dimainkan secara berulang. Klik skrin penuh di penjuru bawah kanan untuk paparan lebih jelas.</i>
+                                </p>
+                            </div>
+
                             <div class="mw-guide-box">
-                                <h4>⚠️ 选模必读排雷指南 / Important Guide / Panduan Penting</h4>
+                                <h4>⚠️ 选模必读排雷指南 / Panduan Penting Pemilihan Model</h4>
                                 <div class="mw-rule-item">
-                                    <strong>1. 🎨 手涂白模 vs AMS 最多4色限制：</strong><br>
-                                    MakerWorld 上许多精美图片是作者<strong>手涂上色 (Hand-Painted)</strong> 或渲染效果图，实际 3D 打印出来会是<strong>单色纯色</strong>！我们的打印机配有一台 AMS，<strong>最多只支持 4 种颜色自动换色打印</strong>（且模型本身必须带有多色/AMS配置）。<br>
-                                    <span style="font-size: 12px; color: #92400e;"><i>Hand-painted photos print as solid single color. Our AMS printer supports max 4 colors only.</i></span>
+                                    <strong>1. 🎨 手涂白模 vs AMS 最多4色限制 / Cat Tangan vs Had Maksimum 4 Warna (AMS)：</strong><br>
+                                    MakerWorld 上许多精美图片是作者<strong>手涂上色</strong>或渲染效果图，实际 3D 打印出来会是<strong>单色纯色</strong>！我们的打印机配有一台 AMS，<strong>最多只支持 4 种颜色自动换色打印</strong>（且模型本身必须带有多色/AMS配置）。<br>
+                                    <span style="font-size: 12px; color: #92400e;"><i>Gambar berwarna mungkin hasil cat tangan; cetakan 3D sebenar ialah satu warna sahaja. Pencetak AMS kami hanya menyokong maksimum 4 warna.</i></span>
                                 </div>
                                 <div class="mw-rule-item">
-                                    <strong>2. 📏 尺寸与打印时间限制：</strong><br>
+                                    <strong>2. 📏 尺寸与打印时间限制 / Had Saiz &amp; Masa Cetakan：</strong><br>
                                     模型尺寸不可超过打印盘大小，也不接收需要打印十几个小时的巨型模型。<br>
-                                    <span style="font-size: 12px; color: #92400e;"><i>Must fit our print bed; extra-large models taking 10+ hours are not accepted.</i></span>
+                                    <span style="font-size: 12px; color: #92400e;"><i>Saiz model mesti muat atas tapak pencetak; model terlalu besar yang mengambil masa 10+ jam tidak diterima.</i></span>
                                 </div>
                                 <div class="mw-rule-item" style="margin-bottom: 0;">
-                                    <strong>3. 🛠️ 避开易断悬空 & 推荐搜索关键词：</strong><br>
+                                    <strong>3. 🛠️ 避开易断悬空 &amp; 推荐搜索关键词 / Elak Bahagian Mudah Patah &amp; Kata Kunci Disyorkan：</strong><br>
                                     请勿挑选带有复杂悬空、极细长结构或需大量支撑的模型（如复杂动漫手办、细剑，拆支撑极易断）。<br>
-                                    💡 <strong>推荐搜索：</strong> <code>Print-in-Place</code>（一体打印）、<code>Flexi</code>（关节可动）、<code>No Support</code>（免支撑）、<code>AMS</code>。
+                                    💡 <strong>推荐搜索 / Cadangan Carian：</strong> <code>Print-in-Place</code>（一体打印 / Cetak Terus）、<code>Flexi</code>（关节可动 / Boleh Lentur）、<code>No Support</code>（免支撑 / Tanpa Sokongan）、<code>AMS</code>。<br>
+                                    <span style="font-size: 12px; color: #92400e;"><i>Elakkan model dengan bahagian terlalu halus atau memerlukan banyak sokongan kerana mudah patah.</i></span>
                                 </div>
                             </div>
 
-                            <label for="id_mw_url">MakerWorld 模型链接或准确名称 <b>Model Link or Name</b> <i>Pautan / Nama Model</i>: <span style="color: #ef4444;">*</span></label>
-                            <span class="helptext">请从 MakerWorld 复制网页链接（例如 https://makerworld.com/en/models/...）或写明模型完整名称+作者。</span>
+                            <label for="id_mw_url"><b>MakerWorld 模型链接或准确名称</b> <i>Pautan / Nama Tepat Model</i>: <span style="color: #ef4444;">*</span></label>
+                            <span class="helptext">请从 MakerWorld 复制网页链接（例如 https://makerworld.com/en/models/...）或写明模型完整名称+作者。<br><i>Sila tampal pautan MakerWorld atau tulis nama penuh model berserta nama pencipta.</i></span>
                             <input type="text" id="id_mw_url" placeholder="https://makerworld.com/en/models/...">
 
-                            <label for="id_mw_color_mode">Printing Color Mode <b>打印颜色模式</b> <i>Mod Warna Cetakan</i>:</label>
+                            <label for="id_mw_color_mode"><b>打印颜色模式</b> <i>Mod Warna Cetakan</i>:</label>
                             <select id="id_mw_color_mode">
-                                <option value="1_Color" selected>🎨 单色打印 (1 Color - 最推荐，成功率高、价格实惠 / Satu Warna)</option>
-                                <option value="AMS_4Color">🌈 AMS 多色打印 (最多 4 色 - 仅限模型自带多色配置 / Maks 4 Warna)</option>
+                                <option value="1_Color" selected>🎨 单色打印 (最推荐，成功率高、价格实惠) / Satu Warna (Disyorkan)</option>
+                                <option value="AMS_4Color">🌈 AMS 多色打印 (最多 4 色 - 仅限模型自带多色配置) / Pelbagai Warna (Maks 4 Warna)</option>
                             </select>
                         </div>
 
                         <!-- DYNAMIC COLOR FIELDS -->
                         <div id="field-main-color" class="dynamic-field">
-                            <label id="label_main_color" for="id_filament_color">Main Color (Body) <b>主体颜色</b> <i>Warna Utama</i>:</label>
+                            <label id="label_main_color" for="id_filament_color"><b>主体颜色</b> <i>Warna Utama</i>:</label>
                             <select id="id_filament_color">
-                                <option value="Black">⚫ Black PLA 黑色 Hitam</option>
-                                <option value="White">⚪ White PLA 白色 Putih</option>
-                                <option value="Red">🔴 Red PLA 红色 Merah</option>
-                                <option value="Blue" selected>🔵 Blue PLA 蓝色 Biru</option>
-                                <option value="Green">🟢 Green PLA 绿色 Hijau</option>
-                                <option value="Pink">🌸 Pink PLA 粉色 Merah Jambu</option>
-                                <option value="Purple">🟣 Purple PLA 紫色 Ungu</option>
-                                <option value="Yellow">🟡 Yellow PLA 黄色 Kuning</option>
-                                <option value="Turquoise">💎 Turquoise PLA 蓝绿色 Firus</option>
-                                <option value="Light Blue">🧊 Light Blue PLA 浅蓝色 Biru Muda</option>
-                                <option value="Transparent">🌫️ Transparent PLA/PETG 透明 Lutsinar</option>
+                                <option value="Black">⚫ 黑色 Hitam</option>
+                                <option value="White">⚪ 白色 Putih</option>
+                                <option value="Red">🔴 红色 Merah</option>
+                                <option value="Blue" selected>🔵 蓝色 Biru</option>
+                                <option value="Green">🟢 绿色 Hijau</option>
+                                <option value="Pink">🌸 粉色 Merah Jambu</option>
+                                <option value="Purple">🟣 紫色 Ungu</option>
+                                <option value="Yellow">🟡 黄色 Kuning</option>
+                                <option value="Turquoise">💎 蓝绿色 Firus</option>
+                                <option value="Light Blue">🧊 浅蓝色 Biru Muda</option>
+                                <option value="Transparent">🌫️ 透明 Lutsinar</option>
                             </select>
                             <div class="swatch-row" data-target="id_filament_color"></div>
                         </div>
 
                         <div id="section-secondary-color" class="dynamic-field">
-                            <label id="label_secondary_color" for="id_secondary_color">Secondary Color (Details)
+                            <label id="label_secondary_color" for="id_secondary_color">
                                 <b>第二种颜色</b> <i>Warna Kedua</i>:</label>
-                            <span class="helptext" id="helptext_secondary_color">Choose the same color as the Main Body for
-                                Single Color pricing.</span>
+                            <span class="helptext" id="helptext_secondary_color">单色与双色统一 RM4.00。<i>Harga sama RM4.00 untuk satu atau dua warna.</i></span>
                             <select id="id_secondary_color">
-                                <option value="None" selected>❌ None (Single Color) 无（单色） Tiada (Satu Warna)</option>
-                                <option value="Black">⚫ Black PLA 黑色 Hitam</option>
-                                <option value="White">⚪ White PLA 白色 Putih</option>
-                                <option value="Red">🔴 Red PLA 红色 Merah</option>
-                                <option value="Blue">🔵 Blue PLA 蓝色 Biru</option>
-                                <option value="Green">🟢 Green PLA 绿色 Hijau</option>
-                                <option value="Pink">🌸 Pink PLA 粉色 Merah Jambu</option>
-                                <option value="Purple">🟣 Purple PLA 紫色 Ungu</option>
-                                <option value="Yellow">🟡 Yellow PLA 黄色 Kuning</option>
-                                <option value="Turquoise">💎 Turquoise PLA 蓝绿色 Firus</option>
-                                <option value="Light Blue">🧊 Light Blue PLA 浅蓝色 Biru Muda</option>
-                                <option value="Transparent">🌫️ Transparent PLA/PETG 透明 Lutsinar</option>
+                                <option value="None" selected>❌ 无（单色） Tiada (Satu Warna)</option>
+                                <option value="Black">⚫ 黑色 Hitam</option>
+                                <option value="White">⚪ 白色 Putih</option>
+                                <option value="Red">🔴 红色 Merah</option>
+                                <option value="Blue">🔵 蓝色 Biru</option>
+                                <option value="Green">🟢 绿色 Hijau</option>
+                                <option value="Pink">🌸 粉色 Merah Jambu</option>
+                                <option value="Purple">🟣 紫色 Ungu</option>
+                                <option value="Yellow">🟡 黄色 Kuning</option>
+                                <option value="Turquoise">💎 蓝绿色 Firus</option>
+                                <option value="Light Blue">🧊 浅蓝色 Biru Muda</option>
+                                <option value="Transparent">🌫️ 透明 Lutsinar</option>
                             </select>
                             <div class="swatch-row" data-target="id_secondary_color"></div>
                         </div>
 
                         <div id="section-tertiary-color" class="dynamic-field">
-                            <label id="label_tertiary_color" for="id_tertiary_color">Tertiary Color (Stripes) <b>第三种颜色（条纹/细节）</b> <i>Warna
-                                    Ketiga</i>:</label>
+                            <label id="label_tertiary_color" for="id_tertiary_color"><b>第三种颜色（细节）</b> <i>Warna Ketiga</i>:</label>
                             <select id="id_tertiary_color">
-                                <option value="Black" selected>⚫ Black PLA 黑色 Hitam</option>
-                                <option value="White">⚪ White PLA 白色 Putih</option>
-                                <option value="Red">🔴 Red PLA 红色 Merah</option>
-                                <option value="Blue">🔵 Blue PLA 蓝色 Biru</option>
-                                <option value="Green">🟢 Green PLA 绿色 Hijau</option>
-                                <option value="Pink">🌸 Pink PLA 粉色 Merah Jambu</option>
-                                <option value="Purple">🟣 Purple PLA 紫色 Ungu</option>
-                                <option value="Yellow">🟡 Yellow PLA 黄色 Kuning</option>
-                                <option value="Turquoise">💎 Turquoise PLA 蓝绿色 Firus</option>
-                                <option value="Light Blue">🧊 Light Blue PLA 浅蓝色 Biru Muda</option>
-                                <option value="Transparent">🌫️ Transparent PLA/PETG 透明 Lutsinar</option>
+                                <option value="Black" selected>⚫ 黑色 Hitam</option>
+                                <option value="White">⚪ 白色 Putih</option>
+                                <option value="Red">🔴 红色 Merah</option>
+                                <option value="Blue">🔵 蓝色 Biru</option>
+                                <option value="Green">🟢 绿色 Hijau</option>
+                                <option value="Pink">🌸 粉色 Merah Jambu</option>
+                                <option value="Purple">🟣 紫色 Ungu</option>
+                                <option value="Yellow">🟡 黄色 Kuning</option>
+                                <option value="Turquoise">💎 蓝绿色 Firus</option>
+                                <option value="Light Blue">🧊 浅蓝色 Biru Muda</option>
+                                <option value="Transparent">🌫️ 透明 Lutsinar</option>
                             </select>
                             <div class="swatch-row" data-target="id_tertiary_color"></div>
                         </div>
 
                         <div id="section-fourth-color" class="dynamic-field">
-                            <label for="id_fourth_color">4th Color (Optional) <b>第四种颜色（选填）</b> <i>Warna Ke-4 (Pilihan)</i>:</label>
+                            <label for="id_fourth_color"><b>第四种颜色（选填）</b> <i>Warna Ke-4 (Pilihan)</i>:</label>
                             <select id="id_fourth_color">
-                                <option value="None" selected>❌ Not Needed 不需要（仅用3色） Tidak Perlu</option>
-                                <option value="Black">⚫ Black PLA 黑色 Hitam</option>
-                                <option value="White">⚪ White PLA 白色 Putih</option>
-                                <option value="Red">🔴 Red PLA 红色 Merah</option>
-                                <option value="Blue">🔵 Blue PLA 蓝色 Biru</option>
-                                <option value="Green">🟢 Green PLA 绿色 Hijau</option>
-                                <option value="Pink">🌸 Pink PLA 粉色 Merah Jambu</option>
-                                <option value="Purple">🟣 Purple PLA 紫色 Ungu</option>
-                                <option value="Yellow">🟡 Yellow PLA 黄色 Kuning</option>
-                                <option value="Turquoise">💎 Turquoise PLA 蓝绿色 Firus</option>
-                                <option value="Light Blue">🧊 Light Blue PLA 浅蓝色 Biru Muda</option>
-                                <option value="Transparent">🌫️ Transparent PLA/PETG 透明 Lutsinar</option>
+                                <option value="None" selected>❌ 不需要（仅用3色） Tidak Perlu (3 Warna Sahaja)</option>
+                                <option value="Black">⚫ 黑色 Hitam</option>
+                                <option value="White">⚪ 白色 Putih</option>
+                                <option value="Red">🔴 红色 Merah</option>
+                                <option value="Blue">🔵 蓝色 Biru</option>
+                                <option value="Green">🟢 绿色 Hijau</option>
+                                <option value="Pink">🌸 粉色 Merah Jambu</option>
+                                <option value="Purple">🟣 紫色 Ungu</option>
+                                <option value="Yellow">🟡 黄色 Kuning</option>
+                                <option value="Turquoise">💎 蓝绿色 Firus</option>
+                                <option value="Light Blue">🧊 浅蓝色 Biru Muda</option>
+                                <option value="Transparent">🌫️ 透明 Lutsinar</option>
                             </select>
                             <div class="swatch-row" data-target="id_fourth_color"></div>
                         </div>
 
                         <div id="field-name-color" class="dynamic-field">
-                            <label for="id_keychain_name_color">Name & Emoji Color <b>名字和表情颜色</b> <i>Warna Nama &
-                                    Emoji</i>:</label>
+                            <label for="id_keychain_name_color"><b>名字颜色</b> <i>Warna Nama</i>:</label>
                             <select id="id_keychain_name_color">
-                                <option value="Black">⚫ Black PLA 黑色 Hitam</option>
-                                <option value="White" selected>⚪ White PLA 白色 Putih</option>
-                                <option value="Red">🔴 Red PLA 红色 Merah</option>
-                                <option value="Blue">🔵 Blue PLA 蓝色 Biru</option>
-                                <option value="Green">🟢 Green PLA 绿色 Hijau</option>
-                                <option value="Pink">🌸 Pink PLA 粉色 Merah Jambu</option>
-                                <option value="Purple">🟣 Purple PLA 紫色 Ungu</option>
-                                <option value="Yellow">🟡 Yellow PLA 黄色 Kuning</option>
-                                <option value="Turquoise">💎 Turquoise PLA 蓝绿色 Firus</option>
-                                <option value="Light Blue">🧊 Light Blue PLA 浅蓝色 Biru Muda</option>
-                                <option value="Transparent">🌫️ Transparent PLA/PETG 透明 Lutsinar</option>
+                                <option value="Black">⚫ 黑色 Hitam</option>
+                                <option value="White" selected>⚪ 白色 Putih</option>
+                                <option value="Red">🔴 红色 Merah</option>
+                                <option value="Blue">🔵 蓝色 Biru</option>
+                                <option value="Green">🟢 绿色 Hijau</option>
+                                <option value="Pink">🌸 粉色 Merah Jambu</option>
+                                <option value="Purple">🟣 紫色 Ungu</option>
+                                <option value="Yellow">🟡 黄色 Kuning</option>
+                                <option value="Turquoise">💎 蓝绿色 Firus</option>
+                                <option value="Light Blue">🧊 浅蓝色 Biru Muda</option>
+                                <option value="Transparent">🌫️ 透明 Lutsinar</option>
                             </select>
                             <div class="swatch-row" data-target="id_keychain_name_color"></div>
                             <div id="same-color-warning" class="warning-banner">
                                 ⚠️ 提醒：底色与字色相同，印出来的名字会看不清楚哦！建议换一个对比色。<br>
-                                <i>Warning: Same base and text color will be hard to read!</i>
+                                <i>Amaran: Warna tapak dan nama yang sama sukar dibaca! Sila pilih warna yang berbeza.</i>
                             </div>
                         </div>
 
                         <div id="field-text" class="dynamic-field">
-                            <label for="id_keychain_text">What name to write? <b>要写什么名字？</b> <i>Tulis nama apa?</i> <span
+                            <label for="id_keychain_text"><b>要写什么名字？</b> <i>Tulis nama apa?</i> <span
                                     style="color: #ef4444;">*</span></label>
-                            <span class="helptext">Max 15 characters. 最多 15 个字符。</span>
-                            <input type="text" id="id_keychain_text" value="" placeholder="例如 / e.g., JAYDEN" maxlength="15">
+                            <span class="helptext">最多 15 个字符。<i>Maksimum 15 aksara.</i></span>
+                            <input type="text" id="id_keychain_text" value="" placeholder="例如 / Contoh: JAYDEN" maxlength="15">
                         </div>
 
                         <div id="field-font" class="dynamic-field">
-                            <label for="id_font_style">Font Style <b>字体选择</b> <i>Pilihan Fon</i>:</label>
+                            <label for="id_font_style"><b>字体选择</b> <i>Pilihan Fon</i>:</label>
                             <select id="id_font_style">
                                 <option value="Archivo Black" style="font-family: 'Archivo Black', sans-serif;" selected>Archivo
                                     Black</option>
@@ -1412,35 +1453,33 @@
                         </div>
 
                         <div id="field-width" class="dynamic-field">
-                            <label for="id_keychain_width">Keychain Size <b>钥匙扣尺寸</b> <i>Saiz Rantai Kunci</i>:</label>
-                            <span class="helptext">Select the size of your keychain (All sizes RM4.00).</span>
+                            <label for="id_keychain_width"><b>钥匙扣尺寸</b> <i>Saiz Rantai Kunci</i>:</label>
+                            <span class="helptext">请选择钥匙扣尺寸（全部尺寸统一 RM4.00）。<i>Pilih saiz rantai kunci (Semua saiz RM4.00).</i></span>
                             <select id="id_keychain_width" required>
-                                <option value="15" selected>Small (15mm) 小 Kecil - RM 4.00</option>
-                                <option value="22">Medium (22mm) 中 Sederhana - RM 4.00</option>
-                                <option value="30">Large (30mm) 大 Besar - RM 4.00</option>
+                                <option value="15" selected>小号 (15mm) Kecil - RM 4.00</option>
+                                <option value="22">中号 (22mm) Sederhana - RM 4.00</option>
+                                <option value="30">大号 (30mm) Besar - RM 4.00</option>
                             </select>
                         </div>
 
                         <div id="section-ring-add-on" class="dynamic-field">
                             <div class="checkbox-row">
                                 <input type="checkbox" id="id_add_keychain_ring">
-                                <label id="label_ring_addon" for="id_add_keychain_ring">Add Metal Ring (+RM1.00) <b>加钥匙圈/铁环</b>
-                                    (+RM1.00) <i>Tambah Gelang Besi (+RM1.00)</i></label>
+                                <label id="label_ring_addon" for="id_add_keychain_ring"><b>加钥匙圈/铁环 (+RM1.00)</b> <i>Tambah Gelang Kunci Besi (+RM1.00)</i></label>
                             </div>
                         </div>
 
                         <!-- MakerWorld 备注和必读勾选 -->
                         <div id="section-mw-notes" class="dynamic-field">
-                            <label for="id_mw_notes">Notes / Special Requests <b>订单备注 / 尺寸或配色说明（选填）</b> <i>Catatan
-                                    Tambahan</i>:</label>
+                            <label for="id_mw_notes"><b>订单备注 / 尺寸或配色说明（选填）</b> <i>Catatan Tambahan / Saiz &amp; Warna (Pilihan)</i>:</label>
                             <textarea id="id_mw_notes" rows="2"
-                                placeholder="例如：想印小一点（大约手掌一半大）、只印第1盘、或指定各个部件颜色..."></textarea>
+                                placeholder="例如：想印小一点（大约手掌一半大）、只印第1盘、或指定各个部件颜色... / Cth: Cetak saiz kecil, bahagian tertentu warna biru..."></textarea>
 
                             <div class="checkbox-row" style="background: #fff7ed; border-color: #fdba74;">
                                 <input type="checkbox" id="id_mw_confirm">
                                 <label for="id_mw_confirm">
                                     我明白：老师会先检查模型能否打印并报价；若原图是手涂模型，印出来会是纯色（单色或最多4色）。<br>
-                                    <span style="font-size: 12px; color: #7c2d12;"><i>I understand teacher will verify printability & quote first; hand-painted photos print as solid filament.</i></span>
+                                    <span style="font-size: 12px; color: #7c2d12;"><i>Saya faham: cikgu akan menyemak kebolehan cetakan &amp; memberi sebut harga dahulu; gambar cat tangan akan dicetak sebagai warna filamen biasa.</i></span>
                                 </label>
                             </div>
                         </div>
@@ -1450,7 +1489,7 @@
                     <div class="workspace-right">
                         <!-- PREVIEWS -->
                         <div id="preview-keychain" class="preview-box">
-                            <p style="margin-top: 0; color: #475569; font-weight: bold; font-size: 14px;">Preview <b>实时预览</b>
+                            <p style="margin-top: 0; color: #475569; font-weight: bold; font-size: 14px;"><b>实时预览</b>
                                 <i>Pratonton</i>:
                             </p>
                             <svg width="240" height="75" viewBox="0 0 220 70" xmlns="http://www.w3.org/2000/svg">
@@ -1459,12 +1498,12 @@
                                 <circle id="kc-ring" cx="18" cy="35" r="12" fill="none" stroke="#1d4ed8" stroke-width="4" />
                                 <text id="kc-text" x="120" y="43" font-family="'Archivo Black', sans-serif" font-size="20"
                                     font-weight="bold" fill="#ffffff" stroke="#d1d5db" stroke-width="1"
-                                    text-anchor="middle">YOUR NAME</text>
+                                    text-anchor="middle">你的名字 / NAMA</text>
                             </svg>
                         </div>
 
                         <div id="preview-tumbler" class="preview-box">
-                            <p style="margin-top: 0; color: #475569; font-weight: bold; font-size: 14px;">Preview <b>实时预览</b>
+                            <p style="margin-top: 0; color: #475569; font-weight: bold; font-size: 14px;"><b>实时预览</b>
                                 <i>Pratonton</i>:
                             </p>
                             <svg width="220" height="160" viewBox="0 0 220 160" xmlns="http://www.w3.org/2000/svg">
@@ -1485,36 +1524,36 @@
                         </div>
 
                         <div id="preview-flexicat" class="preview-box">
-                            <p style="margin-top: 0; color: #475569; font-weight: bold; font-size: 14px;">Flexi Cat Preview <b>猫咪主题与预览</b>:</p>
+                            <p style="margin-top: 0; color: #475569; font-weight: bold; font-size: 14px;"><b>猫咪主题与预览</b> <i>Tema &amp; Pratonton Kucing</i>:</p>
 
                             <div
                                 style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; justify-content: center;">
                                 <button type="button" class="theme-btn" data-cat-theme="sakura"
                                     onclick="setCatTheme('Pink', 'White', 'Black')"
-                                    style="background: #fdf2f8; color: #ec4899; border: 1px solid #fbcfe8;">🌸 Sakura</button>
+                                    style="background: #fdf2f8; color: #ec4899; border: 1px solid #fbcfe8;">🌸 樱花 Sakura</button>
                                 <button type="button" class="theme-btn" data-cat-theme="ocean"
                                     onclick="setCatTheme('Turquoise', 'White', 'Blue')"
-                                    style="background: #eff6ff; color: #3b82f6; border: 1px solid #bfdbfe;">🌊 Ocean</button>
+                                    style="background: #eff6ff; color: #3b82f6; border: 1px solid #bfdbfe;">🌊 海洋 Ocean</button>
                                 <button type="button" class="theme-btn" data-cat-theme="dracula"
                                     onclick="setCatTheme('Black', 'Red', 'White')"
-                                    style="background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca;">🧛 Dracula</button>
+                                    style="background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca;">🧛 德古拉 Dracula</button>
                                 <button type="button" class="theme-btn" data-cat-theme="bumblebee"
                                     onclick="setCatTheme('Black', 'Yellow', 'White')"
                                     style="background: #fefce8; color: #ca8a04; border: 1px solid #fef08a;">🐝
-                                    Bumblebee</button>
+                                    大黄蜂 Bumblebee</button>
                                 <button type="button" class="theme-btn" data-cat-theme="panda"
                                     onclick="setCatTheme('Black', 'White', 'White')"
-                                    style="background: #f3f4f6; color: #1f2937; border: 1px solid #d1d5db;">🐼 Panda</button>
+                                    style="background: #f3f4f6; color: #1f2937; border: 1px solid #d1d5db;">🐼 熊猫 Panda</button>
                                 <button type="button" class="theme-btn" data-cat-theme="redpanda"
                                     onclick="setCatTheme('Red', 'White', 'Black')"
-                                    style="background: #fef2f2; color: #ef4444; border: 1px solid #fecaca;">🦊 Red
+                                    style="background: #fef2f2; color: #ef4444; border: 1px solid #fecaca;">🦊 小熊猫 Red
                                     Panda</button>
                             </div>
 
                             <div id="flexicat-img" style="display: none; margin-bottom: 10px;">
                                 <img id="flexicat-real-image" src="" alt="Flexi Cat Theme"
                                     style="max-width: 100%; max-height: 280px; height: auto; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.12);">
-                                <p style="font-size: 12px; color: #059669; margin-top: 6px;">✨ 6款限定预设配色 (点击上方按钮切换主题) / Exclusive 6 Preset Themes</p>
+                                <p style="font-size: 12px; color: #059669; margin-top: 6px;">✨ 6款限定预设配色 (点击上方按钮切换主题)<br><i>6 Tema Warna Terhad (Klik butang di atas untuk menukar)</i></p>
                             </div>
 
                             <svg id="flexicat-svg" width="220" height="210" viewBox="0 0 220 210"
@@ -1576,7 +1615,7 @@
                         </div>
 
                         <div id="preview-flexibunny" class="preview-box">
-                            <p style="margin-top: 0; color: #475569; font-weight: bold; font-size: 14px;">Flexi Bunny Preview <b>兔子主题选择</b>:
+                            <p style="margin-top: 0; color: #475569; font-weight: bold; font-size: 14px;"><b>兔子主题选择</b> <i>Tema &amp; Pratonton Arnab</i>:
                             </p>
 
                             <div
@@ -1584,33 +1623,33 @@
                                 <button type="button" class="theme-btn" data-bunny-theme="Strawberry"
                                     onclick="setBunnyTheme('Strawberry', 'Red', 'White', 'Pink')"
                                     style="background: #fdf2f8; color: #ec4899; border: 1px solid #fbcfe8;">🍓
-                                    Strawberry</button>
+                                    草莓 Strawberi</button>
                                 <button type="button" class="theme-btn" data-bunny-theme="Mint"
                                     onclick="setBunnyTheme('Mint', 'Green', 'White', 'Pink')"
-                                    style="background: #eff6ff; color: #10b981; border: 1px solid #a7f3d0;">🧊 Mint</button>
+                                    style="background: #eff6ff; color: #10b981; border: 1px solid #a7f3d0;">🧊 薄荷 Pudina</button>
                                 <button type="button" class="theme-btn" data-bunny-theme="Lemon"
                                     onclick="setBunnyTheme('Lemon', 'Yellow', 'White', 'Pink')"
-                                    style="background: #fefce8; color: #ca8a04; border: 1px solid #fef08a;">🍋 Lemon</button>
+                                    style="background: #fefce8; color: #ca8a04; border: 1px solid #fef08a;">🍋 柠檬 Lemon</button>
                                 <button type="button" class="theme-btn" data-bunny-theme="Grape"
                                     onclick="setBunnyTheme('Grape', 'Purple', 'White', 'Pink')"
-                                    style="background: #f3e8ff; color: #7e22ce; border: 1px solid #e9d5ff;">🍇 Grape</button>
+                                    style="background: #f3e8ff; color: #7e22ce; border: 1px solid #e9d5ff;">🍇 葡萄 Anggur</button>
                                 <button type="button" class="theme-btn" data-bunny-theme="Peach"
                                     onclick="setBunnyTheme('Peach', 'Pink', 'White', 'White')"
-                                    style="background: #fef2f2; color: #ef4444; border: 1px solid #fecaca;">🍑 Peach</button>
+                                    style="background: #fef2f2; color: #ef4444; border: 1px solid #fecaca;">🍑 蜜桃 Pic</button>
                                 <button type="button" class="theme-btn" data-bunny-theme="Vanilla"
                                     onclick="setBunnyTheme('Vanilla', 'White', 'White', 'Pink')"
-                                    style="background: #f9fafb; color: #374151; border: 1px solid #d1d5db;">🍦 Vanilla</button>
+                                    style="background: #f9fafb; color: #374151; border: 1px solid #d1d5db;">🍦 香草 Vanila</button>
                             </div>
 
                             <div id="flexibunny-img" style="margin-bottom: 10px;">
                                 <img id="flexibunny-real-image" src="" alt="Flexi Bunny Theme"
                                     style="max-width: 100%; max-height: 280px; height: auto; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.12); display: none;">
-                                <p style="font-size: 12px; color: #059669; margin-top: 6px;">✨ Exclusive Premium Edition (6款限定配色)</p>
+                                <p style="font-size: 12px; color: #059669; margin-top: 6px;">✨ 6款限定预设配色 / <i>6 Tema Warna Terhad</i></p>
                             </div>
                         </div>
 
                         <div id="preview-clicker" class="preview-box">
-                            <p style="margin-top: 0; color: #475569; font-weight: bold; font-size: 14px;">Fidget Clicker Preview <b>解压按键实时预览</b>:
+                            <p style="margin-top: 0; color: #475569; font-weight: bold; font-size: 14px;"><b>解压按键实时预览</b> <i>Pratonton Butang Klik</i>:
                             </p>
                             <svg id="clicker-svg" width="300" height="150" viewBox="0 0 260 130" xmlns="http://www.w3.org/2000/svg"></svg>
                             <p id="clicker-preview-caption" style="font-size: 12px; color: #475569; margin-top: 8px; margin-bottom: 0; font-weight: 600;"></p>
@@ -1618,64 +1657,64 @@
 
                         <!-- INFO CARDS -->
                         <div id="info-keychain" class="info-card">
-                            <strong>🔑 Name Keychain / <b>名字钥匙扣</b> / <i>Rantai Kunci Nama</i></strong><br>
-                            • Price 价格: <strong>RM4.00</strong> (Small 15mm / Medium 22mm / Large 30mm)<br>
-                            • Colors 颜色: Pick different colors for base and text! 可自由搭配底色和字色！<br>
-                            • Add Keychain Ring 加钥匙圈 (+RM1.00 = <strong>RM5.00</strong>): Hang it on your bag!
+                            <strong>🔑 <b>名字钥匙扣</b> / <i>Rantai Kunci Nama</i></strong><br>
+                            • 价格 / <i>Harga</i>: <strong>RM4.00</strong>（小 15mm / 中 22mm / 大 30mm · <i>Kecil / Sederhana / Besar</i>）<br>
+                            • 颜色 / <i>Warna</i>: 可自由搭配底色和字色！<i>Boleh pilih warna tapak dan nama secara bebas!</i><br>
+                            • 加钥匙圈 / <i>Tambah Gelang Kunci</i> (+RM1.00 = <strong>RM5.00</strong>): 可挂在书包或钥匙上！<i>Boleh digantung pada beg!</i>
                         </div>
 
                         <div id="info-tumbler" class="info-card">
-                            <strong>🥤 Mini Tumbler / <b>迷你保温杯（润唇膏盒）</b> / <i>Tumbler Mini</i></strong><br>
-                            • Price 价格: <strong>RM4.00</strong> (单色或双色统一价 / 1 or 2 Colors)<br>
-                            • Add Keychain Ring 加钥匙圈 (+RM1.00 = <strong>RM5.00</strong>): Hang it on your bag!
+                            <strong>🥤 <b>迷你保温杯（润唇膏盒）</b> / <i>Tumbler Mini</i></strong><br>
+                            • 价格 / <i>Harga</i>: <strong>RM4.00</strong>（单色或双色统一价 / <i>Harga sama untuk 1 atau 2 warna</i>）<br>
+                            • 加钥匙圈 / <i>Tambah Gelang Kunci</i> (+RM1.00 = <strong>RM5.00</strong>): 可挂在书包上！<i>Boleh digantung pada beg!</i>
                         </div>
 
                         <div id="info-flexicat" class="info-card"
                             style="border-left-color: #ec4899; background-color: #fdf2f8; color: #831843;">
-                            <strong>🐱 Flexi Cat / <b>软体猫咪</b> / <i>Kucing Flexi</i></strong><br>
-                            • Price 价格: <strong>RM4.00</strong> | 6款限定预设配色 Choose from 6 cute themes!<br>
-                            • Add Keychain Ring 加钥匙圈 (+RM1.00 = <strong>RM5.00</strong>): Hang it on your bag!
+                            <strong>🐱 <b>软体猫咪</b> / <i>Kucing Flexi</i></strong><br>
+                            • 价格 / <i>Harga</i>: <strong>RM4.00</strong> | 6款限定预设配色 / <i>Pilih daripada 6 tema comel!</i><br>
+                            • 加钥匙圈 / <i>Tambah Gelang Kunci</i> (+RM1.00 = <strong>RM5.00</strong>): 可挂在书包上！<i>Boleh digantung pada beg!</i>
                         </div>
 
                         <div id="info-flexibunny" class="info-card"
                             style="border-left-color: #a855f7; background-color: #faf5ff; color: #581c87;">
-                            <strong>🐰 Flexi Bunny / <b>可爱复活兔</b> / <i>Arnab Flexi</i></strong><br>
-                            • Price 价格: <strong>RM4.00</strong> | 6款限定预设配色 Choose from 6 cute themes!<br>
-                            • Add Keychain Ring 加钥匙圈 (+RM1.00 = <strong>RM5.00</strong>): Hang it on your bag!
+                            <strong>🐰 <b>可爱复活兔</b> / <i>Arnab Flexi</i></strong><br>
+                            • 价格 / <i>Harga</i>: <strong>RM4.00</strong> | 6款限定预设配色 / <i>Pilih daripada 6 tema comel!</i><br>
+                            • 加钥匙圈 / <i>Tambah Gelang Kunci</i> (+RM1.00 = <strong>RM5.00</strong>): 可挂在书包上！<i>Boleh digantung pada beg!</i>
                         </div>
 
                         <div id="info-clicker" class="info-card"
                             style="border-left-color: #0ea5e9; background-color: #f0f9ff; color: #0c4a6e;">
-                            <strong>⌨️ Fidget Clicker / <b>解压按键</b> / <i>Butang Klik Fidget</i></strong><br>
-                            • Price 价格: <strong>RM2.00 per key (每颗按键 RM2.00)</strong> — 例：3 键 = RM6.00，3×3 = RM18.00<br>
-                            • Colors 颜色: 自由搭配 <strong>底座颜色</strong> 与 <strong>按键颜色</strong>！<br>
-                            • Add Keychain Ring 加钥匙圈 (+RM1.00): 可挂在书包或钥匙上！
+                            <strong>⌨️ <b>解压按键</b> / <i>Butang Klik Fidget</i></strong><br>
+                            • 价格 / <i>Harga</i>: <strong>每颗按键 RM2.00</strong>（<i>RM2.00 setiap butang</i> — 例：3 键 = RM6.00，3×3 = RM18.00）<br>
+                            • 颜色 / <i>Warna</i>: 自由搭配<strong>底座颜色</strong>与<strong>按键颜色</strong>！<i>Pilih warna tapak &amp; butang!</i><br>
+                            • 加钥匙圈 / <i>Tambah Gelang Kunci</i> (+RM1.00): 可挂在书包或钥匙上！<i>Boleh digantung pada beg!</i>
                         </div>
 
                         <div id="info-makerworld" class="info-card"
                             style="border-left-color: #ea580c; background-color: #fff7ed; color: #7c2d12;">
-                            <strong>🌐 MakerWorld Custom Model / <b>自选模型评估</b> / <i>Model Pilihan Sendiri</i></strong><br>
+                            <strong>🌐 <b>MakerWorld 自选模型评估</b> / <i>Model Pilihan Sendiri</i></strong><br>
                             找不到喜欢的款式？点击下方绿色按钮去 MakerWorld 逛一逛，选好模型后把链接粘贴到左侧提交即可！潘老师会远程帮你切片检查可印性并报价。<br>
                             <i>Tak jumpa rekaan yang diminati? Pilih model dari MakerWorld dan hantarkan pautan untuk semakan harga oleh cikgu!</i>
                             <a href="https://makerworld.com" target="_blank" rel="noopener noreferrer" class="mw-open-btn">
-                                🚀 前往 MakerWorld.com 挑选模型 (新窗口打开)
+                                🚀 前往 MakerWorld.com 挑选模型 / Pergi ke MakerWorld.com
                             </a>
                         </div>
 
                         <!-- 数量与结算区 -->
                         <div class="checkout-card">
-                            <label for="id_quantity">Quantity <b>数量</b> <i>Kuantiti</i>:</label>
+                            <label for="id_quantity"><b>数量</b> <i>Kuantiti</i>:</label>
                             <input type="number" id="id_quantity" value="1" min="1" max="50" required>
 
                             <div class="price-box" id="price-box">
                                 <div id="price-main-line">
-                                    Estimated Cost <b>预计费用</b> <i>Harga Anggaran</i>: RM <span id="live-price">0.00</span>
+                                    <b>预计费用</b> <i>Harga Anggaran</i>: RM <span id="live-price">0.00</span>
                                 </div>
-                                <div class="price-breakdown" id="price-breakdown">Calculating...</div>
+                                <div class="price-breakdown" id="price-breakdown">正在计算... / Mengira...</div>
                             </div>
 
                             <button type="submit" id="btn-submit-order" class="btn submit-btn">
-                                Print Now! <b>现在打印！</b> <i>Cetak Sekarang!</i>
+                                <b>现在打印！</b> <i>Cetak Sekarang!</i>
                             </button>
                         </div>
                     </div>
@@ -1688,13 +1727,13 @@
     <div id="confirm-modal" class="modal-backdrop">
         <div class="modal-card">
             <div class="modal-header">
-                <h3>📝 Confirm Order 核对订单内容</h3>
+                <h3>📝 核对订单内容 / Semak Pesanan</h3>
                 <button type="button" class="modal-close-btn" onclick="closeConfirmModal()">✕</button>
             </div>
             <div class="modal-body" id="confirm-modal-body"></div>
             <div class="modal-footer">
-                <button type="button" class="btn-secondary" onclick="closeConfirmModal()">返回修改 Back</button>
-                <button type="button" class="btn-primary-sm" onclick="executeOrderSubmission()">✅ 确认提交 Confirm</button>
+                <button type="button" class="btn-secondary" onclick="closeConfirmModal()">返回修改 / Kembali</button>
+                <button type="button" class="btn-primary-sm" onclick="executeOrderSubmission()">✅ 确认提交 / Sahkan</button>
             </div>
         </div>
     </div>
@@ -1703,29 +1742,29 @@
     <div id="booth-orders-modal" class="modal-backdrop">
         <div class="modal-card wide">
             <div class="modal-header">
-                <h3>📋 义卖会现场订单 & 报价看板 (Booth Board)</h3>
+                <h3>📋 义卖会现场订单 &amp; 报价看板 · Papan Pesanan</h3>
                 <button type="button" class="modal-close-btn" onclick="closeBoothBoard()">✕</button>
             </div>
             <div class="modal-body">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
                     <div class="board-tabs" style="margin-bottom: 0;">
                         <button type="button" class="board-tab-btn active" data-filter="all"
-                            onclick="setBoardFilter('all')">全部订单</button>
+                            onclick="setBoardFilter('all')">全部订单 · Semua</button>
                         <button type="button" class="board-tab-btn" data-filter="quotes"
-                            onclick="setBoardFilter('quotes')">⚡ MakerWorld 报价</button>
+                            onclick="setBoardFilter('quotes')">⚡ MakerWorld 报价 · Sebut Harga</button>
                         <button type="button" class="board-tab-btn" data-filter="active"
-                            onclick="setBoardFilter('active')">✅ 已确认/打印</button>
+                            onclick="setBoardFilter('active')">✅ 已确认/打印 · Disahkan</button>
                     </div>
                     <button type="button" class="btn-xs" style="background: #f1f5f9; color: #334155;"
-                        onclick="pollServerState(true)">🔄 立即刷新</button>
+                        onclick="pollServerState(true)">🔄 刷新 · Segar</button>
                 </div>
                 <div id="booth-orders-list">
-                    <p style="text-align: center; color: #64748b;">正在加载订单数据...</p>
+                    <p style="text-align: center; color: #64748b;">正在加载订单数据... / Memuatkan pesanan...</p>
                 </div>
             </div>
             <div class="modal-footer">
-                <span style="font-size: 12px; color: #64748b; margin-right: auto;">每 10 秒自动同步老师远程报价</span>
-                <button type="button" class="btn-secondary" onclick="closeBoothBoard()">关闭 Close</button>
+                <span style="font-size: 12px; color: #64748b; margin-right: auto;">每 10 秒自动同步老师报价 / Disegerak setiap 10 saat</span>
+                <button type="button" class="btn-secondary" onclick="closeBoothBoard()">关闭 / Tutup</button>
             </div>
         </div>
     </div>
@@ -1733,27 +1772,28 @@
     <!-- 右下角实时聊天窗口（现场学生 <-> 潘老师） -->
     <div id="booth-chat-box">
         <div class="chat-header">
-            <span>💬 呼叫潘老师 (实时连线)</span>
+            <span>💬 呼叫潘老师 · Hubungi Cikgu</span>
             <button type="button" onclick="toggleChatBox(false)"
                 style="background: rgba(255,255,255,0.2); border: none; color: #fff; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; font-weight: bold;">✕</button>
         </div>
         <div class="chat-messages" id="booth-chat-messages">
             <div style="text-align: center; font-size: 12px; color: #64748b; margin-top: 20px;">
-                有疑问或刚提交了自定义模型？发消息直接联系潘老师！
+                有疑问或刚提交了自定义模型？发消息直接联系潘老师！<br>
+                <i>Ada soalan atau baru hantar model? Hantar mesej terus kepada cikgu!</i>
             </div>
         </div>
         <div class="chat-quick-chips">
             <button type="button" class="chat-chip"
-                onclick="sendQuickChat('老师，刚有顾客提交了 MakerWorld 模型求报价！')">🙋 有新模型求报价</button>
+                onclick="sendQuickChat('老师，刚有顾客提交了 MakerWorld 模型求报价！ / Cikgu, ada model MakerWorld baharu untuk sebut harga!')">🙋 有新模型求报价 · Minta Sebut Harga</button>
             <button type="button" class="chat-chip"
-                onclick="sendQuickChat('老师，顾客问大概什么时候可以拿到成品？')">⏱️ 问打印时间</button>
+                onclick="sendQuickChat('老师，顾客问大概什么时候可以拿到成品？ / Cikgu, bila siap dicetak?')">⏱️ 问打印时间 · Bila Siap?</button>
             <button type="button" class="chat-chip"
-                onclick="sendQuickChat('老师，顾客想修改刚才的订单可以吗？')">✏️ 想改订单</button>
+                onclick="sendQuickChat('老师，顾客想修改刚才的订单可以吗？ / Cikgu, boleh ubah pesanan tadi?')">✏️ 想改订单 · Ubah Pesanan</button>
         </div>
         <div class="chat-input-row">
-            <input type="text" id="booth-chat-input" placeholder="输入消息给潘老师..."
+            <input type="text" id="booth-chat-input" placeholder="输入消息给潘老师... / Tulis mesej kepada cikgu..."
                 onkeydown="if(event.key==='Enter'){event.preventDefault();sendBoothChat();}">
-            <button type="button" class="chat-send-btn" onclick="sendBoothChat()">发送</button>
+            <button type="button" class="chat-send-btn" onclick="sendBoothChat()">发送 / Hantar</button>
         </div>
     </div>
 
@@ -1803,19 +1843,31 @@
         ];
 
         const clickerLayouts = [
-            { id: '1x1', label: '1×1 单颗', sub: '1 Key', keys: 1, rows: 1, cols: 1, type: 'grid' },
-            { id: '1x2', label: '1×2 一排', sub: '2 Keys', keys: 2, rows: 1, cols: 2, type: 'grid' },
-            { id: '1x3', label: '1×3 一排', sub: '3 Keys', keys: 3, rows: 1, cols: 3, type: 'grid' },
-            { id: '2x2', label: '2×2 方形', sub: '4 Keys', keys: 4, rows: 2, cols: 2, type: 'grid' },
-            { id: 'Arrow_4', label: 'Arrow 方向键', sub: '4 Keys', keys: 4, rows: 2, cols: 3, type: 'arrow' },
-            { id: '1x4', label: '1×4 一排', sub: '4 Keys', keys: 4, rows: 1, cols: 4, type: 'grid' },
-            { id: '1x5', label: '1×5 一排', sub: '5 Keys', keys: 5, rows: 1, cols: 5, type: 'grid' },
-            { id: '2x3', label: '2×3 双排', sub: '6 Keys', keys: 6, rows: 2, cols: 3, type: 'grid' },
-            { id: '1x6', label: '1×6 一排', sub: '6 Keys', keys: 6, rows: 1, cols: 6, type: 'grid' },
-            { id: '2x4', label: '2×4 双排', sub: '8 Keys', keys: 8, rows: 2, cols: 4, type: 'grid' },
-            { id: '1x8', label: '1×8 一排', sub: '8 Keys', keys: 8, rows: 1, cols: 8, type: 'grid' },
-            { id: '3x3', label: '3×3 九宫格', sub: '9 Keys', keys: 9, rows: 3, cols: 3, type: 'grid' }
+            { id: '1x1', label: '1×1 单颗', sub: '1 Butang', keys: 1, rows: 1, cols: 1, type: 'grid' },
+            { id: '1x2', label: '1×2 一排', sub: '2 Butang', keys: 2, rows: 1, cols: 2, type: 'grid' },
+            { id: '1x3', label: '1×3 一排', sub: '3 Butang', keys: 3, rows: 1, cols: 3, type: 'grid' },
+            { id: '2x2', label: '2×2 方形', sub: '4 Butang', keys: 4, rows: 2, cols: 2, type: 'grid' },
+            { id: 'Arrow_4', label: 'Arrow 方向键', sub: '4 Butang Anak Panah', keys: 4, rows: 2, cols: 3, type: 'arrow' },
+            { id: '1x4', label: '1×4 一排', sub: '4 Butang', keys: 4, rows: 1, cols: 4, type: 'grid' },
+            { id: '1x5', label: '1×5 一排', sub: '5 Butang', keys: 5, rows: 1, cols: 5, type: 'grid' },
+            { id: '2x3', label: '2×3 双排', sub: '6 Butang', keys: 6, rows: 2, cols: 3, type: 'grid' },
+            { id: '1x6', label: '1×6 一排', sub: '6 Butang', keys: 6, rows: 1, cols: 6, type: 'grid' },
+            { id: '2x4', label: '2×4 双排', sub: '8 Butang', keys: 8, rows: 2, cols: 4, type: 'grid' },
+            { id: '1x8', label: '1×8 一排', sub: '8 Butang', keys: 8, rows: 1, cols: 8, type: 'grid' },
+            { id: '3x3', label: '3×3 九宫格', sub: '9 Butang', keys: 9, rows: 3, cols: 3, type: 'grid' }
         ];
+
+        function formatModelLabel(modelChoice) {
+            const map = {
+                'Keychain': '名字钥匙扣 (Rantai Kunci Nama)',
+                'Tumbler': '迷你保温杯 (Tumbler Mini)',
+                'Flexi_Cat': '软体猫咪 (Kucing Flexi)',
+                'Flexi_Bunny': '可爱复活兔 (Arnab Flexi)',
+                'Clicker': '解压按键 (Butang Klik Fidget)',
+                'MakerWorld': 'MakerWorld 自选模型 (Model Pilihan Sendiri)'
+            };
+            return map[modelChoice] || modelChoice;
+        }
 
         let currentPrice = 0.00;
         let currentCatTheme = 'Sakura';
@@ -1849,7 +1901,7 @@
         function toggleSound() {
             soundEnabled = !soundEnabled;
             const btn = document.getElementById('btn-sound-toggle');
-            btn.innerText = soundEnabled ? '🔔 提示音: 开' : '🔕 提示音: 关';
+            btn.innerText = soundEnabled ? '🔔 提示音: 开 / Bunyi: Hidup' : '🔕 提示音: 关 / Bunyi: Mati';
             if (soundEnabled) playNotificationBeep();
         }
 
@@ -2075,7 +2127,7 @@
 
             const captionEl = document.getElementById('clicker-preview-caption');
             if (captionEl) {
-                captionEl.innerText = `款式：${layout.label} (${layout.keys} 颗按键) ${addRing ? '• 含钥匙圈' : ''}`;
+                captionEl.innerText = `款式 / Rekaan：${layout.label} (${layout.keys} 颗按键 / butang)${addRing ? ' • 含钥匙圈 / Termasuk Gelang' : ''}`;
             }
         }
 
@@ -2135,22 +2187,22 @@
 
             // 统一钥匙圈/铁环加购文案为 +RM1.00
             const ringLabel = document.getElementById('label_ring_addon');
-            ringLabel.innerHTML = 'Add Metal Ring (+RM1.00) <b>加钥匙圈/铁环 (+RM1.00)</b> <i>Tambah Gelang Besi (+RM1.00)</i>';
+            ringLabel.innerHTML = '<b>加钥匙圈/铁环 (+RM1.00)</b> <i>Tambah Gelang Kunci Besi (+RM1.00)</i>';
 
             // 更新主色标签
             const mainLabel = document.getElementById('label_main_color');
             if (modelChoice === 'Keychain') {
-                mainLabel.innerHTML = 'Base Color <b>底板颜色</b> <i>Warna Tapak</i>:';
+                mainLabel.innerHTML = '<b>底板颜色</b> <i>Warna Tapak</i>:';
             } else if (modelChoice === 'Tumbler') {
-                mainLabel.innerHTML = 'Main Color (Tumbler Body) <b>杯身颜色</b> <i>Warna Badan Tumbler</i>:';
+                mainLabel.innerHTML = '<b>杯身颜色</b> <i>Warna Badan Tumbler</i>:';
             } else if (modelChoice === 'Clicker') {
-                mainLabel.innerHTML = 'Base Color <b>底座颜色</b> <i>Warna Tapak</i>:';
+                mainLabel.innerHTML = '<b>底座颜色</b> <i>Warna Tapak</i>:';
             } else if (modelChoice === 'MakerWorld') {
                 mainLabel.innerHTML = (mwColorMode === 'AMS_4Color')
-                    ? '1st Preferred Color (Main) <b>第一种期望主色</b> <i>Warna Pilihan Pertama</i>:'
-                    : 'Preferred Filament Color <b>期望打印颜色（单色）</b> <i>Warna Pilihan</i>:';
+                    ? '<b>第一种期望主色</b> <i>Warna Pilihan Pertama</i>:'
+                    : '<b>期望打印颜色（单色）</b> <i>Warna Pilihan (Satu Warna)</i>:';
             } else {
-                mainLabel.innerHTML = 'Main Color (Body) <b>身体颜色</b> <i>Warna Badan</i>:';
+                mainLabel.innerHTML = '<b>身体颜色</b> <i>Warna Badan</i>:';
             }
 
             if (modelChoice === 'Keychain') {
@@ -2168,9 +2220,9 @@
                 document.getElementById('preview-tumbler').style.display = 'block';
                 document.getElementById('field-main-color').style.display = 'block';
                 document.getElementById('label_secondary_color').innerHTML =
-                    'Secondary Color (Lid & Straw) <b>杯盖与吸管颜色</b> <i>Warna Penutup & Straw</i>:';
+                    '<b>杯盖与吸管颜色</b> <i>Warna Penutup &amp; Straw</i>:';
                 document.getElementById('helptext_secondary_color').innerHTML =
-                    'Choose "None" for single color (Same RM4.00 price). <b>单色与双色统一 RM4.00。</b>';
+                    '单色与双色统一 RM4.00。<i>Pilih "Tiada" untuk satu warna (Harga sama RM4.00).</i>';
                 document.getElementById('section-secondary-color').style.display = 'block';
                 document.getElementById('section-ring-add-on').style.display = 'block';
 
@@ -2219,9 +2271,9 @@
                 document.getElementById('field-clicker-layout').style.display = 'block';
                 document.getElementById('field-main-color').style.display = 'block';
                 document.getElementById('label_secondary_color').innerHTML =
-                    'Keycap Color (Keys) <b>按键颜色</b> <i>Warna Butang</i>:';
+                    '<b>按键颜色</b> <i>Warna Butang</i>:';
                 document.getElementById('helptext_secondary_color').innerHTML =
-                    'Choose your favorite keycap color. <b>选择喜欢的按键帽颜色。</b>';
+                    '选择喜欢的按键帽颜色。<i>Pilih warna butang kegemaran anda.</i>';
                 document.getElementById('section-secondary-color').style.display = 'block';
                 document.getElementById('section-ring-add-on').style.display = 'block';
                 renderClickerLayoutButtons();
@@ -2234,14 +2286,23 @@
 
                 if (mwColorMode === 'AMS_4Color') {
                     document.getElementById('label_secondary_color').innerHTML =
-                        '2nd Preferred Color <b>第二种期望颜色</b> <i>Warna Pilihan Ke-2</i>:';
-                    document.getElementById('helptext_secondary_color').innerText =
-                        'AMS 最多支持 4 色打印。';
+                        '<b>第二种期望颜色</b> <i>Warna Pilihan Ke-2</i>:';
+                    document.getElementById('helptext_secondary_color').innerHTML =
+                        'AMS 最多支持 4 色打印。<i>AMS menyokong maksimum 4 warna sahaja.</i>';
                     document.getElementById('section-secondary-color').style.display = 'block';
                     document.getElementById('label_tertiary_color').innerHTML =
-                        '3rd Preferred Color <b>第三种期望颜色</b> <i>Warna Pilihan Ke-3</i>:';
+                        '<b>第三种期望颜色</b> <i>Warna Pilihan Ke-3</i>:';
                     document.getElementById('section-tertiary-color').style.display = 'block';
                     document.getElementById('section-fourth-color').style.display = 'block';
+                }
+            }
+
+            const mwVideo = document.getElementById('mw-tutorial-video');
+            if (mwVideo) {
+                if (modelChoice === 'MakerWorld') {
+                    mwVideo.play().catch(() => {});
+                } else if (!mwVideo.paused) {
+                    mwVideo.pause();
                 }
             }
 
@@ -2257,7 +2318,7 @@
             const addRing = document.getElementById('id_add_keychain_ring').checked;
 
             const rawNameInput = document.getElementById('id_keychain_text').value.trim();
-            const previewName = rawNameInput || 'YOUR NAME';
+            const previewName = rawNameInput || '你的名字 / NAMA';
             const fontSelect = document.getElementById('id_font_style').value;
             const mainColors = colorMap[mainColor] || colorMap['White'];
             const textColors = colorMap[nameColor] || colorMap['White'];
@@ -2280,17 +2341,17 @@
 
             if (modelChoice === 'MakerWorld') {
                 priceBox.classList.add('quote-mode');
-                priceMainLine.innerHTML = '待老师评估报价 <b>To Be Quoted</b> <i>Harga Akan Dinilai</i>';
+                priceMainLine.innerHTML = '<b>待老师评估报价</b> <i>Harga Akan Dinilai oleh Cikgu</i>';
                 document.getElementById('price-breakdown').innerHTML =
-                    `提交后潘老师会用切片软件检查是否能印、计算耗材与时间，并通过右上角「现场订单看板」发送报价（数量: ${quantity} 件）。`;
-                submitBtn.innerHTML = '📨 提交给老师评估报价 <b>Submit for Quote</b> <i>Hantar untuk Sebut Harga</i>';
+                    `提交后潘老师会检查模型并回复报价（数量 / <i>Kuantiti</i>: ${quantity} 件 / unit）。<br><i>Cikgu akan menyemak model dan menghantar sebut harga melalui Papan Pesanan.</i>`;
+                submitBtn.innerHTML = '📨 <b>提交给老师评估报价</b> <i>Hantar untuk Sebut Harga</i>';
                 currentPrice = 0;
                 return;
             }
 
             priceBox.classList.remove('quote-mode');
-            priceMainLine.innerHTML = 'Estimated Cost <b>预计费用</b> <i>Harga Anggaran</i>: RM <span id="live-price">0.00</span>';
-            submitBtn.innerHTML = 'Print Now! <b>现在打印！</b> <i>Cetak Sekarang!</i>';
+            priceMainLine.innerHTML = '<b>预计费用</b> <i>Harga Anggaran</i>: RM <span id="live-price">0.00</span>';
+            submitBtn.innerHTML = '<b>现在打印！</b> <i>Cetak Sekarang!</i>';
 
             if (modelChoice === 'Keychain') {
                 const kcText = document.getElementById('kc-text');
@@ -2313,8 +2374,8 @@
                 let keychainBasePrice = 4.00;
 
                 perItem = keychainBasePrice + ringCost;
-                breakdown = `Size ${width}mm Base: RM${keychainBasePrice.toFixed(2)}`;
-                if (ringCost > 0) breakdown += ` | Keychain Ring: +RM${ringCost.toFixed(2)}`;
+                breakdown = `尺寸 ${width}mm 基础价 / Tapak ${width}mm: RM${keychainBasePrice.toFixed(2)}`;
+                if (ringCost > 0) breakdown += ` | 钥匙圈 / Gelang: +RM${ringCost.toFixed(2)}`;
 
             } else if (modelChoice === 'Tumbler') {
                 const secondaryColor = document.getElementById('id_secondary_color').value;
@@ -2335,8 +2396,8 @@
 
                 let tumblerBasePrice = 4.00;
                 perItem = tumblerBasePrice + ringCost;
-                breakdown = `Tumbler Base: RM${tumblerBasePrice.toFixed(2)}`;
-                if (ringCost > 0) breakdown += ` | Keychain Ring: +RM${ringCost.toFixed(2)}`;
+                breakdown = `迷你保温杯 / Tumbler Mini: RM${tumblerBasePrice.toFixed(2)}`;
+                if (ringCost > 0) breakdown += ` | 钥匙圈 / Gelang: +RM${ringCost.toFixed(2)}`;
 
             } else if (modelChoice === 'Flexi_Cat' || modelChoice === 'Flexi_Bunny') {
                 const secColorVal = document.getElementById('id_secondary_color').value;
@@ -2392,11 +2453,11 @@
                     }
                 }
 
-                let itemName = modelChoice === 'Flexi_Cat' ? 'Flexi Cat' : 'Flexi Bunny';
+                let itemName = modelChoice === 'Flexi_Cat' ? '软体猫咪 / Kucing Flexi' : '可爱复活兔 / Arnab Flexi';
                 perItem = 4.00 + ringCost;
-                breakdown = `${itemName} Base: RM4.00`;
+                breakdown = `${itemName}: RM4.00`;
                 if (ringCost > 0) {
-                    breakdown += ` | Keychain Ring: +RM${ringCost.toFixed(2)}`;
+                    breakdown += ` | 钥匙圈 / Gelang: +RM${ringCost.toFixed(2)}`;
                 }
 
             } else if (modelChoice === 'Clicker') {
@@ -2409,14 +2470,14 @@
 
                 const baseClickerPrice = layoutObj.keys * 2.00;
                 perItem = baseClickerPrice + ringCost;
-                breakdown = `Fidget Clicker (${layoutObj.label}, ${layoutObj.keys} Keys × RM2): RM${baseClickerPrice.toFixed(2)}`;
+                breakdown = `解压按键 / Butang Klik (${layoutObj.label}, ${layoutObj.keys} × RM2): RM${baseClickerPrice.toFixed(2)}`;
                 if (ringCost > 0) {
-                    breakdown += ` | Keychain Ring: +RM${ringCost.toFixed(2)}`;
+                    breakdown += ` | 钥匙圈 / Gelang: +RM${ringCost.toFixed(2)}`;
                 }
             }
 
             currentPrice = perItem * quantity;
-            breakdown += `<br>(RM${perItem.toFixed(2)} × ${quantity} pcs)`;
+            breakdown += `<br>(RM${perItem.toFixed(2)} × ${quantity} 件 / unit)`;
 
             const livePriceEl = document.getElementById('live-price');
             if (livePriceEl) livePriceEl.innerText = currentPrice.toFixed(2);
@@ -2460,12 +2521,12 @@
             const quantity = Math.max(1, parseInt(document.getElementById('id_quantity').value, 10) || 1);
 
             if (!studentName) {
-                alert('请先填写你的名字！Please enter your name.');
+                alert('请先填写你的名字！\nSila masukkan nama anda dahulu!');
                 document.getElementById('id_student_name').focus();
                 return;
             }
             if (!studentClass) {
-                alert('请先填写你的班级或联系信息！Please enter your class.');
+                alert('请先填写你的班级或联系信息！\nSila masukkan kelas atau maklumat hubungan anda!');
                 document.getElementById('id_student_class').focus();
                 return;
             }
@@ -2473,7 +2534,7 @@
             const keychainText = document.getElementById('id_keychain_text').value.trim();
             if (modelChoice === 'Keychain') {
                 if (!keychainText) {
-                    alert('请填写要打印的名字！Please enter the name to print on your item.');
+                    alert('请填写要打印的名字！\nSila masukkan nama yang ingin dicetak!');
                     document.getElementById('id_keychain_text').focus();
                     return;
                 }
@@ -2486,12 +2547,12 @@
 
             if (modelChoice === 'MakerWorld') {
                 if (!mwUrl) {
-                    alert('请粘贴 MakerWorld 模型链接或填写完整模型名称！');
+                    alert('请粘贴 MakerWorld 模型链接或填写完整模型名称！\nSila tampal pautan atau tulis nama model MakerWorld!');
                     document.getElementById('id_mw_url').focus();
                     return;
                 }
                 if (!mwConfirm) {
-                    alert('请先勾选下方的选模须知确认框！Please tick the confirmation checkbox.');
+                    alert('请先勾选下方的选模须知确认框！\nSila tandakan kotak pengesahan di bawah dahulu!');
                     document.getElementById('id_mw_confirm').focus();
                     return;
                 }
@@ -2550,18 +2611,19 @@
             const modalBody = document.getElementById('confirm-modal-body');
             modalBody.innerHTML = `
                 <div style="background:#f8fafc; border-radius:12px; padding:14px; border:1px solid #e2e8f0; line-height:1.75; font-size:14px;">
-                    <div><strong>👤 姓名 / 班级：</strong>${escapeHtml(studentName)} (${escapeHtml(studentClass)})</div>
-                    <div><strong>📦 物品类型：</strong>${escapeHtml(modelChoice)} × ${quantity}</div>
-                    <div><strong>🎨 定制配置：</strong>${escapeHtml(pendingFormData.summary)}</div>
-                    ${isMW ? `<div><strong>🔗 模型链接/名称：</strong>${escapeHtml(mwUrl)}</div>` : ''}
-                    ${mwNotes ? `<div><strong>📝 备注：</strong>${escapeHtml(mwNotes)}</div>` : ''}
+                    <div><strong>👤 姓名 / 班级 · Nama / Kelas：</strong>${escapeHtml(studentName)} (${escapeHtml(studentClass)})</div>
+                    <div><strong>📦 物品类型 / Barang：</strong>${escapeHtml(formatModelLabel(modelChoice))} × ${quantity}</div>
+                    <div><strong>🎨 定制配置 / Pilihan：</strong>${escapeHtml(pendingFormData.summary)}</div>
+                    ${isMW ? `<div><strong>🔗 模型链接 / Pautan Model：</strong>${escapeHtml(mwUrl)}</div>` : ''}
+                    ${mwNotes ? `<div><strong>📝 备注 / Catatan：</strong>${escapeHtml(mwNotes)}</div>` : ''}
                     <hr style="border:none; border-top:1px dashed #cbd5e1; margin:10px 0;">
                     <div style="font-size:17px; font-weight:800; color:${isMW ? '#ea580c' : '#1d4ed8'};">
-                        💰 ${isMW ? '费用：待潘老师远程评估报价 (Pending Quote)' : '总计金额：RM ' + escapeHtml(pendingFormData.total_price)}
+                        💰 ${isMW ? '费用：待潘老师远程评估报价 / Harga: Dinilai oleh Cikgu' : '总计金额 / Jumlah：RM ' + escapeHtml(pendingFormData.total_price)}
                     </div>
                 </div>
                 <p style="font-size:12.5px; color:#64748b; margin-top:10px; margin-bottom:0;">
-                    请确认以上拼写、颜色与数量无误后再点击提交。
+                    请确认以上拼写、颜色与数量无误后再点击提交。<br>
+                    <i>Sila pastikan ejaan, warna dan kuantiti adalah betul sebelum mengesahkan pesanan.</i>
                 </p>
             `;
             document.getElementById('confirm-modal').classList.add('open');
@@ -2686,26 +2748,26 @@
             const isMW = payload.model_choice === 'MakerWorld';
             document.getElementById('btn-receipt-open-board').style.display = isMW ? 'inline-block' : 'none';
             document.getElementById('receipt-subtitle').innerHTML = isMW
-                ? '⏳ 你的自选模型已发送给潘老师，老师正在审核是否能打印并报价。<br>请稍候几分钟，现场摊位同学会在「现场订单看板」收到报价！'
-                : '请向现场摊位同学出示此凭证并付款确认，或截图保存。<br><i>Sila tunjukkan resit ini kepada petugas di gerai.</i>';
+                ? '⏳ 你的自选模型已发送给潘老师，老师正在审核是否能打印并报价。请稍候几分钟，现场摊位同学会在「订单与报价看板」收到报价！<br><i>Model pilihan anda telah dihantar kepada cikgu untuk semakan &amp; sebut harga. Sila tunggu sebentar di gerai.</i>'
+                : '请向现场摊位同学出示此凭证并付款确认，或截图保存。<br><i>Sila tunjukkan resit ini kepada petugas di gerai untuk pengesahan bayaran.</i>';
 
             document.getElementById('receipt-details').innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
                     <span class="receipt-order-id">#${escapeHtml(payload.order_id)}</span>
                     <span class="status-badge status-${escapeHtml(payload.status.replace(/\s+/g, '-'))}">
-                        ${isMW ? '⏳ 待老师评估报价' : '📋 已提交待收款'}
+                        ${isMW ? '⏳ 待老师报价 / Menunggu Sebut Harga' : '📋 待现场收款 / Menunggu Bayaran'}
                     </span>
                 </div>
-                <div><strong>👤 学生：</strong>${escapeHtml(payload.student_name)} (${escapeHtml(payload.student_class)})</div>
-                <div><strong>📦 物品：</strong>${escapeHtml(payload.model_choice)} × ${escapeHtml(payload.quantity)}</div>
-                <div><strong>🎨 配置：</strong>${escapeHtml(payload.summary)}</div>
-                ${payload.mw_url ? `<div><strong>🔗 模型：</strong>${escapeHtml(payload.mw_url)}</div>` : ''}
-                ${payload.mw_notes ? `<div><strong>📝 备注：</strong>${escapeHtml(payload.mw_notes)}</div>` : ''}
+                <div><strong>👤 学生 / Murid：</strong>${escapeHtml(payload.student_name)} (${escapeHtml(payload.student_class)})</div>
+                <div><strong>📦 物品 / Barang：</strong>${escapeHtml(formatModelLabel(payload.model_choice))} × ${escapeHtml(payload.quantity)}</div>
+                <div><strong>🎨 配置 / Pilihan：</strong>${escapeHtml(payload.summary)}</div>
+                ${payload.mw_url ? `<div><strong>🔗 模型 / Model：</strong>${escapeHtml(payload.mw_url)}</div>` : ''}
+                ${payload.mw_notes ? `<div><strong>📝 备注 / Catatan：</strong>${escapeHtml(payload.mw_notes)}</div>` : ''}
                 <div style="margin-top:8px; font-weight:800; font-size:16px; color:${isMW ? '#ea580c' : '#15803d'};">
-                    💰 金额：${isMW ? '待老师报价 (Pending Quote)' : 'RM ' + escapeHtml(payload.total_price)}
+                    💰 金额 / Jumlah：${isMW ? '待老师报价 / Menunggu Sebut Harga' : 'RM ' + escapeHtml(payload.total_price)}
                 </div>
                 <div style="font-size:11.5px; color:#64748b; margin-top:6px;">
-                    提交时间：${formatLocalDateTime(new Date())} ${submittedRemotely ? '• ☁️ 已同步云端' : '• 💾 已本地缓存'}
+                    提交时间 / Masa：${formatLocalDateTime(new Date())} ${submittedRemotely ? '• ☁️ 已同步云端 / Disimpan di Awan' : '• 💾 已本地缓存 / Disimpan Lokal'}
                 </div>
             `;
 
@@ -2750,14 +2812,14 @@
 
         function formatStatusLabel(status) {
             const map = {
-                'Pending Quote': '⏳ 等待老师报价',
-                'Quoted': '💰 老师已报价 (请收款确认)',
-                'Rejected': '🚫 无法打印/需更换模型',
-                'Pending': '📝 待现场确认',
-                'Paid': '✅ 已收款 (安排打印)',
-                'Printing': '🖨️ 正在打印中',
-                'Completed': '🎉 打印完成',
-                'Cancelled': '❌ 已取消'
+                'Pending Quote': '⏳ 等待老师报价 / Menunggu Sebut Harga',
+                'Quoted': '💰 老师已报价 (请收款) / Harga Diberi',
+                'Rejected': '🚫 无法打印/需换模型 / Tidak Boleh Dicetak',
+                'Pending': '📝 待现场确认 / Menunggu Pengesahan',
+                'Paid': '✅ 已收款 (安排打印) / Sudah Dibayar',
+                'Printing': '🖨️ 正在打印中 / Sedang Dicetak',
+                'Completed': '🎉 打印完成 / Siap Dicetak',
+                'Cancelled': '❌ 已取消 / Dibatalkan'
             };
             return map[status] || status;
         }
@@ -2773,7 +2835,7 @@
             }
 
             if (list.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:#64748b; padding:24px 0;">暂无符合条件的订单记录。</p>';
+                container.innerHTML = '<p style="text-align:center; color:#64748b; padding:24px 0;">暂无符合条件的订单记录。/ Tiada rekod pesanan ditemui.</p>';
                 return;
             }
 
@@ -2799,21 +2861,21 @@
                             <span class="status-badge ${escapeHtml(statusClass)}">${escapeHtml(formatStatusLabel(status))}</span>
                         </div>
                         <div style="font-size:13px; color:#334155; margin-top:8px; line-height:1.5;">
-                            <div><strong>物品：</strong>${escapeHtml(model)} × ${escapeHtml(o['Quantity'])} | <strong>配置：</strong>${escapeHtml(o['Summary'])}</div>
-                            ${o['MakerWorld URL'] ? `<div><strong>模型：</strong>${safeUrl ? `<a href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(o['MakerWorld URL'])}</a>` : escapeHtml(o['MakerWorld URL'])}</div>` : ''}
-                            ${o['Student Notes'] ? `<div><strong>学生备注：</strong>${escapeHtml(o['Student Notes'])}</div>` : ''}
-                            ${o['Teacher Note'] ? `<div style="margin-top:6px; background:#eff6ff; padding:6px 10px; border-radius:8px; color:#1e3a8a;"><strong>👨‍🏫 老师评语：</strong>${escapeHtml(o['Teacher Note'])}</div>` : ''}
+                            <div><strong>物品 / Barang：</strong>${escapeHtml(formatModelLabel(model))} × ${escapeHtml(o['Quantity'])} | <strong>配置 / Pilihan：</strong>${escapeHtml(o['Summary'])}</div>
+                            ${o['MakerWorld URL'] ? `<div><strong>模型 / Model：</strong>${safeUrl ? `<a href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(o['MakerWorld URL'])}</a>` : escapeHtml(o['MakerWorld URL'])}</div>` : ''}
+                            ${o['Student Notes'] ? `<div><strong>学生备注 / Catatan Murid：</strong>${escapeHtml(o['Student Notes'])}</div>` : ''}
+                            ${o['Teacher Note'] ? `<div style="margin-top:6px; background:#eff6ff; padding:6px 10px; border-radius:8px; color:#1e3a8a;"><strong>👨‍🏫 老师评语 / Nota Cikgu：</strong>${escapeHtml(o['Teacher Note'])}</div>` : ''}
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-top:10px; padding-top:8px; border-top:1px solid #f1f5f9;">
                             <div style="font-weight:800; font-size:15px; color:${isPendingQuote ? '#ea580c' : '#15803d'};">
-                                ${isPendingQuote ? '⏳ 价格：待老师评估' : (status === 'Rejected' ? '🚫 无法打印' : '💰 价格：RM ' + escapeHtml(priceVal))}
+                                ${isPendingQuote ? '⏳ 价格：待老师评估 / Harga: Menunggu Penilaian' : (status === 'Rejected' ? '🚫 无法打印 / Tidak Boleh Dicetak' : '💰 价格 / Harga：RM ' + escapeHtml(priceVal))}
                             </div>
                             <span style="font-size:11.5px; color:#94a3b8;">${escapeHtml(o['Date'])}</span>
                         </div>
                         <div class="board-action-row">
-                            ${canConfirmPay ? `<button type="button" class="btn-xs btn-confirm-pay" onclick="boothUpdateOrder('${escapeHtml(orderId)}', 'Paid')">✅ 已收款确认打印</button>` : ''}
-                            ${canCancel ? `<button type="button" class="btn-xs btn-cancel-order" onclick="boothUpdateOrder('${escapeHtml(orderId)}', 'Cancelled')">❌ 顾客取消</button>` : ''}
-                            <button type="button" class="btn-xs btn-ask-order" onclick="askAboutOrder('${escapeHtml(orderId)}')">💬 询问老师此单</button>
+                            ${canConfirmPay ? `<button type="button" class="btn-xs btn-confirm-pay" onclick="boothUpdateOrder('${escapeHtml(orderId)}', 'Paid')">✅ 已收款确认打印 / Sahkan Bayaran</button>` : ''}
+                            ${canCancel ? `<button type="button" class="btn-xs btn-cancel-order" onclick="boothUpdateOrder('${escapeHtml(orderId)}', 'Cancelled')">❌ 顾客取消 / Batal</button>` : ''}
+                            <button type="button" class="btn-xs btn-ask-order" onclick="askAboutOrder('${escapeHtml(orderId)}')">💬 询问老师 / Tanya Cikgu</button>
                         </div>
                     </div>
                 `;
@@ -2821,8 +2883,10 @@
         }
 
         async function boothUpdateOrder(orderId, newStatus) {
-            const label = newStatus === 'Paid' ? '确认顾客已付款并安排打印' : '取消该笔订单';
-            if (!confirm(`确定要对订单 #${orderId} 执行「${label}」吗？`)) return;
+            const label = newStatus === 'Paid'
+                ? '确认顾客已付款并安排打印 / Sahkan bayaran & teruskan cetakan'
+                : '取消该笔订单 / Batalkan pesanan ini';
+            if (!confirm(`确定要对订单 #${orderId} 执行「${label}」吗？\nAdakah anda pasti untuk meneruskan tindakan ini bagi pesanan #${orderId}?`)) return;
 
             // 先本地即时更新，提升现场响应速度
             const localList = readLocalOrders();
@@ -2881,7 +2945,7 @@
             closeBoothBoard();
             toggleChatBox(true);
             const input = document.getElementById('booth-chat-input');
-            input.value = `关于订单 #${orderId}：`;
+            input.value = `关于订单 #${orderId} / Berkenaan pesanan #${orderId}：`;
             input.focus();
         }
 
@@ -2894,7 +2958,7 @@
         function renderChatMessages() {
             const container = document.getElementById('booth-chat-messages');
             if (!serverChats.length) {
-                container.innerHTML = '<div style="text-align:center; font-size:12px; color:#64748b; margin-top:24px;">有疑问或刚提交了自定义模型？发消息直接联系潘老师！</div>';
+                container.innerHTML = '<div style="text-align:center; font-size:12px; color:#64748b; margin-top:24px;">有疑问或刚提交了自定义模型？发消息直接联系潘老师！<br><i>Ada soalan atau baru hantar model? Hantar mesej terus kepada cikgu!</i></div>';
                 return;
             }
 
@@ -2903,7 +2967,7 @@
                 return `
                     <div class="chat-bubble ${isBooth ? 'booth' : 'teacher'}">
                         <div style="font-size:11px; font-weight:700; margin-bottom:2px;">
-                            ${isBooth ? '🙋 现场摊位' : '👨‍🏫 潘老师'}
+                            ${isBooth ? '🙋 现场摊位 / Gerai' : '👨‍🏫 潘老师 / Cikgu'}
                         </div>
                         <div>${escapeHtml(msg.Text)}</div>
                         <div class="chat-meta">${escapeHtml(msg.Date || '')}</div>
@@ -3001,8 +3065,8 @@
                 const prev = knownOrderStatuses[o['Order ID']];
                 if (prev && prev !== o['Status'] && (o['Status'] === 'Quoted' || o['Status'] === 'Rejected')) {
                     const msg = o['Status'] === 'Quoted'
-                        ? `💰 老师已为 #${o['Order ID']} (${o['Student Name']}) 报价：RM ${o['Total Price']}！点击查看`
-                        : `🚫 #${o['Order ID']} (${o['Student Name']}) 无法打印，请看老师评语`;
+                        ? `💰 老师已为 #${o['Order ID']} (${o['Student Name']}) 报价：RM ${o['Total Price']}！点击查看 / Sebut harga baharu: RM ${o['Total Price']}`
+                        : `🚫 #${o['Order ID']} (${o['Student Name']}) 无法打印，请看老师评语 / Tidak boleh dicetak`;
                     showToast(msg, 'board');
                     alertTriggered = true;
                 }
@@ -3013,7 +3077,7 @@
                 const newTeacherMsgs = chats.slice(knownChatCount).filter(c => c.Sender === 'teacher');
                 if (newTeacherMsgs.length > 0) {
                     const last = newTeacherMsgs[newTeacherMsgs.length - 1];
-                    showToast(`💬 潘老师回复：${last.Text}`, 'chat');
+                    showToast(`💬 潘老师回复 / Balasan Cikgu：${last.Text}`, 'chat');
                     alertTriggered = true;
                 }
             }
@@ -3034,7 +3098,7 @@
                 const data = await res.json();
                 if (data && data.status === 'success') {
                     dot.classList.remove('offline');
-                    connText.innerText = '☁️ 云端实时连线中';
+                    connText.innerText = '☁️ 云端连线中 / Dalam Talian';
                     if (data.tg_bot_token) {
                         tgBotToken = data.tg_bot_token;
                         localStorage.setItem(LOCAL_TG_TOKEN_KEY, tgBotToken);
@@ -3062,7 +3126,7 @@
                 throw new Error('Unexpected response');
             } catch (err) {
                 dot.classList.add('offline');
-                connText.innerText = '💾 本地缓存模式 (待部署新版 Code.gs)';
+                connText.innerText = '💾 本地缓存模式 / Mod Luar Talian';
                 const merged = mergeWithLocal([], []);
                 checkNewAlerts(merged.mergedOrders, merged.mergedChats);
                 serverOrders = merged.mergedOrders;
