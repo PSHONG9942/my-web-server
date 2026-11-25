@@ -1950,9 +1950,18 @@
                 const selectEl = document.getElementById(targetId);
                 if (!selectEl) return;
 
+                const visibleOpts = Array.from(selectEl.options).filter(opt => !opt.hidden && !opt.disabled);
+                const sig = visibleOpts.map(opt => opt.value).join('|');
+                if (container.getAttribute('data-sig') === sig) {
+                    container.querySelectorAll('.color-swatch-btn').forEach(btn => {
+                        btn.classList.toggle('active', selectEl.value === btn.getAttribute('data-val'));
+                    });
+                    return;
+                }
+
+                container.setAttribute('data-sig', sig);
                 container.innerHTML = '';
-                Array.from(selectEl.options).forEach(opt => {
-                    if (opt.hidden || opt.disabled) return;
+                visibleOpts.forEach(opt => {
                     const val = opt.value;
                     const btn = document.createElement('button');
                     btn.type = 'button';
@@ -2015,6 +2024,13 @@
             const container = document.getElementById('clicker-layout-grid');
             const selectEl = document.getElementById('id_clicker_layout');
             if (!container || !selectEl) return;
+
+            if (container.children.length === clickerLayouts.length) {
+                container.querySelectorAll('.clicker-layout-btn').forEach(btn => {
+                    btn.classList.toggle('active', selectEl.value === btn.getAttribute('data-layout'));
+                });
+                return;
+            }
 
             container.innerHTML = '';
             clickerLayouts.forEach(item => {
@@ -2156,6 +2172,13 @@
 
         let previousModelChoice = '';
 
+        function setHtmlIfChanged(el, html) {
+            if (el && el.dataset.lastHtml !== html) {
+                el.innerHTML = html;
+                el.dataset.lastHtml = html;
+            }
+        }
+
         function updateUI() {
             const modelChoice = document.getElementById('id_model_choice').value;
             const modelChanged = modelChoice !== previousModelChoice;
@@ -2187,22 +2210,22 @@
 
             // 统一钥匙圈/铁环加购文案为 +RM1.00
             const ringLabel = document.getElementById('label_ring_addon');
-            ringLabel.innerHTML = '<b>加钥匙圈/铁环 (+RM1.00)</b> <i>Tambah Gelang Kunci Besi (+RM1.00)</i>';
+            setHtmlIfChanged(ringLabel, '<b>加钥匙圈/铁环 (+RM1.00)</b> <i>Tambah Gelang Kunci Besi (+RM1.00)</i>');
 
             // 更新主色标签
             const mainLabel = document.getElementById('label_main_color');
             if (modelChoice === 'Keychain') {
-                mainLabel.innerHTML = '<b>底板颜色</b> <i>Warna Tapak</i>:';
+                setHtmlIfChanged(mainLabel, '<b>底板颜色</b> <i>Warna Tapak</i>:');
             } else if (modelChoice === 'Tumbler') {
-                mainLabel.innerHTML = '<b>杯身颜色</b> <i>Warna Badan Tumbler</i>:';
+                setHtmlIfChanged(mainLabel, '<b>杯身颜色</b> <i>Warna Badan Tumbler</i>:');
             } else if (modelChoice === 'Clicker') {
-                mainLabel.innerHTML = '<b>底座颜色</b> <i>Warna Tapak</i>:';
+                setHtmlIfChanged(mainLabel, '<b>底座颜色</b> <i>Warna Tapak</i>:');
             } else if (modelChoice === 'MakerWorld') {
-                mainLabel.innerHTML = (mwColorMode === 'AMS_4Color')
+                setHtmlIfChanged(mainLabel, (mwColorMode === 'AMS_4Color')
                     ? '<b>第一种期望主色</b> <i>Warna Pilihan Pertama</i>:'
-                    : '<b>期望打印颜色（单色）</b> <i>Warna Pilihan (Satu Warna)</i>:';
+                    : '<b>期望打印颜色（单色）</b> <i>Warna Pilihan (Satu Warna)</i>:');
             } else {
-                mainLabel.innerHTML = '<b>身体颜色</b> <i>Warna Badan</i>:';
+                setHtmlIfChanged(mainLabel, '<b>身体颜色</b> <i>Warna Badan</i>:');
             }
 
             if (modelChoice === 'Keychain') {
@@ -2219,10 +2242,10 @@
                 document.getElementById('info-tumbler').style.display = 'block';
                 document.getElementById('preview-tumbler').style.display = 'block';
                 document.getElementById('field-main-color').style.display = 'block';
-                document.getElementById('label_secondary_color').innerHTML =
-                    '<b>杯盖与吸管颜色</b> <i>Warna Penutup &amp; Straw</i>:';
-                document.getElementById('helptext_secondary_color').innerHTML =
-                    '单色与双色统一 RM4.00。<i>Pilih "Tiada" untuk satu warna (Harga sama RM4.00).</i>';
+                setHtmlIfChanged(document.getElementById('label_secondary_color'),
+                    '<b>杯盖与吸管颜色</b> <i>Warna Penutup &amp; Straw</i>:');
+                setHtmlIfChanged(document.getElementById('helptext_secondary_color'),
+                    '单色与双色统一 RM4.00。<i>Pilih "Tiada" untuk satu warna (Harga sama RM4.00).</i>');
                 document.getElementById('section-secondary-color').style.display = 'block';
                 document.getElementById('section-ring-add-on').style.display = 'block';
 
@@ -2270,10 +2293,10 @@
                 document.getElementById('preview-clicker').style.display = 'block';
                 document.getElementById('field-clicker-layout').style.display = 'block';
                 document.getElementById('field-main-color').style.display = 'block';
-                document.getElementById('label_secondary_color').innerHTML =
-                    '<b>按键颜色</b> <i>Warna Butang</i>:';
-                document.getElementById('helptext_secondary_color').innerHTML =
-                    '选择喜欢的按键帽颜色。<i>Pilih warna butang kegemaran anda.</i>';
+                setHtmlIfChanged(document.getElementById('label_secondary_color'),
+                    '<b>按键颜色</b> <i>Warna Butang</i>:');
+                setHtmlIfChanged(document.getElementById('helptext_secondary_color'),
+                    '选择喜欢的按键帽颜色。<i>Pilih warna butang kegemaran anda.</i>');
                 document.getElementById('section-secondary-color').style.display = 'block';
                 document.getElementById('section-ring-add-on').style.display = 'block';
                 renderClickerLayoutButtons();
@@ -2285,13 +2308,13 @@
                 document.getElementById('section-mw-notes').style.display = 'block';
 
                 if (mwColorMode === 'AMS_4Color') {
-                    document.getElementById('label_secondary_color').innerHTML =
-                        '<b>第二种期望颜色</b> <i>Warna Pilihan Ke-2</i>:';
-                    document.getElementById('helptext_secondary_color').innerHTML =
-                        'AMS 最多支持 4 色打印。<i>AMS menyokong maksimum 4 warna sahaja.</i>';
+                    setHtmlIfChanged(document.getElementById('label_secondary_color'),
+                        '<b>第二种期望颜色</b> <i>Warna Pilihan Ke-2</i>:');
+                    setHtmlIfChanged(document.getElementById('helptext_secondary_color'),
+                        'AMS 最多支持 4 色打印。<i>AMS menyokong maksimum 4 warna sahaja.</i>');
                     document.getElementById('section-secondary-color').style.display = 'block';
-                    document.getElementById('label_tertiary_color').innerHTML =
-                        '<b>第三种期望颜色</b> <i>Warna Pilihan Ke-3</i>:';
+                    setHtmlIfChanged(document.getElementById('label_tertiary_color'),
+                        '<b>第三种期望颜色</b> <i>Warna Pilihan Ke-3</i>:');
                     document.getElementById('section-tertiary-color').style.display = 'block';
                     document.getElementById('section-fourth-color').style.display = 'block';
                 }
@@ -2341,17 +2364,23 @@
 
             if (modelChoice === 'MakerWorld') {
                 priceBox.classList.add('quote-mode');
-                priceMainLine.innerHTML = '<b>待老师评估报价</b> <i>Harga Akan Dinilai oleh Cikgu</i>';
+                if (submitBtn.getAttribute('data-mode') !== 'mw') {
+                    priceMainLine.innerHTML = '<b>待老师评估报价</b> <i>Harga Akan Dinilai oleh Cikgu</i>';
+                    submitBtn.innerHTML = '📨 <b>提交给老师评估报价</b> <i>Hantar untuk Sebut Harga</i>';
+                    submitBtn.setAttribute('data-mode', 'mw');
+                }
                 document.getElementById('price-breakdown').innerHTML =
                     `提交后潘老师会检查模型并回复报价（数量 / <i>Kuantiti</i>: ${quantity} 件 / unit）。<br><i>Cikgu akan menyemak model dan menghantar sebut harga melalui Papan Pesanan.</i>`;
-                submitBtn.innerHTML = '📨 <b>提交给老师评估报价</b> <i>Hantar untuk Sebut Harga</i>';
                 currentPrice = 0;
                 return;
             }
 
             priceBox.classList.remove('quote-mode');
-            priceMainLine.innerHTML = '<b>预计费用</b> <i>Harga Anggaran</i>: RM <span id="live-price">0.00</span>';
-            submitBtn.innerHTML = '<b>现在打印！</b> <i>Cetak Sekarang!</i>';
+            if (submitBtn.getAttribute('data-mode') !== 'std') {
+                priceMainLine.innerHTML = '<b>预计费用</b> <i>Harga Anggaran</i>: RM <span id="live-price">0.00</span>';
+                submitBtn.innerHTML = '<b>现在打印！</b> <i>Cetak Sekarang!</i>';
+                submitBtn.setAttribute('data-mode', 'std');
+            }
 
             if (modelChoice === 'Keychain') {
                 const kcText = document.getElementById('kc-text');
@@ -2507,8 +2536,17 @@
         }
 
         function generateOrderId() {
-            const num = Math.floor(1000 + Math.random() * 9000);
-            return '3D-' + num;
+            const existingIds = new Set([
+                ...serverOrders.map(o => String(o['Order ID'] || '')),
+                ...readLocalOrders().map(o => String(o['Order ID'] || ''))
+            ]);
+            for (let attempt = 0; attempt < 20; attempt++) {
+                const tsPart = String(Date.now() % 100).padStart(2, '0');
+                const randPart = String(Math.floor(1000 + Math.random() * 9000));
+                const candidate = '3D-' + tsPart + randPart;
+                if (!existingIds.has(candidate)) return candidate;
+            }
+            return '3D-' + String(Date.now()).slice(-6);
         }
 
         // 表单提交 -> 先校验 -> 弹出二次确认框
